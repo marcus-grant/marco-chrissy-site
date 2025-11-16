@@ -11,9 +11,9 @@ The site orchestrates multiple tools to generate static content deployed to Bunn
 
 - [TODO](TODO.md) - Project roadmap and task tracking
 - [Architecture](architecture.md) - System design and integration patterns
-- [Build Guide](build.md) - Building and testing the site
-- [Deployment Guide](deployment.md) - CDN deployment process
-- [Performance](performance.md) - Performance metrics and optimization
+- [Configuration Guide](bconfiguration.md) - Config file formats and examples
+- [Commands](commands/) - Command system and workflow documentation
+- [Modules](modules/) - Module organization and structure
 
 ### Component Documentation
 

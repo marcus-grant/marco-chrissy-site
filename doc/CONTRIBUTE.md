@@ -39,8 +39,10 @@
 * Documentation updates (Green phase):
   * When tests pass, update relevant documentation in `doc/`
   * Each subdirectory in `doc/` represents a topic
-  * Follow documentation hierarchy: documents link to same-level README → subdirectory README → parent README
-  * Only top-level README provides high-level overviews and links to directory-level or subdirectory READMEs
+  * **Documentation linking rule**: Only link to build adjacency lists
+    * Each README links to peer documents + immediate subdirectory READMEs only
+    * No deep linking from higher-level READMEs
+    * Creates clean hierarchical navigation: doc/README → topic directories → topic documents
   * **CRITICAL**: Every document must be linked in the documentation hierarchy starting from doc/README.md
   * No document should be a link orphan - all must be discoverable through the hierarchy
 * Implement in small steps with clear logical breaks:
@@ -80,6 +82,32 @@
   * Maximum line length of 88 characters (Black/Ruff default)
 * **2-space indentation** throughout templates and JS
   * **NOT** Python - Python uses 4 spaces
+
+## Galleria Development Rules
+
+* All HTML, CSS, and JS generation must be designed with plugin extensibility in mind from day one.
+
+## Module Organization Rules
+
+* Avoid catch-all patterns like 'core' or 'util' directories
+* 'util' only acceptable for singular-purpose modules with simple, testable, pure functions
+* Split generic vs domain-specific modules clearly 
+* Domain logic gets specific directories (e.g., galleria/template for all templating)
+
+## Command System Rules
+
+* Each command calls only its immediate predecessor (cascading pattern)
+* Commands chain automatically: `deploy` → `build` → `organize` → `validate`
+* No command should call multiple other commands directly
+* Fail fast with validation before expensive operations
+
+## Security & Deployment Rules
+
+* WE CAN NOT ALLOW CREDENTIALS TO LEAK
+* Sensitive configurations read from env vars
+* Code may look at env var values but NEVER read env vars directly
+* Only venv-related env vars are acceptable to read
+* Must guide user on what deployment commands to call
 
 ## Project-Specific Instructions
 
