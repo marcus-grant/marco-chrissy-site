@@ -1,0 +1,9 @@
+{
+  "name": "minimal",
+  "version": "0.1.0",
+  "description": "A minimal theme for Galleria photo galleries",
+  "templates_dir": "templates",
+  "static_dir": "static",
+  "thumbnail_size": 400,
+  "photos_per_page": 20
+}

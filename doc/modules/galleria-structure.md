@@ -8,12 +8,29 @@ Galleria is a focused gallery generator that converts NormPic manifests into sta
 
 ```
 galleria/
-├── generator/          # Orchestrates gallery generation workflow
-├── template/           # Template loading and rendering
-├── processor/          # Image processing (thumbnails, optimization)
-├── serializer/         # Config and manifest (de)serialization
-└── themes/            # Gallery themes and assets
+├── __init__.py         # Main module entry point
+├── doc/               # Galleria-specific documentation
+├── generator/         # Orchestrates gallery generation workflow
+│   └── __init__.py
+├── template/          # Template loading and rendering
+│   └── __init__.py
+├── processor/         # Image processing (thumbnails, optimization)
+│   └── __init__.py
+├── serializer/        # Config and manifest (de)serialization
+│   └── __init__.py
+└── themes/           # Gallery themes and assets
+    ├── __init__.py
+    └── minimal/      # Default minimal theme
+        ├── __init__.py
+        ├── config.json
+        ├── templates/
+        └── static/
 ```
+
+## Implementation Status
+
+**✅ Completed**: Core module directory structure and initialization files
+**🚧 Next**: Implement serializer module with NormPic schema compatibility
 
 ## Module Responsibilities
 
@@ -106,3 +123,9 @@ themes/
 - Themes can include plugin-specific templates
 - Plugin assets can extend theme assets
 - Plugin configuration integrated with theme config
+
+**Minimal Theme Configuration**:
+- Basic theme config with 400px thumbnails
+- 20 photos per page default
+- Modular template and static asset directories
+- Extensible for future theme variants

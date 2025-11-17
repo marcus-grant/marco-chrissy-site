@@ -5,16 +5,16 @@
 ### Phase 1: Galleria Development
 
 #### Core Functionality
-- [ ] Set up Galleria module structure
-  - [ ] Create galleria/generator/ directory with __init__.py
-  - [ ] Create galleria/processor/ directory with __init__.py  
-  - [ ] Create galleria/template/ directory with __init__.py
-  - [ ] Create galleria/serializer/ directory with __init__.py
-  - [ ] Create galleria/themes/ directory structure:
-    - [ ] Create galleria/themes/minimal/ directory
-    - [ ] Create galleria/themes/minimal/templates/ directory
-    - [ ] Create galleria/themes/minimal/static/ directory
-    - [ ] Create galleria/themes/minimal/config.json basic theme config
+- [x] Set up Galleria module structure
+  - [x] Create galleria/generator/ directory with __init__.py
+  - [x] Create galleria/processor/ directory with __init__.py  
+  - [x] Create galleria/template/ directory with __init__.py
+  - [x] Create galleria/serializer/ directory with __init__.py
+  - [x] Create galleria/themes/ directory structure:
+    - [x] Create galleria/themes/minimal/ directory
+    - [x] Create galleria/themes/minimal/templates/ directory
+    - [x] Create galleria/themes/minimal/static/ directory
+    - [x] Create galleria/themes/minimal/config.json basic theme config
 - [ ] Implement serializer module
   - [ ] Create `galleria/serializer/schemas.py`:
     - [ ] Copy NormPic's JSON schema definitions (v0.1.0)

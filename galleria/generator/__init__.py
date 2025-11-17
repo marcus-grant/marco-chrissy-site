@@ -1,0 +1,1 @@
+"""Gallery generator module."""
