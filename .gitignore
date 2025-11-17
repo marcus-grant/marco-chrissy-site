@@ -1,0 +1,67 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+.venv
+.env
+*.egg-info/
+dist/
+build/
+*.egg
+
+# uv
+.venv/
+uv.lock
+
+# Testing
+.coverage
+.pytest_cache/
+htmlcov/
+.tox/
+.coverage.*
+*.cover
+.hypothesis/
+
+# IDEs
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Project-specific
+output/
+*.log
+.cache/
+tmp/
+
+# Photos (should be managed by NormPic externally)
+*.jpg
+*.jpeg
+*.png
+*.webp
+*.heic
+*.raw
+
+# Secrets
+.env
+*.key
+*.pem
+config/secrets.json
+
+# Deployment
+.deploy/
+*.backup
+
+# Pelican
+pelican.pid
+srv.pid
+
+# Development
+*.tmp
+scratch/
