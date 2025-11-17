@@ -6,28 +6,75 @@
 
 #### Core Functionality
 - [ ] Set up Galleria module structure
-  - [ ] Create generator/ directory
-  - [ ] Create processor/ directory
-  - [ ] Create template/ directory
-  - [ ] Create serializer/ directory
-  - [ ] Create themes/ directory
+  - [ ] Create galleria/generator/ directory with __init__.py
+  - [ ] Create galleria/processor/ directory with __init__.py  
+  - [ ] Create galleria/template/ directory with __init__.py
+  - [ ] Create galleria/serializer/ directory with __init__.py
+  - [ ] Create galleria/themes/ directory structure:
+    - [ ] Create galleria/themes/minimal/ directory
+    - [ ] Create galleria/themes/minimal/templates/ directory
+    - [ ] Create galleria/themes/minimal/static/ directory
+    - [ ] Create galleria/themes/minimal/config.json basic theme config
 - [ ] Implement serializer module
-  - [ ] Parse NormPic JSON manifest
-  - [ ] Load and validate galleria configuration
-  - [ ] Handle schema validation for configs and manifests
+  - [ ] Create `galleria/serializer/schemas.py`:
+    - [ ] Copy NormPic's JSON schema definitions (v0.1.0)
+    - [ ] Add NOTE comment: code copied from NormPic, may extract to shared package
+    - [ ] Define GALLERIA_CONFIG_SCHEMA for galleria's own config
+    - [ ] Add schema validation helper functions
+  - [ ] Create `galleria/serializer/models.py` with dataclasses:
+    - [ ] Copy ManifestData, PicData, ErrorEntry, ProcessingStatus from NormPic
+    - [ ] Add NOTE comment: code copied from NormPic, may extract to shared package
+    - [ ] Add GalleriaConfig dataclass (manifest_path, output_dir, thumbnail_size, etc.)
+    - [ ] Ensure dataclasses match copied schema exactly
+  - [ ] Create `galleria/serializer/loader.py`:
+    - [ ] Implement `load_manifest(path: str) -> ManifestData`
+    - [ ] Implement `load_config(path: str) -> GalleriaConfig`
+    - [ ] Add JSON parsing with proper error handling
+  - [ ] Create `galleria/serializer/validation.py`:
+    - [ ] Implement manifest validation using copied schemas
+    - [ ] Implement galleria config validation
+    - [ ] Check version compatibility (support v0.1.0)
+  - [ ] Create `galleria/serializer/exceptions.py`:
+    - [ ] Copy relevant exception classes from NormPic
+    - [ ] Add NOTE comment: code copied from NormPic, may extract to shared package
+    - [ ] Add galleria-specific exceptions
+  - [ ] Create tests with NOTE comments that test cases copied from NormPic
 - [ ] Implement thumbnail processor
-  - [ ] Load original images from source paths
-  - [ ] Generate 400x400 square thumbnails
-  - [ ] Convert to WebP format
-  - [ ] Save to output directory
-- [ ] Implement template module
-  - [ ] Load HTML templates from themes
-  - [ ] Generate paginated HTML (60 photos/page)
-  - [ ] Create thumbnail grid layout
-  - [ ] Add navigation links (Previous/Next)
-  - [ ] Link thumbnails to full-size images
-  - [ ] Generate CSS stylesheets
-  - [ ] Support plugin template injection
+  - [ ] Create `galleria/processor/image.py` with ImageProcessor class
+  - [ ] Implement `process_image(source_path, output_path, size=400)` method:
+    - [ ] Load image with Pillow, handle format detection
+    - [ ] Generate 400x400 square crop (center crop strategy)
+    - [ ] Convert to WebP format with quality setting
+    - [ ] Save to output directory with proper naming
+  - [ ] Add naive thumbnail caching:
+    - [ ] Check if thumbnail file exists and source file mtime is older
+    - [ ] Skip processing if cache hit (simple file timestamp comparison)
+    - [ ] Cache can be cleared by 'clean' command if issues arise
+  - [ ] Add error handling for image processing failures
+  - [ ] Implement progress reporting for large collections
+- [ ] Develop plugin system using integration tests + TDD
+  - [ ] Create integration tests for core plugin workflow:
+    - [ ] Test manifest plugin loads NormPic manifests (v0.1.0)
+    - [ ] Test processor plugin generates thumbnails from manifest data
+    - [ ] Test template plugin renders pages from processed data
+    - [ ] Test CSS and pagination plugins integrate properly
+    - [ ] Test plugin hook points and data flow between plugins
+  - [ ] Implement plugin system and default plugins:
+    - [ ] Create plugin base classes and interfaces
+    - [ ] Create default manifest plugin for NormPic v0.1.0
+    - [ ] Create default template, CSS, pagination, and processor plugins
+- [ ] Develop `generate` command using E2E tests + TDD
+  - [ ] Create E2E tests for generate command:
+    - [ ] Test generate command loads and orchestrates plugins correctly
+    - [ ] Test default plugins work together end-to-end
+    - [ ] Test plugin hook points called at correct times in workflow
+  - [ ] Implement generate command that orchestrates plugin system
+- [ ] Develop `serve` command using E2E tests + TDD
+  - [ ] Create E2E tests for serve command:
+    - [ ] Test serve calls generate (cascading command pattern)
+    - [ ] Test serving generated gallery output
+    - [ ] Test hot reload functionality with plugin system
+  - [ ] Implement serve command that calls generate + serves locally
 - [ ] Design plugin interface (foundational)
   - [ ] Define plugin hook points
   - [ ] Create plugin base class/interface
@@ -96,12 +143,23 @@
   - [ ] Page weight (HTML + CSS + thumbnails)
   - [ ] Core Web Vitals (FCP, LCP, TTI, CLS, TBT)
   - [ ] Lighthouse scores
+  - [ ] Memory usage during gallery generation and deployment
 - [ ] Document baseline metrics
 - [ ] Create performance tracking spreadsheet
+- [ ] Deployment optimization
+  - [ ] Compare CDN manifest with local manifest to determine upload needs
+  - [ ] Photo collections: lazy upload (only changed files)
+  - [ ] Site content: always upload (smaller transfer, less optimization needed)
 
 ## Post-MVP Enhancements
 
 ### Near-term Optimizations
+- [ ] Comprehensive error handling improvements
+  - [ ] Manifest plugin errors (missing files, invalid JSON, version mismatches)
+  - [ ] Processor plugin errors (missing photos, corrupted files, permissions)
+  - [ ] Template plugin errors (missing themes, invalid syntax, rendering failures)
+  - [ ] Pipeline integration errors (plugin loading, dependency conflicts, crashes)
+  - [ ] System-level errors (permissions, disk space, memory issues)
 - [ ] Dark mode toggle (CSS variables + minimal JS)
 - [ ] Gallery performance optimization
   - [ ] Implement lazy loading with JS
@@ -162,6 +220,10 @@
   - [ ] Improve error messages and logging
   - [ ] Create development/debug mode
   - [ ] Performance optimization and profiling
+- [ ] Evaluate extracting schema definitions to shared package
+  - [ ] Assess whether NormPic and Galleria should share schema via tiny common package
+  - [ ] Consider maintenance overhead vs DRY benefits vs current code duplication
+  - [ ] Plan migration strategy if shared package approach is pursued
 
 ### Long-term Considerations
 - [ ] Django integration for dynamic features
