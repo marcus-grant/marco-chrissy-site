@@ -15,30 +15,18 @@
     - [x] Create galleria/themes/minimal/templates/ directory
     - [x] Create galleria/themes/minimal/static/ directory
     - [x] Create galleria/themes/minimal/config.json basic theme config
-- [ ] Implement serializer module
-  - [ ] Create `galleria/serializer/schemas.py`:
-    - [ ] Copy NormPic's JSON schema definitions (v0.1.0)
-    - [ ] Add NOTE comment: code copied from NormPic, may extract to shared package
-    - [ ] Define GALLERIA_CONFIG_SCHEMA for galleria's own config
-    - [ ] Add schema validation helper functions
-  - [ ] Create `galleria/serializer/models.py` with dataclasses:
-    - [ ] Copy ManifestData, PicData, ErrorEntry, ProcessingStatus from NormPic
-    - [ ] Add NOTE comment: code copied from NormPic, may extract to shared package
-    - [ ] Add GalleriaConfig dataclass (manifest_path, output_dir, thumbnail_size, etc.)
-    - [ ] Ensure dataclasses match copied schema exactly
-  - [ ] Create `galleria/serializer/loader.py`:
-    - [ ] Implement `load_manifest(path: str) -> ManifestData`
-    - [ ] Implement `load_config(path: str) -> GalleriaConfig`
-    - [ ] Add JSON parsing with proper error handling
-  - [ ] Create `galleria/serializer/validation.py`:
-    - [ ] Implement manifest validation using copied schemas
-    - [ ] Implement galleria config validation
-    - [ ] Check version compatibility (support v0.1.0)
-  - [ ] Create `galleria/serializer/exceptions.py`:
-    - [ ] Copy relevant exception classes from NormPic
-    - [ ] Add NOTE comment: code copied from NormPic, may extract to shared package
-    - [ ] Add galleria-specific exceptions
-  - [ ] Create tests with NOTE comments that test cases copied from NormPic
+- [x] Implement serializer module
+  - [x] Create `galleria/serializer/models.py` with Photo and PhotoCollection classes
+  - [x] Create `galleria/serializer/loader.py`:
+    - [x] Implement `load_photo_collection(path: str) -> PhotoCollection`
+    - [x] Add JSON parsing with proper error handling
+    - [x] Support NormPic v0.1.0 manifest format
+  - [x] Create `galleria/serializer/exceptions.py`:
+    - [x] ManifestNotFoundError and ManifestValidationError
+  - [x] Create comprehensive tests using TDD approach:
+    - [x] E2E integration tests for NormPic manifest loading
+    - [x] Unit tests for loader functionality
+    - [x] Error handling validation tests
 - [ ] Implement thumbnail processor
   - [ ] Create `galleria/processor/image.py` with ImageProcessor class
   - [ ] Implement `process_image(source_path, output_path, size=400)` method:
