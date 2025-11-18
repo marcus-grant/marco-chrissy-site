@@ -31,7 +31,8 @@ galleria/
 
 **✅ Completed**: Core module directory structure and initialization files
 **✅ Completed**: Serializer module with NormPic v0.1.0 compatibility and plugin architecture
-**🚧 Next**: Implement thumbnail processor module
+**✅ Completed**: Processor module with thumbnail generation and caching
+**🚧 Next**: Implement template rendering and theme system
 
 ## Module Responsibilities
 
@@ -82,6 +83,16 @@ galleria/
 - Handle image format conversion
 - Manage processing caches
 - Support plugin processing pipelines
+
+**Current Implementation**:
+- `ImageProcessor` - Main processing class
+- `process_image(source_path, output_dir, size=400, quality=85)` - Single image processing
+- `process_collection(collection, output_dir, ...)` - Batch processing with progress
+- `should_process(source_path, thumbnail_path)` - Naive caching via mtime comparison
+- Center crop strategy for non-square images
+- WebP output format with quality control
+- Comprehensive error handling (ImageProcessingError)
+- Progress callbacks for large collections
 
 **Interface**:
 - Called by generator during processing phase
