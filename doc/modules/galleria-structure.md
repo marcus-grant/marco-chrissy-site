@@ -84,7 +84,20 @@ galleria/
 - Manage processing caches
 - Support plugin processing pipelines
 
-**Status**: ✅ Implemented
+**Current Implementation**:
+- `ImageProcessor` - Main processing class
+- `process_image(source_path, output_dir, size=400, quality=85)` - Single image processing
+- `process_collection(collection, output_dir, ...)` - Batch processing with progress
+- `should_process(source_path, thumbnail_path)` - Naive caching via mtime comparison
+- Center crop strategy for non-square images
+- WebP output format with quality control
+- Comprehensive error handling (ImageProcessingError)
+- Progress callbacks for large collections
+
+**Interface**:
+- Called by generator during processing phase
+- Memory-efficient for large collections
+- Pluggable processing pipeline
 
 See [Processor Module Documentation](galleria/processor.md) for detailed API and implementation information.
 
