@@ -30,7 +30,8 @@ galleria/
 ## Implementation Status
 
 **✅ Completed**: Core module directory structure and initialization files
-**🚧 Next**: Implement serializer module with NormPic schema compatibility
+**✅ Completed**: Serializer module with NormPic v0.1.0 compatibility and plugin architecture
+**🚧 Next**: Implement thumbnail processor module
 
 ## Module Responsibilities
 
@@ -93,18 +94,30 @@ galleria/
 - Metadata extraction
 
 ### serializer/
-**Purpose**: Configuration and manifest (de)serialization
+**Purpose**: Photo collection provider system
 
 **Responsibilities**:
-- Parse NormPic JSON manifests
-- Load and validate galleria configuration
-- Convert between JSON and Python objects
-- Handle schema validation
+- Load photo collections from various sources (manifests, directories, databases)
+- Provide standardized photo data structures
+- Handle error validation and reporting
+- Support pluggable collection providers
+
+**Current Implementation**:
+- `load_photo_collection(path)` - Main entry point
+- `Photo` - Standardized photo data model (source_path, metadata, camera, GPS)
+- `PhotoCollection` - Container for photo collections with metadata
+- NormPic v0.1.0 manifest provider support
+- Comprehensive error handling (ManifestNotFoundError, ManifestValidationError)
+
+**Plugin Architecture**:
+- Designed for future PhotoCollectionProvider plugins
+- Support for non-manifest sources (directory scanning, databases, APIs)
+- Clean separation between data models and source providers
 
 **Interface**:
-- Used by all modules for data loading
-- Provides validated data structures
-- Centralized error handling for malformed data
+- Used by generator for loading photo collections
+- Provider-agnostic data structures
+- Extensible plugin system for new collection sources
 
 ### themes/
 **Purpose**: Theme assets and templates
