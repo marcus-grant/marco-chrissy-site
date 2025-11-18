@@ -2,6 +2,13 @@
 
 ## 2025-11-18
 
+* Reorganize Galleria module documentation into hierarchical structure
+  - Create doc/modules/galleria/ subdirectory for detailed module docs
+  - Add processor.md with comprehensive API documentation
+  - Add serializer.md with data model and loader documentation
+  - Simplify galleria-structure.md to be overview only
+  - Update modules/README.md to link to galleria subdirectory
+  - Follow one-level linking rule for documentation hierarchy
 * Implement Galleria processor module using TDD approach
   - Add ImageProcessor class with process_image method
   - Implement 400x400 square thumbnail generation with center crop strategy

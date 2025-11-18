@@ -99,10 +99,7 @@ galleria/
 - Memory-efficient for large collections
 - Pluggable processing pipeline
 
-**Plugin Support**:
-- Custom image filters
-- Additional output formats
-- Metadata extraction
+See [Processor Module Documentation](galleria/processor.md) for detailed API and implementation information.
 
 ### serializer/
 **Purpose**: Photo collection provider system
@@ -113,22 +110,9 @@ galleria/
 - Handle error validation and reporting
 - Support pluggable collection providers
 
-**Current Implementation**:
-- `load_photo_collection(path)` - Main entry point
-- `Photo` - Standardized photo data model (source_path, metadata, camera, GPS)
-- `PhotoCollection` - Container for photo collections with metadata
-- NormPic v0.1.0 manifest provider support
-- Comprehensive error handling (ManifestNotFoundError, ManifestValidationError)
+**Status**: ✅ Implemented
 
-**Plugin Architecture**:
-- Designed for future PhotoCollectionProvider plugins
-- Support for non-manifest sources (directory scanning, databases, APIs)
-- Clean separation between data models and source providers
-
-**Interface**:
-- Used by generator for loading photo collections
-- Provider-agnostic data structures
-- Extensible plugin system for new collection sources
+See [Serializer Module Documentation](galleria/serializer.md) for detailed API and implementation information.
 
 ### themes/
 **Purpose**: Theme assets and templates
