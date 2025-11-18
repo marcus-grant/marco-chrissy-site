@@ -133,3 +133,58 @@ class TestLoadPhotoCollection:
             load_photo_collection(str(manifest_path))
 
         assert "collection_name" in str(exc_info.value)
+
+    def test_load_photo_collection_handles_invalid_json(self, tmp_path):
+        """Test that invalid JSON raises appropriate error."""
+        # Arrange
+        manifest_path = tmp_path / "invalid.json"
+        manifest_path.write_text("{ invalid json content")
+
+        # Act & Assert
+        from galleria.serializer.loader import load_photo_collection
+
+        with pytest.raises(json.JSONDecodeError):
+            load_photo_collection(str(manifest_path))
+
+    def test_load_photo_collection_handles_missing_pics_field(self, tmp_path):
+        """Test that missing pics field defaults to empty list."""
+        # Arrange
+        manifest_path = tmp_path / "manifest.json"
+        manifest_data = {
+            "version": "0.1.0",
+            "collection_name": "test",
+            "generated_at": "2024-10-05T14:00:00Z",
+            # No pics field
+        }
+        manifest_path.write_text(json.dumps(manifest_data))
+
+        # Act
+        from galleria.serializer.loader import load_photo_collection
+        collection = load_photo_collection(str(manifest_path))
+
+        # Assert
+        assert collection.name == "test"
+        assert len(collection.photos) == 0
+
+    def test_load_photo_collection_handles_malformed_pic_data(self, tmp_path):
+        """Test that malformed pic data raises appropriate error."""
+        # Arrange
+        manifest_path = tmp_path / "manifest.json"
+        manifest_data = {
+            "version": "0.1.0",
+            "collection_name": "test",
+            "generated_at": "2024-10-05T14:00:00Z",
+            "pics": [
+                {
+                    "source_path": "/path/to/source.jpg",
+                    # Missing required fields like dest_path, hash, etc.
+                }
+            ],
+        }
+        manifest_path.write_text(json.dumps(manifest_data))
+
+        # Act & Assert
+        from galleria.serializer.loader import load_photo_collection
+
+        with pytest.raises(KeyError):  # Should fail on missing required pic fields
+            load_photo_collection(str(manifest_path))
