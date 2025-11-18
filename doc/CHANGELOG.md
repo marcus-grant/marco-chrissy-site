@@ -2,6 +2,14 @@
 
 ## 2025-11-18
 
+* Implement Galleria processor module using TDD approach
+  - Add ImageProcessor class with process_image method
+  - Implement 400x400 square thumbnail generation with center crop strategy
+  - Add WebP format conversion with configurable quality settings
+  - Implement naive thumbnail caching using mtime comparison
+  - Add error handling for corrupted or missing images
+  - Implement progress reporting for large photo collections
+  - Add comprehensive integration and unit test coverage (17 tests)
 * Implement Galleria serializer module using TDD approach
 * Add NormPic v0.1.0 manifest loading support
 * Create Photo and PhotoCollection data models

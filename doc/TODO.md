@@ -27,19 +27,19 @@
     - [x] E2E integration tests for NormPic manifest loading
     - [x] Unit tests for loader functionality
     - [x] Error handling validation tests
-- [ ] Implement thumbnail processor
-  - [ ] Create `galleria/processor/image.py` with ImageProcessor class
-  - [ ] Implement `process_image(source_path, output_path, size=400)` method:
-    - [ ] Load image with Pillow, handle format detection
-    - [ ] Generate 400x400 square crop (center crop strategy)
-    - [ ] Convert to WebP format with quality setting
-    - [ ] Save to output directory with proper naming
-  - [ ] Add naive thumbnail caching:
-    - [ ] Check if thumbnail file exists and source file mtime is older
-    - [ ] Skip processing if cache hit (simple file timestamp comparison)
-    - [ ] Cache can be cleared by 'clean' command if issues arise
-  - [ ] Add error handling for image processing failures
-  - [ ] Implement progress reporting for large collections
+- [x] Implement thumbnail processor
+  - [x] Create `galleria/processor/image.py` with ImageProcessor class
+  - [x] Implement `process_image(source_path, output_path, size=400)` method:
+    - [x] Load image with Pillow, handle format detection
+    - [x] Generate 400x400 square crop (center crop strategy)
+    - [x] Convert to WebP format with quality setting
+    - [x] Save to output directory with proper naming
+  - [x] Add naive thumbnail caching:
+    - [x] Check if thumbnail file exists and source file mtime is older
+    - [x] Skip processing if cache hit (simple file timestamp comparison)
+    - [x] Cache can be cleared by 'clean' command if issues arise
+  - [x] Add error handling for image processing failures
+  - [x] Implement progress reporting for large collections
 - [ ] Develop plugin system using integration tests + TDD
   - [ ] Create integration tests for core plugin workflow:
     - [ ] Test manifest plugin loads NormPic manifests (v0.1.0)
