@@ -8,7 +8,8 @@ This project follows functional module organization with clear separation of con
 
 - [Organization Patterns](patterns.md) - Rules and anti-patterns for module structure
 - [Site Project Structure](site-structure.md) - Main site project modules
-- [Galleria Structure](galleria-structure.md) - Gallery generator modules
+- [Galleria Structure](galleria-structure.md) - Gallery generator overview
+- [Galleria Modules](galleria/) - Detailed Galleria module documentation
 
 ## Key Principles
 
