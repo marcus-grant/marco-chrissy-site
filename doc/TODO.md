@@ -6,34 +6,55 @@
 
 #### Core Functionality - Plugin System Development
 
-**Commit 1: Base Plugin Interface + E2E Tests**
-- [ ] Create E2E integration test for complete plugin workflow (Provider → Processor → Template → CSS → Pagination)
-- [ ] Create `galleria/plugins/base.py` with abstract base plugin class
-- [ ] Design plugin contract, hook system, error handling patterns
-- [ ] **Docs:** Create `doc/modules/galleria/plugin-system.md` - Plugin system architecture overview
-- [ ] **Docs:** Update `doc/modules/galleria/README.md` to link to plugin-system.md
-- [ ] **Message:** `Ft: Add base plugin interface for unified plugin system`
+- [x] **Commit 1a: Test Directories + Base Plugin Interface** (COMPLETED)
+  - [x] Create test directory structure (e2e/, integration/, unit/)
+  - [x] Create `galleria/plugins/base.py` with abstract base plugin class
+  - [x] Create unit tests for BasePlugin ABC
+  - [x] **Message:** `Ft: Add base plugin interface and test structure`
 
-**Commit 2: Plugin Interface Definitions + Integration Tests**
-- [ ] Create failing integration tests for each plugin type interaction
-- [ ] Create ProviderPlugin interface for photo collection sources
-- [ ] Create ProcessorPlugin interface for thumbnail generation
-- [ ] Create TemplatePlugin interface for HTML generation
-- [ ] Create CSSPlugin interface for stylesheet generation
-- [ ] Create PaginationPlugin interface for multi-page support
-- [ ] **Docs:** Update `doc/modules/galleria/plugin-system.md` with interface contracts
-- [ ] **Docs:** Create `doc/modules/galleria/plugin-interfaces.md` - Detailed interface specifications
-- [ ] **Message:** `Ft: Add plugin interfaces for provider, processor, template, CSS, pagination`
+- [ ] **Commit 1b: Plugin Context/Result Data Structures**
+  - [ ] Add PluginContext and PluginResult dataclasses to base.py
+  - [ ] Update unit tests for data structures
+  - [ ] **Message:** `Ft: Add plugin context and result data structures`
 
-**Commit 3: NormPicProviderPlugin + Unit Tests (TDD)**
-- [ ] Write failing unit tests for NormPicProviderPlugin behavior
-- [ ] Convert existing serializer to proper NormPicProviderPlugin using TDD (red → green → refactor)
-- [ ] Migrate existing serializer tests to work with plugin interface
-- [ ] **Docs:** Update `doc/provider-architecture.md` to reflect plugin system integration
-- [ ] **Docs:** Update `doc/modules/galleria/serializer.md` to document plugin approach
-- [ ] **Message:** `Ref: Convert serializer to NormPicProviderPlugin`
+- [ ] **Commit 1c: Plugin Exceptions**
+  - [ ] Create `galleria/plugins/exceptions.py` with exception hierarchy
+  - [ ] Add unit tests for plugin exceptions
+  - [ ] **Message:** `Ft: Add plugin exception hierarchy`
+
+- [ ] **Commit 1d: Hook System + Documentation**
+  - [ ] Create `galleria/manager/` directory and hook system
+  - [ ] Create E2E integration test for complete plugin workflow
+    - (Provider → Processor → Transform → Template → CSS)
+  - [ ] **Docs:** Create `doc/modules/galleria/plugin-system.md`
+    - Plugin system architecture overview
+  - [ ] **Docs:** Update `doc/modules/galleria/README.md` to link to plugin-system.md
+  - [ ] **Message:** `Ft: Add plugin hook system and complete foundation`
+
+- [ ] **Commit 2: Plugin Interface Definitions + Integration Tests**
+  - [ ] Create failing integration tests for each plugin type interaction
+  - [ ] Create ProviderPlugin interface for photo collection sources
+  - [ ] Create ProcessorPlugin interface for thumbnail generation
+  - [ ] Create TemplatePlugin interface for HTML generation
+  - [ ] Create CSSPlugin interface for stylesheet generation
+  - [ ] Create PaginationPlugin interface for multi-page support
+  - [ ] **Docs:** Update `doc/modules/galleria/plugin-system.md` with interface contracts
+  - [ ] **Docs:** Create `doc/modules/galleria/plugin-interfaces.md`
+    - Detailed interface specifications
+  - [ ] **Message:**
+    - `Ft: Add plugin interfaces for provider, processor, template, CSS, pagination`
+
+- [ ] **Commit 3: NormPicProviderPlugin + Unit Tests (TDD)**
+  - [ ] Write failing unit tests for NormPicProviderPlugin behavior
+  - [ ] Convert existing serializer to proper NormPicProviderPlugin using TDD
+    - (red → green → refactor)
+  - [ ] Migrate existing serializer tests to work with plugin interface
+  - [ ] **Docs:** Update `doc/provider-architecture.md` reflecting plugin system integration
+  - [ ] **Docs:** Update `doc/modules/galleria/serializer.md` to document plugin approach
+  - [ ] **Message:** `Ref: Convert serializer to NormPicProviderPlugin`
 
 **Commit 4: ThumbnailProcessorPlugin + Unit Tests (TDD)**
+
 - [ ] Write failing unit tests for ThumbnailProcessorPlugin behavior
 - [ ] Convert existing processor to proper ThumbnailProcessorPlugin using TDD (red → green → refactor)
 - [ ] Migrate existing processor tests to work with plugin interface
@@ -41,6 +62,7 @@
 - [ ] **Message:** `Ref: Convert processor to ThumbnailProcessorPlugin`
 
 **Commit 5: Plugin Registry + Integration Tests**
+
 - [ ] Write integration tests for plugin discovery and orchestration
 - [ ] Create plugin registry/factory system
 - [ ] Implement plugin loading and orchestration mechanisms
@@ -49,6 +71,7 @@
 - [ ] **Message:** `Ft: Add plugin registry and orchestration system`
 
 **Commit 6: Missing Plugins + Unit Tests (TDD)**
+
 - [ ] Write failing unit tests for TemplatePlugin behavior
 - [ ] Write failing unit tests for CSSPlugin behavior
 - [ ] Write failing unit tests for PaginationPlugin behavior
@@ -60,6 +83,7 @@
 - [ ] **Message:** `Ft: Add template, CSS, and pagination plugins`
 
 **Commit 7: Complete E2E Workflow**
+
 - [ ] Ensure original E2E integration test passes end-to-end
 - [ ] Validate all integration and unit tests passing
 - [ ] Test complete plugin pipeline: Provider → Processor → Template → CSS → Pagination
@@ -68,6 +92,7 @@
 - [ ] **Message:** `Ft: Complete plugin system with E2E workflow`
 
 **Testing Methodology:** E2E Integration → Unit TDD → Back to Integration → Full E2E validation
+
 - [ ] Develop `generate` command using E2E tests + TDD
   - [ ] Create E2E tests for generate command:
     - [ ] Test generate command loads and orchestrates plugins correctly
@@ -93,13 +118,15 @@
   - [ ] Integrate plugin hook points
 
 #### CLI Interface
-- [ ] Create __main__.py entry point
+
+- [ ] Create **main**.py entry point
 - [ ] Implement --config flag
 - [ ] Add --verbose flag
 - [ ] Add --dry-run flag
 - [ ] Handle errors gracefully
 
 #### Testing & Validation
+
 - [ ] Set up pytest structure for Galleria
 - [ ] Test manifest reader
 - [ ] Test thumbnail processor
@@ -109,12 +136,14 @@
 - [ ] Test Galleria with wedding photo collection
 
 #### Documentation
+
 - [ ] Document Galleria configuration format
 - [ ] Update Galleria architecture guide
 - [ ] Write Galleria usage examples
 - [ ] Document theme structure
 
 ### Phase 2: Site Structure
+
 - [ ] Set up site project module structure
   - [ ] Create build/ directory
   - [ ] Create validation/ directory
@@ -139,11 +168,13 @@
   - [ ] Galleria config for wedding gallery
 
 ### Phase 3: Integration Testing
+
 - [ ] Test command system end-to-end
 - [ ] Validate site generation workflow
 - [ ] Test Galleria + Pelican integration
 
 ### Phase 4: Performance Baseline
+
 - [ ] Measure initial performance metrics
   - [ ] Page weight (HTML + CSS + thumbnails)
   - [ ] Core Web Vitals (FCP, LCP, TTI, CLS, TBT)
@@ -159,6 +190,7 @@
 ## Post-MVP Enhancements
 
 ### Near-term Optimizations
+
 - [ ] Comprehensive error handling improvements
   - [ ] Manifest plugin errors (missing files, invalid JSON, version mismatches)
   - [ ] Processor plugin errors (missing photos, corrupted files, permissions)
@@ -188,6 +220,7 @@
 - [ ] Add vacation gallery
 
 ### Medium-term Features
+
 - [ ] Galleria plugin system implementation
   - [ ] Implement plugin loading mechanism
   - [ ] Create example plugins
@@ -209,12 +242,14 @@
 - [ ] Christmas card pages
 
 ### Infrastructure Improvements
+
 - [ ] GitHub Actions CI/CD pipeline
 - [ ] Docker containerization consideration
 - [ ] Ansible automation evaluation
 - [ ] CDN optimization (separate bucket strategies)
 
 ### Galleria Extraction Preparation
+
 - [ ] Galleria independence audit
   - [ ] Ensure no parent project dependencies
   - [ ] Verify self-contained module structure
@@ -231,6 +266,7 @@
   - [ ] Plan migration strategy if shared package approach is pursued
 
 ### Long-term Considerations
+
 - [ ] Django integration for dynamic features
 - [ ] CMS integration (Wagtail evaluation)
 - [ ] API endpoints for gallery data
@@ -244,6 +280,7 @@
 ## Success Criteria
 
 MVP is complete when:
+
 1. \u2705 Wedding gallery is live on Bunny CDN
 2. \u2705 Gallery index and about pages are live
 3. \u2705 Site works without JavaScript
@@ -259,3 +296,4 @@ MVP is complete when:
 - Design plugin interface from day one - modularity is foundational
 - Plugin hooks should be lightweight and clearly defined
 - Each component should be pluggable without tight coupling
+

@@ -1,5 +1,15 @@
 # Changelog
 
+## 2025-11-19
+
+* Implement Galleria plugin system foundation
+  - Create base plugin interface with abstract BasePlugin class
+  - Add plugin system directory structure (galleria/plugins/)
+  - Implement abstract methods for plugin name and version properties
+  - Add comprehensive unit tests for plugin interface contracts (6 tests)
+  - Create organized test structure (e2e/, integration/, unit/ directories)
+  - Follow TDD approach with failing tests first, then implementation
+
 ## 2025-11-18
 
 * Reorganize Galleria module documentation into hierarchical structure
