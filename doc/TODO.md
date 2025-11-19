@@ -12,10 +12,10 @@
   - [x] Create unit tests for BasePlugin ABC
   - [x] **Message:** `Ft: Add base plugin interface and test structure`
 
-- [ ] **Commit 1b: Plugin Context/Result Data Structures**
-  - [ ] Add PluginContext and PluginResult dataclasses to base.py
-  - [ ] Update unit tests for data structures
-  - [ ] **Message:** `Ft: Add plugin context and result data structures`
+- [x] **Commit 1b: Plugin Context/Result Data Structures** (COMPLETED)
+  - [x] Add PluginContext and PluginResult dataclasses to base.py
+  - [x] Update unit tests for data structures
+  - [x] **Message:** `Ft: Add plugin context and result data structures`
 
 - [ ] **Commit 1c: Plugin Exceptions**
   - [ ] Create `galleria/plugins/exceptions.py` with exception hierarchy
