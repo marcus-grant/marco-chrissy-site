@@ -22,76 +22,71 @@
 - [x] **Docs:** Update `doc/modules/galleria/processor.md` to document plugin approach
 - [x] **Message:** `Ref: Convert processor to ThumbnailProcessorPlugin`
 
-**Commit 5: Plugin Registry + Integration Tests (TDD)**
+- [x] **Commit 5: Plugin Registry + Integration Tests (TDD)** (COMPLETED)
+  - [x] PluginRegistry fully implements plugin discovery and orchestration
+  - [x] Integration tests demonstrate complete Provider → Processor pipeline
+  - [x] Plugin loading mechanism handles dependencies and configuration
+  - [x] Documentation updated to reflect orchestration capabilities
+  - [x] Test count progression: 161 → 170-180 tests
+  - [x] Foundation ready for Commit 6 (Template/CSS/Transform plugins)
+  - [x] **Message:** `Ft: Add plugin registry and orchestration system`
 
-**Phase 1: E2E Integration Tests (Red Phase)**
-- [ ] Create `test/test_plugin_integration.py` with failing E2E tests
-- [ ] Write test for complete Provider → Processor pipeline via registry
-- [ ] Write test for plugin discovery and registration workflow
-- [ ] Write test for orchestrated workflow from NormPic manifest to thumbnails
-- [ ] Verify all integration tests FAIL initially (red phase requirement)
+- [x] **Commit 6: Missing Plugins + Unit Tests (TDD)** (COMPLETED)
+  - [x] TemplatePlugin, CSSPlugin, and PaginationPlugin fully implemented
+  - [x] All unit tests passing for new plugin interfaces (28 tests added)
+  - [x] E2E test demonstrates complete 5-stage pipeline
+  - [x] Documentation updated with plugin usage examples
+  - [x] Foundation ready for Commit 7 (Complete E2E Workflow)
+  - [x] **Message:** `Complete Template, CSS, and Pagination plugin implementations`
 
-**Phase 2: Unit Tests (Red Phase)**
-- [ ] Create `test/galleria/test_plugin_registry.py` with failing unit tests
-- [ ] Write tests for `PluginRegistry.register()` method behavior
-- [ ] Write tests for `PluginRegistry.get_plugin()` method behavior
-- [ ] Write tests for plugin discovery mechanisms
-- [ ] Write tests for error handling (missing/duplicate plugins)
-- [ ] Verify all unit tests FAIL initially (red phase requirement)
+**Commit 7: E2E Real Plugin Integration (4 small commits)**
 
-**Phase 3: Implementation (Green Phase)**
-- [ ] Implement `galleria/plugins/registry.py` - `PluginRegistry` class
-  - [ ] Plugin registration and discovery functionality
-  - [ ] Plugin loading with error handling
-  - [ ] Plugin dependency resolution
-- [ ] Implement `galleria/manager/pipeline.py` - `PipelineManager` class
-  - [ ] Stage execution coordination
-  - [ ] Integration with existing `PluginHookManager`
-  - [ ] Data flow management between plugin stages
-- [ ] Make failing unit tests pass one by one (green phase)
-- [ ] Make failing integration tests pass (green phase)
+- [ ] **Commit 7a: `Tst: Add real plugin E2E integration tests`** (~75-100 lines)
+  - [ ] Create failing E2E test using actual NormPicProvider → ThumbnailProcessor → etc.
+  - [ ] Test PipelineManager orchestrating real plugins (not mocks)
+  - [ ] Verify test fails as expected (red phase)
 
-**Phase 4: Documentation & Validation**
-- [ ] **Docs:** Update `doc/modules/galleria/plugin-system.md` section on plugin registry
-  - [ ] Add `PluginRegistry` API documentation with examples
-  - [ ] Add `PipelineManager` orchestration documentation
-  - [ ] Add plugin discovery workflow documentation
-- [ ] **Docs:** Add new section to `doc/modules/galleria/plugin-system.md` on orchestration
-  - [ ] Document complete pipeline execution patterns
-  - [ ] Add configuration examples for plugin loading
-  - [ ] Add troubleshooting guide for plugin discovery issues
-- [ ] Run full test suite to ensure no regressions
-- [ ] Verify test count reaches 170-180 tests target
-- [ ] **Message:** `Ft: Add plugin registry and orchestration system`
+- [ ] **Commit 7b: `Fix: Plugin registry integration issues`** (~100-150 lines)
+  - [ ] Fix plugin loading/registration discovered by E2E failure
+  - [ ] Make E2E test progress further but still fail
 
-**Expected Outcomes After Commit 5:**
-- PluginRegistry fully implements plugin discovery and orchestration
-- Integration tests demonstrate complete Provider → Processor pipeline
-- Plugin loading mechanism handles dependencies and configuration
-- Documentation updated to reflect orchestration capabilities
-- Test count progression: 161 → 170-180 tests
-- Foundation ready for Commit 6 (Template/CSS/Transform plugins)
+- [ ] **Commit 7c: `Fix: Data contract validation between plugins`** (~100-150 lines)
+  - [ ] Fix data format mismatches between real plugins
+  - [ ] Handle any contract issues discovered by E2E test
 
-**Commit 6: Missing Plugins + Unit Tests (TDD)**
+- [ ] **Commit 7d: `Ft: Complete real plugin E2E workflow`** (~50-100 lines)
+  - [ ] Final fixes to make E2E test fully pass
+  - [ ] Real plugin pipeline working end-to-end
 
-- [ ] Write failing unit tests for TemplatePlugin behavior
-- [ ] Write failing unit tests for CSSPlugin behavior
-- [ ] Write failing unit tests for PaginationPlugin behavior
-- [ ] Implement TemplatePlugin using TDD (red → green → refactor)
-- [ ] Implement CSSPlugin using TDD (red → green → refactor)
-- [ ] Implement PaginationPlugin using TDD (red → green → refactor)
-- [ ] **Docs:** Create `doc/modules/galleria/template-plugins.md` - Template/CSS/Pagination plugin documentation
-- [ ] **Docs:** Update `doc/modules/galleria/plugin-system.md` with complete plugin catalog
-- [ ] **Message:** `Ft: Add template, CSS, and pagination plugins`
+**Commit 8: CLI Generate Command (5 small commits)**
 
-**Commit 7: Complete E2E Workflow**
+- [ ] **Commit 8a: `Tst: Add CLI generate command E2E tests`** (~75-100 lines)
+  - [ ] Create failing E2E test for `galleria generate --config config.json`
+  - [ ] Test argument parsing, config loading, plugin execution
+  - [ ] Verify test fails (no CLI exists yet)
 
-- [ ] Ensure original E2E integration test passes end-to-end
-- [ ] Validate all integration and unit tests passing
-- [ ] Test complete plugin pipeline: Provider → Processor → Template → CSS → Pagination
-- [ ] **Docs:** Update `doc/architecture.md` with plugin system integration
-- [ ] **Docs:** Update `doc/README.md` links if new docs added
-- [ ] **Message:** `Ft: Complete plugin system with E2E workflow`
+- [ ] **Commit 8b: `Ft: Add CLI entry point and argument parsing`** (~100-150 lines)
+  - [ ] Implement `galleria/__main__.py`
+  - [ ] Basic argument parsing with --config, --output, --verbose flags
+
+- [ ] **Commit 8c: `Ft: Add configuration loading system`** (~100-150 lines)
+  - [ ] Implement config file loading and validation
+  - [ ] Plugin configuration handling
+
+- [ ] **Commit 8d: `Ft: Implement generate command logic`** (~100-150 lines)
+  - [ ] Connect CLI to PipelineManager
+  - [ ] Progress reporting and error handling
+
+- [ ] **Commit 8e: `Tst: Validate generate command E2E`** (~50-75 lines)
+  - [ ] Ensure E2E test passes fully
+  - [ ] Add any missing error handling
+
+**Commit 9: Documentation (1 commit)**
+
+- [ ] **Commit 9a: `Doc: Update architecture and CLI documentation`** (~100-150 lines)
+  - [ ] Update `doc/architecture.md` with plugin integration
+  - [ ] Document CLI usage and configuration format
+  - [ ] Update `doc/README.md` links
 
 **Testing Methodology:** E2E Integration → Unit TDD → Back to Integration → Full E2E validation
 
