@@ -3,6 +3,8 @@
 
 class PluginRegistry:
     """Registry for managing plugin instances and discovery."""
+    
+    VALID_STAGES = {"provider", "processor", "transform", "template", "css"}
 
     def __init__(self):
         """Initialize empty plugin registry."""
@@ -14,7 +16,13 @@ class PluginRegistry:
         Args:
             plugin: Plugin instance to register
             stage: Stage name (e.g., 'provider', 'processor')
+            
+        Raises:
+            ValueError: If stage is not valid
         """
+        if stage not in self.VALID_STAGES:
+            raise ValueError(f"Invalid stage '{stage}'. Valid stages: {sorted(self.VALID_STAGES)}")
+        
         if stage not in self._plugins:
             self._plugins[stage] = []
         self._plugins[stage].append(plugin)
@@ -28,7 +36,13 @@ class PluginRegistry:
             
         Returns:
             Plugin instance if found, None otherwise
+            
+        Raises:
+            ValueError: If stage is not valid
         """
+        if stage not in self.VALID_STAGES:
+            raise ValueError(f"Invalid stage '{stage}'. Valid stages: {sorted(self.VALID_STAGES)}")
+        
         if stage not in self._plugins:
             return None
         
