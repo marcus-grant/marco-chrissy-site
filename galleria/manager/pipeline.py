@@ -77,3 +77,41 @@ class PipelineManager:
             )
         
         return result
+
+    def execute_workflow(self, workflow_name, **kwargs):
+        """Execute a predefined workflow.
+        
+        Args:
+            workflow_name: Name of workflow to execute
+            **kwargs: Workflow-specific parameters
+            
+        Returns:
+            PluginResult with workflow execution results
+        """
+        # Define supported workflows
+        workflows = {
+            "manifest-to-thumbnails": [
+                {"stage": "provider", "plugin": "normpic-provider"},
+                {"stage": "processor", "plugin": "thumbnail-processor"}
+            ]
+        }
+        
+        if workflow_name not in workflows:
+            return PluginResult(
+                success=False,
+                output_data={},
+                errors=[f"Unknown workflow '{workflow_name}'. Available: {list(workflows.keys())}"]
+            )
+        
+        # Create initial context from workflow parameters
+        from ..plugins.base import PluginContext
+        initial_context = PluginContext(
+            input_data={"manifest_path": kwargs.get("manifest_path")},
+            config={},
+            output_dir=kwargs.get("output_dir"),
+            metadata={"workflow": workflow_name}
+        )
+        
+        # Execute the workflow stages
+        stages = workflows[workflow_name]
+        return self.execute_stages(stages, initial_context)

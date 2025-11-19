@@ -191,3 +191,79 @@ class TestPipelineManagerBasic:
         
         assert result.success is False
         assert "Simulated failure" in str(result.errors)
+
+    def test_execute_workflow_provides_high_level_api(self):
+        """Test that execute_workflow() provides convenient high-level API."""
+        from galleria.manager.pipeline import PipelineManager
+        from galleria.plugins.registry import PluginRegistry
+        from galleria.plugins.base import BasePlugin, PluginContext, PluginResult
+        from pathlib import Path
+        
+        class MockProviderPlugin(BasePlugin):
+            @property
+            def name(self):
+                return "normpic-provider"
+            
+            @property  
+            def version(self):
+                return "1.0.0"
+            
+            def execute(self, context):
+                return PluginResult(
+                    success=True,
+                    output_data={"collection_name": "test", "photos": [{"filename": "test.jpg"}]},
+                    metadata={"stage": "provider"}
+                )
+        
+        class MockProcessorPlugin(BasePlugin):
+            @property
+            def name(self):
+                return "thumbnail-processor"
+            
+            @property  
+            def version(self):
+                return "1.0.0"
+            
+            def execute(self, context):
+                photos = context.input_data.get("photos", [])
+                return PluginResult(
+                    success=True,
+                    output_data={"collection_name": context.input_data["collection_name"], "photos": photos},
+                    metadata={"stage": "processor"}
+                )
+        
+        # Setup registry with plugins
+        registry = PluginRegistry()
+        provider = MockProviderPlugin()
+        processor = MockProcessorPlugin()
+        registry.register(provider, stage="provider")
+        registry.register(processor, stage="processor")
+        
+        # Setup manager
+        manager = PipelineManager(registry=registry)
+        
+        # This should execute complete manifest-to-thumbnails workflow
+        result = manager.execute_workflow("manifest-to-thumbnails", 
+                                        manifest_path=Path("/tmp/manifest.json"),
+                                        output_dir=Path("/tmp/output"))
+        
+        assert result.success is True
+        assert "collection_name" in result.output_data
+        assert result.output_data["collection_name"] == "test"
+
+    def test_execute_workflow_handles_unknown_workflow(self):
+        """Test that execute_workflow() handles unknown workflow types."""
+        from galleria.manager.pipeline import PipelineManager
+        from galleria.plugins.registry import PluginRegistry
+        from pathlib import Path
+        
+        registry = PluginRegistry()
+        manager = PipelineManager(registry=registry)
+        
+        # This should handle unknown workflow gracefully
+        result = manager.execute_workflow("unknown-workflow", 
+                                        manifest_path=Path("/tmp/test.json"),
+                                        output_dir=Path("/tmp/output"))
+        
+        assert result.success is False
+        assert "Unknown workflow" in str(result.errors)
