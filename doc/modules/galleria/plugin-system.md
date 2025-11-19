@@ -285,8 +285,8 @@ class MyCSS(CSSPlugin):
 ```
 
 **Example Implementations:**
+- **BasicCSSPlugin**: Comprehensive stylesheet generation with theme support
 - **ResponsiveCSS**: Mobile-first responsive styles (future)
-- **ThemeCSS**: Theme-based styling systems (future)
 - **UtilityCSS**: Utility-first CSS generation (future)
 
 ## Error Handling
@@ -394,7 +394,27 @@ All five plugin interfaces are fully implemented and tested:
 ✅ **TemplatePlugin**: Complete with `generate_html()` method for structure generation  
 ✅ **CSSPlugin**: Complete with `generate_css()` method for stylesheet creation  
 
-The complete pipeline has been validated through comprehensive E2E and integration testing with 130 passing tests covering all interface contracts and data flow.
+The complete pipeline has been validated through comprehensive E2E and integration testing with 170+ passing tests covering all interface contracts and data flow.
+
+## Concrete Plugin Implementations
+
+### Provider Plugins
+- **NormPicProviderPlugin**: Loads photo collections from NormPic manifests
+
+### Processor Plugins  
+- **ThumbnailProcessorPlugin**: Generates WebP thumbnails with caching
+
+### Transform Plugins
+- **BasicPaginationPlugin**: Simple page-size based photo pagination
+- **SmartPaginationPlugin**: Intelligent pagination with page balancing
+
+### Template Plugins
+- **BasicTemplatePlugin**: Semantic HTML5 gallery generation with themes
+
+### CSS Plugins
+- **BasicCSSPlugin**: Comprehensive stylesheets with responsive design
+
+All implementations include comprehensive error handling, configuration validation, and detailed metadata output. See [Template Plugins Documentation](template-plugins.md) for detailed usage examples.
 
 ## Extensibility
 
