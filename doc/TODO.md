@@ -4,53 +4,70 @@
 
 ### Phase 1: Galleria Development
 
-#### Core Functionality
-- [x] Set up Galleria module structure
-  - [x] Create galleria/generator/ directory with __init__.py
-  - [x] Create galleria/processor/ directory with __init__.py  
-  - [x] Create galleria/template/ directory with __init__.py
-  - [x] Create galleria/serializer/ directory with __init__.py
-  - [x] Create galleria/themes/ directory structure:
-    - [x] Create galleria/themes/minimal/ directory
-    - [x] Create galleria/themes/minimal/templates/ directory
-    - [x] Create galleria/themes/minimal/static/ directory
-    - [x] Create galleria/themes/minimal/config.json basic theme config
-- [x] Implement serializer module
-  - [x] Create `galleria/serializer/models.py` with Photo and PhotoCollection classes
-  - [x] Create `galleria/serializer/loader.py`:
-    - [x] Implement `load_photo_collection(path: str) -> PhotoCollection`
-    - [x] Add JSON parsing with proper error handling
-    - [x] Support NormPic v0.1.0 manifest format
-  - [x] Create `galleria/serializer/exceptions.py`:
-    - [x] ManifestNotFoundError and ManifestValidationError
-  - [x] Create comprehensive tests using TDD approach:
-    - [x] E2E integration tests for NormPic manifest loading
-    - [x] Unit tests for loader functionality
-    - [x] Error handling validation tests
-- [x] Implement thumbnail processor
-  - [x] Create `galleria/processor/image.py` with ImageProcessor class
-  - [x] Implement `process_image(source_path, output_path, size=400)` method:
-    - [x] Load image with Pillow, handle format detection
-    - [x] Generate 400x400 square crop (center crop strategy)
-    - [x] Convert to WebP format with quality setting
-    - [x] Save to output directory with proper naming
-  - [x] Add naive thumbnail caching:
-    - [x] Check if thumbnail file exists and source file mtime is older
-    - [x] Skip processing if cache hit (simple file timestamp comparison)
-    - [x] Cache can be cleared by 'clean' command if issues arise
-  - [x] Add error handling for image processing failures
-  - [x] Implement progress reporting for large collections
-- [ ] Develop plugin system using integration tests + TDD
-  - [ ] Create integration tests for core plugin workflow:
-    - [ ] Test manifest plugin loads NormPic manifests (v0.1.0)
-    - [ ] Test processor plugin generates thumbnails from manifest data
-    - [ ] Test template plugin renders pages from processed data
-    - [ ] Test CSS and pagination plugins integrate properly
-    - [ ] Test plugin hook points and data flow between plugins
-  - [ ] Implement plugin system and default plugins:
-    - [ ] Create plugin base classes and interfaces
-    - [ ] Create default manifest plugin for NormPic v0.1.0
-    - [ ] Create default template, CSS, pagination, and processor plugins
+#### Core Functionality - Plugin System Development
+
+**Commit 1: Base Plugin Interface + E2E Tests**
+- [ ] Create E2E integration test for complete plugin workflow (Provider → Processor → Template → CSS → Pagination)
+- [ ] Create `galleria/plugins/base.py` with abstract base plugin class
+- [ ] Design plugin contract, hook system, error handling patterns
+- [ ] **Docs:** Create `doc/modules/galleria/plugin-system.md` - Plugin system architecture overview
+- [ ] **Docs:** Update `doc/modules/galleria/README.md` to link to plugin-system.md
+- [ ] **Message:** `Ft: Add base plugin interface for unified plugin system`
+
+**Commit 2: Plugin Interface Definitions + Integration Tests**
+- [ ] Create failing integration tests for each plugin type interaction
+- [ ] Create ProviderPlugin interface for photo collection sources
+- [ ] Create ProcessorPlugin interface for thumbnail generation
+- [ ] Create TemplatePlugin interface for HTML generation
+- [ ] Create CSSPlugin interface for stylesheet generation
+- [ ] Create PaginationPlugin interface for multi-page support
+- [ ] **Docs:** Update `doc/modules/galleria/plugin-system.md` with interface contracts
+- [ ] **Docs:** Create `doc/modules/galleria/plugin-interfaces.md` - Detailed interface specifications
+- [ ] **Message:** `Ft: Add plugin interfaces for provider, processor, template, CSS, pagination`
+
+**Commit 3: NormPicProviderPlugin + Unit Tests (TDD)**
+- [ ] Write failing unit tests for NormPicProviderPlugin behavior
+- [ ] Convert existing serializer to proper NormPicProviderPlugin using TDD (red → green → refactor)
+- [ ] Migrate existing serializer tests to work with plugin interface
+- [ ] **Docs:** Update `doc/provider-architecture.md` to reflect plugin system integration
+- [ ] **Docs:** Update `doc/modules/galleria/serializer.md` to document plugin approach
+- [ ] **Message:** `Ref: Convert serializer to NormPicProviderPlugin`
+
+**Commit 4: ThumbnailProcessorPlugin + Unit Tests (TDD)**
+- [ ] Write failing unit tests for ThumbnailProcessorPlugin behavior
+- [ ] Convert existing processor to proper ThumbnailProcessorPlugin using TDD (red → green → refactor)
+- [ ] Migrate existing processor tests to work with plugin interface
+- [ ] **Docs:** Update `doc/modules/galleria/processor.md` to document plugin approach
+- [ ] **Message:** `Ref: Convert processor to ThumbnailProcessorPlugin`
+
+**Commit 5: Plugin Registry + Integration Tests**
+- [ ] Write integration tests for plugin discovery and orchestration
+- [ ] Create plugin registry/factory system
+- [ ] Implement plugin loading and orchestration mechanisms
+- [ ] Test plugin registration and discovery
+- [ ] **Docs:** Update `doc/modules/galleria/plugin-system.md` with registry/orchestration details
+- [ ] **Message:** `Ft: Add plugin registry and orchestration system`
+
+**Commit 6: Missing Plugins + Unit Tests (TDD)**
+- [ ] Write failing unit tests for TemplatePlugin behavior
+- [ ] Write failing unit tests for CSSPlugin behavior
+- [ ] Write failing unit tests for PaginationPlugin behavior
+- [ ] Implement TemplatePlugin using TDD (red → green → refactor)
+- [ ] Implement CSSPlugin using TDD (red → green → refactor)
+- [ ] Implement PaginationPlugin using TDD (red → green → refactor)
+- [ ] **Docs:** Create `doc/modules/galleria/template-plugins.md` - Template/CSS/Pagination plugin documentation
+- [ ] **Docs:** Update `doc/modules/galleria/plugin-system.md` with complete plugin catalog
+- [ ] **Message:** `Ft: Add template, CSS, and pagination plugins`
+
+**Commit 7: Complete E2E Workflow**
+- [ ] Ensure original E2E integration test passes end-to-end
+- [ ] Validate all integration and unit tests passing
+- [ ] Test complete plugin pipeline: Provider → Processor → Template → CSS → Pagination
+- [ ] **Docs:** Update `doc/architecture.md` with plugin system integration
+- [ ] **Docs:** Update `doc/README.md` links if new docs added
+- [ ] **Message:** `Ft: Complete plugin system with E2E workflow`
+
+**Testing Methodology:** E2E Integration → Unit TDD → Back to Integration → Full E2E validation
 - [ ] Develop `generate` command using E2E tests + TDD
   - [ ] Create E2E tests for generate command:
     - [ ] Test generate command loads and orchestrates plugins correctly
