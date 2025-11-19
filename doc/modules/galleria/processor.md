@@ -2,7 +2,9 @@
 
 ## Overview
 
-The processor module handles image processing and optimization for gallery generation. It converts source images into optimized WebP thumbnails with intelligent caching.
+The processor module provides image processing and optimization for gallery generation, now implemented through the plugin system. Photo thumbnails are generated via the `ThumbnailProcessorPlugin` which implements the standardized `ProcessorPlugin` interface.
+
+**Current Status**: The processor API remains for backward compatibility, but new development should use the `ThumbnailProcessorPlugin` directly through the plugin system.
 
 ## Architecture
 
@@ -155,10 +157,100 @@ This ensures the most important central content is preserved in thumbnails.
 
 **Typical Performance**: ~50-100ms per image on modern hardware (varies by source size)
 
-## Future Enhancements
+## Plugin System Integration
 
-- Plugin support for custom image filters
-- Additional output formats (AVIF, etc.)
-- Metadata extraction and embedding
-- Parallel processing for large collections
-- Smart cropping using focal point detection
+The processor functionality has been migrated to the plugin system:
+
+**New Plugin**: `ThumbnailProcessorPlugin` (`galleria/plugins/processors/thumbnail.py`)
+**Interface**: Implements `ProcessorPlugin` from `galleria.plugins.interfaces`
+**Migration**: Legacy `ImageProcessor` class remains for backward compatibility
+
+### Using the Plugin System
+
+```python
+from galleria.plugins.processors.thumbnail import ThumbnailProcessorPlugin
+from galleria.plugins import PluginContext
+from pathlib import Path
+
+# Create plugin context with ProviderPlugin output
+context = PluginContext(
+    input_data={
+        "photos": [
+            {
+                "source_path": "/photos/IMG_001.jpg",
+                "dest_path": "wedding/IMG_001.jpg",
+                "metadata": {"camera": "Canon EOS R5"}
+            }
+        ],
+        "collection_name": "wedding_photos"
+    },
+    config={
+        "thumbnail_size": 400,
+        "quality": 85,
+        "use_cache": True
+    },
+    output_dir=Path("/output")
+)
+
+# Process thumbnails via plugin
+plugin = ThumbnailProcessorPlugin()
+result = plugin.process_thumbnails(context)
+
+if result.success:
+    photos = result.output_data["photos"]
+    thumbnail_count = result.output_data["thumbnail_count"]
+    
+    for photo in photos:
+        print(f"Thumbnail: {photo['thumbnail_path']}")
+        print(f"Size: {photo['thumbnail_size']}")
+else:
+    print(f"Errors: {result.errors}")
+```
+
+### Plugin Output Format
+
+The `ThumbnailProcessorPlugin` follows the `ProcessorPlugin` contract:
+
+```python
+{
+    "photos": [
+        {
+            # All original ProviderPlugin data preserved
+            "source_path": "/photos/IMG_001.jpg",
+            "dest_path": "wedding/IMG_001.jpg", 
+            "metadata": {"camera": "Canon EOS R5"},
+            # New ProcessorPlugin data added
+            "thumbnail_path": "/output/thumbnails/IMG_001.webp",
+            "thumbnail_size": (400, 400),
+            "cached": false
+        }
+    ],
+    "collection_name": "wedding_photos",  # Preserved from input
+    "thumbnail_count": 1,                 # Number of successful thumbnails
+    # All other ProviderPlugin data preserved
+}
+```
+
+### Plugin Features
+
+- **Full ProviderPlugin Integration**: Seamlessly processes ProviderPlugin output
+- **Advanced Configuration**: Thumbnail size, quality, caching, output format
+- **Robust Error Handling**: Individual photo errors don't stop batch processing
+- **Intelligent Caching**: Reuses existing thumbnails when source unchanged
+- **Data Preservation**: All ProviderPlugin data flows through unchanged
+
+## Migration Notes
+
+**For Existing Code**:
+- Continue using `ImageProcessor` class for now
+- Plugin system provides better error handling and standardized interface
+- Plugin integrates seamlessly with ProviderPlugin output
+
+**For New Code**:
+- Use `ThumbnailProcessorPlugin` directly
+- Follow `ProcessorPlugin` interface contract
+- Benefits from plugin system architecture (orchestration, pipelines, etc.)
+
+## Legacy API (Deprecated)
+
+The original `ImageProcessor` API remains available for backward compatibility but new development should use the plugin system.
