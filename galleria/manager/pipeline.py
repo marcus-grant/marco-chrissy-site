@@ -48,7 +48,9 @@ class PipelineManager:
         """Execute multiple stages in sequence.
         
         Args:
-            stages: List of stage configs [{"stage": "provider", "plugin": "name"}, ...]
+            stages: List of stage configs. Supports both formats:
+                - Dict format: [{"stage": "provider", "plugin": "name"}, ...]
+                - Tuple format: [("provider", "plugin-name"), ...]
             initial_context: Initial PluginContext
             
         Returns:
@@ -57,8 +59,12 @@ class PipelineManager:
         current_context = initial_context
         
         for stage_config in stages:
-            stage = stage_config["stage"]
-            plugin_name = stage_config["plugin"]
+            # Handle both tuple and dict formats
+            if isinstance(stage_config, tuple):
+                stage, plugin_name = stage_config
+            else:
+                stage = stage_config["stage"]
+                plugin_name = stage_config["plugin"]
             
             # Execute this stage
             result = self.execute_single_stage(stage, plugin_name, current_context)
