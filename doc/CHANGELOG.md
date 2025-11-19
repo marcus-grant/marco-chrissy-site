@@ -14,6 +14,12 @@
   - Create PluginResult dataclass for execution status and outputs
   - Add comprehensive unit tests for data structure validation (11 tests)
   - Use modern Python typing (dict/list vs Dict/List)
+* Add plugin exception hierarchy using TDD approach
+  - Create PluginError base exception with plugin name tracking
+  - Add PluginValidationError for input/config validation failures
+  - Add PluginExecutionError with original exception chaining
+  - Add PluginDependencyError with missing dependencies tracking
+  - Write comprehensive unit tests first, then implement (21 tests)
 
 ## 2025-11-18
 

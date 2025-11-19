@@ -17,10 +17,10 @@
   - [x] Update unit tests for data structures
   - [x] **Message:** `Ft: Add plugin context and result data structures`
 
-- [ ] **Commit 1c: Plugin Exceptions**
-  - [ ] Create `galleria/plugins/exceptions.py` with exception hierarchy
-  - [ ] Add unit tests for plugin exceptions
-  - [ ] **Message:** `Ft: Add plugin exception hierarchy`
+- [x] **Commit 1c: Plugin Exceptions** (COMPLETED)
+  - [x] Write failing unit tests for plugin exception hierarchy
+  - [x] Create `galleria/plugins/exceptions.py` with exception hierarchy
+  - [x] **Message:** `Ft: Add plugin exception hierarchy`
 
 - [ ] **Commit 1d: Hook System + Documentation**
   - [ ] Create `galleria/manager/` directory and hook system
