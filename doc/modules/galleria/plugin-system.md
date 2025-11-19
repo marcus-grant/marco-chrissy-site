@@ -12,7 +12,7 @@ Galleria uses a plugin-based architecture to enable modular, extensible gallery 
 - Plugin contract definitions
 - Individual plugin implementations
 
-### galleria/manager/ (Future)
+### galleria/manager/
 - Plugin orchestration and lifecycle management
 - Hook system for extensibility points
 - Plugin registry and discovery
@@ -401,7 +401,7 @@ The complete pipeline has been validated through comprehensive E2E and integrati
 The plugin system is designed for extensibility from day one:
 
 - Plugin hooks enable custom processing at each stage (implemented)
-- Plugin registry supports runtime discovery and loading (future)
+- Plugin registry supports runtime discovery and loading (implemented)
 - Clean interfaces allow easy testing and development
 - Modular design enables independent plugin development
 
@@ -419,9 +419,82 @@ When developing plugins:
 
 ## Future Enhancements
 
+## Plugin Registry
+
+The `PluginRegistry` provides centralized management for plugin instances:
+
+```python
+from galleria.plugins.registry import PluginRegistry
+
+registry = PluginRegistry()
+
+# Register plugins manually
+registry.register(my_plugin, stage="provider")
+
+# Retrieve plugins by name and stage
+plugin = registry.get_plugin("normpic-provider", stage="provider")
+
+# Automatic discovery of available plugins
+discovered = registry.discover_plugins()
+```
+
+### Registry Features
+
+- **Stage Validation**: Ensures plugins are registered with valid stage names
+- **Plugin Discovery**: Automatically finds concrete plugin implementations
+- **Error Handling**: Graceful handling of missing or invalid plugins
+- **Type Safety**: Validates stage names against known pipeline stages
+
+### Supported Stages
+
+- `provider` - Photo collection loading
+- `processor` - Thumbnail generation  
+- `transform` - Data manipulation
+- `template` - HTML generation
+- `css` - Stylesheet generation
+
+## Pipeline Management
+
+The `PipelineManager` orchestrates plugin execution across multiple stages:
+
+```python
+from galleria.manager.pipeline import PipelineManager
+from galleria.plugins.base import PluginContext
+from pathlib import Path
+
+manager = PipelineManager(registry=registry)
+
+# Execute single stage
+context = PluginContext(
+    input_data={},
+    config={},
+    output_dir=Path("/output"),
+    metadata={}
+)
+result = manager.execute_single_stage("provider", "normpic-provider", context)
+
+# Execute multi-stage pipeline
+stages = [
+    {"stage": "provider", "plugin": "normpic-provider"},
+    {"stage": "processor", "plugin": "thumbnail-processor"}
+]
+final_result = manager.execute_stages(stages, context)
+
+# Execute predefined workflows
+result = manager.execute_workflow("manifest-to-thumbnails", 
+                                 manifest_path=Path("/data/manifest.json"),
+                                 output_dir=Path("/output"))
+```
+
+### Pipeline Features
+
+- **Sequential Execution**: Stages execute in order with data flow
+- **Error Handling**: Pipeline stops on first failure with clear error reporting
+- **Context Chaining**: Output from one stage becomes input to next stage
+- **Workflow API**: Predefined workflows for common use cases
+
 Planned plugin system enhancements include:
 
-- Plugin registry and discovery mechanisms
 - Configuration validation and dependency management
 - Plugin performance monitoring and profiling
 - Hot-reloading for development workflows
