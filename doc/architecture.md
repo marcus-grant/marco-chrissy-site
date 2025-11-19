@@ -8,7 +8,7 @@ The marco-chrissy-site project follows a modular, loosely-coupled architecture w
 
 ### Separation of Concerns
 - **NormPic**: Photo organization (external tool)
-- **Galleria**: Gallery generation (internal module)
+- **Galleria**: Gallery generation with plugin system (internal module)
 - **Pelican**: Static site generation (external framework)
 - **Orchestrator**: Build coordination
 - **Deployer**: CDN deployment
@@ -52,6 +52,31 @@ marco-chrissy-site/
 \u251c\u2500\u2500 output/           # Generated site
 \u2514\u2500\u2500 pelican/          # Pelican configuration
 ```
+
+## Galleria Plugin Architecture
+
+Galleria uses a 5-stage plugin pipeline for extensible gallery generation:
+
+1. **Provider** → Load photo collections (NormPic manifests, directories, databases)
+2. **Processor** → Generate thumbnails and process images  
+3. **Transform** → Manipulate data (pagination, sorting, filtering)
+4. **Template** → Generate HTML structure
+5. **CSS** → Generate stylesheets
+
+### Plugin System Structure
+```
+galleria/
+├── plugins/            # Plugin system foundation
+│   ├── base.py         # BasePlugin interface
+│   ├── interfaces.py   # Specific plugin interfaces
+│   └── exceptions.py   # Plugin exception hierarchy
+└── manager/            # Plugin orchestration
+    └── hooks.py        # Hook system for extensibility
+```
+
+Each stage has defined data contracts and can be extended through the plugin system. The complete interface foundation is implemented and tested with 130 comprehensive tests.
+
+See [Plugin System Documentation](modules/galleria/plugin-system.md) for detailed interface specifications.
 
 ## Integration Points
 

@@ -185,3 +185,135 @@ class TransformPlugin(BasePlugin):
         to the transform_data method specific to transform plugins.
         """
         return self.transform_data(context)
+
+
+class TemplatePlugin(BasePlugin):
+    """Base class for template plugins that generate HTML structure.
+
+    Template plugins take transformed photo data and generate HTML files
+    with structured markup for galleries, pages, or other layouts.
+
+    Expected input format (from TransformPlugin):
+    {
+        # Transformed data structure (varies by transform type)
+        "pages": [...],              # For pagination transforms
+        "photos": [...],             # For sorting/filtering transforms
+        "groups": [...],             # For grouping transforms
+        "collection_name": str,      # Preserved from input
+        "transform_metadata": dict,  # Transform-specific metadata
+        ...
+    }
+
+    Expected output format:
+    {
+        "html_files": [
+            {
+                "filename": str,        # HTML file name
+                "content": str,         # HTML content (optional)
+                "page_number": int,     # Page number (for pagination)
+                # Other file metadata...
+            },
+            ...
+        ],
+        "collection_name": str,         # Preserved from input
+        "file_count": int,              # Number of HTML files generated
+        ...                             # Other template metadata
+    }
+    """
+
+    @abstractmethod
+    def generate_html(self, context: PluginContext) -> PluginResult:
+        """Generate HTML files from transformed photo data.
+
+        Args:
+            context: Plugin execution context containing:
+                - input_data: Transformed photo data from transform stage
+                - config: Template configuration (theme, layout options, etc.)
+                - output_dir: Target output directory
+
+        Returns:
+            PluginResult with HTML file data
+
+        Raises:
+            PluginValidationError: Invalid input data or configuration
+            PluginExecutionError: Failed to generate HTML
+            PluginDependencyError: Missing template dependencies
+        """
+        pass
+
+    def execute(self, context: PluginContext) -> PluginResult:
+        """Execute the template plugin by generating HTML.
+
+        This method implements the BasePlugin execute interface by delegating
+        to the generate_html method specific to template plugins.
+        """
+        return self.generate_html(context)
+
+
+class CSSPlugin(BasePlugin):
+    """Base class for CSS plugins that generate stylesheets.
+
+    CSS plugins take template output and generate CSS files with styling
+    for the HTML structures, themes, and responsive layouts.
+
+    Expected input format (from TemplatePlugin):
+    {
+        "html_files": [
+            {
+                "filename": str,        # HTML file name
+                "content": str,         # HTML content (optional)
+                "page_number": int,     # Page number (for pagination)
+                # Other file metadata...
+            },
+            ...
+        ],
+        "collection_name": str,         # Preserved from input
+        "file_count": int,              # Number of HTML files generated
+        ...                             # Other template metadata
+    }
+
+    Expected output format:
+    {
+        "css_files": [
+            {
+                "filename": str,        # CSS file name
+                "content": str,         # CSS content (optional)
+                "type": str,            # CSS type (gallery, theme, responsive, etc.)
+                # Other file metadata...
+            },
+            ...
+        ],
+        "html_files": [...],            # Pass through from template
+        "collection_name": str,         # Preserved from input
+        "css_count": int,               # Number of CSS files generated
+        ...                             # Other CSS metadata
+    }
+    """
+
+    @abstractmethod
+    def generate_css(self, context: PluginContext) -> PluginResult:
+        """Generate CSS files from template HTML data.
+
+        Args:
+            context: Plugin execution context containing:
+                - input_data: HTML file data from template stage
+                - config: CSS configuration (theme, responsive options, etc.)
+                - output_dir: Target output directory
+
+        Returns:
+            PluginResult with CSS file data
+
+        Raises:
+            PluginValidationError: Invalid input data or configuration
+            PluginExecutionError: Failed to generate CSS
+            PluginDependencyError: Missing CSS processing dependencies
+        """
+        pass
+
+    def execute(self, context: PluginContext) -> PluginResult:
+        """Execute the CSS plugin by generating stylesheets.
+
+        This method implements the BasePlugin execute interface by delegating
+        to the generate_css method specific to CSS plugins.
+        """
+        return self.generate_css(context)

@@ -45,19 +45,19 @@
   - [x] **Docs:** Update `doc/modules/galleria/plugin-system.md` with Transform interface
   - [x] **Message:** `Ft: Add Transform plugin interface with TDD`
 
-- [ ] **Commit 2c: Template + CSS Interface Definition (TDD)**
-  - [ ] Write failing integration tests for Transform ↔ Template ↔ CSS interaction
-  - [ ] Define TemplatePlugin and CSSPlugin interfaces
-  - [ ] Implement abstract interface contracts
-  - [ ] Add unit tests for interface validation
-  - [ ] **Docs:** Update `doc/modules/galleria/plugin-system.md` with Template and CSS interfaces
-  - [ ] **Message:** `Ft: Add Template and CSS plugin interfaces with TDD`
+- [x] **Commit 2c: Template + CSS Interface Definition (TDD)** (COMPLETED)
+  - [x] Write failing integration tests for Transform ↔ Template ↔ CSS interaction
+  - [x] Define TemplatePlugin and CSSPlugin interfaces
+  - [x] Implement abstract interface contracts
+  - [x] Add unit tests for interface validation
+  - [x] **Docs:** Update `doc/modules/galleria/plugin-system.md` with Template and CSS interfaces
+  - [x] **Message:** `Ft: Add Template and CSS plugin interfaces with TDD`
 
-- [ ] **Commit 2d: Complete Interface Integration Test**
-  - [ ] Ensure E2E test from Commit 1d works with new interfaces
-  - [ ] Validate all interfaces work together end-to-end
-  - [ ] **Docs:** Complete `doc/modules/galleria/plugin-system.md` with full interface documentation
-  - [ ] **Message:** `Ft: Complete plugin interface integration and E2E validation`
+- [x] **Commit 2d: Complete Interface Integration Test** (COMPLETED)
+  - [x] Ensure E2E test from Commit 1d works with new interfaces
+  - [x] Validate all interfaces work together end-to-end
+  - [x] **Docs:** Complete `doc/modules/galleria/plugin-system.md` with full interface documentation
+  - [x] **Message:** `Ft: Complete plugin interface integration and E2E validation`
 
 - [ ] **Commit 3: NormPicProviderPlugin + Unit Tests (TDD)**
   - [ ] Write failing unit tests for NormPicProviderPlugin behavior
@@ -275,6 +275,13 @@
   - [ ] Improve error messages and logging
   - [ ] Create development/debug mode
   - [ ] Performance optimization and profiling
+- [ ] Test refactoring for maintainability
+  - [ ] Refactor large integration/e2e tests in galleria plugin system
+  - [ ] Extract common test fixtures for plugin interface testing
+  - [ ] Split unwieldy test methods into focused, composable test functions
+  - [ ] Create reusable mock plugin factories for consistent test data
+  - [ ] Implement parametrized tests for plugin contract validation
+  - [ ] Consider pytest fixtures for pipeline stage setup/teardown
 - [ ] Evaluate extracting schema definitions to shared package
   - [ ] Assess whether NormPic and Galleria should share schema via tiny common package
   - [ ] Consider maintenance overhead vs DRY benefits vs current code duplication

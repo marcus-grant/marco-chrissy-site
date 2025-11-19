@@ -5,7 +5,13 @@ from abc import ABC
 import pytest
 
 from galleria.plugins import PluginContext, PluginResult
-from galleria.plugins.interfaces import ProcessorPlugin, ProviderPlugin, TransformPlugin
+from galleria.plugins.interfaces import (
+    CSSPlugin,
+    ProcessorPlugin,
+    ProviderPlugin,
+    TemplatePlugin,
+    TransformPlugin,
+)
 
 
 class TestProviderPluginInterface:
@@ -707,3 +713,565 @@ class TestTransformIntegration:
         page_photo = transform_result.output_data["pages"][0]["photos"][0]
         assert page_photo["thumbnail_path"] == "thumbs/img1.jpg.webp"
         assert page_photo["thumbnail_size"] == (300, 200)
+
+
+class TestTemplatePluginInterface:
+    """Unit tests for TemplatePlugin interface contract."""
+
+    def test_template_plugin_is_abstract_base_class(self):
+        """TemplatePlugin should be an abstract base class."""
+        # Cannot instantiate abstract class directly
+        with pytest.raises(TypeError, match="Can't instantiate abstract class"):
+            TemplatePlugin()
+
+    def test_template_plugin_inherits_from_base_plugin(self):
+        """TemplatePlugin should inherit from BasePlugin."""
+        from galleria.plugins import BasePlugin
+
+        assert issubclass(TemplatePlugin, BasePlugin)
+        assert issubclass(TemplatePlugin, ABC)
+
+    def test_template_plugin_requires_generate_html_implementation(self):
+        """TemplatePlugin subclasses must implement generate_html method."""
+
+        class IncompleteTemplate(TemplatePlugin):
+            @property
+            def name(self) -> str:
+                return "incomplete"
+
+            @property
+            def version(self) -> str:
+                return "1.0.0"
+
+            # Missing generate_html implementation
+
+        with pytest.raises(TypeError, match="Can't instantiate abstract class"):
+            IncompleteTemplate()
+
+    def test_template_plugin_execute_delegates_to_generate_html(self, tmp_path):
+        """TemplatePlugin.execute should delegate to generate_html method."""
+
+        class TestTemplate(TemplatePlugin):
+            def __init__(self):
+                self.generate_html_called = False
+
+            @property
+            def name(self) -> str:
+                return "test-template"
+
+            @property
+            def version(self) -> str:
+                return "1.0.0"
+
+            def generate_html(self, context: PluginContext) -> PluginResult:
+                self.generate_html_called = True
+                pages = context.input_data.get("pages", [])
+                html_files = []
+
+                for page in pages:
+                    html_files.append({
+                        "filename": f"page_{page.get('page_number', 1)}.html",
+                        "page_number": page.get("page_number", 1)
+                    })
+
+                return PluginResult(
+                    success=True,
+                    output_data={
+                        "html_files": html_files,
+                        "collection_name": context.input_data.get("collection_name", "test"),
+                        "file_count": len(html_files)
+                    }
+                )
+
+        template = TestTemplate()
+        context = PluginContext(
+            input_data={
+                "pages": [{"page_number": 1, "photos": []}],
+                "collection_name": "test"
+            },
+            config={},
+            output_dir=tmp_path
+        )
+
+        # execute should call generate_html
+        result = template.execute(context)
+
+        assert template.generate_html_called
+        assert result.success
+        assert result.output_data["file_count"] == 1
+
+    def test_template_plugin_contract_validation(self, tmp_path):
+        """Test that TemplatePlugin contract is properly defined."""
+
+        class ValidTemplate(TemplatePlugin):
+            @property
+            def name(self) -> str:
+                return "valid-template"
+
+            @property
+            def version(self) -> str:
+                return "1.0.0"
+
+            def generate_html(self, context: PluginContext) -> PluginResult:
+                # Validate expected input format (from TransformPlugin)
+                assert "pages" in context.input_data or "photos" in context.input_data
+                assert "collection_name" in context.input_data
+
+                pages = context.input_data.get("pages", [])
+                collection_name = context.input_data["collection_name"]
+                html_files = []
+
+                for page in pages:
+                    # Validate page format
+                    assert "page_number" in page
+                    assert "photos" in page
+
+                    # Generate HTML file metadata
+                    html_files.append({
+                        "filename": f"page_{page['page_number']}.html",
+                        "content": f"<html><title>{collection_name}</title></html>",
+                        "page_number": page["page_number"]
+                    })
+
+                return PluginResult(
+                    success=True,
+                    output_data={
+                        "html_files": html_files,
+                        "collection_name": collection_name,
+                        "file_count": len(html_files)
+                    }
+                )
+
+        template = ValidTemplate()
+        context = PluginContext(
+            input_data={
+                "pages": [
+                    {
+                        "page_number": 1,
+                        "photos": [
+                            {
+                                "dest_path": "test.jpg",
+                                "thumbnail_path": "thumbs/test.webp",
+                                "thumbnail_size": (300, 200)
+                            }
+                        ],
+                        "photo_count": 1
+                    }
+                ],
+                "collection_name": "test_collection",
+                "page_count": 1
+            },
+            config={"theme": "minimal"},
+            output_dir=tmp_path
+        )
+
+        result = template.generate_html(context)
+
+        # Verify output contract
+        assert result.success
+        assert "html_files" in result.output_data
+        assert "collection_name" in result.output_data
+        assert "file_count" in result.output_data
+
+        # Verify HTML file structure
+        html_file = result.output_data["html_files"][0]
+        assert "filename" in html_file
+        assert "content" in html_file
+        assert "page_number" in html_file
+        assert html_file["filename"] == "page_1.html"
+        assert "test_collection" in html_file["content"]
+
+
+class TestCSSPluginInterface:
+    """Unit tests for CSSPlugin interface contract."""
+
+    def test_css_plugin_is_abstract_base_class(self):
+        """CSSPlugin should be an abstract base class."""
+        # Cannot instantiate abstract class directly
+        with pytest.raises(TypeError, match="Can't instantiate abstract class"):
+            CSSPlugin()
+
+    def test_css_plugin_inherits_from_base_plugin(self):
+        """CSSPlugin should inherit from BasePlugin."""
+        from galleria.plugins import BasePlugin
+
+        assert issubclass(CSSPlugin, BasePlugin)
+        assert issubclass(CSSPlugin, ABC)
+
+    def test_css_plugin_requires_generate_css_implementation(self):
+        """CSSPlugin subclasses must implement generate_css method."""
+
+        class IncompleteCSS(CSSPlugin):
+            @property
+            def name(self) -> str:
+                return "incomplete"
+
+            @property
+            def version(self) -> str:
+                return "1.0.0"
+
+            # Missing generate_css implementation
+
+        with pytest.raises(TypeError, match="Can't instantiate abstract class"):
+            IncompleteCSS()
+
+    def test_css_plugin_execute_delegates_to_generate_css(self, tmp_path):
+        """CSSPlugin.execute should delegate to generate_css method."""
+
+        class TestCSS(CSSPlugin):
+            def __init__(self):
+                self.generate_css_called = False
+
+            @property
+            def name(self) -> str:
+                return "test-css"
+
+            @property
+            def version(self) -> str:
+                return "1.0.0"
+
+            def generate_css(self, context: PluginContext) -> PluginResult:
+                self.generate_css_called = True
+                html_files = context.input_data.get("html_files", [])
+                css_files = [
+                    {"filename": "gallery.css", "type": "gallery"},
+                    {"filename": "theme.css", "type": "theme"}
+                ]
+
+                return PluginResult(
+                    success=True,
+                    output_data={
+                        "css_files": css_files,
+                        "html_files": html_files,  # Pass through
+                        "collection_name": context.input_data.get("collection_name", "test"),
+                        "css_count": len(css_files)
+                    }
+                )
+
+        css_plugin = TestCSS()
+        context = PluginContext(
+            input_data={
+                "html_files": [{"filename": "page_1.html", "page_number": 1}],
+                "collection_name": "test"
+            },
+            config={},
+            output_dir=tmp_path
+        )
+
+        # execute should call generate_css
+        result = css_plugin.execute(context)
+
+        assert css_plugin.generate_css_called
+        assert result.success
+        assert result.output_data["css_count"] == 2
+
+    def test_css_plugin_contract_validation(self, tmp_path):
+        """Test that CSSPlugin contract is properly defined."""
+
+        class ValidCSS(CSSPlugin):
+            @property
+            def name(self) -> str:
+                return "valid-css"
+
+            @property
+            def version(self) -> str:
+                return "1.0.0"
+
+            def generate_css(self, context: PluginContext) -> PluginResult:
+                # Validate expected input format (from TemplatePlugin)
+                assert "html_files" in context.input_data
+                assert "collection_name" in context.input_data
+
+                html_files = context.input_data["html_files"]
+                collection_name = context.input_data["collection_name"]
+                theme = context.config.get("theme", "default")
+                css_files = []
+
+                # Validate HTML file format
+                for html_file in html_files:
+                    assert "filename" in html_file
+                    assert "page_number" in html_file
+
+                # Generate gallery CSS
+                css_files.append({
+                    "filename": "gallery.css",
+                    "content": f"/* Gallery styles for {collection_name} */\n.gallery {{ display: grid; }}",
+                    "type": "gallery"
+                })
+
+                # Generate theme CSS
+                if theme != "default":
+                    css_files.append({
+                        "filename": f"theme-{theme}.css",
+                        "content": f"/* Theme: {theme} */\nbody {{ font-family: Arial; }}",
+                        "type": "theme"
+                    })
+
+                return PluginResult(
+                    success=True,
+                    output_data={
+                        "css_files": css_files,
+                        "html_files": html_files,  # Pass through
+                        "collection_name": collection_name,
+                        "css_count": len(css_files)
+                    }
+                )
+
+        css_plugin = ValidCSS()
+        context = PluginContext(
+            input_data={
+                "html_files": [
+                    {
+                        "filename": "page_1.html",
+                        "content": "<html>...</html>",
+                        "page_number": 1
+                    }
+                ],
+                "collection_name": "test_collection",
+                "file_count": 1
+            },
+            config={"theme": "minimal"},
+            output_dir=tmp_path
+        )
+
+        result = css_plugin.generate_css(context)
+
+        # Verify output contract
+        assert result.success
+        assert "css_files" in result.output_data
+        assert "html_files" in result.output_data
+        assert "collection_name" in result.output_data
+        assert "css_count" in result.output_data
+
+        # Verify CSS file structure
+        css_files = result.output_data["css_files"]
+        assert len(css_files) == 2
+        assert css_files[0]["filename"] == "gallery.css"
+        assert css_files[0]["type"] == "gallery"
+        assert "test_collection" in css_files[0]["content"]
+        assert css_files[1]["filename"] == "theme-minimal.css"
+        assert css_files[1]["type"] == "theme"
+
+        # Verify HTML files passed through
+        assert "html_files" in result.output_data
+        assert len(result.output_data["html_files"]) == 1
+
+
+class TestTemplateCSSIntegration:
+    """Unit tests for Template and CSS plugin integration contracts."""
+
+    def test_template_output_matches_css_input_contract(self, tmp_path):
+        """Template output format should match CSS input expectations."""
+
+        class TestTemplate(TemplatePlugin):
+            @property
+            def name(self) -> str:
+                return "contract-template"
+
+            @property
+            def version(self) -> str:
+                return "1.0.0"
+
+            def generate_html(self, context: PluginContext) -> PluginResult:
+                pages = context.input_data["pages"]
+                collection_name = context.input_data["collection_name"]
+                html_files = []
+
+                for page in pages:
+                    html_files.append({
+                        "filename": f"page_{page['page_number']}.html",
+                        "content": f"<html><title>{collection_name}</title></html>",
+                        "page_number": page["page_number"]
+                    })
+
+                return PluginResult(
+                    success=True,
+                    output_data={
+                        "html_files": html_files,
+                        "collection_name": collection_name,
+                        "file_count": len(html_files)
+                    }
+                )
+
+        class TestCSS(CSSPlugin):
+            @property
+            def name(self) -> str:
+                return "contract-css"
+
+            @property
+            def version(self) -> str:
+                return "1.0.0"
+
+            def generate_css(self, context: PluginContext) -> PluginResult:
+                # Should be able to process Template output without modification
+                html_files = context.input_data["html_files"]
+                collection_name = context.input_data["collection_name"]
+                file_count = context.input_data["file_count"]
+
+                css_files = [{"filename": "styles.css", "type": "main"}]
+
+                return PluginResult(
+                    success=True,
+                    output_data={
+                        "css_files": css_files,
+                        "html_files": html_files,
+                        "collection_name": collection_name,
+                        "css_count": 1,
+                        "original_file_count": file_count
+                    }
+                )
+
+        # Test that Template → CSS contract works
+        template = TestTemplate()
+        css_plugin = TestCSS()
+
+        # Template stage (mock Transform output)
+        template_context = PluginContext(
+            input_data={
+                "pages": [
+                    {"page_number": 1, "photos": [{"thumbnail_path": "thumb1.webp"}]}
+                ],
+                "collection_name": "contract_test"
+            },
+            config={},
+            output_dir=tmp_path
+        )
+        template_result = template.generate_html(template_context)
+
+        # CSS stage (using Template output)
+        css_context = PluginContext(
+            input_data=template_result.output_data,
+            config={},
+            output_dir=tmp_path
+        )
+        css_result = css_plugin.generate_css(css_context)
+
+        # Verify seamless data flow
+        assert template_result.success
+        assert css_result.success
+        assert template_result.output_data["collection_name"] == "contract_test"
+        assert css_result.output_data["collection_name"] == "contract_test"
+        assert css_result.output_data["original_file_count"] == 1
+
+        # Verify HTML data preserved through pipeline
+        html_files = css_result.output_data["html_files"]
+        assert len(html_files) == 1
+        assert html_files[0]["filename"] == "page_1.html"
+        assert "contract_test" in html_files[0]["content"]
+
+    def test_transform_to_template_to_css_contract_integration(self, tmp_path):
+        """Test complete Transform → Template → CSS contract integration."""
+
+        class TestTransform(TransformPlugin):
+            @property
+            def name(self) -> str:
+                return "contract-transform"
+
+            @property
+            def version(self) -> str:
+                return "1.0.0"
+
+            def transform_data(self, context: PluginContext) -> PluginResult:
+                photos = context.input_data["photos"]
+                pages = [{"page_number": 1, "photos": photos, "photo_count": len(photos)}]
+
+                return PluginResult(
+                    success=True,
+                    output_data={
+                        "pages": pages,
+                        "collection_name": context.input_data["collection_name"],
+                        "page_count": 1
+                    }
+                )
+
+        class TestTemplate(TemplatePlugin):
+            @property
+            def name(self) -> str:
+                return "contract-template"
+
+            @property
+            def version(self) -> str:
+                return "1.0.0"
+
+            def generate_html(self, context: PluginContext) -> PluginResult:
+                html_files = [{"filename": "gallery.html", "page_number": 1}]
+
+                return PluginResult(
+                    success=True,
+                    output_data={
+                        "html_files": html_files,
+                        "collection_name": context.input_data["collection_name"],
+                        "file_count": 1
+                    }
+                )
+
+        class TestCSS(CSSPlugin):
+            @property
+            def name(self) -> str:
+                return "contract-css"
+
+            @property
+            def version(self) -> str:
+                return "1.0.0"
+
+            def generate_css(self, context: PluginContext) -> PluginResult:
+                css_files = [{"filename": "gallery.css", "type": "gallery"}]
+
+                return PluginResult(
+                    success=True,
+                    output_data={
+                        "css_files": css_files,
+                        "html_files": context.input_data["html_files"],
+                        "collection_name": context.input_data["collection_name"],
+                        "css_count": 1
+                    }
+                )
+
+        # Test that Transform → Template → CSS contract works end-to-end
+        transform = TestTransform()
+        template = TestTemplate()
+        css_plugin = TestCSS()
+
+        # Transform stage
+        transform_context = PluginContext(
+            input_data={
+                "photos": [{"thumbnail_path": "thumb1.webp"}],
+                "collection_name": "contract_test"
+            },
+            config={},
+            output_dir=tmp_path
+        )
+        transform_result = transform.transform_data(transform_context)
+
+        # Template stage
+        template_context = PluginContext(
+            input_data=transform_result.output_data,
+            config={},
+            output_dir=tmp_path
+        )
+        template_result = template.generate_html(template_context)
+
+        # CSS stage
+        css_context = PluginContext(
+            input_data=template_result.output_data,
+            config={},
+            output_dir=tmp_path
+        )
+        css_result = css_plugin.generate_css(css_context)
+
+        # Verify end-to-end pipeline success
+        assert transform_result.success
+        assert template_result.success
+        assert css_result.success
+
+        # Verify data flow through entire pipeline
+        assert transform_result.output_data["collection_name"] == "contract_test"
+        assert template_result.output_data["collection_name"] == "contract_test"
+        assert css_result.output_data["collection_name"] == "contract_test"
+
+        # Verify final output contains all expected components
+        final_output = css_result.output_data
+        assert "html_files" in final_output
+        assert "css_files" in final_output
+        assert len(final_output["html_files"]) == 1
+        assert len(final_output["css_files"]) == 1

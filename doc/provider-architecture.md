@@ -49,21 +49,30 @@ collection = load_photo_collection("/path/to/manifest.json")
 - `ManifestNotFoundError` - File not found
 - `ManifestValidationError` - Invalid manifest data format
 
-## Plugin Architecture (Future)
+## Plugin Architecture (Implemented)
 
-### PhotoCollectionProvider Interface
-Base class for implementing new collection sources:
+### ProviderPlugin Interface
+Base class for implementing new collection sources (see `galleria/plugins/interfaces.py`):
 
 ```python
-class PhotoCollectionProvider(ABC):
-    def can_handle(self, source: str) -> bool:
-        """Check if this provider can handle the given source."""
-        pass
+from galleria.plugins import ProviderPlugin
+
+class MyProvider(ProviderPlugin):
+    @property
+    def name(self) -> str:
+        return "my-provider"
     
-    def load_collection(self, source: str) -> PhotoCollection:
-        """Load photo collection from source.""" 
+    @property  
+    def version(self) -> str:
+        return "1.0.0"
+    
+    def load_collection(self, context: PluginContext) -> PluginResult:
+        """Load photo collection from source."""
+        # Implementation here
         pass
 ```
+
+The plugin system foundation is complete with comprehensive interface contracts, error handling, and hook system integration.
 
 ### Future Provider Examples
 - **DirectoryProvider** - Scan filesystem directories for photos
@@ -71,12 +80,12 @@ class PhotoCollectionProvider(ABC):
 - **LightroomProvider** - Import from Lightroom catalogs
 - **APIProvider** - Fetch from cloud photo services
 
-### Provider Registration
+### Plugin Integration
 ```python
-# Future plugin registration system
-register_provider("normpic", NormPicProvider())
-register_provider("directory", DirectoryProvider())
-register_provider("lightroom", LightroomProvider())
+# Current plugin system integration
+# Providers implement the ProviderPlugin interface
+# Plugin orchestration through manager/hooks system
+# See plugin-system.md for complete architecture
 ```
 
 ## Design Principles
@@ -112,10 +121,11 @@ register_provider("lightroom", LightroomProvider())
 ## Future Development
 
 ### Next Steps
-1. Implement DirectoryProvider for manifest-free photo collections
-2. Add provider auto-detection based on source type
-3. Create provider registry and plugin loading system
-4. Add configuration for provider selection and options
+1. Convert existing NormPic serializer to ProviderPlugin implementation (Commit 3)
+2. Implement DirectoryProvider for manifest-free photo collections  
+3. Add provider auto-detection based on source type
+4. Create provider registry and plugin loading system
+5. Add configuration for provider selection and options
 
 ### Extraction Preparation
 - Designed for eventual extraction to separate package
