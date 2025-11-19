@@ -87,14 +87,44 @@ Generate stylesheets:
 - **ThemeCSS**: Theme-based styling systems
 - **UtilityCSS**: Utility-first CSS generation
 
-## Error Handling (Future)
+## Error Handling
 
-The plugin system includes a comprehensive exception hierarchy:
+The plugin system includes a comprehensive exception hierarchy for consistent error handling:
+
+### Exception Types
 
 - **PluginError**: Base exception for all plugin-related errors
+  - Supports plugin name tracking for debugging
+  - All plugin exceptions inherit from this base class
+
 - **PluginValidationError**: Invalid context or configuration
-- **PluginExecutionError**: Runtime execution failures
+  - Raised when plugin input validation fails
+  - Examples: invalid config parameters, missing context fields
+
+- **PluginExecutionError**: Runtime execution failures  
+  - Supports original exception chaining for debugging
+  - Examples: file system errors, image processing failures
+
 - **PluginDependencyError**: Missing or incompatible dependencies
+  - Tracks list of missing dependencies for detailed reporting
+  - Examples: missing Python packages, incompatible versions
+
+### Usage Examples
+
+```python
+from galleria.plugins import PluginExecutionError
+
+try:
+    process_image(source_path)
+except OSError as e:
+    raise PluginExecutionError(
+        "Failed to process image",
+        plugin_name="thumbnail-processor",
+        original_error=e
+    )
+```
+
+All plugin exceptions can be caught using the base `PluginError` class for unified error handling across the plugin system.
 
 ## Extensibility
 
