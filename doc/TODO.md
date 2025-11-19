@@ -6,84 +6,71 @@
 
 #### Core Functionality - Plugin System Development
 
-- [x] **Commit 1a: Test Directories + Base Plugin Interface** (COMPLETED)
-  - [x] Create test directory structure (e2e/, integration/, unit/)
-  - [x] Create `galleria/plugins/base.py` with abstract base plugin class
-  - [x] Create unit tests for BasePlugin ABC
-  - [x] **Message:** `Ft: Add base plugin interface and test structure`
-
-- [x] **Commit 1b: Plugin Context/Result Data Structures** (COMPLETED)
-  - [x] Add PluginContext and PluginResult dataclasses to base.py
-  - [x] Update unit tests for data structures
-  - [x] **Message:** `Ft: Add plugin context and result data structures`
-
-- [x] **Commit 1c: Plugin Exceptions** (COMPLETED)
-  - [x] Write failing unit tests for plugin exception hierarchy
-  - [x] Create `galleria/plugins/exceptions.py` with exception hierarchy
-  - [x] **Message:** `Ft: Add plugin exception hierarchy`
-
-- [x] **Commit 1d: Hook System + Documentation** (COMPLETED)
-  - [x] Create `galleria/manager/` directory and hook system
-  - [x] Create E2E integration test for complete plugin workflow
-    - (Provider → Processor → Transform → Template → CSS)
-  - [x] **Docs:** Update `doc/modules/galleria/plugin-system.md` with hook system
-  - [x] **Message:** `Ft: Add plugin hook system and complete foundation`
-
-- [x] **Commit 2a: Provider + Processor Interface Definition (TDD)** (COMPLETED)
-  - [x] Write failing integration tests for Provider ↔ Processor interaction
-  - [x] Define ProviderPlugin and ProcessorPlugin interfaces
-  - [x] Implement abstract interface contracts
-  - [x] Add unit tests for interface validation
-  - [x] **Docs:** Update `doc/modules/galleria/plugin-system.md` with interface documentation
-  - [x] **Message:** `Ft: Add Provider and Processor plugin interfaces with TDD`
-
-- [x] **Commit 2b: Transform Interface Definition (TDD)** (COMPLETED)
-  - [x] Write failing integration tests for Processor ↔ Transform interaction
-  - [x] Define TransformPlugin interface (pagination, sorting, filtering)
-  - [x] Implement abstract interface contract
-  - [x] Add unit tests for interface validation
-  - [x] **Docs:** Update `doc/modules/galleria/plugin-system.md` with Transform interface
-  - [x] **Message:** `Ft: Add Transform plugin interface with TDD`
-
-- [x] **Commit 2c: Template + CSS Interface Definition (TDD)** (COMPLETED)
-  - [x] Write failing integration tests for Transform ↔ Template ↔ CSS interaction
-  - [x] Define TemplatePlugin and CSSPlugin interfaces
-  - [x] Implement abstract interface contracts
-  - [x] Add unit tests for interface validation
-  - [x] **Docs:** Update `doc/modules/galleria/plugin-system.md` with Template and CSS interfaces
-  - [x] **Message:** `Ft: Add Template and CSS plugin interfaces with TDD`
-
-- [x] **Commit 2d: Complete Interface Integration Test** (COMPLETED)
-  - [x] Ensure E2E test from Commit 1d works with new interfaces
-  - [x] Validate all interfaces work together end-to-end
-  - [x] **Docs:** Complete `doc/modules/galleria/plugin-system.md` with full interface documentation
-  - [x] **Message:** `Ft: Complete plugin interface integration and E2E validation`
-
-- [ ] **Commit 3: NormPicProviderPlugin + Unit Tests (TDD)**
-  - [ ] Write failing unit tests for NormPicProviderPlugin behavior
-  - [ ] Convert existing serializer to proper NormPicProviderPlugin using TDD
+- [x] **Commit 3: NormPicProviderPlugin + Unit Tests (TDD)** (COMPLETED)
+  - [x] Write failing unit tests for NormPicProviderPlugin behavior
+  - [x] Convert existing serializer to proper NormPicProviderPlugin using TDD
     - (red → green → refactor)
-  - [ ] Migrate existing serializer tests to work with plugin interface
-  - [ ] **Docs:** Update `doc/provider-architecture.md` reflecting plugin system integration
-  - [ ] **Docs:** Update `doc/modules/galleria/serializer.md` to document plugin approach
-  - [ ] **Message:** `Ref: Convert serializer to NormPicProviderPlugin`
+  - [x] Migrate existing serializer tests to work with plugin interface
+  - [x] **Docs:** Update `doc/provider-architecture.md` reflecting plugin system integration
+  - [x] **Docs:** Update `doc/modules/galleria/serializer.md` to document plugin approach
+  - [x] **Message:** `Ref: Convert serializer to NormPicProviderPlugin`
 
-**Commit 4: ThumbnailProcessorPlugin + Unit Tests (TDD)**
+- [x] **Commit 4: ThumbnailProcessorPlugin + Unit Tests (TDD)** (COMPLETED)
+- [x] Write failing unit tests for ThumbnailProcessorPlugin behavior
+- [x] Convert existing processor to proper ThumbnailProcessorPlugin using TDD (red → green → refactor)
+- [x] Migrate existing processor tests to work with plugin interface
+- [x] **Docs:** Update `doc/modules/galleria/processor.md` to document plugin approach
+- [x] **Message:** `Ref: Convert processor to ThumbnailProcessorPlugin`
 
-- [ ] Write failing unit tests for ThumbnailProcessorPlugin behavior
-- [ ] Convert existing processor to proper ThumbnailProcessorPlugin using TDD (red → green → refactor)
-- [ ] Migrate existing processor tests to work with plugin interface
-- [ ] **Docs:** Update `doc/modules/galleria/processor.md` to document plugin approach
-- [ ] **Message:** `Ref: Convert processor to ThumbnailProcessorPlugin`
+**Commit 5: Plugin Registry + Integration Tests (TDD)**
 
-**Commit 5: Plugin Registry + Integration Tests**
+**Phase 1: E2E Integration Tests (Red Phase)**
+- [ ] Create `test/test_plugin_integration.py` with failing E2E tests
+- [ ] Write test for complete Provider → Processor pipeline via registry
+- [ ] Write test for plugin discovery and registration workflow
+- [ ] Write test for orchestrated workflow from NormPic manifest to thumbnails
+- [ ] Verify all integration tests FAIL initially (red phase requirement)
 
-- [ ] Write integration tests for plugin discovery and orchestration
-- [ ] Create plugin registry/factory system
-- [ ] Implement plugin loading and orchestration mechanisms
-- [ ] Test plugin registration and discovery
-- [ ] **Docs:** Update `doc/modules/galleria/plugin-system.md` with registry/orchestration details
+**Phase 2: Unit Tests (Red Phase)**
+- [ ] Create `test/galleria/test_plugin_registry.py` with failing unit tests
+- [ ] Write tests for `PluginRegistry.register()` method behavior
+- [ ] Write tests for `PluginRegistry.get_plugin()` method behavior
+- [ ] Write tests for plugin discovery mechanisms
+- [ ] Write tests for error handling (missing/duplicate plugins)
+- [ ] Verify all unit tests FAIL initially (red phase requirement)
+
+**Phase 3: Implementation (Green Phase)**
+- [ ] Implement `galleria/plugins/registry.py` - `PluginRegistry` class
+  - [ ] Plugin registration and discovery functionality
+  - [ ] Plugin loading with error handling
+  - [ ] Plugin dependency resolution
+- [ ] Implement `galleria/manager/pipeline.py` - `PipelineManager` class
+  - [ ] Stage execution coordination
+  - [ ] Integration with existing `PluginHookManager`
+  - [ ] Data flow management between plugin stages
+- [ ] Make failing unit tests pass one by one (green phase)
+- [ ] Make failing integration tests pass (green phase)
+
+**Phase 4: Documentation & Validation**
+- [ ] **Docs:** Update `doc/modules/galleria/plugin-system.md` section on plugin registry
+  - [ ] Add `PluginRegistry` API documentation with examples
+  - [ ] Add `PipelineManager` orchestration documentation
+  - [ ] Add plugin discovery workflow documentation
+- [ ] **Docs:** Add new section to `doc/modules/galleria/plugin-system.md` on orchestration
+  - [ ] Document complete pipeline execution patterns
+  - [ ] Add configuration examples for plugin loading
+  - [ ] Add troubleshooting guide for plugin discovery issues
+- [ ] Run full test suite to ensure no regressions
+- [ ] Verify test count reaches 170-180 tests target
 - [ ] **Message:** `Ft: Add plugin registry and orchestration system`
+
+**Expected Outcomes After Commit 5:**
+- PluginRegistry fully implements plugin discovery and orchestration
+- Integration tests demonstrate complete Provider → Processor pipeline
+- Plugin loading mechanism handles dependencies and configuration
+- Documentation updated to reflect orchestration capabilities
+- Test count progression: 161 → 170-180 tests
+- Foundation ready for Commit 6 (Template/CSS/Transform plugins)
 
 **Commit 6: Missing Plugins + Unit Tests (TDD)**
 
@@ -231,6 +218,10 @@
   - [ ] Create theme base class
   - [ ] Implement theme inheritance
   - [ ] Add dark mode theme variant
+- [ ] Investigate dead code or re-implemented code
+  - [ ] Old non-plugin based manifest serializer module based on normpic's code
+  - [ ] Old thumbnail processor that didn't use the plugin interfaces
+  - [ ] Anything else
 - [ ] Add Christmas gallery
 - [ ] Add vacation gallery
 
