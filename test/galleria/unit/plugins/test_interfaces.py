@@ -5,7 +5,7 @@ from abc import ABC
 import pytest
 
 from galleria.plugins import PluginContext, PluginResult
-from galleria.plugins.interfaces import ProcessorPlugin, ProviderPlugin
+from galleria.plugins.interfaces import ProcessorPlugin, ProviderPlugin, TransformPlugin
 
 
 class TestProviderPluginInterface:
@@ -357,3 +357,353 @@ class TestInterfaceIntegration:
         assert processor_result.output_data["collection_name"] == "contract_test"
         assert processor_result.output_data["thumbnail_count"] == 1
         assert "thumbs/gallery/img1.jpg.webp" in processor_result.output_data["photos"][0]["thumbnail_path"]
+
+
+class TestTransformPluginInterface:
+    """Unit tests for TransformPlugin interface contract."""
+
+    def test_transform_plugin_is_abstract_base_class(self):
+        """TransformPlugin should be an abstract base class."""
+        # Cannot instantiate abstract class directly
+        with pytest.raises(TypeError, match="Can't instantiate abstract class"):
+            TransformPlugin()
+
+    def test_transform_plugin_inherits_from_base_plugin(self):
+        """TransformPlugin should inherit from BasePlugin."""
+        from galleria.plugins import BasePlugin
+
+        assert issubclass(TransformPlugin, BasePlugin)
+        assert issubclass(TransformPlugin, ABC)
+
+    def test_transform_plugin_requires_transform_data_implementation(self):
+        """TransformPlugin subclasses must implement transform_data method."""
+
+        class IncompleteTransform(TransformPlugin):
+            @property
+            def name(self) -> str:
+                return "incomplete"
+
+            @property
+            def version(self) -> str:
+                return "1.0.0"
+
+            # Missing transform_data implementation
+
+        with pytest.raises(TypeError, match="Can't instantiate abstract class"):
+            IncompleteTransform()
+
+    def test_transform_plugin_execute_delegates_to_transform_data(self, tmp_path):
+        """TransformPlugin.execute should delegate to transform_data method."""
+
+        class TestTransform(TransformPlugin):
+            def __init__(self):
+                self.transform_data_called = False
+
+            @property
+            def name(self) -> str:
+                return "test-transform"
+
+            @property
+            def version(self) -> str:
+                return "1.0.0"
+
+            def transform_data(self, context: PluginContext) -> PluginResult:
+                self.transform_data_called = True
+                photos = context.input_data.get("photos", [])
+                return PluginResult(
+                    success=True,
+                    output_data={
+                        "photos": photos,
+                        "collection_name": context.input_data.get("collection_name", "test"),
+                        "transform_metadata": {"operation": "test"}
+                    }
+                )
+
+        transform = TestTransform()
+        context = PluginContext(
+            input_data={
+                "photos": [{"source_path": "test.jpg", "thumbnail_path": "thumb.webp"}],
+                "collection_name": "test"
+            },
+            config={},
+            output_dir=tmp_path
+        )
+
+        # execute should call transform_data
+        result = transform.execute(context)
+
+        assert transform.transform_data_called
+        assert result.success
+        assert result.output_data["transform_metadata"]["operation"] == "test"
+
+    def test_transform_plugin_contract_validation_pagination(self, tmp_path):
+        """Test TransformPlugin contract for pagination operations."""
+
+        class ValidPaginationTransform(TransformPlugin):
+            @property
+            def name(self) -> str:
+                return "valid-pagination-transform"
+
+            @property
+            def version(self) -> str:
+                return "1.0.0"
+
+            def transform_data(self, context: PluginContext) -> PluginResult:
+                # Validate expected input format (from ProcessorPlugin)
+                assert "photos" in context.input_data
+                assert "collection_name" in context.input_data
+                assert "thumbnail_count" in context.input_data
+
+                photos = context.input_data["photos"]
+                photos_per_page = context.config.get("photos_per_page", 2)
+
+                # Validate processor photo format
+                for photo in photos:
+                    assert "thumbnail_path" in photo
+                    assert "thumbnail_size" in photo
+
+                # Create pagination
+                pages = []
+                for i in range(0, len(photos), photos_per_page):
+                    pages.append({
+                        "page_number": len(pages) + 1,
+                        "photos": photos[i:i + photos_per_page],
+                        "photo_count": len(photos[i:i + photos_per_page])
+                    })
+
+                return PluginResult(
+                    success=True,
+                    output_data={
+                        "pages": pages,
+                        "collection_name": context.input_data["collection_name"],
+                        "page_count": len(pages),
+                        "total_photos": len(photos),
+                        "transform_metadata": {"type": "pagination", "photos_per_page": photos_per_page}
+                    }
+                )
+
+        transform = ValidPaginationTransform()
+        context = PluginContext(
+            input_data={
+                "photos": [
+                    {
+                        "source_path": "/source/test1.jpg",
+                        "dest_path": "test1.jpg",
+                        "thumbnail_path": "thumbs/test1.webp",
+                        "thumbnail_size": (300, 200)
+                    },
+                    {
+                        "source_path": "/source/test2.jpg",
+                        "dest_path": "test2.jpg",
+                        "thumbnail_path": "thumbs/test2.webp",
+                        "thumbnail_size": (300, 200)
+                    },
+                    {
+                        "source_path": "/source/test3.jpg",
+                        "dest_path": "test3.jpg",
+                        "thumbnail_path": "thumbs/test3.webp",
+                        "thumbnail_size": (300, 200)
+                    }
+                ],
+                "collection_name": "test_collection",
+                "thumbnail_count": 3
+            },
+            config={"photos_per_page": 2},
+            output_dir=tmp_path
+        )
+
+        result = transform.transform_data(context)
+
+        # Verify output contract for pagination
+        assert result.success
+        assert "pages" in result.output_data
+        assert "page_count" in result.output_data
+        assert "total_photos" in result.output_data
+        assert "transform_metadata" in result.output_data
+
+        # Verify pagination logic
+        assert result.output_data["page_count"] == 2  # 3 photos / 2 per page = 2 pages
+        assert result.output_data["total_photos"] == 3
+
+        # Verify page structure
+        pages = result.output_data["pages"]
+        assert len(pages) == 2
+        assert pages[0]["page_number"] == 1
+        assert pages[0]["photo_count"] == 2
+        assert pages[1]["page_number"] == 2
+        assert pages[1]["photo_count"] == 1
+
+        # Verify thumbnail data preserved
+        page1_photo = pages[0]["photos"][0]
+        assert page1_photo["thumbnail_path"] == "thumbs/test1.webp"
+        assert page1_photo["thumbnail_size"] == (300, 200)
+
+    def test_transform_plugin_contract_validation_sorting(self, tmp_path):
+        """Test TransformPlugin contract for sorting operations."""
+
+        class ValidSortTransform(TransformPlugin):
+            @property
+            def name(self) -> str:
+                return "valid-sort-transform"
+
+            @property
+            def version(self) -> str:
+                return "1.0.0"
+
+            def transform_data(self, context: PluginContext) -> PluginResult:
+                # Validate expected input format
+                assert "photos" in context.input_data
+                assert "collection_name" in context.input_data
+
+                photos = context.input_data["photos"]
+                sort_key = context.config.get("sort_by", "dest_path")
+                reverse = context.config.get("reverse", False)
+
+                # Sort photos
+                sorted_photos = sorted(photos, key=lambda p: p[sort_key], reverse=reverse)
+
+                return PluginResult(
+                    success=True,
+                    output_data={
+                        "photos": sorted_photos,
+                        "collection_name": context.input_data["collection_name"],
+                        "photo_count": len(sorted_photos),
+                        "transform_metadata": {
+                            "type": "sorting",
+                            "sort_key": sort_key,
+                            "reverse": reverse
+                        }
+                    }
+                )
+
+        transform = ValidSortTransform()
+        context = PluginContext(
+            input_data={
+                "photos": [
+                    {"dest_path": "c.jpg", "thumbnail_path": "thumbs/c.webp"},
+                    {"dest_path": "a.jpg", "thumbnail_path": "thumbs/a.webp"},
+                    {"dest_path": "b.jpg", "thumbnail_path": "thumbs/b.webp"}
+                ],
+                "collection_name": "test_collection",
+                "thumbnail_count": 3
+            },
+            config={"sort_by": "dest_path", "reverse": False},
+            output_dir=tmp_path
+        )
+
+        result = transform.transform_data(context)
+
+        # Verify output contract for sorting
+        assert result.success
+        assert "photos" in result.output_data
+        assert "photo_count" in result.output_data
+        assert "transform_metadata" in result.output_data
+
+        # Verify sorting worked
+        sorted_photos = result.output_data["photos"]
+        assert len(sorted_photos) == 3
+        assert sorted_photos[0]["dest_path"] == "a.jpg"
+        assert sorted_photos[1]["dest_path"] == "b.jpg"
+        assert sorted_photos[2]["dest_path"] == "c.jpg"
+
+        # Verify thumbnail data preserved
+        assert sorted_photos[0]["thumbnail_path"] == "thumbs/a.webp"
+
+
+class TestTransformIntegration:
+    """Unit tests for Transform plugin integration with other interfaces."""
+
+    def test_processor_output_matches_transform_input_contract(self, tmp_path):
+        """Processor output format should match Transform input expectations."""
+
+        class TestProcessor(ProcessorPlugin):
+            @property
+            def name(self) -> str:
+                return "contract-processor"
+
+            @property
+            def version(self) -> str:
+                return "1.0.0"
+
+            def process_thumbnails(self, context: PluginContext) -> PluginResult:
+                photos = context.input_data["photos"]
+                processed_photos = []
+
+                for photo in photos:
+                    processed_photos.append({
+                        **photo,
+                        "thumbnail_path": f"thumbs/{photo['dest_path']}.webp",
+                        "thumbnail_size": (300, 200)
+                    })
+
+                return PluginResult(
+                    success=True,
+                    output_data={
+                        "photos": processed_photos,
+                        "collection_name": context.input_data["collection_name"],
+                        "thumbnail_count": len(processed_photos)
+                    }
+                )
+
+        class TestTransform(TransformPlugin):
+            @property
+            def name(self) -> str:
+                return "contract-transform"
+
+            @property
+            def version(self) -> str:
+                return "1.0.0"
+
+            def transform_data(self, context: PluginContext) -> PluginResult:
+                # Should be able to process Processor output without modification
+                photos = context.input_data["photos"]
+                collection_name = context.input_data["collection_name"]
+                thumbnail_count = context.input_data["thumbnail_count"]
+
+                # Simple pagination
+                pages = [{"page_number": 1, "photos": photos}]
+
+                return PluginResult(
+                    success=True,
+                    output_data={
+                        "pages": pages,
+                        "collection_name": collection_name,
+                        "page_count": 1,
+                        "original_thumbnail_count": thumbnail_count
+                    }
+                )
+
+        # Test that Processor → Transform contract works
+        processor = TestProcessor()
+        transform = TestTransform()
+
+        # Processor stage (mock Provider output)
+        processor_context = PluginContext(
+            input_data={
+                "photos": [{"source_path": "/source/img1.jpg", "dest_path": "img1.jpg"}],
+                "collection_name": "contract_test"
+            },
+            config={},
+            output_dir=tmp_path
+        )
+        processor_result = processor.process_thumbnails(processor_context)
+
+        # Transform stage (using Processor output)
+        transform_context = PluginContext(
+            input_data=processor_result.output_data,
+            config={},
+            output_dir=tmp_path
+        )
+        transform_result = transform.transform_data(transform_context)
+
+        # Verify seamless data flow
+        assert processor_result.success
+        assert transform_result.success
+        assert processor_result.output_data["collection_name"] == "contract_test"
+        assert transform_result.output_data["collection_name"] == "contract_test"
+        assert transform_result.output_data["original_thumbnail_count"] == 1
+
+        # Verify thumbnail data preserved through pipeline
+        page_photo = transform_result.output_data["pages"][0]["photos"][0]
+        assert page_photo["thumbnail_path"] == "thumbs/img1.jpg.webp"
+        assert page_photo["thumbnail_size"] == (300, 200)

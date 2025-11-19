@@ -122,3 +122,66 @@ class ProcessorPlugin(BasePlugin):
         to the process_thumbnails method specific to processor plugins.
         """
         return self.process_thumbnails(context)
+
+
+class TransformPlugin(BasePlugin):
+    """Base class for transform plugins that manipulate photo collection data.
+
+    Transform plugins take processed photo data and apply transformations like
+    pagination, sorting, filtering, or grouping operations.
+
+    Expected input format (from ProcessorPlugin):
+    {
+        "photos": [
+            {
+                # All photo data including thumbnails from processor
+                "thumbnail_path": str,
+                "thumbnail_size": tuple,
+                ...
+            },
+            ...
+        ],
+        "collection_name": str,
+        "thumbnail_count": int,
+        ...                           # Other processor data
+    }
+
+    Expected output format:
+    {
+        # Transformed data structure (varies by transform type)
+        "pages": [...],              # For pagination transforms
+        "photos": [...],             # For sorting/filtering transforms
+        "groups": [...],             # For grouping transforms
+        "collection_name": str,      # Preserved from input
+        "transform_metadata": dict,  # Transform-specific metadata
+        ...
+    }
+    """
+
+    @abstractmethod
+    def transform_data(self, context: PluginContext) -> PluginResult:
+        """Transform photo collection data according to plugin logic.
+
+        Args:
+            context: Plugin execution context containing:
+                - input_data: Processed photo collection data from processor
+                - config: Transform configuration (pagination size, sort criteria, etc.)
+                - output_dir: Target output directory
+
+        Returns:
+            PluginResult with transformed photo data
+
+        Raises:
+            PluginValidationError: Invalid input data or configuration
+            PluginExecutionError: Failed to transform data
+            PluginDependencyError: Missing required dependencies
+        """
+        pass
+
+    def execute(self, context: PluginContext) -> PluginResult:
+        """Execute the transform plugin by transforming the data.
+
+        This method implements the BasePlugin execute interface by delegating
+        to the transform_data method specific to transform plugins.
+        """
+        return self.transform_data(context)

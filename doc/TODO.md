@@ -37,13 +37,13 @@
   - [x] **Docs:** Update `doc/modules/galleria/plugin-system.md` with interface documentation
   - [x] **Message:** `Ft: Add Provider and Processor plugin interfaces with TDD`
 
-- [ ] **Commit 2b: Transform Interface Definition (TDD)**
-  - [ ] Write failing integration tests for Processor ↔ Transform interaction
-  - [ ] Define TransformPlugin interface (pagination, sorting, filtering)
-  - [ ] Implement abstract interface contract
-  - [ ] Add unit tests for interface validation
-  - [ ] **Docs:** Update `doc/modules/galleria/plugin-system.md` with Transform interface
-  - [ ] **Message:** `Ft: Add Transform plugin interface with TDD`
+- [x] **Commit 2b: Transform Interface Definition (TDD)** (COMPLETED)
+  - [x] Write failing integration tests for Processor ↔ Transform interaction
+  - [x] Define TransformPlugin interface (pagination, sorting, filtering)
+  - [x] Implement abstract interface contract
+  - [x] Add unit tests for interface validation
+  - [x] **Docs:** Update `doc/modules/galleria/plugin-system.md` with Transform interface
+  - [x] **Message:** `Ft: Add Transform plugin interface with TDD`
 
 - [ ] **Commit 2c: Template + CSS Interface Definition (TDD)**
   - [ ] Write failing integration tests for Transform ↔ Template ↔ CSS interaction

@@ -135,13 +135,55 @@ class MyProcessor(ProcessorPlugin):
 - **MetadataProcessor**: EXIF data extraction (future)
 - **WatermarkProcessor**: Watermark application (future)
 
-### Transform Plugins (Future)
-Manipulate photo collection data:
-- **TransformPlugin**: Abstract interface for data manipulation (future)
-- **PaginationTransform**: Split collections into pages
-- **SortTransform**: Order photos by various criteria
-- **FilterTransform**: Apply visibility rules
-- **GroupTransform**: Create sub-collections
+### TransformPlugin Interface
+
+Transforms manipulate processed photo data for pagination, sorting, and filtering:
+
+```python
+from galleria.plugins import TransformPlugin
+
+class MyTransform(TransformPlugin):
+    def transform_data(self, context: PluginContext) -> PluginResult:
+        # Transform photo data according to plugin logic
+        pass
+```
+
+**Expected Input Format (from ProcessorPlugin):**
+```python
+{
+    "photos": [
+        {
+            # All photo data including thumbnails from processor
+            "thumbnail_path": str,
+            "thumbnail_size": tuple,
+            ...
+        },
+        ...
+    ],
+    "collection_name": str,
+    "thumbnail_count": int,
+    ...                           # Other processor data
+}
+```
+
+**Required Output Format:**
+```python
+{
+    # Transformed data structure (varies by transform type)
+    "pages": [...],              # For pagination transforms
+    "photos": [...],             # For sorting/filtering transforms  
+    "groups": [...],             # For grouping transforms
+    "collection_name": str,      # Preserved from input
+    "transform_metadata": dict,  # Transform-specific metadata
+    ...
+}
+```
+
+**Example Implementations:**
+- **PaginationTransform**: Split collections into pages (future)
+- **SortTransform**: Order photos by various criteria (future)
+- **FilterTransform**: Apply visibility rules (future)
+- **GroupTransform**: Create sub-collections (future)
 
 ### Template Plugins (Future)
 Generate HTML structure:
