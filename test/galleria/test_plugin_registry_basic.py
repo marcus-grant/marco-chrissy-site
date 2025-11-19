@@ -142,3 +142,44 @@ class TestPluginRegistryBasic:
             assert False, "Should reject invalid stage"
         except ValueError as e:
             assert "invalid" in str(e).lower()
+
+    def test_discover_plugins_finds_concrete_implementations(self):
+        """Test that discover_plugins() finds concrete plugin implementations."""
+        from galleria.plugins.registry import PluginRegistry
+        
+        registry = PluginRegistry()
+        
+        # This should find NormPic and Thumbnail plugins
+        discovered = registry.discover_plugins()
+        
+        # Should return dict with stage -> list of plugin classes
+        assert isinstance(discovered, dict)
+        assert "provider" in discovered
+        assert "processor" in discovered
+        
+        # Should find actual plugin classes
+        provider_classes = discovered["provider"]
+        assert len(provider_classes) > 0
+        assert any("normpic" in cls.__name__.lower() for cls in provider_classes)
+        
+        processor_classes = discovered["processor"] 
+        assert len(processor_classes) > 0
+        assert any("thumbnail" in cls.__name__.lower() for cls in processor_classes)
+
+    def test_discover_plugins_returns_only_concrete_classes(self):
+        """Test that discover_plugins() excludes abstract base classes."""
+        from galleria.plugins.registry import PluginRegistry
+        
+        registry = PluginRegistry()
+        discovered = registry.discover_plugins()
+        
+        # Should not include abstract base classes
+        for stage, plugin_classes in discovered.items():
+            for plugin_cls in plugin_classes:
+                # Should be able to instantiate (concrete, not abstract)
+                try:
+                    instance = plugin_cls()
+                    assert hasattr(instance, 'name')
+                    assert hasattr(instance, 'version')
+                except TypeError:
+                    assert False, f"{plugin_cls} should be concrete, not abstract"

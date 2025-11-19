@@ -1,5 +1,10 @@
 """Plugin registry for managing plugin instances."""
 
+import inspect
+import pkgutil
+
+from .interfaces import ProviderPlugin, ProcessorPlugin, TransformPlugin, TemplatePlugin, CSSPlugin
+
 
 class PluginRegistry:
     """Registry for managing plugin instances and discovery."""
@@ -50,3 +55,48 @@ class PluginRegistry:
             if plugin.name == name:
                 return plugin
         return None
+
+    def discover_plugins(self):
+        """Discover concrete plugin implementations.
+        
+        Returns:
+            Dict mapping stage names to lists of plugin classes
+        """
+        discovered = {stage: [] for stage in self.VALID_STAGES}
+        
+        # Stage -> interface mappings
+        stage_interfaces = {
+            "provider": ProviderPlugin,
+            "processor": ProcessorPlugin,
+            "transform": TransformPlugin,
+            "template": TemplatePlugin,
+            "css": CSSPlugin,
+        }
+        
+        # Import and check plugin modules
+        try:
+            from . import providers
+            self._discover_in_module(providers, "provider", stage_interfaces["provider"], discovered)
+        except ImportError:
+            pass
+            
+        try:
+            from . import processors
+            self._discover_in_module(processors, "processor", stage_interfaces["processor"], discovered)
+        except ImportError:
+            pass
+        
+        return discovered
+    
+    def _discover_in_module(self, module, stage, interface_cls, discovered):
+        """Helper to discover plugins in a specific module."""
+        for importer, modname, ispkg in pkgutil.iter_modules(module.__path__, module.__name__ + "."):
+            try:
+                plugin_module = __import__(modname, fromlist=[""])
+                for name, obj in inspect.getmembers(plugin_module, inspect.isclass):
+                    if (issubclass(obj, interface_cls) and 
+                        obj is not interface_cls and
+                        not inspect.isabstract(obj)):
+                        discovered[stage].append(obj)
+            except ImportError:
+                continue
