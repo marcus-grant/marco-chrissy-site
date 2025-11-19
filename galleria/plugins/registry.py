@@ -6,4 +6,15 @@ class PluginRegistry:
 
     def __init__(self):
         """Initialize empty plugin registry."""
-        pass
+        self._plugins = {}
+
+    def register(self, plugin, stage):
+        """Register a plugin for a specific stage.
+        
+        Args:
+            plugin: Plugin instance to register
+            stage: Stage name (e.g., 'provider', 'processor')
+        """
+        if stage not in self._plugins:
+            self._plugins[stage] = []
+        self._plugins[stage].append(plugin)
