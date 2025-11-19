@@ -7,6 +7,7 @@ from .exceptions import (
     PluginExecutionError,
     PluginValidationError,
 )
+from .interfaces import ProcessorPlugin, ProviderPlugin
 
 __all__ = [
     "BasePlugin",
@@ -16,4 +17,6 @@ __all__ = [
     "PluginValidationError",
     "PluginExecutionError",
     "PluginDependencyError",
+    "ProviderPlugin",
+    "ProcessorPlugin",
 ]

@@ -54,35 +54,105 @@ class MyPlugin(BasePlugin):
 - **name**: Unique string identifier for the plugin
 - **version**: Semantic version string (e.g., "1.0.0")
 
-## Plugin Types (Future)
+## Plugin Interfaces
 
-### Provider Plugins
-Load photo collection data from various sources:
-- **NormPicProvider**: Loads NormPic v0.1.0 manifests
-- **DirectoryProvider**: Scans filesystem directories
-- **DatabaseProvider**: Loads from database sources
+### ProviderPlugin Interface
 
-### Processor Plugins  
-Generate thumbnails and process images:
-- **ThumbnailProcessor**: WebP thumbnail generation with caching
-- **MetadataProcessor**: EXIF data extraction
-- **WatermarkProcessor**: Watermark application
+Providers load photo collection data from various sources and must implement:
 
-### Transform Plugins
+```python
+from galleria.plugins import ProviderPlugin
+
+class MyProvider(ProviderPlugin):
+    def load_collection(self, context: PluginContext) -> PluginResult:
+        # Load photos and return structured data
+        pass
+```
+
+**Required Output Format:**
+```python
+{
+    "photos": [
+        {
+            "source_path": str,    # Path to original photo file
+            "dest_path": str,      # Relative destination path  
+            "metadata": dict       # Optional metadata (EXIF, etc.)
+        },
+        ...
+    ],
+    "collection_name": str,        # Name of the photo collection
+    "manifest_version": str        # Version info (optional)
+}
+```
+
+**Example Implementations:**
+- **NormPicProvider**: Loads NormPic v0.1.0 manifests (future)
+- **DirectoryProvider**: Scans filesystem directories (future)
+- **DatabaseProvider**: Loads from database sources (future)
+
+### ProcessorPlugin Interface
+
+Processors generate thumbnails and process images from provider data:
+
+```python
+from galleria.plugins import ProcessorPlugin
+
+class MyProcessor(ProcessorPlugin):
+    def process_thumbnails(self, context: PluginContext) -> PluginResult:
+        # Generate thumbnails and process images
+        pass
+```
+
+**Expected Input Format (from ProviderPlugin):**
+```python
+{
+    "photos": [...],               # Photo collection from provider
+    "collection_name": str,
+    ...                           # Other provider data
+}
+```
+
+**Required Output Format:**
+```python
+{
+    "photos": [
+        {
+            # All original photo data from provider
+            "thumbnail_path": str,      # Path to generated thumbnail
+            "thumbnail_size": tuple,    # (width, height) of thumbnail
+            # Other processing results...
+        },
+        ...
+    ],
+    "collection_name": str,
+    "thumbnail_count": int,             # Number of thumbnails generated
+    ...                                 # Other processing metadata
+}
+```
+
+**Example Implementations:**
+- **ThumbnailProcessor**: WebP thumbnail generation with caching (future)
+- **MetadataProcessor**: EXIF data extraction (future)
+- **WatermarkProcessor**: Watermark application (future)
+
+### Transform Plugins (Future)
 Manipulate photo collection data:
+- **TransformPlugin**: Abstract interface for data manipulation (future)
 - **PaginationTransform**: Split collections into pages
 - **SortTransform**: Order photos by various criteria
 - **FilterTransform**: Apply visibility rules
 - **GroupTransform**: Create sub-collections
 
-### Template Plugins
+### Template Plugins (Future)
 Generate HTML structure:
+- **TemplatePlugin**: Abstract interface for HTML generation (future)
 - **GalleryTemplate**: Grid-based photo galleries  
 - **CarouselTemplate**: Slideshow presentations
 - **ListTemplate**: List-based layouts
 
-### CSS Plugins
+### CSS Plugins (Future)
 Generate stylesheets:
+- **CSSPlugin**: Abstract interface for stylesheet generation (future)
 - **ResponsiveCSS**: Mobile-first responsive styles
 - **ThemeCSS**: Theme-based styling systems
 - **UtilityCSS**: Utility-first CSS generation

@@ -27,6 +27,14 @@
   - Add comprehensive unit tests for hook system (10 tests)
   - Update plugin system documentation with hook examples
   - Create galleria/manager/ module for plugin orchestration
+* Add Provider and Processor plugin interfaces with TDD methodology
+  - Create failing integration tests for Provider ↔ Processor interaction (3 tests)
+  - Define ProviderPlugin interface with load_collection() abstract method
+  - Define ProcessorPlugin interface with process_thumbnails() abstract method
+  - Implement clear data format contracts between pipeline stages
+  - Add comprehensive unit tests for interface validation (11 tests)
+  - Update plugin-system.md documentation with interface specifications
+  - Test progression: 91 → 105 tests (+14 new tests)
 
 ## 2025-11-18
 

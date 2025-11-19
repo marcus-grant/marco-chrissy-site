@@ -29,18 +29,35 @@
   - [x] **Docs:** Update `doc/modules/galleria/plugin-system.md` with hook system
   - [x] **Message:** `Ft: Add plugin hook system and complete foundation`
 
-- [ ] **Commit 2: Plugin Interface Definitions + Integration Tests**
-  - [ ] Create failing integration tests for each plugin type interaction
-  - [ ] Create ProviderPlugin interface for photo collection sources
-  - [ ] Create ProcessorPlugin interface for thumbnail generation
-  - [ ] Create TemplatePlugin interface for HTML generation
-  - [ ] Create CSSPlugin interface for stylesheet generation
-  - [ ] Create PaginationPlugin interface for multi-page support
-  - [ ] **Docs:** Update `doc/modules/galleria/plugin-system.md` with interface contracts
-  - [ ] **Docs:** Create `doc/modules/galleria/plugin-interfaces.md`
-    - Detailed interface specifications
-  - [ ] **Message:**
-    - `Ft: Add plugin interfaces for provider, processor, template, CSS, pagination`
+- [x] **Commit 2a: Provider + Processor Interface Definition (TDD)** (COMPLETED)
+  - [x] Write failing integration tests for Provider ↔ Processor interaction
+  - [x] Define ProviderPlugin and ProcessorPlugin interfaces
+  - [x] Implement abstract interface contracts
+  - [x] Add unit tests for interface validation
+  - [x] **Docs:** Update `doc/modules/galleria/plugin-system.md` with interface documentation
+  - [x] **Message:** `Ft: Add Provider and Processor plugin interfaces with TDD`
+
+- [ ] **Commit 2b: Transform Interface Definition (TDD)**
+  - [ ] Write failing integration tests for Processor ↔ Transform interaction
+  - [ ] Define TransformPlugin interface (pagination, sorting, filtering)
+  - [ ] Implement abstract interface contract
+  - [ ] Add unit tests for interface validation
+  - [ ] **Docs:** Update `doc/modules/galleria/plugin-system.md` with Transform interface
+  - [ ] **Message:** `Ft: Add Transform plugin interface with TDD`
+
+- [ ] **Commit 2c: Template + CSS Interface Definition (TDD)**
+  - [ ] Write failing integration tests for Transform ↔ Template ↔ CSS interaction
+  - [ ] Define TemplatePlugin and CSSPlugin interfaces
+  - [ ] Implement abstract interface contracts
+  - [ ] Add unit tests for interface validation
+  - [ ] **Docs:** Update `doc/modules/galleria/plugin-system.md` with Template and CSS interfaces
+  - [ ] **Message:** `Ft: Add Template and CSS plugin interfaces with TDD`
+
+- [ ] **Commit 2d: Complete Interface Integration Test**
+  - [ ] Ensure E2E test from Commit 1d works with new interfaces
+  - [ ] Validate all interfaces work together end-to-end
+  - [ ] **Docs:** Complete `doc/modules/galleria/plugin-system.md` with full interface documentation
+  - [ ] **Message:** `Ft: Complete plugin interface integration and E2E validation`
 
 - [ ] **Commit 3: NormPicProviderPlugin + Unit Tests (TDD)**
   - [ ] Write failing unit tests for NormPicProviderPlugin behavior
