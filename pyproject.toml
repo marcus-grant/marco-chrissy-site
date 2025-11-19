@@ -42,7 +42,7 @@ galleria = "galleria.__main__:main"
 [tool.ruff]
 line-length = 88
 target-version = "py312"
-select = [
+lint.select = [
     "E",   # pycodestyle errors
     "W",   # pycodestyle warnings
     "F",   # pyflakes
@@ -50,11 +50,11 @@ select = [
     "B",   # flake8-bugbear
     "UP",  # pyupgrade
 ]
-ignore = [
+lint.ignore = [
     "E501",  # line too long (handled by formatter)
 ]
 
-[tool.ruff.per-file-ignores]
+[tool.ruff.lint.per-file-ignores]
 "test/**" = ["S101"]  # Allow assert in tests
 
 [tool.pytest.ini_options]

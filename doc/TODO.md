@@ -22,14 +22,12 @@
   - [x] Create `galleria/plugins/exceptions.py` with exception hierarchy
   - [x] **Message:** `Ft: Add plugin exception hierarchy`
 
-- [ ] **Commit 1d: Hook System + Documentation**
-  - [ ] Create `galleria/manager/` directory and hook system
-  - [ ] Create E2E integration test for complete plugin workflow
+- [x] **Commit 1d: Hook System + Documentation** (COMPLETED)
+  - [x] Create `galleria/manager/` directory and hook system
+  - [x] Create E2E integration test for complete plugin workflow
     - (Provider → Processor → Transform → Template → CSS)
-  - [ ] **Docs:** Create `doc/modules/galleria/plugin-system.md`
-    - Plugin system architecture overview
-  - [ ] **Docs:** Update `doc/modules/galleria/README.md` to link to plugin-system.md
-  - [ ] **Message:** `Ft: Add plugin hook system and complete foundation`
+  - [x] **Docs:** Update `doc/modules/galleria/plugin-system.md` with hook system
+  - [x] **Message:** `Ft: Add plugin hook system and complete foundation`
 
 - [ ] **Commit 2: Plugin Interface Definitions + Integration Tests**
   - [ ] Create failing integration tests for each plugin type interaction
@@ -296,4 +294,3 @@ MVP is complete when:
 - Design plugin interface from day one - modularity is foundational
 - Plugin hooks should be lightweight and clearly defined
 - Each component should be pluggable without tight coupling
-

@@ -13,12 +13,12 @@ Galleria is a focused gallery generator that converts NormPic manifests into sta
 ## Module Status
 
 **✅ Completed**:
-- Plugin System: Base interface and foundation architecture
+- Plugin System: Complete foundation with interfaces, exceptions, and hooks
 - Serializer: NormPic v0.1.0 manifest loading
 - Processor: Thumbnail generation with caching
 
 **🚧 In Progress**:
-- Plugin System: Data structures, exceptions, and hook system
+- Plugin System: Specific plugin interface implementations
 - Template: HTML rendering system
 - Generator: Workflow orchestration
 - Themes: Asset and template management

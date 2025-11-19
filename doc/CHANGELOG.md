@@ -20,6 +20,13 @@
   - Add PluginExecutionError with original exception chaining
   - Add PluginDependencyError with missing dependencies tracking
   - Write comprehensive unit tests first, then implement (21 tests)
+* Add plugin hook system and complete foundation
+  - Create E2E test for complete 5-stage plugin workflow
+  - Add PluginHookManager for extensibility points in pipeline
+  - Implement hook registration and execution with proper ordering
+  - Add comprehensive unit tests for hook system (10 tests)
+  - Update plugin system documentation with hook examples
+  - Create galleria/manager/ module for plugin orchestration
 
 ## 2025-11-18
 

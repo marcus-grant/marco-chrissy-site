@@ -126,12 +126,68 @@ except OSError as e:
 
 All plugin exceptions can be caught using the base `PluginError` class for unified error handling across the plugin system.
 
+## Hook System
+
+The plugin system includes a comprehensive hook system for extensibility points throughout the pipeline.
+
+### Hook Manager
+
+The `PluginHookManager` provides hook registration and execution:
+
+```python
+from galleria.manager.hooks import PluginHookManager
+
+# Create hook manager
+hook_manager = PluginHookManager()
+
+# Register hook callbacks
+def log_stage(context):
+    print(f"Processing: {context.input_data}")
+    return PluginResult(success=True, output_data=context.input_data)
+
+hook_manager.register_hook("before_provider", log_stage)
+```
+
+### Standard Hook Points
+
+The plugin pipeline provides hooks at each stage:
+
+- **before_provider** / **after_provider**: Photo collection loading stage
+- **before_processor** / **after_processor**: Image processing stage  
+- **before_transform** / **after_transform**: Data transformation stage
+- **before_template** / **after_template**: HTML generation stage
+- **before_css** / **after_css**: Stylesheet generation stage
+
+### Hook Execution
+
+Hooks are executed in registration order and receive `PluginContext`:
+
+```python
+# Execute hook with context
+results = hook_manager.execute_hook("before_provider", context)
+
+# Hooks can modify context data for debugging, logging, validation
+for result in results:
+    if not result.success:
+        print(f"Hook failed: {result.errors}")
+```
+
+### Use Cases
+
+Common hook use cases include:
+
+- **Logging**: Track pipeline execution progress
+- **Validation**: Verify context data at each stage
+- **Debugging**: Inspect data flow between plugins
+- **Metrics**: Collect performance and usage statistics
+- **Caching**: Implement custom caching strategies
+
 ## Extensibility
 
 The plugin system is designed for extensibility from day one:
 
-- Plugin hooks enable custom processing at each stage
-- Plugin registry supports runtime discovery and loading  
+- Plugin hooks enable custom processing at each stage (implemented)
+- Plugin registry supports runtime discovery and loading (future)
 - Clean interfaces allow easy testing and development
 - Modular design enables independent plugin development
 
@@ -151,7 +207,6 @@ When developing plugins:
 
 Planned plugin system enhancements include:
 
-- Plugin hook system for extensibility points
 - Plugin registry and discovery mechanisms
 - Configuration validation and dependency management
 - Plugin performance monitoring and profiling
