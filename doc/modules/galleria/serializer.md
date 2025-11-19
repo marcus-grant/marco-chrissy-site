@@ -2,7 +2,9 @@
 
 ## Overview
 
-The serializer module provides a photo collection provider system that loads photo metadata from various sources (primarily NormPic manifests) and converts it into standardized data structures for gallery generation.
+The serializer module provides legacy support for photo collection loading, now superseded by the plugin system. Photo collections are loaded via the `NormPicProviderPlugin` which implements the standardized `ProviderPlugin` interface.
+
+**Current Status**: The serializer API remains for backward compatibility, but new development should use the `NormPicProviderPlugin` directly through the plugin system.
 
 ## Architecture
 
@@ -155,23 +157,71 @@ The serializer currently supports NormPic v0.1.0 manifest format.
 }
 ```
 
-## Plugin Architecture
+## Plugin System Integration
 
-The serializer is designed with plugin extensibility in mind:
+The serializer functionality has been migrated to the plugin system:
 
-**Current**: NormPic manifest provider
-**Future**: Directory scanner, database, API providers
+**New Plugin**: `NormPicProviderPlugin` (`galleria/plugins/providers/normpic.py`)
+**Interface**: Implements `ProviderPlugin` from `galleria.plugins.interfaces`
+**Migration**: Legacy `load_photo_collection()` function remains for backward compatibility
 
-**Design Principles**:
-- Clean separation between data models and source providers
-- Provider-agnostic data structures
-- Extensible plugin system for new collection sources
+### Using the Plugin System
 
-## Future Enhancements
+```python
+from galleria.plugins.providers.normpic import NormPicProviderPlugin
+from galleria.plugins import PluginContext
 
-- PhotoCollectionProvider plugin interface
-- Directory scanner provider (auto-discover photos)
-- Database provider (load from SQLite/PostgreSQL)
-- API provider (fetch from remote sources)
-- Support for additional manifest formats
-- Metadata caching and validation
+# Create plugin context
+context = PluginContext(
+    input_data={"manifest_path": "/path/to/manifest.json"},
+    config={},
+    output_dir=Path("/output")
+)
+
+# Load collection via plugin
+plugin = NormPicProviderPlugin()
+result = plugin.load_collection(context)
+
+if result.success:
+    photos = result.output_data["photos"]
+    collection_name = result.output_data["collection_name"]
+else:
+    print(f"Error: {result.errors}")
+```
+
+### Plugin Output Format
+
+The `NormPicProviderPlugin` follows the `ProviderPlugin` contract:
+
+```python
+{
+    "photos": [
+        {
+            "source_path": "/photos/IMG_001.jpg",
+            "dest_path": "wedding/IMG_001.jpg",
+            "metadata": {
+                "hash": "abc123",
+                "size_bytes": 2048000,
+                "mtime": 1699123456.789,
+                "camera": "Canon EOS R5",
+                "gps": {"lat": 40.7128, "lon": -74.0060}
+            }
+        }
+    ],
+    "collection_name": "wedding_photos",
+    "collection_description": "Wedding photos",  # Optional
+    "manifest_version": "0.1.0"                  # Optional
+}
+```
+
+## Migration Notes
+
+**For Existing Code**:
+- Continue using `load_photo_collection()` for now
+- Plan migration to plugin system for new features
+- Plugin system provides better error handling and standardized interface
+
+**For New Code**:
+- Use `NormPicProviderPlugin` directly
+- Follow `ProviderPlugin` interface contract
+- Benefits from plugin system architecture (orchestration, pipelines, etc.)
