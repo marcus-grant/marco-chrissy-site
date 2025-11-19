@@ -18,3 +18,21 @@ class PluginRegistry:
         if stage not in self._plugins:
             self._plugins[stage] = []
         self._plugins[stage].append(plugin)
+
+    def get_plugin(self, name, stage):
+        """Retrieve a plugin by name and stage.
+        
+        Args:
+            name: Plugin name to find
+            stage: Stage name to search in
+            
+        Returns:
+            Plugin instance if found, None otherwise
+        """
+        if stage not in self._plugins:
+            return None
+        
+        for plugin in self._plugins[stage]:
+            if plugin.name == name:
+                return plugin
+        return None

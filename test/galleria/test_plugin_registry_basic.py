@@ -63,3 +63,39 @@ class TestPluginRegistryBasic:
             assert False, "Should require stage parameter"
         except TypeError:
             pass  # Expected
+
+    def test_get_plugin_retrieves_registered_plugin(self):
+        """Test that get_plugin() retrieves plugins by name and stage."""
+        from galleria.plugins.registry import PluginRegistry
+        from galleria.plugins.base import BasePlugin
+        
+        class MockPlugin(BasePlugin):
+            @property
+            def name(self):
+                return "mock"
+            
+            @property  
+            def version(self):
+                return "1.0.0"
+            
+            def execute(self, context):
+                return None
+        
+        registry = PluginRegistry()
+        plugin = MockPlugin()
+        
+        registry.register(plugin, stage="provider")
+        
+        # This should retrieve the plugin
+        retrieved = registry.get_plugin("mock", stage="provider")
+        assert retrieved is plugin
+
+    def test_get_plugin_returns_none_for_missing_plugin(self):
+        """Test that get_plugin() returns None for missing plugins."""
+        from galleria.plugins.registry import PluginRegistry
+        
+        registry = PluginRegistry()
+        
+        # This should return None
+        result = registry.get_plugin("nonexistent", stage="provider")
+        assert result is None
