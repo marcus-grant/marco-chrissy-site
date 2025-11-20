@@ -1,11 +1,11 @@
 """Tests for Galleria configuration loading and validation."""
 
 import json
-import pytest
-from pathlib import Path
 
-from galleria.config import GalleriaConfig, PipelineStageConfig, PipelineConfig
 import click
+import pytest
+
+from galleria.config import GalleriaConfig
 
 
 class TestGalleriaConfig:
@@ -16,7 +16,7 @@ class TestGalleriaConfig:
         # Arrange
         manifest_path = tmp_path / "manifest.json"
         manifest_path.write_text('{"version": "0.1.0", "collection_name": "test", "pics": []}')
-        
+
         config_data = {
             "input": {"manifest_path": str(manifest_path)},
             "output": {"directory": str(tmp_path / "output")},
@@ -28,13 +28,13 @@ class TestGalleriaConfig:
                 "css": {"plugin": "basic-css", "config": {"responsive": True}}
             }
         }
-        
+
         config_path = tmp_path / "config.json"
         config_path.write_text(json.dumps(config_data))
-        
+
         # Act
         config = GalleriaConfig.from_file(config_path)
-        
+
         # Assert
         assert config.input_manifest_path == manifest_path
         assert config.output_directory == tmp_path / "output"
@@ -49,7 +49,7 @@ class TestGalleriaConfig:
         # Arrange
         manifest_path = tmp_path / "manifest.json"
         manifest_path.write_text('{"version": "0.1.0", "collection_name": "test", "pics": []}')
-        
+
         config_data = {
             "input": {"manifest_path": str(manifest_path)},
             "output": {"directory": str(tmp_path / "original_output")},
@@ -61,21 +61,21 @@ class TestGalleriaConfig:
                 "css": {"plugin": "basic-css", "config": {}}
             }
         }
-        
+
         config_path = tmp_path / "config.json"
         config_path.write_text(json.dumps(config_data))
         override_output = tmp_path / "override_output"
-        
+
         # Act
         config = GalleriaConfig.from_file(config_path, override_output)
-        
+
         # Assert
         assert config.output_directory == override_output
 
     def test_load_config_missing_file(self, tmp_path):
         """Test error handling for missing config file."""
         nonexistent_config = tmp_path / "missing.json"
-        
+
         with pytest.raises(click.FileError):
             GalleriaConfig.from_file(nonexistent_config)
 
@@ -83,7 +83,7 @@ class TestGalleriaConfig:
         """Test error handling for invalid JSON."""
         config_path = tmp_path / "invalid.json"
         config_path.write_text("{ invalid json content }")
-        
+
         with pytest.raises(click.ClickException, match="Invalid JSON"):
             GalleriaConfig.from_file(config_path)
 
@@ -93,10 +93,10 @@ class TestGalleriaConfig:
             "output": {"directory": "/tmp/output"},
             "pipeline": {}
         }
-        
+
         config_path = tmp_path / "config.json"
         config_path.write_text(json.dumps(config_data))
-        
+
         with pytest.raises(click.ClickException, match="Missing required configuration section"):
             GalleriaConfig.from_file(config_path)
 
@@ -107,10 +107,10 @@ class TestGalleriaConfig:
             "output": {"directory": "/tmp/output"},
             "pipeline": {}
         }
-        
+
         config_path = tmp_path / "config.json"
         config_path.write_text(json.dumps(config_data))
-        
+
         with pytest.raises(click.ClickException, match="input.manifest_path"):
             GalleriaConfig.from_file(config_path)
 
@@ -118,7 +118,7 @@ class TestGalleriaConfig:
         """Test error handling for missing pipeline stage."""
         manifest_path = tmp_path / "manifest.json"
         manifest_path.write_text('{}')
-        
+
         config_data = {
             "input": {"manifest_path": str(manifest_path)},
             "output": {"directory": "/tmp/output"},
@@ -127,10 +127,10 @@ class TestGalleriaConfig:
                 # Missing processor, transform, template, css
             }
         }
-        
+
         config_path = tmp_path / "config.json"
         config_path.write_text(json.dumps(config_data))
-        
+
         with pytest.raises(click.ClickException, match="Missing required pipeline stage"):
             GalleriaConfig.from_file(config_path)
 
@@ -138,7 +138,7 @@ class TestGalleriaConfig:
         """Test error handling for missing plugin name."""
         manifest_path = tmp_path / "manifest.json"
         manifest_path.write_text('{}')
-        
+
         config_data = {
             "input": {"manifest_path": str(manifest_path)},
             "output": {"directory": "/tmp/output"},
@@ -150,17 +150,17 @@ class TestGalleriaConfig:
                 "css": {"plugin": "basic-css", "config": {}}
             }
         }
-        
+
         config_path = tmp_path / "config.json"
         config_path.write_text(json.dumps(config_data))
-        
+
         with pytest.raises(click.ClickException, match="Missing plugin name"):
             GalleriaConfig.from_file(config_path)
 
     def test_validate_paths_missing_manifest(self, tmp_path):
         """Test path validation for missing manifest file."""
         nonexistent_manifest = tmp_path / "missing_manifest.json"
-        
+
         config_data = {
             "input": {"manifest_path": str(nonexistent_manifest)},
             "output": {"directory": str(tmp_path / "output")},
@@ -172,12 +172,12 @@ class TestGalleriaConfig:
                 "css": {"plugin": "basic-css", "config": {}}
             }
         }
-        
+
         config_path = tmp_path / "config.json"
         config_path.write_text(json.dumps(config_data))
-        
+
         config = GalleriaConfig.from_file(config_path)
-        
+
         with pytest.raises(click.ClickException, match="Manifest file not found"):
             config.validate_paths()
 
@@ -186,7 +186,7 @@ class TestGalleriaConfig:
         # Arrange
         manifest_path = tmp_path / "manifest.json"
         manifest_path.write_text('{}')
-        
+
         config_data = {
             "input": {"manifest_path": str(manifest_path)},
             "output": {"directory": str(tmp_path / "output")},
@@ -198,15 +198,15 @@ class TestGalleriaConfig:
                 "css": {"plugin": "basic-css", "config": {"responsive": True}}
             }
         }
-        
+
         config_path = tmp_path / "config.json"
         config_path.write_text(json.dumps(config_data))
-        
+
         config = GalleriaConfig.from_file(config_path)
-        
+
         # Act
         pipeline_config = config.to_pipeline_config()
-        
+
         # Assert
         assert pipeline_config["provider"]["setting1"] == "value1"
         assert pipeline_config["processor"]["size"] == 400

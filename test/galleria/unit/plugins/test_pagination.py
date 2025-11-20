@@ -21,12 +21,12 @@ class PaginationPlugin(TransformPlugin):
         """Transform photo data by splitting into pages."""
         page_size = context.config.get("page_size", 20)
         photos = context.input_data.get("photos", [])
-        
+
         # Split photos into pages
         pages = []
         for i in range(0, len(photos), page_size):
             pages.append(photos[i:i + page_size])
-        
+
         return PluginResult(
             success=True,
             output_data={
@@ -47,18 +47,18 @@ class TestPaginationPluginInterface:
     def test_pagination_plugin_inherits_from_transform_plugin(self):
         """PaginationPlugin should inherit from TransformPlugin."""
         plugin = PaginationPlugin()
-        
+
         # Should have base plugin properties
         assert hasattr(plugin, "name")
         assert hasattr(plugin, "version")
         assert hasattr(plugin, "execute")
-        
+
         # Should have transform-specific method
         assert hasattr(plugin, "transform_data")
 
     def test_transform_data_abstract_method_required(self):
         """TransformPlugin.transform_data should be abstract and required."""
-        
+
         class IncompleteTransformPlugin(TransformPlugin):
             @property
             def name(self) -> str:
@@ -76,7 +76,7 @@ class TestPaginationPluginInterface:
     def test_execute_delegates_to_transform_data(self, tmp_path):
         """TransformPlugin.execute should delegate to transform_data method."""
         plugin = PaginationPlugin()
-        
+
         context = PluginContext(
             input_data={
                 "photos": [{"dest_path": f"photo_{i}.jpg"} for i in range(5)],
@@ -96,7 +96,7 @@ class TestPaginationPluginInterface:
     def test_pagination_with_valid_processor_data(self, tmp_path):
         """Pagination should handle valid processor data input."""
         plugin = PaginationPlugin()
-        
+
         # Test with photos data (from processor stage)
         processor_context = PluginContext(
             input_data={
@@ -123,7 +123,7 @@ class TestPaginationPluginInterface:
     def test_pagination_output_format_contract(self, tmp_path):
         """Pagination should return data in expected format."""
         plugin = PaginationPlugin()
-        
+
         context = PluginContext(
             input_data={
                 "photos": [{"dest_path": f"photo_{i}.jpg"} for i in range(3)],
@@ -155,7 +155,7 @@ class TestPaginationPluginInterface:
     def test_pagination_preserves_collection_name(self, tmp_path):
         """Pagination should preserve collection_name from input."""
         plugin = PaginationPlugin()
-        
+
         context = PluginContext(
             input_data={
                 "photos": [{"dest_path": "photo1.jpg"}],
@@ -172,7 +172,7 @@ class TestPaginationPluginInterface:
     def test_pagination_with_empty_photos(self, tmp_path):
         """Pagination should handle empty photos gracefully."""
         plugin = PaginationPlugin()
-        
+
         context = PluginContext(
             input_data={
                 "photos": [],
@@ -192,7 +192,7 @@ class TestPaginationPluginInterface:
     def test_pagination_with_default_page_size(self, tmp_path):
         """Pagination should use default page_size when not configured."""
         plugin = PaginationPlugin()
-        
+
         context = PluginContext(
             input_data={
                 "photos": [{"dest_path": f"photo_{i}.jpg"} for i in range(25)],
@@ -215,13 +215,13 @@ class TestPaginationPluginValidation:
 
     def test_pagination_validates_page_size_configuration(self, tmp_path):
         """Pagination should validate page_size configuration."""
-        
+
         class ValidatingPaginationPlugin(TransformPlugin):
             @property
             def name(self) -> str:
                 return "validator"
 
-            @property 
+            @property
             def version(self) -> str:
                 return "1.0.0"
 
@@ -234,16 +234,16 @@ class TestPaginationPluginValidation:
                         output_data={},
                         errors=["INVALID_PAGE_SIZE: page_size must be positive"]
                     )
-                
+
                 if page_size > 100:
                     return PluginResult(
                         success=False,
                         output_data={},
                         errors=["INVALID_PAGE_SIZE: page_size must be <= 100"]
                     )
-                
+
                 return PluginResult(
-                    success=True, 
+                    success=True,
                     output_data={
                         "pages": [],
                         "collection_name": "test",
@@ -252,7 +252,7 @@ class TestPaginationPluginValidation:
                 )
 
         plugin = ValidatingPaginationPlugin()
-        
+
         # Invalid page_size (negative) should fail validation
         context = PluginContext(
             input_data={"photos": [], "collection_name": "test"},
@@ -280,7 +280,7 @@ class TestPaginationPluginValidation:
     def test_pagination_handles_missing_photos_gracefully(self, tmp_path):
         """Pagination should handle missing photos field gracefully."""
         plugin = PaginationPlugin()
-        
+
         context = PluginContext(
             input_data={"collection_name": "test"},  # Missing photos
             config={"page_size": 10},

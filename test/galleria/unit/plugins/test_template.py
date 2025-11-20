@@ -1,15 +1,10 @@
 """Unit tests for TemplatePlugin interface and contract validation."""
 
+
 import pytest
-from pathlib import Path
 
 from galleria.plugins.base import PluginContext, PluginResult
 from galleria.plugins.interfaces import TemplatePlugin
-from galleria.plugins.exceptions import (
-    PluginValidationError,
-    PluginExecutionError,
-    PluginDependencyError,
-)
 
 
 class ConcreteTemplatePlugin(TemplatePlugin):
@@ -41,18 +36,18 @@ class TestTemplatePluginInterface:
     def test_template_plugin_inherits_from_base_plugin(self):
         """TemplatePlugin should inherit from BasePlugin."""
         plugin = ConcreteTemplatePlugin()
-        
+
         # Should have base plugin properties
         assert hasattr(plugin, "name")
         assert hasattr(plugin, "version")
         assert hasattr(plugin, "execute")
-        
+
         # Should have template-specific method
         assert hasattr(plugin, "generate_html")
 
     def test_generate_html_abstract_method_required(self):
         """TemplatePlugin.generate_html should be abstract and required."""
-        
+
         class IncompleteTemplatePlugin(TemplatePlugin):
             @property
             def name(self) -> str:
@@ -70,7 +65,7 @@ class TestTemplatePluginInterface:
     def test_execute_delegates_to_generate_html(self, tmp_path):
         """TemplatePlugin.execute should delegate to generate_html method."""
         plugin = ConcreteTemplatePlugin()
-        
+
         context = PluginContext(
             input_data={
                 "pages": [["photo1.jpg", "photo2.jpg"]],
@@ -90,7 +85,7 @@ class TestTemplatePluginInterface:
     def test_generate_html_with_valid_transform_data(self, tmp_path):
         """generate_html should handle valid transform data input."""
         plugin = ConcreteTemplatePlugin()
-        
+
         # Test with pages data (from pagination transform)
         pages_context = PluginContext(
             input_data={
@@ -114,7 +109,7 @@ class TestTemplatePluginInterface:
     def test_generate_html_output_format_contract(self, tmp_path):
         """generate_html should return data in expected format."""
         plugin = ConcreteTemplatePlugin()
-        
+
         context = PluginContext(
             input_data={
                 "pages": [["photo1.jpg"]],
@@ -142,7 +137,7 @@ class TestTemplatePluginInterface:
     def test_generate_html_preserves_collection_name(self, tmp_path):
         """generate_html should preserve collection_name from input."""
         plugin = ConcreteTemplatePlugin()
-        
+
         context = PluginContext(
             input_data={
                 "pages": [["photo1.jpg"]],
@@ -159,7 +154,7 @@ class TestTemplatePluginInterface:
     def test_generate_html_with_empty_pages(self, tmp_path):
         """generate_html should handle empty pages gracefully."""
         plugin = ConcreteTemplatePlugin()
-        
+
         context = PluginContext(
             input_data={
                 "pages": [],
@@ -180,13 +175,13 @@ class TestTemplatePluginValidation:
 
     def test_generate_html_validates_required_input_fields(self, tmp_path):
         """generate_html should validate required input fields."""
-        
+
         class ValidatingTemplatePlugin(TemplatePlugin):
             @property
             def name(self) -> str:
                 return "validator"
 
-            @property 
+            @property
             def version(self) -> str:
                 return "1.0.0"
 
@@ -198,11 +193,11 @@ class TestTemplatePluginValidation:
                         output_data={},
                         errors=["MISSING_COLLECTION_NAME: collection_name required"]
                     )
-                
+
                 return PluginResult(success=True, output_data={"html_files": []})
 
         plugin = ValidatingTemplatePlugin()
-        
+
         # Missing collection_name should fail validation
         context = PluginContext(
             input_data={"pages": []},  # Missing collection_name
@@ -217,7 +212,7 @@ class TestTemplatePluginValidation:
 
     def test_generate_html_handles_configuration_errors(self, tmp_path):
         """generate_html should handle invalid configuration gracefully."""
-        
+
         class ConfigValidatingTemplatePlugin(TemplatePlugin):
             @property
             def name(self) -> str:
@@ -236,11 +231,11 @@ class TestTemplatePluginValidation:
                         output_data={},
                         errors=[f"INVALID_THEME: Unknown theme: {theme}"]
                     )
-                
+
                 return PluginResult(success=True, output_data={"html_files": []})
 
         plugin = ConfigValidatingTemplatePlugin()
-        
+
         context = PluginContext(
             input_data={"collection_name": "test", "pages": []},
             config={"theme": "invalid_theme"},

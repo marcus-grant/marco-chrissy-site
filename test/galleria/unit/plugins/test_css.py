@@ -36,18 +36,18 @@ class TestCSSPluginInterface:
     def test_css_plugin_inherits_from_base_plugin(self):
         """CSSPlugin should inherit from BasePlugin."""
         plugin = ConcreteCSSPlugin()
-        
+
         # Should have base plugin properties
         assert hasattr(plugin, "name")
         assert hasattr(plugin, "version")
         assert hasattr(plugin, "execute")
-        
+
         # Should have css-specific method
         assert hasattr(plugin, "generate_css")
 
     def test_generate_css_abstract_method_required(self):
         """CSSPlugin.generate_css should be abstract and required."""
-        
+
         class IncompleteCSSPlugin(CSSPlugin):
             @property
             def name(self) -> str:
@@ -65,7 +65,7 @@ class TestCSSPluginInterface:
     def test_execute_delegates_to_generate_css(self, tmp_path):
         """CSSPlugin.execute should delegate to generate_css method."""
         plugin = ConcreteCSSPlugin()
-        
+
         context = PluginContext(
             input_data={
                 "html_files": [{"filename": "page_1.html", "page_number": 1}],
@@ -86,7 +86,7 @@ class TestCSSPluginInterface:
     def test_generate_css_with_valid_template_data(self, tmp_path):
         """generate_css should handle valid template data input."""
         plugin = ConcreteCSSPlugin()
-        
+
         # Test with html_files data (from template stage)
         template_context = PluginContext(
             input_data={
@@ -110,7 +110,7 @@ class TestCSSPluginInterface:
     def test_generate_css_output_format_contract(self, tmp_path):
         """generate_css should return data in expected format."""
         plugin = ConcreteCSSPlugin()
-        
+
         context = PluginContext(
             input_data={
                 "html_files": [{"filename": "index.html"}],
@@ -140,12 +140,12 @@ class TestCSSPluginInterface:
     def test_generate_css_preserves_html_files(self, tmp_path):
         """generate_css should pass through html_files from input."""
         plugin = ConcreteCSSPlugin()
-        
+
         html_files = [
             {"filename": "page_1.html", "page_number": 1},
             {"filename": "page_2.html", "page_number": 2},
         ]
-        
+
         context = PluginContext(
             input_data={
                 "html_files": html_files,
@@ -164,7 +164,7 @@ class TestCSSPluginInterface:
     def test_generate_css_with_empty_html_files(self, tmp_path):
         """generate_css should handle empty html_files gracefully."""
         plugin = ConcreteCSSPlugin()
-        
+
         context = PluginContext(
             input_data={
                 "html_files": [],
@@ -187,13 +187,13 @@ class TestCSSPluginValidation:
 
     def test_generate_css_validates_required_input_fields(self, tmp_path):
         """generate_css should validate required input fields."""
-        
+
         class ValidatingCSSPlugin(CSSPlugin):
             @property
             def name(self) -> str:
                 return "validator"
 
-            @property 
+            @property
             def version(self) -> str:
                 return "1.0.0"
 
@@ -205,14 +205,14 @@ class TestCSSPluginValidation:
                         output_data={},
                         errors=["MISSING_COLLECTION_NAME: collection_name required"]
                     )
-                
+
                 if "html_files" not in context.input_data:
                     return PluginResult(
                         success=False,
                         output_data={},
                         errors=["MISSING_HTML_FILES: html_files required"]
                     )
-                
+
                 return PluginResult(success=True, output_data={
                     "css_files": [],
                     "html_files": context.input_data["html_files"],
@@ -221,7 +221,7 @@ class TestCSSPluginValidation:
                 })
 
         plugin = ValidatingCSSPlugin()
-        
+
         # Missing collection_name should fail validation
         context = PluginContext(
             input_data={"html_files": []},  # Missing collection_name
@@ -248,7 +248,7 @@ class TestCSSPluginValidation:
 
     def test_generate_css_handles_configuration_errors(self, tmp_path):
         """generate_css should handle invalid configuration gracefully."""
-        
+
         class ConfigValidatingCSSPlugin(CSSPlugin):
             @property
             def name(self) -> str:
@@ -267,7 +267,7 @@ class TestCSSPluginValidation:
                         output_data={},
                         errors=[f"INVALID_THEME: Unknown theme: {theme}"]
                     )
-                
+
                 return PluginResult(success=True, output_data={
                     "css_files": [],
                     "html_files": [],
@@ -276,7 +276,7 @@ class TestCSSPluginValidation:
                 })
 
         plugin = ConfigValidatingCSSPlugin()
-        
+
         context = PluginContext(
             input_data={"collection_name": "test", "html_files": []},
             config={"theme": "invalid_theme"},
