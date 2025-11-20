@@ -27,14 +27,14 @@ class PipelineManager:
             PluginResult with execution results
         """
         plugin = self.registry.get_plugin(plugin_name, stage)
-        
+
         if plugin is None:
             return PluginResult(
                 success=False,
                 output_data={},
                 errors=[f"Plugin '{plugin_name}' not found in stage '{stage}'"]
             )
-        
+
         try:
             return plugin.execute(context)
         except Exception as e:
@@ -57,7 +57,7 @@ class PipelineManager:
             Final PluginResult from last stage
         """
         current_context = initial_context
-        
+
         for stage_config in stages:
             # Handle both tuple and dict formats
             if isinstance(stage_config, tuple):
@@ -65,14 +65,14 @@ class PipelineManager:
             else:
                 stage = stage_config["stage"]
                 plugin_name = stage_config["plugin"]
-            
+
             # Execute this stage
             result = self.execute_single_stage(stage, plugin_name, current_context)
-            
+
             # If stage failed, return failure
             if not result.success:
                 return result
-            
+
             # Prepare context for next stage with this stage's output
             from ..plugins.base import PluginContext
             current_context = PluginContext(
@@ -81,7 +81,7 @@ class PipelineManager:
                 output_dir=current_context.output_dir,
                 metadata={**current_context.metadata, **result.metadata}
             )
-        
+
         return result
 
     def execute_workflow(self, workflow_name, **kwargs):
@@ -101,14 +101,14 @@ class PipelineManager:
                 {"stage": "processor", "plugin": "thumbnail-processor"}
             ]
         }
-        
+
         if workflow_name not in workflows:
             return PluginResult(
                 success=False,
                 output_data={},
                 errors=[f"Unknown workflow '{workflow_name}'. Available: {list(workflows.keys())}"]
             )
-        
+
         # Create initial context from workflow parameters
         from ..plugins.base import PluginContext
         initial_context = PluginContext(
@@ -117,7 +117,7 @@ class PipelineManager:
             output_dir=kwargs.get("output_dir"),
             metadata={"workflow": workflow_name}
         )
-        
+
         # Execute the workflow stages
         stages = workflows[workflow_name]
         return self.execute_stages(stages, initial_context)

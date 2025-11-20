@@ -1,6 +1,5 @@
 """Template plugin implementations for HTML generation."""
 
-from pathlib import Path
 from typing import Any
 
 from .base import PluginContext, PluginResult
@@ -30,10 +29,10 @@ class BasicTemplatePlugin(TemplatePlugin):
                 )
 
             collection_name = context.input_data["collection_name"]
-            
+
             # Handle different input formats
             html_files = []
-            
+
             if "pages" in context.input_data:
                 # Pagination transform input
                 pages = context.input_data["pages"]
@@ -60,7 +59,7 @@ class BasicTemplatePlugin(TemplatePlugin):
             else:
                 # No photos data
                 html_files.append({
-                    "filename": "index.html", 
+                    "filename": "index.html",
                     "content": self._generate_empty_gallery_html(collection_name),
                     "page_number": 1
                 })
@@ -82,10 +81,10 @@ class BasicTemplatePlugin(TemplatePlugin):
             )
 
     def _generate_page_html(
-        self, 
-        photos: list[dict[str, Any]], 
-        collection_name: str, 
-        page_num: int, 
+        self,
+        photos: list[dict[str, Any]],
+        collection_name: str,
+        page_num: int,
         total_pages: int,
         config: dict[str, Any]
     ) -> str:
@@ -95,16 +94,16 @@ class BasicTemplatePlugin(TemplatePlugin):
             template_config = config["template"]
         else:
             template_config = config
-            
+
         theme = template_config.get("theme", "minimal")
         layout = template_config.get("layout", "grid")
-        
+
         # Build photo gallery HTML
         photo_html = ""
         for photo in photos:
             thumb_path = photo.get("thumbnail_path", photo.get("dest_path", ""))
             photo_path = photo.get("dest_path", "")
-            
+
             photo_html += f"""
             <div class="photo-item">
                 <a href="{photo_path}">
@@ -149,8 +148,8 @@ class BasicTemplatePlugin(TemplatePlugin):
 </html>"""
 
     def _generate_gallery_html(
-        self, 
-        photos: list[dict[str, Any]], 
+        self,
+        photos: list[dict[str, Any]],
         collection_name: str,
         config: dict[str, Any]
     ) -> str:

@@ -35,7 +35,7 @@ class BasicCSSPlugin(CSSPlugin):
 
             # Get CSS and template configurations - support both nested and direct patterns
             config = context.config or {}
-            
+
             # Handle nested config pattern (multi-stage) vs direct config pattern (single plugin)
             if "css" in config or "template" in config:
                 css_config = config.get("css", {})
@@ -44,7 +44,7 @@ class BasicCSSPlugin(CSSPlugin):
                 # Direct config access pattern - assume all config is for this plugin
                 css_config = config
                 template_config = config
-            
+
             # Validate theme configuration
             theme = css_config.get("theme")
             if theme and theme not in ["light", "dark", "auto"]:
@@ -56,10 +56,10 @@ class BasicCSSPlugin(CSSPlugin):
 
             collection_name = context.input_data["collection_name"]
             html_files = context.input_data["html_files"]
-            
+
             # Generate CSS files
             css_files = []
-            
+
             # Main gallery CSS (needs layout from template config)
             gallery_css = self._generate_gallery_css(template_config)
             css_files.append({
@@ -106,7 +106,7 @@ class BasicCSSPlugin(CSSPlugin):
     def _generate_gallery_css(self, config: dict) -> str:
         """Generate base gallery CSS styles."""
         layout = config.get("layout", "grid")
-        
+
         if layout == "grid":
             gallery_layout_css = """
 .gallery.layout-grid {

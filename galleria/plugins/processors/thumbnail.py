@@ -97,13 +97,13 @@ class ThumbnailProcessorPlugin(ProcessorPlugin):
 
             # Extract configuration options - support both nested and direct config patterns
             config = context.config or {}
-            
+
             # Try nested config first (for multi-stage pipelines), fall back to direct access
             if "processor" in config:
                 processor_config = config["processor"]
             else:
                 processor_config = config
-                
+
             thumbnail_size = processor_config.get("thumbnail_size", 400)
             quality = processor_config.get("quality", 85)
             use_cache = processor_config.get("use_cache", True)
