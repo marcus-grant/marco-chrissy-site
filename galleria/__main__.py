@@ -220,14 +220,36 @@ def serve(config: Path, port: int, host: str, no_generate: bool, verbose: bool):
             click.echo("Generating gallery before serving...")
         
         try:
-            # Import generate function context to avoid circular imports
-            ctx = click.Context(generate)
-            ctx.invoke(generate, config=config, output=None, verbose=verbose)
+            # Use subprocess to call generate command for better isolation
+            import subprocess
+            import sys
             
+            generate_cmd = [
+                sys.executable, "-m", "galleria", "generate",
+                "--config", str(config)
+            ]
+            if verbose:
+                generate_cmd.append("--verbose")
+                
+            result = subprocess.run(generate_cmd, 
+                                  capture_output=True, 
+                                  text=True,
+                                  cwd=Path.cwd())
+            
+            if result.returncode != 0:
+                error_msg = f"Generation failed: {result.stderr or result.stdout}"
+                raise click.ClickException(error_msg)
+                
             if verbose:
                 click.echo("Gallery generation completed")
+                if result.stdout:
+                    click.echo(result.stdout)
                 
+        except subprocess.SubprocessError as e:
+            raise click.ClickException(f"Generation subprocess failed: {e}") from e
         except Exception as e:
+            if isinstance(e, click.ClickException):
+                raise
             raise click.ClickException(f"Generation failed: {e}") from e
 
     # Ensure output directory exists
@@ -260,26 +282,34 @@ def serve(config: Path, port: int, host: str, no_generate: bool, verbose: bool):
                 self.path = '/page_1.html'
             super().do_GET()
 
-    # Start server
+    # Start server with improved error handling
     try:
+        # Allow port reuse to avoid "Address already in use" errors
+        socketserver.TCPServer.allow_reuse_address = True
+        
         with socketserver.TCPServer((host, port), GalleriaHTTPRequestHandler) as httpd:
+            actual_host, actual_port = httpd.server_address
+            
             if verbose:
-                click.echo(f"Server started at http://{host}:{port}")
+                click.echo(f"Server started at http://{actual_host}:{actual_port}")
                 click.echo("Press Ctrl+C to stop the server")
             else:
-                click.echo(f"Serving gallery at http://{host}:{port}")
+                click.echo(f"Serving gallery at http://{actual_host}:{actual_port}")
 
             try:
                 httpd.serve_forever()
             except KeyboardInterrupt:
-                click.echo("\nShutting down server...")
+                if verbose:
+                    click.echo("\nShutting down server...")
                 httpd.shutdown()
                 
     except OSError as e:
         if e.errno == 98:  # Address already in use
             raise click.ClickException(f"Port {port} is already in use. Try a different port with --port")
+        elif e.errno == 13:  # Permission denied
+            raise click.ClickException(f"Permission denied for port {port}. Try a port > 1024 or run with sudo")
         else:
-            raise click.ClickException(f"Failed to start server: {e}") from e
+            raise click.ClickException(f"Failed to start server on {host}:{port}: {e}") from e
 
 
 if __name__ == "__main__":
