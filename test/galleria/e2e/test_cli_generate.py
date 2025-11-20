@@ -10,7 +10,7 @@ import pytest
 class TestGalleriaCLIGenerate:
     """E2E tests for galleria generate command."""
 
-    @pytest.mark.skip(reason="CLI implementation pending - expects real click-based CLI with plugin orchestration (Commit 8b-8e)")
+    @pytest.mark.skip(reason="CLI plugin integration - files not being written to disk properly") 
     def test_cli_generate_command_with_config_file(self, tmp_path):
         """E2E: Test galleria generate --config config.json command.
         

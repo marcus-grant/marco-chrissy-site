@@ -73,9 +73,9 @@
   - [x] Implement config file loading and validation
   - [x] Plugin configuration handling
 
-- [ ] **Commit 8d: `Ft: Implement generate command logic`** (~100-150 lines)
-  - [ ] Connect CLI to PipelineManager
-  - [ ] Progress reporting and error handling
+- [x] **Commit 8d: `Ft: Implement generate command logic`** (~100-150 lines)
+  - [x] Connect CLI to PipelineManager
+  - [x] Progress reporting and error handling
 
 - [ ] **Commit 8e: `Tst: Validate generate command E2E`** (~50-75 lines)
   - [ ] Ensure E2E test passes fully

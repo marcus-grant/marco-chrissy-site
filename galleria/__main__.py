@@ -3,6 +3,13 @@
 import click
 from pathlib import Path
 from .config import GalleriaConfig
+from .manager.pipeline import PipelineManager
+from .plugins.base import PluginContext
+from .plugins.providers.normpic import NormPicProviderPlugin
+from .plugins.processors.thumbnail import ThumbnailProcessorPlugin
+from .plugins.pagination import BasicPaginationPlugin
+from .plugins.template import BasicTemplatePlugin
+from .plugins.css import BasicCSSPlugin
 
 
 @click.group()
@@ -52,11 +59,79 @@ def generate(config: Path, output: Path | None, verbose: bool):
     if verbose:
         click.echo(f"Manifest path: {galleria_config.input_manifest_path}")
         click.echo(f"Output directory: {galleria_config.output_directory}")
-        click.echo(f"Pipeline stages configured: {len(galleria_config.pipeline.__dict__)} stages")
         click.echo("Configuration loaded and validated successfully")
-        click.echo("Plugin orchestration not yet implemented (pending Commit 8d)")
     
-    click.echo("galleria generate: Configuration system working correctly")
+    # Create output directory
+    galleria_config.output_directory.mkdir(parents=True, exist_ok=True)
+    
+    # Initialize pipeline manager and register plugins
+    if verbose:
+        click.echo("Initializing plugin pipeline...")
+    
+    pipeline = PipelineManager()
+    pipeline.registry.register(NormPicProviderPlugin(), "provider")
+    pipeline.registry.register(ThumbnailProcessorPlugin(), "processor")
+    pipeline.registry.register(BasicPaginationPlugin(), "transform")
+    pipeline.registry.register(BasicTemplatePlugin(), "template")
+    pipeline.registry.register(BasicCSSPlugin(), "css")
+    
+    # Define pipeline stages
+    stages = [
+        ("provider", "normpic-provider"),
+        ("processor", "thumbnail-processor"),
+        ("transform", "basic-pagination"),
+        ("template", "basic-template"),
+        ("css", "basic-css")
+    ]
+    
+    # Create initial context
+    initial_context = PluginContext(
+        input_data={"manifest_path": str(galleria_config.input_manifest_path)},
+        config=galleria_config.to_pipeline_config(),
+        output_dir=galleria_config.output_directory
+    )
+    
+    # Execute pipeline with progress reporting
+    if verbose:
+        click.echo("Executing plugin pipeline:")
+    
+    try:
+        for i, (stage, plugin_name) in enumerate(stages, 1):
+            if verbose:
+                click.echo(f"  [{i}/{len(stages)}] Running {stage} ({plugin_name})...")
+            
+        # Execute complete pipeline
+        final_result = pipeline.execute_stages(stages, initial_context)
+        
+        if not final_result.success:
+            error_msg = "Pipeline execution failed:\n" + "\n".join(final_result.errors)
+            raise click.ClickException(error_msg)
+        
+        if verbose:
+            click.echo("Pipeline execution completed successfully")
+            
+        # Report results
+        final_output = final_result.output_data
+        collection_name = final_output.get("collection_name", "gallery")
+        
+        if "html_files" in final_output:
+            page_count = len(final_output["html_files"])
+            click.echo(f"Generated {page_count} HTML pages for '{collection_name}'")
+        
+        if "css_files" in final_output:
+            css_count = len(final_output["css_files"])
+            click.echo(f"Generated {css_count} CSS files")
+        
+        if "thumbnail_count" in final_output:
+            thumb_count = final_output["thumbnail_count"]
+            click.echo(f"Processed {thumb_count} thumbnails")
+        
+        click.echo(f"Gallery generated successfully in: {galleria_config.output_directory}")
+        
+    except Exception as e:
+        if isinstance(e, click.ClickException):
+            raise
+        raise click.ClickException(f"Pipeline execution error: {e}")
 
 
 if __name__ == "__main__":
