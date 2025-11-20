@@ -2,147 +2,59 @@
 
 ## MVP Roadmap
 
-### Phase 1: Galleria Development - COMPLETED
+### Phase 1: Galleria Development - ✅ COMPLETED
 
-#### Core Functionality - Plugin System Development
+**Status Summary:**
+- ✅ Complete 5-stage plugin system implemented
+- ✅ CLI `generate` command with 239 passing E2E tests  
+- ✅ Production-ready gallery generation functionality
+- ✅ Comprehensive documentation and workflow guides
 
-- [x] **Commit 3: NormPicProviderPlugin + Unit Tests (TDD)** (COMPLETED)
-  - [x] Write failing unit tests for NormPicProviderPlugin behavior
-  - [x] Convert existing serializer to proper NormPicProviderPlugin using TDD
-    - (red → green → refactor)
-  - [x] Migrate existing serializer tests to work with plugin interface
-  - [x] **Docs:** Update `doc/provider-architecture.md` reflecting plugin system integration
-  - [x] **Docs:** Update `doc/modules/galleria/serializer.md` to document plugin approach
-  - [x] **Message:** `Ref: Convert serializer to NormPicProviderPlugin`
+### Phase 1.5: Additional CLI Commands - ✅ COMPLETED
 
-- [x] **Commit 4: ThumbnailProcessorPlugin + Unit Tests (TDD)** (COMPLETED)
-- [x] Write failing unit tests for ThumbnailProcessorPlugin behavior
-- [x] Convert existing processor to proper ThumbnailProcessorPlugin using TDD (red → green → refactor)
-- [x] Migrate existing processor tests to work with plugin interface
-- [x] **Docs:** Update `doc/modules/galleria/processor.md` to document plugin approach
-- [x] **Message:** `Ref: Convert processor to ThumbnailProcessorPlugin`
+**Commit 10: Serve Command Implementation (6 commits total)**
 
-- [x] **Commit 5: Plugin Registry + Integration Tests (TDD)** (COMPLETED)
-  - [x] PluginRegistry fully implements plugin discovery and orchestration
-  - [x] Integration tests demonstrate complete Provider → Processor pipeline
-  - [x] Plugin loading mechanism handles dependencies and configuration
-  - [x] Documentation updated to reflect orchestration capabilities
-  - [x] Test count progression: 161 → 170-180 tests
-  - [x] Foundation ready for Commit 6 (Template/CSS/Transform plugins)
-  - [x] **Message:** `Ft: Add plugin registry and orchestration system`
+- [x] **Commit 10a: `Tst: Add serve command E2E tests`** (COMPLETED)
+  - [x] Create comprehensive E2E tests for serve command functionality
+  - [x] Test serve command cascading pattern (generate → serve)
+  - [x] Test HTTP server startup, file serving, and error handling scenarios
+  - [x] Add tests for port validation, missing configs, and help functionality
 
-- [x] **Commit 6: Missing Plugins + Unit Tests (TDD)** (COMPLETED)
-  - [x] TemplatePlugin, CSSPlugin, and PaginationPlugin fully implemented
-  - [x] All unit tests passing for new plugin interfaces (28 tests added)
-  - [x] E2E test demonstrates complete 5-stage pipeline
-  - [x] Documentation updated with plugin usage examples
-  - [x] Foundation ready for Commit 7 (Complete E2E Workflow)
-  - [x] **Message:** `Complete Template, CSS, and Pagination plugin implementations`
+- [x] **Commit 10b: `Ft: Add serve command entry point`** (COMPLETED)  
+  - [x] Add complete `serve` command to CLI with argument parsing
+  - [x] Implement --port, --host, --no-generate, --no-watch, --verbose flags
+  - [x] Add HTTP server setup with custom request handler and CORS support
 
-- [x] **Commit 7: E2E Real Plugin Integration (4 small commits)** (COMPLETED)
+- [x] **Commit 10c: `Ft: Implement generate-then-serve workflow`** (COMPLETED)
+  - [x] Implement robust generate-then-serve workflow using subprocess calls
+  - [x] Add comprehensive error handling and progress reporting
+  - [x] Implement static file serving with proper MIME types and root redirect
 
-- [x] **Commit 7a: `Tst: Add real plugin E2E integration tests`** (~75-100 lines)
-  - [x] Create failing E2E test using actual NormPicProvider → ThumbnailProcessor → etc.
-  - [x] Test PipelineManager orchestrating real plugins (not mocks)
-  - [x] Verify test fails as expected (red phase)
+- [x] **Commit 10d: `Ft: Add hot reload and watch functionality`** (COMPLETED)
+  - [x] Add file watching for configuration and manifest files using polling
+  - [x] Implement automatic gallery regeneration when watched files change
+  - [x] Add threading-based file monitor with proper error handling
+  - [x] Support --no-watch flag to disable file monitoring
 
-- [x] **Commit 7b: `Fix: Plugin registry integration issues`** (~100-150 lines)
-  - [x] Fix plugin loading/registration discovered by E2E failure
-  - [x] Make E2E test progress further but still fail
+- [x] **Commit 10e: `Tst: Validate serve command E2E`** (COMPLETED)
+  - [x] Add comprehensive end-to-end validation test
+  - [x] Test complete workflow including pagination, themes, and thumbnail serving
+  - [x] Validate HTTP responses, MIME types, and server functionality
+  - [x] Confirm all 8 E2E tests pass with hot reload functionality
 
-- [x] **Commit 7c: `Fix: Data contract validation between plugins`** (~100-150 lines)
-  - [x] Fix data format mismatches between real plugins
-  - [x] Handle any contract issues discovered by E2E test
+- [x] **Commit 10f: `Doc: Update documentation for serve command`** (COMPLETED)
+  - [x] Update `doc/commands/galleria.md` with complete serve command documentation
+  - [x] Update `doc/workflow.md` with development workflow and serve command examples
+  - [x] Add serve command to changelog with comprehensive feature documentation
+  - [x] Document all serve command options, features, and usage patterns
 
-- [x] **Commit 7d: `Ft: Complete real plugin E2E workflow`** (COMPLETED IN 7c)
-  - [x] Final fixes to make E2E test fully pass (completed in 7c)
-  - [x] Real plugin pipeline working end-to-end
-
-**Commit 8: CLI Generate Command (5 small commits)**
-
-- [x] **Commit 8a: `Tst: Add CLI generate command E2E tests`** (~75-100 lines)
-  - [x] Create failing E2E test for `galleria generate --config config.json`
-  - [x] Test argument parsing, config loading, plugin execution
-  - [x] Verify test fails (no CLI exists yet)
-
-- [x] **Commit 8b: `Ft: Add CLI entry point and argument parsing`** (~100-150 lines)
-  - [x] Implement `galleria/__main__.py`
-  - [x] Basic argument parsing with --config, --output, --verbose flags
-
-- [x] **Commit 8c: `Ft: Add configuration loading system`** (~100-150 lines)
-  - [x] Implement config file loading and validation
-  - [x] Plugin configuration handling
-
-- [x] **Commit 8d: `Ft: Implement generate command logic`** (~100-150 lines)
-  - [x] Connect CLI to PipelineManager
-  - [x] Progress reporting and error handling
-
-- [x] **Commit 8e: `Tst: Validate generate command E2E`** (COMPLETED)
-  - [x] Ensure E2E test passes fully
-  - [x] Fix CLI file writing issue for HTML and CSS files
-  - [x] Fix test image processing with proper JPEG files
-  - [x] Resolve all skipped tests (239/239 tests passing)
-  - [x] Add comprehensive error handling validation
-
-**Commit 9: Documentation (1 commit)**
-
-- [x] **Commit 9a: `Doc: Update architecture and CLI documentation`** (COMPLETED)
-  - [x] Update `doc/architecture.md` with plugin integration and CLI interface
-  - [x] Update `doc/commands/galleria.md` with implemented CLI usage
-  - [x] Update `doc/modules/galleria-structure.md` with current implementation
-  - [x] Update `doc/CHANGELOG.md` with Commit 8e completion details
-  - [x] Complete documentation updates for Phase 1
-
-**Testing Methodology:** E2E Integration → Unit TDD → Back to Integration → Full E2E validation
-
-- [x] **Generate command complete using E2E tests + TDD** (COMPLETED)
-  - [x] Create E2E tests for generate command:
-    - [x] Test generate command loads and orchestrates plugins correctly
-    - [x] Test default plugins work together end-to-end
-    - [x] Test plugin hook points called at correct times in workflow
-  - [x] Implement generate command that orchestrates plugin system
-- [ ] Develop `serve` command using E2E tests + TDD
-  - [ ] Create E2E tests for serve command:
-    - [ ] Test serve calls generate (cascading command pattern)
-    - [ ] Test serving generated gallery output
-    - [ ] Test hot reload functionality with plugin system
-  - [ ] Implement serve command that calls generate + serves locally
-- [ ] Design plugin interface (foundational)
-  - [ ] Define plugin hook points
-  - [ ] Create plugin base class/interface
-  - [ ] Design plugin discovery mechanism
-  - [ ] Document plugin architecture
-- [ ] Implement gallery generator
-  - [ ] Orchestrate all components
-  - [ ] Handle configuration
-  - [ ] Create output directory structure
-  - [ ] Report progress/errors
-  - [ ] Integrate plugin hook points
-
-#### CLI Interface
-
-- [ ] Create **main**.py entry point
-- [ ] Implement --config flag
-- [ ] Add --verbose flag
-- [ ] Add --dry-run flag
-- [ ] Handle errors gracefully
-
-#### Testing & Validation
-
-- [ ] Set up pytest structure for Galleria
-- [ ] Test manifest reader
-- [ ] Test thumbnail processor
-- [ ] Test HTML generation
-- [ ] Test CSS generation
-- [ ] Integration tests
-- [ ] Test Galleria with wedding photo collection
-
-#### Documentation
-
-- [ ] Document Galleria configuration format
-- [ ] Update Galleria architecture guide
-- [ ] Write Galleria usage examples
-- [ ] Document theme structure
+**Implemented Features:**
+- ✅ Local development server on configurable port (default 8000)
+- ✅ Automatic gallery generation before serving (with --no-generate option)
+- ✅ Hot reload when source files change (config.json, manifest.json)
+- ✅ Real-time development workflow with file watching
+- ✅ Comprehensive error handling and verbose logging
+- ✅ Production-ready HTTP server with CORS and proper MIME types
 
 ### Phase 2: Site Structure
 
