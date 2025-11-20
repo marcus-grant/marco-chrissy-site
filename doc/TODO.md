@@ -69,9 +69,9 @@
   - [x] Implement `galleria/__main__.py`
   - [x] Basic argument parsing with --config, --output, --verbose flags
 
-- [ ] **Commit 8c: `Ft: Add configuration loading system`** (~100-150 lines)
-  - [ ] Implement config file loading and validation
-  - [ ] Plugin configuration handling
+- [x] **Commit 8c: `Ft: Add configuration loading system`** (~100-150 lines)
+  - [x] Implement config file loading and validation
+  - [x] Plugin configuration handling
 
 - [ ] **Commit 8d: `Ft: Implement generate command logic`** (~100-150 lines)
   - [ ] Connect CLI to PipelineManager

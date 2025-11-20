@@ -1,8 +1,8 @@
 """Galleria CLI entry point."""
 
 import click
-import json
 from pathlib import Path
+from .config import GalleriaConfig
 
 
 @click.group()
@@ -35,30 +35,28 @@ def generate(config: Path, output: Path | None, verbose: bool):
     This command processes a photo collection through the galleria plugin
     pipeline to generate a static HTML gallery with thumbnails.
     """
-    # Placeholder implementation for Commit 8b
-    # Real plugin orchestration will be implemented in Commit 8d
-    
     if verbose:
         click.echo(f"Loading configuration from: {config}")
         if output:
             click.echo(f"Output directory override: {output}")
     
-    # Basic validation
-    if not config.exists():
-        raise click.FileError(str(config), hint="Configuration file not found")
-    
-    # JSON validation  
+    # Load and validate configuration
     try:
-        with open(config) as f:
-            config_data = json.load(f)
-    except json.JSONDecodeError as e:
-        raise click.ClickException(f"Invalid JSON in configuration file: {e}")
+        galleria_config = GalleriaConfig.from_file(config, output)
+        galleria_config.validate_paths()
+    except click.ClickException:
+        raise  # Re-raise click exceptions as-is
+    except Exception as e:
+        raise click.ClickException(f"Configuration error: {e}")
     
     if verbose:
-        click.echo("Configuration loaded successfully")
+        click.echo(f"Manifest path: {galleria_config.input_manifest_path}")
+        click.echo(f"Output directory: {galleria_config.output_directory}")
+        click.echo(f"Pipeline stages configured: {len(galleria_config.pipeline.__dict__)} stages")
+        click.echo("Configuration loaded and validated successfully")
         click.echo("Plugin orchestration not yet implemented (pending Commit 8d)")
     
-    click.echo("galleria generate: CLI argument parsing working correctly")
+    click.echo("galleria generate: Configuration system working correctly")
 
 
 if __name__ == "__main__":
