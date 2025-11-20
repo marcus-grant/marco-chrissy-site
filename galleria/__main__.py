@@ -1,6 +1,9 @@
 """Galleria CLI entry point."""
 
 from pathlib import Path
+import time
+import threading
+from typing import Set
 
 import click
 
@@ -179,7 +182,12 @@ def generate(config: Path, output: Path | None, verbose: bool):
     is_flag=True,
     help="Enable verbose output"
 )
-def serve(config: Path, port: int, host: str, no_generate: bool, verbose: bool):
+@click.option(
+    "--no-watch",
+    is_flag=True,
+    help="Disable file watching and hot reload functionality"
+)
+def serve(config: Path, port: int, host: str, no_generate: bool, verbose: bool, no_watch: bool):
     """Start development server for static gallery.
 
     This command generates the gallery (unless --no-generate is specified)
@@ -255,6 +263,94 @@ def serve(config: Path, port: int, host: str, no_generate: bool, verbose: bool):
     # Ensure output directory exists
     if not output_directory.exists():
         raise click.ClickException(f"Output directory does not exist: {output_directory}")
+
+    # Setup file watching for hot reload (unless disabled)
+    watch_files = set()
+    file_watcher_thread = None
+    
+    if not no_watch:
+        # Files to watch for changes
+        watch_files.add(config)
+        if galleria_config.input_manifest_path.exists():
+            watch_files.add(galleria_config.input_manifest_path)
+            
+        if verbose and watch_files:
+            click.echo(f"Watching files for changes: {[str(f) for f in watch_files]}")
+
+        # Start file watcher thread
+        def file_watcher():
+            """Watch files for changes and trigger regeneration."""
+            file_mtimes = {}
+            
+            # Initialize modification times
+            for file_path in watch_files:
+                try:
+                    if file_path.exists():
+                        file_mtimes[file_path] = file_path.stat().st_mtime
+                except OSError:
+                    if verbose:
+                        click.echo(f"Warning: Could not get mtime for {file_path}")
+            
+            while True:
+                try:
+                    time.sleep(1)  # Check every second
+                    
+                    # Check for file changes
+                    for file_path in watch_files:
+                        try:
+                            if file_path.exists():
+                                current_mtime = file_path.stat().st_mtime
+                                if file_path not in file_mtimes or current_mtime > file_mtimes[file_path]:
+                                    if verbose:
+                                        click.echo(f"File changed: {file_path}")
+                                        click.echo("Regenerating gallery...")
+                                    
+                                    # Trigger regeneration
+                                    regenerate_gallery(config, verbose)
+                                    file_mtimes[file_path] = current_mtime
+                                    
+                                    if verbose:
+                                        click.echo("Gallery regeneration completed")
+                        except OSError:
+                            # File might have been deleted or inaccessible
+                            if file_path in file_mtimes:
+                                del file_mtimes[file_path]
+                                
+                except Exception as e:
+                    if verbose:
+                        click.echo(f"File watcher error: {e}")
+                    
+        def regenerate_gallery(config_path, verbose_mode):
+            """Regenerate gallery when files change."""
+            try:
+                import subprocess
+                import sys
+                
+                generate_cmd = [
+                    sys.executable, "-m", "galleria", "generate",
+                    "--config", str(config_path)
+                ]
+                if verbose_mode:
+                    generate_cmd.append("--verbose")
+                    
+                result = subprocess.run(generate_cmd, 
+                                      capture_output=True, 
+                                      text=True,
+                                      cwd=Path.cwd())
+                
+                if result.returncode != 0 and verbose_mode:
+                    click.echo(f"Regeneration failed: {result.stderr}")
+                    
+            except Exception as e:
+                if verbose_mode:
+                    click.echo(f"Regeneration error: {e}")
+
+        if watch_files:
+            file_watcher_thread = threading.Thread(target=file_watcher, daemon=True)
+            file_watcher_thread.start()
+            
+            if verbose:
+                click.echo("File watcher started (hot reload enabled)")
 
     # Setup HTTP server
     class GalleriaHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
