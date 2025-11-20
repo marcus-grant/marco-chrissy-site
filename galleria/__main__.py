@@ -408,6 +408,11 @@ def serve(config: Path, port: int, host: str, no_generate: bool, verbose: bool, 
             raise click.ClickException(f"Failed to start server on {host}:{port}: {e}") from e
 
 
-if __name__ == "__main__":
+def main():
+    """Entry point for the galleria CLI."""
     cli()
+
+
+if __name__ == "__main__":
+    main()
 
