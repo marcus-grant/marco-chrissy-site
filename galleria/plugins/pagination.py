@@ -48,15 +48,19 @@ class BasicPaginationPlugin(TransformPlugin):
             photos = context.input_data.get("photos", [])
             collection_name = context.input_data.get("collection_name", "")
             
+            # Calculate number of pages needed
+            total_photos = len(photos)
+            total_pages = (total_photos + page_size - 1) // page_size if total_photos > 0 else 1
+            
             # Split photos into pages
             pages = []
-            for i in range(0, len(photos), page_size):
-                page_photos = photos[i:i + page_size]
-                pages.append(page_photos)
-            
-            # Calculate metadata
-            total_pages = len(pages)
-            total_photos = len(photos)
+            if total_photos == 0:
+                # Create one empty page for empty collections
+                pages.append([])
+            else:
+                for i in range(0, len(photos), page_size):
+                    page_photos = photos[i:i + page_size]
+                    pages.append(page_photos)
             
             transform_metadata = {
                 "page_size": page_size,
@@ -163,14 +167,16 @@ class SmartPaginationPlugin(TransformPlugin):
                 )
                 strategy = "balanced"
             else:
-                # Simple pagination
+                # Simple pagination - calculate pages needed first
+                total_pages = (total_photos + target_page_size - 1) // target_page_size if total_photos > 0 else 1
                 pages = []
                 for i in range(0, total_photos, target_page_size):
                     pages.append(photos[i:i + target_page_size])
                 strategy = "simple"
 
-            # Calculate metadata
-            total_pages = len(pages)
+            # For balanced pagination, total_pages is calculated by the balancing algorithm
+            if balance_pages and total_photos > target_page_size:
+                total_pages = len(pages)  # Keep existing logic for balanced case
             actual_page_sizes = [len(page) for page in pages]
             
             transform_metadata = {
