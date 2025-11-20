@@ -1,5 +1,21 @@
 # Changelog
 
+## 2025-11-20
+
+* Add CLI generate command E2E tests with comprehensive coverage
+  - Create failing E2E tests for `galleria generate --config --output --verbose` command
+  - Test complete CLI workflow: argument parsing, config loading, plugin execution
+  - Test error handling for missing config files, invalid JSON, missing arguments
+  - Cover realistic usage scenarios with NormPic manifests and gallery generation
+  - Foundation ready for CLI implementation following TDD red-green-refactor cycle
+* Complete real plugin E2E integration workflow
+  - Fix plugin registry integration issues with tuple/dict stage configuration API
+  - Fix data contract validation between plugins with backward-compatible config access
+  - Resolve config pattern mismatch between nested (E2E) and direct (unit) config access
+  - All plugins now support both config patterns: nested stage-specific and direct access
+  - E2E test for complete 5-stage plugin pipeline now passes (Provider → Processor → Transform → Template → CSS)
+  - Real plugin integration working end-to-end with proper pagination and file generation
+
 ## 2025-11-19
 
 * Complete Template, CSS, and Pagination plugin implementations with TDD methodology
