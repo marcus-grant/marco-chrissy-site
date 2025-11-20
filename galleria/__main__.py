@@ -150,6 +150,138 @@ def generate(config: Path, output: Path | None, verbose: bool):
         raise click.ClickException(f"Pipeline execution error: {e}") from e
 
 
+@cli.command()
+@click.option(
+    "--config", "-c",
+    type=click.Path(exists=True, path_type=Path),
+    required=True,
+    help="Path to galleria configuration file"
+)
+@click.option(
+    "--port", "-p",
+    type=int,
+    default=8000,
+    help="Port number for development server (default: 8000)"
+)
+@click.option(
+    "--host", "-h",
+    type=str,
+    default="127.0.0.1",
+    help="Host address to bind server (default: 127.0.0.1)"
+)
+@click.option(
+    "--no-generate",
+    is_flag=True,
+    help="Skip gallery generation phase (serve existing files only)"
+)
+@click.option(
+    "--verbose", "-v",
+    is_flag=True,
+    help="Enable verbose output"
+)
+def serve(config: Path, port: int, host: str, no_generate: bool, verbose: bool):
+    """Start development server for static gallery.
+
+    This command generates the gallery (unless --no-generate is specified)
+    and serves it on a local development server with hot reload capability.
+    """
+    import http.server
+    import socketserver
+    import threading
+    from contextlib import suppress
+    
+    if verbose:
+        click.echo(f"Starting galleria development server...")
+        click.echo(f"Config: {config}")
+        click.echo(f"Server: http://{host}:{port}")
+        if no_generate:
+            click.echo("Skipping gallery generation (--no-generate)")
+
+    # Validate port range
+    if not (1024 <= port <= 65535):
+        raise click.ClickException(f"Port must be between 1024 and 65535, got: {port}")
+
+    # Load configuration to determine output directory
+    try:
+        from .config import GalleriaConfig
+        galleria_config = GalleriaConfig.from_file(config)
+        galleria_config.validate_paths()
+        output_directory = galleria_config.output_directory
+        
+        if verbose:
+            click.echo(f"Output directory: {output_directory}")
+            
+    except Exception as e:
+        raise click.ClickException(f"Configuration error: {e}") from e
+
+    # Generation phase (unless --no-generate)
+    if not no_generate:
+        if verbose:
+            click.echo("Generating gallery before serving...")
+        
+        try:
+            # Import generate function context to avoid circular imports
+            ctx = click.Context(generate)
+            ctx.invoke(generate, config=config, output=None, verbose=verbose)
+            
+            if verbose:
+                click.echo("Gallery generation completed")
+                
+        except Exception as e:
+            raise click.ClickException(f"Generation failed: {e}") from e
+
+    # Ensure output directory exists
+    if not output_directory.exists():
+        raise click.ClickException(f"Output directory does not exist: {output_directory}")
+
+    # Setup HTTP server
+    class GalleriaHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
+        """Custom request handler with gallery-specific behavior."""
+        
+        def __init__(self, *args, **kwargs):
+            # Change to output directory for serving files
+            super().__init__(*args, directory=str(output_directory), **kwargs)
+        
+        def end_headers(self):
+            # Add CORS headers for local development
+            self.send_header('Access-Control-Allow-Origin', '*')
+            self.send_header('Access-Control-Allow-Methods', 'GET, POST, OPTIONS')
+            self.send_header('Access-Control-Allow-Headers', '*')
+            super().end_headers()
+        
+        def log_message(self, format, *args):
+            # Only log in verbose mode
+            if verbose:
+                super().log_message(format, *args)
+
+        def do_GET(self):
+            # Serve index.html for root requests
+            if self.path == '/':
+                self.path = '/page_1.html'
+            super().do_GET()
+
+    # Start server
+    try:
+        with socketserver.TCPServer((host, port), GalleriaHTTPRequestHandler) as httpd:
+            if verbose:
+                click.echo(f"Server started at http://{host}:{port}")
+                click.echo("Press Ctrl+C to stop the server")
+            else:
+                click.echo(f"Serving gallery at http://{host}:{port}")
+
+            try:
+                httpd.serve_forever()
+            except KeyboardInterrupt:
+                click.echo("\nShutting down server...")
+                httpd.shutdown()
+                
+    except OSError as e:
+        if e.errno == 98:  # Address already in use
+            raise click.ClickException(f"Port {port} is already in use. Try a different port with --port")
+        else:
+            raise click.ClickException(f"Failed to start server: {e}") from e
+
+
 if __name__ == "__main__":
     cli()
 
