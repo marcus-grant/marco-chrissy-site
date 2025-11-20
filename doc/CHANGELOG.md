@@ -2,6 +2,18 @@
 
 ## 2025-11-20
 
+* Implement CLI entry point and argument parsing with TDD methodology
+  - Add galleria/__main__.py for `python -m galleria` support
+  - Implement basic argument parsing for --config, --output, --verbose flags
+  - Add configuration file loading and validation with pagination logic
+  - Generate gallery files based on calculated page counts and collection data
+  - Follow proper TDD red-green-refactor cycle driven by E2E test failures
+* Fix pagination calculation logic to use proper mathematical formula
+  - Change from counting created pages to calculating pages needed upfront
+  - Use ceil(num_photos / page_size) formula for both pagination plugins
+  - Handle empty collections correctly (create one empty page)
+  - Add comprehensive unit tests covering all pagination math edge cases
+  - Fix both BasicPaginationPlugin and SmartPaginationPlugin calculation logic
 * Add CLI generate command E2E tests with comprehensive coverage
   - Create failing E2E tests for `galleria generate --config --output --verbose` command
   - Test complete CLI workflow: argument parsing, config loading, plugin execution
