@@ -65,9 +65,9 @@
   - [x] Test argument parsing, config loading, plugin execution
   - [x] Verify test fails (no CLI exists yet)
 
-- [ ] **Commit 8b: `Ft: Add CLI entry point and argument parsing`** (~100-150 lines)
-  - [ ] Implement `galleria/__main__.py`
-  - [ ] Basic argument parsing with --config, --output, --verbose flags
+- [x] **Commit 8b: `Ft: Add CLI entry point and argument parsing`** (~100-150 lines)
+  - [x] Implement `galleria/__main__.py`
+  - [x] Basic argument parsing with --config, --output, --verbose flags
 
 - [ ] **Commit 8c: `Ft: Add configuration loading system`** (~100-150 lines)
   - [ ] Implement config file loading and validation

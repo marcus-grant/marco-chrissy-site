@@ -160,7 +160,6 @@ class TestGalleriaCLIGenerate:
         assert "thumbnails/" in page2_content, "No thumbnails in page 2"
         assert "page_1.html" in page2_content, "Navigation to page 1 not found"
 
-    @pytest.mark.skip(reason="CLI error handling pending - expects click-based error messages")
     def test_cli_generate_handles_missing_config_file(self, tmp_path):
         """E2E: Test galleria generate with missing config file shows error."""
         nonexistent_config = tmp_path / "missing_config.json"
@@ -180,7 +179,6 @@ class TestGalleriaCLIGenerate:
         assert any(phrase in error_output for phrase in ["config", "not found", "no such file", "file not found"]), \
             f"Error should mention config file issue: {result.stderr}"
 
-    @pytest.mark.skip(reason="CLI help system pending - expects click help output")
     def test_cli_generate_shows_help_with_no_args(self, tmp_path):
         """E2E: Test galleria generate with no arguments shows help."""
         # Act: Execute command with no arguments
@@ -193,7 +191,6 @@ class TestGalleriaCLIGenerate:
         assert any(word in output_text.lower() for word in ["usage", "help", "config", "required", "missing option"]), \
             f"Should show usage information: {output_text}"
 
-    @pytest.mark.skip(reason="CLI config validation pending - expects proper JSON error handling")
     def test_cli_generate_validates_invalid_config_format(self, tmp_path):
         """E2E: Test galleria generate with invalid JSON config shows error."""
         # Create invalid JSON config
