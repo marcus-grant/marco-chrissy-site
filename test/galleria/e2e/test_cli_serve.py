@@ -426,3 +426,100 @@ class TestGalleriaCLIServe:
         # Should start but exit quickly due to no output directory (expected behavior)
         # The important thing is that --no-watch flag is accepted
         assert "--no-watch" not in (result.stdout + result.stderr), "Flag should be processed, not appear in error"
+
+    def test_cli_serve_complete_workflow_validation(self, tmp_path):
+        """E2E: Complete serve workflow validation with all features."""
+        from PIL import Image
+        
+        # Create realistic test setup
+        test_photos = []
+        for i in range(3):
+            photo_path = tmp_path / f"photo_{i:03d}.jpg"
+            # Create different colored test images
+            color = (255 - i * 60, i * 80, 100 + i * 40)
+            test_img = Image.new('RGB', (200, 150), color)
+            test_img.save(photo_path, 'JPEG')
+            test_photos.append(str(photo_path))
+
+        manifest = {
+            "version": "0.1.0",
+            "collection_name": "validation_test",
+            "pics": [
+                {"source_path": test_photos[0], "dest_path": "photo_001.jpg", "hash": "h001", "size_bytes": 4096, "mtime": 1000000},
+                {"source_path": test_photos[1], "dest_path": "photo_002.jpg", "hash": "h002", "size_bytes": 4096, "mtime": 1000001},
+                {"source_path": test_photos[2], "dest_path": "photo_003.jpg", "hash": "h003", "size_bytes": 4096, "mtime": 1000002}
+            ]
+        }
+
+        manifest_path = tmp_path / "manifest.json"
+        manifest_path.write_text(json.dumps(manifest, indent=2))
+
+        config = {
+            "input": {"manifest_path": str(manifest_path)},
+            "output": {"directory": str(tmp_path / "output")},
+            "pipeline": {
+                "provider": {"plugin": "normpic-provider", "config": {}},
+                "processor": {"plugin": "thumbnail-processor", "config": {"thumbnail_size": 150, "quality": 85}},
+                "transform": {"plugin": "basic-pagination", "config": {"page_size": 2}},
+                "template": {"plugin": "basic-template", "config": {"theme": "elegant", "layout": "grid"}},
+                "css": {"plugin": "basic-css", "config": {"theme": "dark", "responsive": True}}
+            }
+        }
+
+        config_path = tmp_path / "config.json"
+        config_path.write_text(json.dumps(config, indent=2))
+        test_port = 8006
+
+        # Start serve command
+        serve_process = subprocess.Popen([
+            "python", "-m", "galleria", "serve",
+            "--config", str(config_path),
+            "--port", str(test_port),
+            "--verbose"
+        ], stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True,
+           cwd=tmp_path.parent.parent.parent)
+
+        try:
+            # Wait for complete startup
+            time.sleep(4)
+
+            # Validate complete gallery structure
+            output_dir = tmp_path / "output"
+            assert output_dir.exists(), "Output directory not created"
+            assert (output_dir / "page_1.html").exists(), "Page 1 not generated"
+            assert (output_dir / "page_2.html").exists(), "Page 2 not generated (pagination test)"
+            assert (output_dir / "gallery.css").exists(), "Gallery CSS not generated"
+            assert (output_dir / "thumbnails").exists(), "Thumbnails directory not created"
+
+            # Validate server responses
+            response = requests.get(f"http://localhost:{test_port}/", timeout=2)
+            assert response.status_code == 200, "Root redirect failed"
+
+            response = requests.get(f"http://localhost:{test_port}/page_1.html", timeout=2)
+            assert response.status_code == 200, "Page 1 not served"
+            page1_content = response.text
+            assert "validation_test" in page1_content, "Collection name missing"
+            assert "elegant" in page1_content or "layout-grid" in page1_content, "Theme not applied"
+
+            response = requests.get(f"http://localhost:{test_port}/page_2.html", timeout=2)
+            assert response.status_code == 200, "Page 2 not served"
+
+            response = requests.get(f"http://localhost:{test_port}/gallery.css", timeout=2)
+            assert response.status_code == 200, "CSS not served"
+            assert "text/css" in response.headers.get("content-type", ""), "CSS content type incorrect"
+
+            # Validate thumbnail generation and serving
+            thumbnails = list((output_dir / "thumbnails").glob("*.webp"))
+            assert len(thumbnails) == 3, f"Expected 3 thumbnails, found {len(thumbnails)}"
+
+            for thumb in thumbnails:
+                thumb_response = requests.get(f"http://localhost:{test_port}/thumbnails/{thumb.name}", timeout=2)
+                assert thumb_response.status_code == 200, f"Thumbnail {thumb.name} not served"
+                assert "image" in thumb_response.headers.get("content-type", ""), "Thumbnail content type incorrect"
+
+        finally:
+            serve_process.terminate()
+            try:
+                serve_process.wait(timeout=2)
+            except subprocess.TimeoutExpired:
+                serve_process.kill()
