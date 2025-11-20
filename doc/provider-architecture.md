@@ -32,12 +32,42 @@ class PhotoCollection:
 
 ## Current Implementation
 
-### NormPic v0.1.0 Provider
-- Loads NormPic JSON manifest files
-- Converts NormPic data format to standardized Photo/PhotoCollection models
-- Handles all NormPic v0.1.0 fields (camera, GPS, timestamps, errors)
+### NormPicProviderPlugin (Plugin System)
+The NormPic provider has been implemented as a proper plugin:
 
-### Entry Point
+**Location**: `galleria/plugins/providers/normpic.py`
+**Interface**: Implements `ProviderPlugin` 
+**Features**:
+- Loads NormPic JSON manifest files through plugin interface
+- Converts NormPic data to standardized ProviderPlugin contract format  
+- Comprehensive error handling with plugin result system
+- Full backward compatibility with legacy serializer API
+
+### Plugin Usage
+```python
+from galleria.plugins.providers.normpic import NormPicProviderPlugin
+from galleria.plugins import PluginContext
+from pathlib import Path
+
+# Create plugin context
+context = PluginContext(
+    input_data={"manifest_path": "/path/to/manifest.json"},
+    config={},
+    output_dir=Path("/output")
+)
+
+# Load collection via plugin
+plugin = NormPicProviderPlugin()
+result = plugin.load_collection(context)
+
+if result.success:
+    photos = result.output_data["photos"]
+    collection_name = result.output_data["collection_name"]
+else:
+    print(f"Errors: {result.errors}")
+```
+
+### Legacy Entry Point (Deprecated)
 ```python
 from galleria.serializer.loader import load_photo_collection
 
@@ -45,25 +75,36 @@ collection = load_photo_collection("/path/to/manifest.json")
 # Returns PhotoCollection with standardized Photo objects
 ```
 
-### Error Handling
-- `ManifestNotFoundError` - File not found
-- `ManifestValidationError` - Invalid manifest data format
+### Plugin Error Handling
+- Structured error reporting via `PluginResult.errors` list
+- Graceful failure with success/failure status
+- Detailed error messages for debugging
+- Plugin-standard exception handling
 
-## Plugin Architecture (Future)
+## Plugin Architecture (Implemented)
 
-### PhotoCollectionProvider Interface
-Base class for implementing new collection sources:
+### ProviderPlugin Interface
+Base class for implementing new collection sources (see `galleria/plugins/interfaces.py`):
 
 ```python
-class PhotoCollectionProvider(ABC):
-    def can_handle(self, source: str) -> bool:
-        """Check if this provider can handle the given source."""
-        pass
+from galleria.plugins import ProviderPlugin
+
+class MyProvider(ProviderPlugin):
+    @property
+    def name(self) -> str:
+        return "my-provider"
     
-    def load_collection(self, source: str) -> PhotoCollection:
-        """Load photo collection from source.""" 
+    @property  
+    def version(self) -> str:
+        return "1.0.0"
+    
+    def load_collection(self, context: PluginContext) -> PluginResult:
+        """Load photo collection from source."""
+        # Implementation here
         pass
 ```
+
+The plugin system foundation is complete with comprehensive interface contracts, error handling, and hook system integration.
 
 ### Future Provider Examples
 - **DirectoryProvider** - Scan filesystem directories for photos
@@ -71,12 +112,12 @@ class PhotoCollectionProvider(ABC):
 - **LightroomProvider** - Import from Lightroom catalogs
 - **APIProvider** - Fetch from cloud photo services
 
-### Provider Registration
+### Plugin Integration
 ```python
-# Future plugin registration system
-register_provider("normpic", NormPicProvider())
-register_provider("directory", DirectoryProvider())
-register_provider("lightroom", LightroomProvider())
+# Current plugin system integration
+# Providers implement the ProviderPlugin interface
+# Plugin orchestration through manager/hooks system
+# See plugin-system.md for complete architecture
 ```
 
 ## Design Principles
@@ -109,13 +150,21 @@ register_provider("lightroom", LightroomProvider())
 - Unit tests focus on specific component behavior
 - Tests verify both success and failure scenarios
 
-## Future Development
+## Development Status
 
-### Next Steps
-1. Implement DirectoryProvider for manifest-free photo collections
-2. Add provider auto-detection based on source type
-3. Create provider registry and plugin loading system
-4. Add configuration for provider selection and options
+### Completed (Commit 3)
+1. ✅ **NormPicProviderPlugin Implementation** - Converted existing serializer to proper ProviderPlugin
+2. ✅ **Comprehensive Test Coverage** - 15 tests covering unit and integration scenarios
+3. ✅ **Plugin Interface Compliance** - Follows ProviderPlugin contract specification
+4. ✅ **Backward Compatibility** - Legacy serializer API still available
+5. ✅ **Error Handling** - Plugin-standard error reporting with PluginResult
+
+### Next Steps  
+1. **ThumbnailProcessorPlugin** (Commit 4) - Convert image processor to ProcessorPlugin
+2. **Plugin Registry System** (Commit 5) - Provider discovery and orchestration
+3. **Template/CSS Plugins** (Commit 6) - Complete remaining plugin implementations
+4. **DirectoryProvider** - Scan filesystem directories for photos (future)
+5. **DatabaseProvider** - Load from photo management databases (future)
 
 ### Extraction Preparation
 - Designed for eventual extraction to separate package

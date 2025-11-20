@@ -2,102 +2,62 @@
 
 ## MVP Roadmap
 
-### Phase 1: Galleria Development
+### Phase 1: Galleria Development - ✅ COMPLETED
 
-#### Core Functionality
-- [x] Set up Galleria module structure
-  - [x] Create galleria/generator/ directory with __init__.py
-  - [x] Create galleria/processor/ directory with __init__.py  
-  - [x] Create galleria/template/ directory with __init__.py
-  - [x] Create galleria/serializer/ directory with __init__.py
-  - [x] Create galleria/themes/ directory structure:
-    - [x] Create galleria/themes/minimal/ directory
-    - [x] Create galleria/themes/minimal/templates/ directory
-    - [x] Create galleria/themes/minimal/static/ directory
-    - [x] Create galleria/themes/minimal/config.json basic theme config
-- [x] Implement serializer module
-  - [x] Create `galleria/serializer/models.py` with Photo and PhotoCollection classes
-  - [x] Create `galleria/serializer/loader.py`:
-    - [x] Implement `load_photo_collection(path: str) -> PhotoCollection`
-    - [x] Add JSON parsing with proper error handling
-    - [x] Support NormPic v0.1.0 manifest format
-  - [x] Create `galleria/serializer/exceptions.py`:
-    - [x] ManifestNotFoundError and ManifestValidationError
-  - [x] Create comprehensive tests using TDD approach:
-    - [x] E2E integration tests for NormPic manifest loading
-    - [x] Unit tests for loader functionality
-    - [x] Error handling validation tests
-- [x] Implement thumbnail processor
-  - [x] Create `galleria/processor/image.py` with ImageProcessor class
-  - [x] Implement `process_image(source_path, output_path, size=400)` method:
-    - [x] Load image with Pillow, handle format detection
-    - [x] Generate 400x400 square crop (center crop strategy)
-    - [x] Convert to WebP format with quality setting
-    - [x] Save to output directory with proper naming
-  - [x] Add naive thumbnail caching:
-    - [x] Check if thumbnail file exists and source file mtime is older
-    - [x] Skip processing if cache hit (simple file timestamp comparison)
-    - [x] Cache can be cleared by 'clean' command if issues arise
-  - [x] Add error handling for image processing failures
-  - [x] Implement progress reporting for large collections
-- [ ] Develop plugin system using integration tests + TDD
-  - [ ] Create integration tests for core plugin workflow:
-    - [ ] Test manifest plugin loads NormPic manifests (v0.1.0)
-    - [ ] Test processor plugin generates thumbnails from manifest data
-    - [ ] Test template plugin renders pages from processed data
-    - [ ] Test CSS and pagination plugins integrate properly
-    - [ ] Test plugin hook points and data flow between plugins
-  - [ ] Implement plugin system and default plugins:
-    - [ ] Create plugin base classes and interfaces
-    - [ ] Create default manifest plugin for NormPic v0.1.0
-    - [ ] Create default template, CSS, pagination, and processor plugins
-- [ ] Develop `generate` command using E2E tests + TDD
-  - [ ] Create E2E tests for generate command:
-    - [ ] Test generate command loads and orchestrates plugins correctly
-    - [ ] Test default plugins work together end-to-end
-    - [ ] Test plugin hook points called at correct times in workflow
-  - [ ] Implement generate command that orchestrates plugin system
-- [ ] Develop `serve` command using E2E tests + TDD
-  - [ ] Create E2E tests for serve command:
-    - [ ] Test serve calls generate (cascading command pattern)
-    - [ ] Test serving generated gallery output
-    - [ ] Test hot reload functionality with plugin system
-  - [ ] Implement serve command that calls generate + serves locally
-- [ ] Design plugin interface (foundational)
-  - [ ] Define plugin hook points
-  - [ ] Create plugin base class/interface
-  - [ ] Design plugin discovery mechanism
-  - [ ] Document plugin architecture
-- [ ] Implement gallery generator
-  - [ ] Orchestrate all components
-  - [ ] Handle configuration
-  - [ ] Create output directory structure
-  - [ ] Report progress/errors
-  - [ ] Integrate plugin hook points
+**Status Summary:**
+- ✅ Complete 5-stage plugin system implemented
+- ✅ CLI `generate` command with 239 passing E2E tests  
+- ✅ Production-ready gallery generation functionality
+- ✅ Comprehensive documentation and workflow guides
 
-#### CLI Interface
-- [ ] Create __main__.py entry point
-- [ ] Implement --config flag
-- [ ] Add --verbose flag
-- [ ] Add --dry-run flag
-- [ ] Handle errors gracefully
+### Phase 1.5: Additional CLI Commands - ✅ COMPLETED
 
-#### Testing & Validation
-- [ ] Set up pytest structure for Galleria
-- [ ] Test manifest reader
-- [ ] Test thumbnail processor
-- [ ] Test HTML generation
-- [ ] Test CSS generation
-- [ ] Integration tests
-- [ ] Test Galleria with wedding photo collection
+**Commit 10: Serve Command Implementation (6 commits total)**
 
-#### Documentation
-- [ ] Document Galleria configuration format
-- [ ] Update Galleria architecture guide
-- [ ] Write Galleria usage examples
-- [ ] Document theme structure
+- [x] **Commit 10a: `Tst: Add serve command E2E tests`** (COMPLETED)
+  - [x] Create comprehensive E2E tests for serve command functionality
+  - [x] Test serve command cascading pattern (generate → serve)
+  - [x] Test HTTP server startup, file serving, and error handling scenarios
+  - [x] Add tests for port validation, missing configs, and help functionality
+
+- [x] **Commit 10b: `Ft: Add serve command entry point`** (COMPLETED)  
+  - [x] Add complete `serve` command to CLI with argument parsing
+  - [x] Implement --port, --host, --no-generate, --no-watch, --verbose flags
+  - [x] Add HTTP server setup with custom request handler and CORS support
+
+- [x] **Commit 10c: `Ft: Implement generate-then-serve workflow`** (COMPLETED)
+  - [x] Implement robust generate-then-serve workflow using subprocess calls
+  - [x] Add comprehensive error handling and progress reporting
+  - [x] Implement static file serving with proper MIME types and root redirect
+
+- [x] **Commit 10d: `Ft: Add hot reload and watch functionality`** (COMPLETED)
+  - [x] Add file watching for configuration and manifest files using polling
+  - [x] Implement automatic gallery regeneration when watched files change
+  - [x] Add threading-based file monitor with proper error handling
+  - [x] Support --no-watch flag to disable file monitoring
+
+- [x] **Commit 10e: `Tst: Validate serve command E2E`** (COMPLETED)
+  - [x] Add comprehensive end-to-end validation test
+  - [x] Test complete workflow including pagination, themes, and thumbnail serving
+  - [x] Validate HTTP responses, MIME types, and server functionality
+  - [x] Confirm all 8 E2E tests pass with hot reload functionality
+
+- [x] **Commit 10f: `Doc: Update documentation for serve command`** (COMPLETED)
+  - [x] Update `doc/commands/galleria.md` with complete serve command documentation
+  - [x] Update `doc/workflow.md` with development workflow and serve command examples
+  - [x] Add serve command to changelog with comprehensive feature documentation
+  - [x] Document all serve command options, features, and usage patterns
+
+**Implemented Features:**
+- ✅ Local development server on configurable port (default 8000)
+- ✅ Automatic gallery generation before serving (with --no-generate option)
+- ✅ Hot reload when source files change (config.json, manifest.json)
+- ✅ Real-time development workflow with file watching
+- ✅ Comprehensive error handling and verbose logging
+- ✅ Production-ready HTTP server with CORS and proper MIME types
 
 ### Phase 2: Site Structure
+
 - [ ] Set up site project module structure
   - [ ] Create build/ directory
   - [ ] Create validation/ directory
@@ -122,11 +82,13 @@
   - [ ] Galleria config for wedding gallery
 
 ### Phase 3: Integration Testing
+
 - [ ] Test command system end-to-end
 - [ ] Validate site generation workflow
 - [ ] Test Galleria + Pelican integration
 
 ### Phase 4: Performance Baseline
+
 - [ ] Measure initial performance metrics
   - [ ] Page weight (HTML + CSS + thumbnails)
   - [ ] Core Web Vitals (FCP, LCP, TTI, CLS, TBT)
@@ -142,6 +104,7 @@
 ## Post-MVP Enhancements
 
 ### Near-term Optimizations
+
 - [ ] Comprehensive error handling improvements
   - [ ] Manifest plugin errors (missing files, invalid JSON, version mismatches)
   - [ ] Processor plugin errors (missing photos, corrupted files, permissions)
@@ -167,10 +130,15 @@
   - [ ] Create theme base class
   - [ ] Implement theme inheritance
   - [ ] Add dark mode theme variant
+- [ ] Investigate dead code or re-implemented code
+  - [ ] Old non-plugin based manifest serializer module based on normpic's code
+  - [ ] Old thumbnail processor that didn't use the plugin interfaces
+  - [ ] Anything else
 - [ ] Add Christmas gallery
 - [ ] Add vacation gallery
 
 ### Medium-term Features
+
 - [ ] Galleria plugin system implementation
   - [ ] Implement plugin loading mechanism
   - [ ] Create example plugins
@@ -192,28 +160,44 @@
 - [ ] Christmas card pages
 
 ### Infrastructure Improvements
+
 - [ ] GitHub Actions CI/CD pipeline
 - [ ] Docker containerization consideration
 - [ ] Ansible automation evaluation
 - [ ] CDN optimization (separate bucket strategies)
 
 ### Galleria Extraction Preparation
+
 - [ ] Galleria independence audit
   - [ ] Ensure no parent project dependencies
   - [ ] Verify self-contained module structure
   - [ ] Create standalone pyproject.toml for Galleria
   - [ ] Document Galleria-only installation process
 - [ ] Galleria technical debt cleanup
+  - [ ] **CRITICAL**: Unify plugin configuration access patterns
+    - [ ] Remove dual config pattern support (nested vs direct)
+    - [ ] Standardize on single config approach across all plugins
+    - [ ] Update all unit tests to use unified config pattern
+    - [ ] Remove backward compatibility config detection code
+    - [ ] Choose either: nested stage-specific OR flattened direct access
   - [ ] Add comprehensive type hints
   - [ ] Improve error messages and logging
   - [ ] Create development/debug mode
   - [ ] Performance optimization and profiling
+- [ ] Test refactoring for maintainability
+  - [ ] Refactor large integration/e2e tests in galleria plugin system
+  - [ ] Extract common test fixtures for plugin interface testing
+  - [ ] Split unwieldy test methods into focused, composable test functions
+  - [ ] Create reusable mock plugin factories for consistent test data
+  - [ ] Implement parametrized tests for plugin contract validation
+  - [ ] Consider pytest fixtures for pipeline stage setup/teardown
 - [ ] Evaluate extracting schema definitions to shared package
   - [ ] Assess whether NormPic and Galleria should share schema via tiny common package
   - [ ] Consider maintenance overhead vs DRY benefits vs current code duplication
   - [ ] Plan migration strategy if shared package approach is pursued
 
 ### Long-term Considerations
+
 - [ ] Django integration for dynamic features
 - [ ] CMS integration (Wagtail evaluation)
 - [ ] API endpoints for gallery data
@@ -227,6 +211,7 @@
 ## Success Criteria
 
 MVP is complete when:
+
 1. \u2705 Wedding gallery is live on Bunny CDN
 2. \u2705 Gallery index and about pages are live
 3. \u2705 Site works without JavaScript

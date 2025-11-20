@@ -65,3 +65,6 @@ srv.pid
 # Development
 *.tmp
 scratch/
+
+# Cleanup files
+*[Dd][Ee][Ll][Ee][Tt][Ee][Mm][Ee]*

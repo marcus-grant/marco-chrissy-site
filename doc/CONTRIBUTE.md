@@ -64,6 +64,17 @@
   * `Pln:` for planning/TODO updates
 * No signature block - do not include emoji, links, or Co-Authored-By lines
 
+## Commit Size Limits
+
+* **NEVER create commits with 1000+ line changes**
+* Maximum recommended commit size: 200-300 lines of changes
+* If a logical unit of work exceeds this:
+  * Break into smaller, logically cohesive commits
+  * Use multiple commits that build on each other
+  * Each commit should still be complete and testable
+* Prefer many small commits over few large commits
+* Exception: Initial file creation or large refactoring may exceed limits if unavoidable
+
 ## Code Style
 
 * Follow existing patterns in the codebase
