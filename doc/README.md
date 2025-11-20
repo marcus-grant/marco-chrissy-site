@@ -10,6 +10,7 @@ The site orchestrates multiple tools to generate static content deployed to Bunn
 ### Project Documentation
 
 - [TODO](TODO.md) - Project roadmap and task tracking
+- [E2E Workflow Guide](workflow.md) - Complete end-to-end usage guide
 - [Architecture](architecture.md) - System design and integration patterns
 - [Provider Architecture](provider-architecture.md) - Plugin-based photo collection providers
 - [Configuration Guide](bconfiguration.md) - Config file formats and examples
@@ -19,13 +20,6 @@ The site orchestrates multiple tools to generate static content deployed to Bunn
 ### Component Documentation
 
 - [Galleria Documentation](../galleria/doc/README.md) - Gallery generator
-- [Orchestrator Documentation](orchestrator.md) - Build orchestration
-- [Deployer Documentation](deployer.md) - Deployment strategies
-
-### Configuration
-
-- [Configuration Guide](configuration.md) - Config file formats and examples
-- [Pelican Setup](pelican.md) - Static site generator configuration
 
 ## Quick Links
 

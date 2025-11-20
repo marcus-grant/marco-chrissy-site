@@ -86,7 +86,7 @@ class MyProvider(ProviderPlugin):
 ```
 
 **Example Implementations:**
-- **NormPicProvider**: Loads NormPic v0.1.0 manifests (future)
+- **NormPicProviderPlugin**: Loads NormPic v0.1.0 manifests ✅ **Implemented**
 - **DirectoryProvider**: Scans filesystem directories (future)
 - **DatabaseProvider**: Loads from database sources (future)
 
@@ -131,7 +131,7 @@ class MyProcessor(ProcessorPlugin):
 ```
 
 **Example Implementations:**
-- **ThumbnailProcessor**: WebP thumbnail generation with caching (future)
+- **ThumbnailProcessorPlugin**: WebP thumbnail generation with caching ✅ **Implemented**
 - **MetadataProcessor**: EXIF data extraction (future)
 - **WatermarkProcessor**: Watermark application (future)
 
@@ -180,7 +180,8 @@ class MyTransform(TransformPlugin):
 ```
 
 **Example Implementations:**
-- **PaginationTransform**: Split collections into pages (future)
+- **BasicPaginationPlugin**: Simple page-size based pagination ✅ **Implemented**
+- **SmartPaginationPlugin**: Intelligent pagination with page balancing ✅ **Implemented**
 - **SortTransform**: Order photos by various criteria (future)
 - **FilterTransform**: Apply visibility rules (future)
 - **GroupTransform**: Create sub-collections (future)
@@ -230,7 +231,7 @@ class MyTemplate(TemplatePlugin):
 ```
 
 **Example Implementations:**
-- **GalleryTemplate**: Grid-based photo galleries (future)
+- **BasicTemplatePlugin**: Semantic HTML5 gallery generation with themes ✅ **Implemented**
 - **CarouselTemplate**: Slideshow presentations (future)
 - **ListTemplate**: List-based layouts (future)
 
