@@ -2,15 +2,12 @@
 
 import json
 import subprocess
-import tempfile
-from pathlib import Path
-import pytest
 
 
 class TestGalleriaCLIGenerate:
     """E2E tests for galleria generate command."""
 
-    @pytest.mark.skip(reason="CLI plugin integration - files not being written to disk properly") 
+
     def test_cli_generate_command_with_config_file(self, tmp_path):
         """E2E: Test galleria generate --config config.json command.
         
@@ -24,12 +21,17 @@ class TestGalleriaCLIGenerate:
         # Arrange: Create test data and config
         test_photos_dir = tmp_path / "source_photos"
         test_photos_dir.mkdir()
-        
-        # Create test photo files (minimal JPEG headers)
+
+        # Create test photo files (valid JPEG images)
         photo_paths = []
         for i in range(3):
             photo_path = test_photos_dir / f"wedding_{i:03d}.jpg"
-            photo_path.write_bytes(b"\xFF\xD8\xFF\xE0")  # Minimal JPEG header
+            # Create a simple 100x100 RGB image and save as JPEG
+            from PIL import Image
+            # Create test image with different colors for each photo
+            color = (255 - i * 50, i * 50, 100 + i * 30)  # Different RGB for each
+            test_img = Image.new('RGB', (100, 100), color)
+            test_img.save(photo_path, 'JPEG')
             photo_paths.append(str(photo_path))
 
         # Create NormPic manifest
@@ -46,7 +48,7 @@ class TestGalleriaCLIGenerate:
                 },
                 {
                     "source_path": str(photo_paths[1]),
-                    "dest_path": "wedding_002.jpg", 
+                    "dest_path": "wedding_002.jpg",
                     "hash": "hash002",
                     "size_bytes": 2048,
                     "mtime": 1234567891
@@ -60,7 +62,7 @@ class TestGalleriaCLIGenerate:
                 }
             ]
         }
-        
+
         manifest_path = tmp_path / "manifest.json"
         manifest_path.write_text(json.dumps(manifest, indent=2))
 
@@ -78,7 +80,7 @@ class TestGalleriaCLIGenerate:
                     "config": {}
                 },
                 "processor": {
-                    "plugin": "thumbnail-processor", 
+                    "plugin": "thumbnail-processor",
                     "config": {
                         "thumbnail_size": 400,
                         "quality": 90
@@ -106,15 +108,15 @@ class TestGalleriaCLIGenerate:
                 }
             }
         }
-        
+
         config_path = tmp_path / "galleria_config.json"
         config_path.write_text(json.dumps(config, indent=2))
-        
+
         output_dir = tmp_path / "gallery_output"
 
         # Act: Execute galleria generate command
         result = subprocess.run([
-            "python", "-m", "galleria", "generate", 
+            "python", "-m", "galleria", "generate",
             "--config", str(config_path),
             "--output", str(output_dir),
             "--verbose"
@@ -122,37 +124,37 @@ class TestGalleriaCLIGenerate:
 
         # Assert: Verify successful execution
         assert result.returncode == 0, f"Command failed with: {result.stderr}"
-        
+
         # Verify output directory was created
         assert output_dir.exists(), "Output directory was not created"
-        
+
         # Verify gallery files were generated
         assert (output_dir / "thumbnails").exists(), "Thumbnails directory not created"
         assert (output_dir / "page_1.html").exists(), "Page 1 HTML not generated"
-        assert (output_dir / "page_2.html").exists(), "Page 2 HTML not generated" 
+        assert (output_dir / "page_2.html").exists(), "Page 2 HTML not generated"
         assert (output_dir / "gallery.css").exists(), "Gallery CSS not generated"
-        
+
         # Verify thumbnails were actually processed (not just directory created)
         thumbnail_files = list((output_dir / "thumbnails").glob("*.webp"))
         assert len(thumbnail_files) == 3, f"Expected 3 thumbnails, found {len(thumbnail_files)}"
-        
+
         # Verify thumbnails have actual content (not empty files)
         for thumb in thumbnail_files:
             assert thumb.stat().st_size > 100, f"Thumbnail {thumb.name} appears to be empty or invalid"
-        
+
         # Verify HTML content structure from template plugin
         page1_content = (output_dir / "page_1.html").read_text()
         assert "wedding_photos" in page1_content, "Collection name not in HTML"
         assert "layout-grid" in page1_content, "Grid layout not applied"
         assert "gallery.css" in page1_content, "CSS not linked"
-        
+
         # Verify actual gallery structure with thumbnail references
         assert "<img" in page1_content, "No image tags found in HTML"
         assert "thumbnails/" in page1_content, "No thumbnail references found"
-        
-        # Verify pagination navigation elements  
+
+        # Verify pagination navigation elements
         assert "page_2.html" in page1_content, "Navigation to page 2 not found"
-        
+
         # Verify pagination structure (2 photos per page)
         page2_content = (output_dir / "page_2.html").read_text()
         assert "wedding_photos" in page2_content, "Collection name not in page 2"
@@ -196,7 +198,7 @@ class TestGalleriaCLIGenerate:
         # Create invalid JSON config
         invalid_config = tmp_path / "invalid_config.json"
         invalid_config.write_text("{ invalid json content }")
-        
+
         output_dir = tmp_path / "output"
 
         # Act: Execute command with invalid config

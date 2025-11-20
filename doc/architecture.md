@@ -74,9 +74,29 @@ galleria/
     └── hooks.py        # Hook system for extensibility
 ```
 
-Each stage has defined data contracts and can be extended through the plugin system. The complete interface foundation is implemented and tested with 130 comprehensive tests.
+Each stage has defined data contracts and can be extended through the plugin system. The complete plugin system is implemented and tested with 239 comprehensive tests, including full end-to-end CLI validation.
 
 See [Plugin System Documentation](modules/galleria/plugin-system.md) for detailed interface specifications.
+
+### Galleria CLI Interface
+
+Galleria provides a complete command-line interface for gallery generation:
+
+```bash
+# Basic usage
+galleria generate --config config.json
+
+# With output override and verbose logging
+galleria generate --config config.json --output /path/to/output --verbose
+```
+
+The CLI orchestrates the complete plugin pipeline:
+1. Loads and validates configuration files
+2. Executes provider → processor → transform → template → css pipeline
+3. Writes generated HTML, CSS, and thumbnail files to disk
+4. Provides comprehensive error handling and progress reporting
+
+**Status**: Fully implemented and tested with end-to-end validation.
 
 ## Integration Points
 

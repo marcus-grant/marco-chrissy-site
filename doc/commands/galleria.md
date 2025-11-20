@@ -1,67 +1,124 @@
 # Galleria Commands
 
-## Pipeline Commands
+## Implemented Commands
 
-Galleria has a simpler command structure since it has one focused purpose:
+Galleria currently implements a focused CLI interface centered around the `generate` command:
 
-### 1. validate
-**Purpose**: Validate galleria-specific configs and dependencies  
-**Calls**: Nothing (base command)
+### generate
+**Purpose**: Generate complete gallery from manifest using plugin pipeline  
+**Status**: ✅ Fully implemented
 
-**Responsibilities**:
-- Validate galleria config JSON
-- Check manifest file exists and is readable
-- Verify image processing dependencies (Pillow, etc.)
-- Check output directory is writable
-
-### 2. generate
-**Purpose**: Generate gallery from manifest  
-**Calls**: `validate` only
+**Options**:
+- `--config, -c`: Path to galleria configuration file (required)
+- `--output, -o`: Output directory override (optional)
+- `--verbose, -v`: Enable detailed progress reporting (optional)
 
 **Responsibilities**:
-- Parse NormPic manifest
-- Generate optimized thumbnails (WebP, 400x400)
-- Render HTML pages with pagination (60 photos/page)
-- Generate CSS stylesheets
-- Copy theme assets
+- Load and validate galleria configuration JSON
+- Validate manifest file exists and is accessible
+- Execute complete plugin pipeline:
+  1. **Provider**: Load NormPic manifest data
+  2. **Processor**: Generate optimized WebP thumbnails (configurable size/quality)
+  3. **Transform**: Apply pagination (configurable page size)
+  4. **Template**: Generate HTML pages with navigation
+  5. **CSS**: Generate responsive stylesheets
+- Write all generated files (HTML, CSS, thumbnails) to output directory
+- Provide comprehensive error handling and progress reporting
 
-## Development Commands
+## Planned Commands (Future)
+
+### validate
+**Purpose**: Validate configuration and dependencies without generation
+**Status**: ⏳ Not implemented
 
 ### serve
-**Purpose**: Local development server for gallery  
-**Calls**: `generate` only (which calls `validate`)
-
-**Responsibilities**:
-- Generate fresh gallery
-- Serve locally for development
-- Enable plugin development workflow
+**Purpose**: Local development server with hot reload
+**Status**: ⏳ Not implemented
 
 ### clean
-**Purpose**: Clean galleria output  
-**Calls**: Nothing
-
-**Responsibilities**:
-- Remove generated gallery files
-- Clear thumbnail caches
-
-### debug
-**Purpose**: Verbose generation for troubleshooting  
-**Calls**: `generate` only
-
-**Responsibilities**:
-- Generate gallery with verbose output
-- Log detailed processing information
-- Help diagnose issues
+**Purpose**: Clean output and cache files
+**Status**: ⏳ Not implemented
 
 ## Usage Examples
 
 ```bash
-# Generate gallery from config
-uv run python -m galleria generate --config config/galleria/wedding.json
+# Basic gallery generation
+python -m galleria generate --config config/galleria/wedding.json
 
-# Serve for development
-uv run python -m galleria serve --config config/galleria/wedding.json
+# Generate with output override
+python -m galleria generate --config config/galleria/wedding.json --output /custom/output/path
 
-# Debug generation issues
-uv run python -m galleria debug --config config/galleria/wedding.json --verbose
+# Generate with verbose logging
+python -m galleria generate --config config/galleria/wedding.json --verbose
+
+# Full example with all options
+python -m galleria generate \
+  --config config/galleria/wedding.json \
+  --output /path/to/gallery/output \
+  --verbose
+```
+
+## Configuration File Format
+
+The configuration file should contain:
+
+```json
+{
+  "input": {
+    "manifest_path": "path/to/normpic/manifest.json"
+  },
+  "output": {
+    "directory": "path/to/output"
+  },
+  "pipeline": {
+    "provider": {
+      "plugin": "normpic-provider",
+      "config": {}
+    },
+    "processor": {
+      "plugin": "thumbnail-processor",
+      "config": {
+        "thumbnail_size": 400,
+        "quality": 90
+      }
+    },
+    "transform": {
+      "plugin": "basic-pagination",
+      "config": {
+        "page_size": 2
+      }
+    },
+    "template": {
+      "plugin": "basic-template",
+      "config": {
+        "theme": "minimal",
+        "layout": "grid"
+      }
+    },
+    "css": {
+      "plugin": "basic-css",
+      "config": {
+        "theme": "light",
+        "responsive": true
+      }
+    }
+  }
+}
+```
+
+## Output Structure
+
+The generate command creates:
+
+```
+output/
+├── page_1.html          # First page of gallery
+├── page_2.html          # Additional pages (if pagination needed)
+├── gallery.css          # Main gallery styles
+├── theme-light.css      # Theme-specific styles
+├── responsive.css       # Responsive design styles
+└── thumbnails/          # Generated thumbnail images
+    ├── photo_001.webp
+    ├── photo_002.webp
+    └── ...
 ```

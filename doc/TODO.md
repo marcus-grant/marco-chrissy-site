@@ -2,7 +2,7 @@
 
 ## MVP Roadmap
 
-### Phase 1: Galleria Development
+### Phase 1: Galleria Development - COMPLETED
 
 #### Core Functionality - Plugin System Development
 
@@ -77,25 +77,30 @@
   - [x] Connect CLI to PipelineManager
   - [x] Progress reporting and error handling
 
-- [ ] **Commit 8e: `Tst: Validate generate command E2E`** (~50-75 lines)
-  - [ ] Ensure E2E test passes fully
-  - [ ] Add any missing error handling
+- [x] **Commit 8e: `Tst: Validate generate command E2E`** (COMPLETED)
+  - [x] Ensure E2E test passes fully
+  - [x] Fix CLI file writing issue for HTML and CSS files
+  - [x] Fix test image processing with proper JPEG files
+  - [x] Resolve all skipped tests (239/239 tests passing)
+  - [x] Add comprehensive error handling validation
 
 **Commit 9: Documentation (1 commit)**
 
-- [ ] **Commit 9a: `Doc: Update architecture and CLI documentation`** (~100-150 lines)
-  - [ ] Update `doc/architecture.md` with plugin integration
-  - [ ] Document CLI usage and configuration format
-  - [ ] Update `doc/README.md` links
+- [x] **Commit 9a: `Doc: Update architecture and CLI documentation`** (COMPLETED)
+  - [x] Update `doc/architecture.md` with plugin integration and CLI interface
+  - [x] Update `doc/commands/galleria.md` with implemented CLI usage
+  - [x] Update `doc/modules/galleria-structure.md` with current implementation
+  - [x] Update `doc/CHANGELOG.md` with Commit 8e completion details
+  - [x] Complete documentation updates for Phase 1
 
 **Testing Methodology:** E2E Integration → Unit TDD → Back to Integration → Full E2E validation
 
-- [ ] Develop `generate` command using E2E tests + TDD
-  - [ ] Create E2E tests for generate command:
-    - [ ] Test generate command loads and orchestrates plugins correctly
-    - [ ] Test default plugins work together end-to-end
-    - [ ] Test plugin hook points called at correct times in workflow
-  - [ ] Implement generate command that orchestrates plugin system
+- [x] **Generate command complete using E2E tests + TDD** (COMPLETED)
+  - [x] Create E2E tests for generate command:
+    - [x] Test generate command loads and orchestrates plugins correctly
+    - [x] Test default plugins work together end-to-end
+    - [x] Test plugin hook points called at correct times in workflow
+  - [x] Implement generate command that orchestrates plugin system
 - [ ] Develop `serve` command using E2E tests + TDD
   - [ ] Create E2E tests for serve command:
     - [ ] Test serve calls generate (cascading command pattern)

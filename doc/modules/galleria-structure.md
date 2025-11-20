@@ -9,131 +9,107 @@ Galleria is a focused gallery generator that converts NormPic manifests into sta
 ```
 galleria/
 ├── __init__.py         # Main module entry point
-├── doc/               # Galleria-specific documentation
-├── generator/         # Orchestrates gallery generation workflow
-│   └── __init__.py
-├── template/          # Template loading and rendering
-│   └── __init__.py
-├── processor/         # Image processing (thumbnails, optimization)
-│   └── __init__.py
-├── serializer/        # Config and manifest (de)serialization
-│   └── __init__.py
-└── themes/           # Gallery themes and assets
+├── __main__.py         # CLI entry point for python -m galleria
+├── config.py           # Configuration loading and validation
+├── manager/            # Plugin orchestration
+│   ├── __init__.py
+│   ├── pipeline.py     # Pipeline execution management
+│   └── registry.py     # Plugin discovery and registration
+├── plugins/            # Plugin system implementation
+│   ├── __init__.py
+│   ├── base.py         # BasePlugin abstract class
+│   ├── interfaces.py   # Specific plugin interfaces
+│   ├── exceptions.py   # Plugin exception hierarchy
+│   ├── css.py          # CSS generation plugins
+│   ├── pagination.py   # Pagination transform plugins
+│   ├── template.py     # HTML template plugins
+│   ├── processors/     # Image processing plugins
+│   │   └── thumbnail.py
+│   └── providers/      # Data provider plugins
+│       └── normpic.py
+├── processor/          # Core image processing logic
+│   └── image.py        # ImageProcessor for WebP generation
+└── serializer/         # Manifest loading and data models
     ├── __init__.py
-    └── minimal/      # Default minimal theme
-        ├── __init__.py
-        ├── config.json
-        ├── templates/
-        └── static/
+    ├── loader.py       # PhotoCollection loading
+    ├── models.py       # Data model definitions
+    └── exceptions.py   # Serialization exceptions
 ```
 
 ## Implementation Status
 
-**✅ Completed**: Core module directory structure and initialization files
-**✅ Completed**: Serializer module with NormPic v0.1.0 compatibility and plugin architecture
-**✅ Completed**: Processor module with thumbnail generation and caching
-**🚧 Next**: Implement template rendering and theme system
+**Completed**: Full plugin-based architecture with CLI
+**Completed**: All 5 plugin stages implemented and tested
+**Completed**: CLI generate command with file writing and error handling
+**Completed**: 239 comprehensive tests with full E2E validation
+**Ready**: For extraction as standalone package
 
 ## Module Responsibilities
 
-### generator/
-**Purpose**: Orchestrates the gallery generation workflow
+### CLI (__main__.py)
+**Purpose**: Command-line interface for gallery generation
 
 **Responsibilities**:
-- Coordinate serializer → processor → template workflow
-- Handle plugin hook points for extensibility
-- Manage generation progress and error reporting
-- Control output directory structure
+- Parse command-line arguments (--config, --output, --verbose)
+- Load and validate configuration files
+- Execute plugin pipeline through PipelineManager
+- Write generated files (HTML, CSS, thumbnails) to disk
+- Provide progress reporting and error handling
 
-**Interface**:
-- Called by `galleria generate` command
-- Coordinates other galleria modules
-- Provides plugin extension points
-
-**Plugin Hooks**:
-- Pre-processing manifest data
-- Post-processing generated files
-- Custom template variables
-- Asset pipeline modifications
-
-### template/
-**Purpose**: Template loading and rendering with plugin support
+### manager/
+**Purpose**: Plugin orchestration and pipeline execution
 
 **Responsibilities**:
-- Load HTML templates from themes
-- Render paginated gallery pages
-- Generate navigation links
-- Support plugin template injection
+- Register and discover plugins by stage
+- Execute multi-stage plugin pipeline
+- Coordinate data flow between pipeline stages
+- Handle plugin errors and validation
 
-**Interface**:
-- Called by generator during rendering phase
-- Extensible through plugin system
-- Theme-agnostic template loading
+### plugins/
+**Purpose**: Modular gallery generation stages
 
-**Plugin Support**:
-- Template variable injection
-- Custom template filters
-- Additional template includes
+**Responsibilities**:
+- **providers/**: Load photo collections from manifests
+- **processors/**: Generate thumbnails and process images
+- **pagination.py**: Transform data with pagination logic
+- **template.py**: Generate HTML structure and pages
+- **css.py**: Generate responsive stylesheets
 
 ### processor/
-**Purpose**: Image processing and optimization
+**Purpose**: Core image processing functionality
 
 **Responsibilities**:
-- Generate optimized thumbnails (WebP, configurable size)
-- Handle image format conversion
-- Manage processing caches
-- Support plugin processing pipelines
-
-**Current Implementation**:
-- `ImageProcessor` - Main processing class
-- `process_image(source_path, output_dir, size=400, quality=85)` - Single image processing
-- `process_collection(collection, output_dir, ...)` - Batch processing with progress
-- `should_process(source_path, thumbnail_path)` - Naive caching via mtime comparison
-- Center crop strategy for non-square images
-- WebP output format with quality control
-- Comprehensive error handling (ImageProcessingError)
-- Progress callbacks for large collections
-
-**Interface**:
-- Called by generator during processing phase
-- Memory-efficient for large collections
-- Pluggable processing pipeline
-
-See [Processor Module Documentation](galleria/processor.md) for detailed API and implementation information.
+- Convert JPEG/PNG images to optimized WebP thumbnails
+- Apply center-crop resizing for consistent aspect ratios
+- Implement caching to skip unchanged images
+- Handle image format conversion and quality settings
 
 ### serializer/
-**Purpose**: Photo collection provider system
+**Purpose**: Data loading and model definitions
 
 **Responsibilities**:
-- Load photo collections from various sources (manifests, directories, databases)
-- Provide standardized photo data structures
-- Handle error validation and reporting
-- Support pluggable collection providers
+- Load and parse NormPic manifest files
+- Define data models for PhotoCollection and Photo
+- Handle manifest validation and error reporting
+- Provide data transformation for plugin pipeline
 
-**Status**: ✅ Implemented
+### config.py
+**Purpose**: Configuration management
 
-See [Serializer Module Documentation](galleria/serializer.md) for detailed API and implementation information.
+**Responsibilities**:
+- Load and validate JSON configuration files
+- Parse pipeline stage configurations
+- Handle CLI option overrides (output directory)
+- Validate file paths and dependencies
 
-### themes/
-**Purpose**: Theme assets and templates
+## Current Implementation Status
 
-**Structure**:
-```
-themes/
-├── minimal/           # Default minimal theme
-│   ├── templates/     # HTML templates
-│   ├── static/        # CSS, fonts, JS
-│   └── config.json    # Theme configuration
-└── [future themes]/
-```
+The Galleria module is fully implemented with a complete plugin-based architecture:
 
-**Plugin Integration**:
-- Themes can include plugin-specific templates
-- Plugin assets can extend theme assets
-- Plugin configuration integrated with theme config
+- **CLI Interface**: Complete with argument parsing, config validation, and file writing
+- **Plugin Pipeline**: All 5 stages implemented and tested (Provider → Processor → Transform → Template → CSS)  
+- **Test Coverage**: 239 comprehensive tests including E2E validation
+- **Error Handling**: Graceful error handling with detailed progress reporting
+- **File Output**: HTML pages, CSS stylesheets, and WebP thumbnails generated and written to disk
 
-**Minimal Theme Configuration**:
-- Basic theme config with 400px thumbnails
-- 20 photos per page default
-- Modular template and static asset directories
-- Extensible for future theme variants
+Ready for production use and Phase 2 integration.
