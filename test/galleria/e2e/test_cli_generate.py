@@ -130,20 +130,33 @@ class TestGalleriaCLIGenerate:
         assert (output_dir / "page_2.html").exists(), "Page 2 HTML not generated" 
         assert (output_dir / "gallery.css").exists(), "Gallery CSS not generated"
         
-        # Verify thumbnails were created
+        # Verify thumbnails were actually processed (not just directory created)
         thumbnail_files = list((output_dir / "thumbnails").glob("*.webp"))
-        assert len(thumbnail_files) >= 0, "No thumbnail files found"
-        # Note: May be 0 if image processing fails on test files
+        assert len(thumbnail_files) == 3, f"Expected 3 thumbnails, found {len(thumbnail_files)}"
         
-        # Verify HTML content structure
+        # Verify thumbnails have actual content (not empty files)
+        for thumb in thumbnail_files:
+            assert thumb.stat().st_size > 100, f"Thumbnail {thumb.name} appears to be empty or invalid"
+        
+        # Verify HTML content structure from template plugin
         page1_content = (output_dir / "page_1.html").read_text()
         assert "wedding_photos" in page1_content, "Collection name not in HTML"
         assert "layout-grid" in page1_content, "Grid layout not applied"
         assert "gallery.css" in page1_content, "CSS not linked"
         
+        # Verify actual gallery structure with thumbnail references
+        assert "<img" in page1_content, "No image tags found in HTML"
+        assert "thumbnails/" in page1_content, "No thumbnail references found"
+        
+        # Verify pagination navigation elements  
+        assert "page_2.html" in page1_content, "Navigation to page 2 not found"
+        
         # Verify pagination structure (2 photos per page)
         page2_content = (output_dir / "page_2.html").read_text()
-        assert "Page 2" in page2_content, "Page 2 not properly generated"
+        assert "wedding_photos" in page2_content, "Collection name not in page 2"
+        assert "<img" in page2_content, "No image tags in page 2"
+        assert "thumbnails/" in page2_content, "No thumbnails in page 2"
+        assert "page_1.html" in page2_content, "Navigation to page 1 not found"
 
     def test_cli_generate_handles_missing_config_file(self, tmp_path):
         """E2E: Test galleria generate with missing config file shows error."""
@@ -159,8 +172,10 @@ class TestGalleriaCLIGenerate:
 
         # Assert: Command should fail gracefully
         assert result.returncode != 0, "Command should fail with missing config"
-        assert "config" in result.stderr.lower() or "not found" in result.stderr.lower(), \
-            f"Error message should mention config issue: {result.stderr}"
+        # Should show click-based error message about missing config
+        error_output = result.stderr.lower()
+        assert any(phrase in error_output for phrase in ["config", "not found", "no such file", "file not found"]), \
+            f"Error should mention config file issue: {result.stderr}"
 
     def test_cli_generate_shows_help_with_no_args(self, tmp_path):
         """E2E: Test galleria generate with no arguments shows help."""
@@ -169,9 +184,9 @@ class TestGalleriaCLIGenerate:
             "python", "-m", "galleria", "generate"
         ], capture_output=True, text=True, cwd=tmp_path.parent.parent.parent)
 
-        # Assert: Should show help or usage information
+        # Assert: Should show click-based help or usage information
         output_text = result.stdout + result.stderr
-        assert any(word in output_text.lower() for word in ["usage", "help", "config", "required"]), \
+        assert any(word in output_text.lower() for word in ["usage", "help", "config", "required", "missing option"]), \
             f"Should show usage information: {output_text}"
 
     def test_cli_generate_validates_invalid_config_format(self, tmp_path):
@@ -191,5 +206,7 @@ class TestGalleriaCLIGenerate:
 
         # Assert: Command should fail gracefully
         assert result.returncode != 0, "Command should fail with invalid JSON"
-        assert any(word in result.stderr.lower() for word in ["json", "invalid", "parse"]), \
+        # Should show meaningful JSON parsing error from click/config validation
+        error_output = result.stderr.lower()
+        assert any(phrase in error_output for phrase in ["json", "invalid", "parse", "decode", "syntax"]), \
             f"Error should mention JSON parsing issue: {result.stderr}"

@@ -39,31 +39,31 @@
   - [x] Foundation ready for Commit 7 (Complete E2E Workflow)
   - [x] **Message:** `Complete Template, CSS, and Pagination plugin implementations`
 
-**Commit 7: E2E Real Plugin Integration (4 small commits)**
+- [x] **Commit 7: E2E Real Plugin Integration (4 small commits)** (COMPLETED)
 
-- [ ] **Commit 7a: `Tst: Add real plugin E2E integration tests`** (~75-100 lines)
-  - [ ] Create failing E2E test using actual NormPicProvider → ThumbnailProcessor → etc.
-  - [ ] Test PipelineManager orchestrating real plugins (not mocks)
-  - [ ] Verify test fails as expected (red phase)
+- [x] **Commit 7a: `Tst: Add real plugin E2E integration tests`** (~75-100 lines)
+  - [x] Create failing E2E test using actual NormPicProvider → ThumbnailProcessor → etc.
+  - [x] Test PipelineManager orchestrating real plugins (not mocks)
+  - [x] Verify test fails as expected (red phase)
 
-- [ ] **Commit 7b: `Fix: Plugin registry integration issues`** (~100-150 lines)
-  - [ ] Fix plugin loading/registration discovered by E2E failure
-  - [ ] Make E2E test progress further but still fail
+- [x] **Commit 7b: `Fix: Plugin registry integration issues`** (~100-150 lines)
+  - [x] Fix plugin loading/registration discovered by E2E failure
+  - [x] Make E2E test progress further but still fail
 
-- [ ] **Commit 7c: `Fix: Data contract validation between plugins`** (~100-150 lines)
-  - [ ] Fix data format mismatches between real plugins
-  - [ ] Handle any contract issues discovered by E2E test
+- [x] **Commit 7c: `Fix: Data contract validation between plugins`** (~100-150 lines)
+  - [x] Fix data format mismatches between real plugins
+  - [x] Handle any contract issues discovered by E2E test
 
-- [ ] **Commit 7d: `Ft: Complete real plugin E2E workflow`** (~50-100 lines)
-  - [ ] Final fixes to make E2E test fully pass
-  - [ ] Real plugin pipeline working end-to-end
+- [x] **Commit 7d: `Ft: Complete real plugin E2E workflow`** (COMPLETED IN 7c)
+  - [x] Final fixes to make E2E test fully pass (completed in 7c)
+  - [x] Real plugin pipeline working end-to-end
 
 **Commit 8: CLI Generate Command (5 small commits)**
 
-- [ ] **Commit 8a: `Tst: Add CLI generate command E2E tests`** (~75-100 lines)
-  - [ ] Create failing E2E test for `galleria generate --config config.json`
-  - [ ] Test argument parsing, config loading, plugin execution
-  - [ ] Verify test fails (no CLI exists yet)
+- [x] **Commit 8a: `Tst: Add CLI generate command E2E tests`** (~75-100 lines)
+  - [x] Create failing E2E test for `galleria generate --config config.json`
+  - [x] Test argument parsing, config loading, plugin execution
+  - [x] Verify test fails (no CLI exists yet)
 
 - [ ] **Commit 8b: `Ft: Add CLI entry point and argument parsing`** (~100-150 lines)
   - [ ] Implement `galleria/__main__.py`
@@ -257,6 +257,12 @@
   - [ ] Create standalone pyproject.toml for Galleria
   - [ ] Document Galleria-only installation process
 - [ ] Galleria technical debt cleanup
+  - [ ] **CRITICAL**: Unify plugin configuration access patterns
+    - [ ] Remove dual config pattern support (nested vs direct)
+    - [ ] Standardize on single config approach across all plugins
+    - [ ] Update all unit tests to use unified config pattern
+    - [ ] Remove backward compatibility config detection code
+    - [ ] Choose either: nested stage-specific OR flattened direct access
   - [ ] Add comprehensive type hints
   - [ ] Improve error messages and logging
   - [ ] Create development/debug mode
