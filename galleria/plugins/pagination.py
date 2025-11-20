@@ -18,8 +18,16 @@ class BasicPaginationPlugin(TransformPlugin):
     def transform_data(self, context: PluginContext) -> PluginResult:
         """Transform photo data by splitting into paginated pages."""
         try:
-            # Get configuration
-            page_size = context.config.get("page_size", 20)
+            # Get configuration - support both nested and direct config patterns
+            config = context.config or {}
+            
+            # Try nested config first (for multi-stage pipelines), fall back to direct access
+            if "transform" in config:
+                transform_config = config["transform"]
+            else:
+                transform_config = config
+                
+            page_size = transform_config.get("page_size", 20)
             
             # Validate page_size configuration
             if page_size <= 0:
@@ -105,11 +113,19 @@ class SmartPaginationPlugin(TransformPlugin):
     def transform_data(self, context: PluginContext) -> PluginResult:
         """Transform photo data using intelligent pagination strategies."""
         try:
-            # Get configuration with smart defaults
-            target_page_size = context.config.get("page_size", 20)
-            max_page_size = context.config.get("max_page_size", target_page_size * 1.5)
-            min_page_size = context.config.get("min_page_size", max(1, target_page_size // 2))
-            balance_pages = context.config.get("balance_pages", True)
+            # Get configuration - support both nested and direct config patterns
+            config = context.config or {}
+            
+            # Try nested config first (for multi-stage pipelines), fall back to direct access
+            if "transform" in config:
+                transform_config = config["transform"]
+            else:
+                transform_config = config
+                
+            target_page_size = transform_config.get("page_size", 20)
+            max_page_size = transform_config.get("max_page_size", target_page_size * 1.5)
+            min_page_size = transform_config.get("min_page_size", max(1, target_page_size // 2))
+            balance_pages = transform_config.get("balance_pages", True)
             
             # Validate configuration
             if target_page_size <= 0:

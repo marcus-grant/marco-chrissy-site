@@ -33,8 +33,20 @@ class BasicCSSPlugin(CSSPlugin):
                     errors=["MISSING_HTML_FILES: html_files required"]
                 )
 
+            # Get CSS and template configurations - support both nested and direct patterns
+            config = context.config or {}
+            
+            # Handle nested config pattern (multi-stage) vs direct config pattern (single plugin)
+            if "css" in config or "template" in config:
+                css_config = config.get("css", {})
+                template_config = config.get("template", {})
+            else:
+                # Direct config access pattern - assume all config is for this plugin
+                css_config = config
+                template_config = config
+            
             # Validate theme configuration
-            theme = context.config.get("theme")
+            theme = css_config.get("theme")
             if theme and theme not in ["light", "dark", "auto"]:
                 return PluginResult(
                     success=False,
@@ -48,8 +60,8 @@ class BasicCSSPlugin(CSSPlugin):
             # Generate CSS files
             css_files = []
             
-            # Main gallery CSS
-            gallery_css = self._generate_gallery_css(context.config)
+            # Main gallery CSS (needs layout from template config)
+            gallery_css = self._generate_gallery_css(template_config)
             css_files.append({
                 "filename": "gallery.css",
                 "content": gallery_css,
@@ -66,8 +78,8 @@ class BasicCSSPlugin(CSSPlugin):
                 })
 
             # Responsive CSS if enabled
-            if context.config.get("responsive", True):
-                responsive_css = self._generate_responsive_css(context.config)
+            if css_config.get("responsive", True):
+                responsive_css = self._generate_responsive_css(css_config)
                 css_files.append({
                     "filename": "responsive.css",
                     "content": responsive_css,

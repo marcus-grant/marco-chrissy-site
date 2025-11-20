@@ -95,12 +95,19 @@ class ThumbnailProcessorPlugin(ProcessorPlugin):
                     errors=["Missing required field: collection_name"]
                 )
 
-            # Extract configuration options
+            # Extract configuration options - support both nested and direct config patterns
             config = context.config or {}
-            thumbnail_size = config.get("thumbnail_size", 400)
-            quality = config.get("quality", 85)
-            use_cache = config.get("use_cache", True)
-            output_format = config.get("output_format", "webp")
+            
+            # Try nested config first (for multi-stage pipelines), fall back to direct access
+            if "processor" in config:
+                processor_config = config["processor"]
+            else:
+                processor_config = config
+                
+            thumbnail_size = processor_config.get("thumbnail_size", 400)
+            quality = processor_config.get("quality", 85)
+            use_cache = processor_config.get("use_cache", True)
+            output_format = processor_config.get("output_format", "webp")
 
             # Create thumbnails directory
             thumbnails_dir = context.output_dir / "thumbnails"

@@ -90,8 +90,14 @@ class BasicTemplatePlugin(TemplatePlugin):
         config: dict[str, Any]
     ) -> str:
         """Generate HTML for a single page of photos."""
-        theme = config.get("theme", "minimal")
-        layout = config.get("layout", "grid")
+        # Support both nested and direct config patterns
+        if "template" in config:
+            template_config = config["template"]
+        else:
+            template_config = config
+            
+        theme = template_config.get("theme", "minimal")
+        layout = template_config.get("layout", "grid")
         
         # Build photo gallery HTML
         photo_html = ""
