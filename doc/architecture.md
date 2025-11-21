@@ -10,8 +10,15 @@ The marco-chrissy-site project follows a modular, loosely-coupled architecture w
 - **NormPic**: Photo organization (external tool)
 - **Galleria**: Gallery generation with plugin system (internal module)
 - **Pelican**: Static site generation (external framework)
-- **Orchestrator**: Build coordination
-- **Deployer**: CDN deployment
+- **Validator**: Pre-flight checks (configs, dependencies, permissions)
+- **Site CLI**: Command orchestration and pipeline management
+
+### Test-Driven Development
+- **Nested TDD workflow**: E2E tests drive development direction
+- **E2E tests** surface missing functionality and define requirements
+- **Unit tests** implement specific pieces identified by E2E failures  
+- **Continuous integration**: Test suite remains passing throughout development
+- **Skip pattern**: New features start with skipped E2E tests until implementation complete
 
 ### No Tight Coupling
 - Components communicate through files and manifests

@@ -17,22 +17,30 @@
 
 #### 2.1: Project Structure Setup
 - [x] Create test structure (`test/e2e/` and `test/unit/`)
-- [ ] Create root-level module directories
-  - [ ] `validator/` - Pre-flight checks (configs, dependencies, permissions)
+- [x] Create reusable filesystem and config fixtures in `test/conftest.py`
+- [x] Create root-level module directories:
+  - [x] `validator/` - Pre-flight checks (configs, dependencies, permissions)
+  - [x] `cli/` - Command-line interface with subcommands  
   - [ ] `build/` - Orchestration modules (Galleria + Pelican coordination)
   - [ ] `deploy/` - Bunny CDN upload logic
-  - [ ] `cli/` - Command-line interface with subcommands
   - [ ] `serializers/` - JSON config loading with schema validation
 
 #### 2.2: CLI Command System (Idempotent Cascading)
-- [ ] E2E test: `uv run site` command discovery and basic functionality (`test/e2e/`)
-- [ ] Unit tests: Individual command modules (`test/unit/`)
-- [ ] Implement `uv run site` command with subcommands
-  - [ ] `site validate` - Pre-flight checks, lazy execution
+- [x] E2E test: `uv run site` command discovery and basic functionality (`test/e2e/`)
+- [x] Unit tests: Individual command modules (`test/unit/`)
+- [x] Implement `uv run site` command with subcommands
+  - [x] `site validate` - Pre-flight checks (config file validation implemented)
   - [ ] `site organize` - NormPic orchestration (calls validate if needed)
   - [ ] `site build` - Galleria + Pelican generation (calls organize if needed)  
   - [ ] `site deploy` - Bunny CDN upload (calls build if needed)
 - [ ] Each command checks if work already done and skips unnecessary operations
+
+**Validate Command Status:**
+- [x] Basic config file validation with unit tests (4 tests)
+- [x] E2E test with temporary filesystem setup (1 test passing)
+- [ ] Dependency validation (check for required packages)
+- [ ] Output directory permissions validation
+- [ ] Error handling for invalid config content
 
 #### 2.3: Configuration Architecture (Separate Configs)
 - [ ] E2E test: Config loading and validation across modules (`test/e2e/`)
