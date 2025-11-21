@@ -12,7 +12,8 @@ The site orchestrates multiple tools to generate static content deployed to Bunn
 ### Project Documentation
 
 - [TODO](TODO.md) - Project roadmap and task tracking
-- [E2E Workflow Guide](workflow.md) - Complete end-to-end usage guide
+- [Development Workflow](workflow.md) - TDD workflow and site command pipeline
+- [Testing Guide](testing.md) - Test organization, fixtures, and development patterns
 - [Architecture](architecture.md) - System design and integration patterns
 - [Provider Architecture](provider-architecture.md) - Plugin-based photo collection providers
 - [Configuration Guide](bconfiguration.md) - Config file formats and examples

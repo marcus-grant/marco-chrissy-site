@@ -14,32 +14,32 @@
 * **Specific Test Files**:
   * Use `uv run pytest test/test_filename.py -v` for focused testing
   * **ALWAYS** run full suites before every commit
-* Follow Nested TDD Workflow:
+* Follow Nested TDD Workflow (see [workflow.md](workflow.md) for full details):
 
   **Outer Cycle (E2E/Integration Tests)**:
-  * Write E2E or integration test to surface missing/broken functionality
-  * Run test - it should fail, revealing what's missing
-  * Mark failing test with `@pytest.skip` decorator with reason
-  * This failure informs what unit tests need to be written/changed
+  * Write E2E test for desired functionality - mark with `@pytest.skip` initially
+  * Run test - should be skipped, keeping test suite green
+  * This defines what needs to be built and drives inner cycle
+  * Only unskip when ready to verify complete functionality
 
   **Inner Cycle (Unit TDD)**:
-  * Write unit test for the specific missing functionality identified by E2E test
-  * Run unit test - ensure it fails as expected (Red)
-  * Implement minimal code to make unit test pass (Green)
+  * Write unit test for specific missing functionality identified by E2E test
+  * Run test - ensure it fails as expected (Red)
+  * Implement minimal code to make test pass (Green)
   * Refactor for better solution while keeping test green (Refactor)
-  * Commit small change (typically 200-300 lines max)
+  * Commit small change (typically <300 LOC)
   * Repeat for next piece of missing functionality
 
   **Documentation Cycle**:
-  * After several commits in the TDD cycles, consider documentation updates
+  * After several commits in TDD cycles, update documentation in batch
+  * Use shared fixtures (`temp_filesystem`, `config_file_factory`) for consistent test setup
   * Make separate `Doc:` prefixed commit for documentation changes
 
-  **Key Workflow Points**:
-  * Don't develop entire E2E modules at once
-  * Stop when missing functionality is discovered
-  * Use `@pytest.skip` to mark incomplete E2E tests
-  * Focus on small, logical commits that build incrementally
-  * Each commit should be complete and testable
+  **Key Success Patterns**:
+  * **Always passing suite** - Skip pattern keeps tests green during development
+  * **Real filesystem tests** - Use fixtures with actual files, not mocks
+  * **Small, focused commits** - Each unit test cycle produces complete, testable change
+  * **Clear handoff points** - E2E tests show exactly what needs implementing
 * Task management:
   * Every test should usually only cover one TODO task
   * Some tasks require multiple tests
@@ -141,9 +141,21 @@
   * So ensure there's very loose coupling from rest of project
   * Consider how this part will eventually split out
   * Should be generalizable and easy to integrate in other projects.
+## Testing Infrastructure 
+
+* **Use shared fixtures** (see [testing.md](testing.md)):
+  * `temp_filesystem` - Isolated temporary directories
+  * `file_factory` - Create files with content (text or JSON)
+  * `config_file_factory` - Config files with sensible defaults
+  * `full_config_setup` - Complete config environment
+* **Real filesystem tests** - Prefer actual files over mocks for integration tests
+* **Temporary filesystem isolation** - E2E tests use subprocess calls in temp directories
+
+## Documentation Management
+
 * Keep TODO.md updated:
   * Update "Current Tasks" section when starting/stopping work
-  * Mark completed items with [x]
+  * Mark completed items with [x] 
   * Add new tasks as they're discovered
   * Document progress for easy resumption
   * When I say delete from TODO, only when its section of the TODO is complete.
@@ -158,6 +170,8 @@
   * Ensure a chain of doc links leading from project root README to doc exists
 * The only document every contribution should need is the root README.md
   * From there it should be clear what if any other documents need reading
+* Update CHANGELOG.md when warranted by significant functionality changes
+* Documentation should be **concise and practical** - focus on what developers need
 
 ## Important Reminders
 

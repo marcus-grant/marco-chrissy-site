@@ -2,19 +2,26 @@
 
 import subprocess
 import pytest
+import json
+from pyfakefs.fake_filesystem_unittest import Patcher
 
 
 class TestSiteValidate:
     """Test the site validate command functionality."""
 
-    @pytest.mark.skip(reason="Validate command functionality not yet implemented")
-    def test_validate_checks_config_files_exist(self):
+    def test_validate_checks_config_files_exist(self, temp_filesystem, full_config_setup):
         """Test that validate command checks for required config files."""
+        # Set up all required config files
+        full_config_setup()
+        
+        # Run validate command from temp directory
         result = subprocess.run(
             ["uv", "run", "site", "validate"],
             capture_output=True,
-            text=True
+            text=True,
+            cwd=str(temp_filesystem)
         )
+        
         assert result.returncode == 0
         assert "config files found" in result.stdout.lower()
 

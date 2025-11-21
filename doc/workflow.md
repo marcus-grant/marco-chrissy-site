@@ -1,8 +1,77 @@
-# Galleria E2E Workflow Guide
+# Site Development Workflow Guide
 
 ## Overview
 
-Galleria provides a complete end-to-end workflow for generating static photo galleries from photo collections. This guide covers the complete process from photo organization through final deployment.
+This guide covers the complete development workflow for the marco-chrissy-site project, including our nested TDD approach and the site command pipeline.
+
+## Nested TDD Workflow
+
+### Outer Cycle (E2E/Integration Tests)
+
+E2E tests drive our development workflow by surfacing missing or broken functionality:
+
+1. **Write E2E test** - Create test for desired functionality 
+2. **Run test** - Should fail, revealing what's missing
+3. **Mark with `@pytest.mark.skip`** - Keep test suite in passing state
+4. **Move to inner cycle** - Write unit tests for missing pieces
+
+### Inner Cycle (Unit TDD)
+
+Unit tests implement the specific functionality identified by E2E tests:
+
+1. **Write unit test** - For specific missing functionality 
+2. **Red** - Ensure test fails as expected
+3. **Green** - Implement minimal code to make test pass
+4. **Refactor** - Improve solution while keeping test green
+5. **Commit** - Small change (typically <300 LOC)
+6. **Repeat** - Continue until E2E test can pass
+
+### Test Management Pattern
+
+```python
+# E2E test - initially skipped
+@pytest.mark.skip(reason="Deploy command functionality not yet implemented")
+def test_deploy_calls_build_automatically(self):
+    """Test that deploy automatically calls build if needed."""
+    # This test drives development
+    pass
+
+# Unit tests - implement pieces needed for E2E test
+def test_deploy_command_calls_build_module(self):
+    """Test specific unit of functionality."""
+    # Implementation happens here
+    pass
+```
+
+### Workflow Benefits
+
+- **Clear direction** - E2E tests show what needs building
+- **Small commits** - Each unit test leads to focused changes
+- **Always passing** - Test suite stays green between features
+- **Continuous progress** - Can see advancement by unskipping tests
+
+## Site Command Pipeline
+
+### 4-Stage Idempotent Pipeline
+
+```bash
+site validate → site organize → site build → site deploy
+```
+
+Each command automatically calls predecessors if needed, but skips work already done.
+
+### Example Usage
+
+```bash
+# Run full pipeline
+uv run site deploy
+
+# Run specific stage  
+uv run site validate
+
+# Each stage checks dependencies automatically
+uv run site build  # Calls organize and validate if needed
+```
 
 ## Workflow Steps
 
