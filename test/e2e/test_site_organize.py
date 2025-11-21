@@ -7,13 +7,15 @@ import pytest
 class TestSiteOrganize:
     """Test the site organize command functionality."""
 
-    @pytest.mark.skip(reason="Organize command functionality not yet implemented")
-    def test_organize_calls_normpic(self):
+    def test_organize_calls_normpic(self, temp_filesystem, full_config_setup):
         """Test that organize command orchestrates NormPic."""
+        full_config_setup()
+        
         result = subprocess.run(
             ["uv", "run", "site", "organize"],
             capture_output=True,
-            text=True
+            text=True,
+            cwd=str(temp_filesystem)
         )
         assert result.returncode == 0
         assert "normpic" in result.stdout.lower()
