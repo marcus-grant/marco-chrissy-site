@@ -2,6 +2,28 @@
 
 ## 2025-11-21
 
+### Phase 2 Architecture Planning
+
+* **4-stage idempotent pipeline design**
+  * Planned validate → organize → build → deploy command structure
+  * Each stage calls predecessors automatically if needed
+  * Lazy execution to avoid unnecessary work
+
+* **Plugin-based Pelican integration strategy**
+  * PelicanTemplatePlugin approach to maintain Galleria extractability
+  * Shared Jinja2 templates for consistent navigation/styling
+  * Site-specific logic stays in site repo through plugin system
+
+* **Project structure planning**
+  * Root-level modules: cli/, validator/, build/, deploy/, serializers/
+  * Separate JSON configs with schema validation
+  * Dual CDN output strategy (photos vs site content)
+
+* **Documentation updates**
+  * Updated TODO.md with detailed Phase 2 breakdown
+  * Added architecture documentation for planned pipeline
+  * Established feature branch workflow for Phase 2 development
+
 ## 2025-11-20
 
 ### Serve Command Implementation (Phase 1.5)

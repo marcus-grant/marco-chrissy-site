@@ -13,28 +13,56 @@
 
 ### Phase 2: Site Structure
 
-- [ ] Set up site project module structure
-  - [ ] Create build/ directory
-  - [ ] Create validation/ directory
-  - [ ] Create deployment/ directory
-  - [ ] Create configuration/ directory
-- [ ] Implement command system
-  - [ ] Create cascading command structure (validate → organize → build → deploy)
-  - [ ] Implement validate command
-  - [ ] Implement organize command (orchestrate NormPic)
-  - [ ] Implement build command (orchestrate Galleria + Pelican)
-  - [ ] Implement deploy command (orchestrate CDN upload)
-- [ ] Set up Pelican configuration
-  - [ ] Basic theme selection
-  - [ ] Configure output paths
-  - [ ] Set up URL structure
-- [ ] Create content pages
-  - [ ] Gallery index page (/galleries/)
-  - [ ] About us page (/about/)
-- [ ] Create configuration files
-  - [ ] Site orchestration config
-  - [ ] NormPic config for wedding collection
-  - [ ] Galleria config for wedding gallery
+**Architecture:** 4-stage idempotent pipeline with plugin-based Pelican integration
+
+#### 2.1: Project Structure Setup
+- [ ] Create root-level module directories
+  - [ ] `validator/` - Pre-flight checks (configs, dependencies, permissions)
+  - [ ] `build/` - Orchestration modules (Galleria + Pelican coordination)
+  - [ ] `deploy/` - Bunny CDN upload logic
+  - [ ] `cli/` - Command-line interface with subcommands
+  - [ ] `serializers/` - JSON config loading with schema validation
+
+#### 2.2: CLI Command System (Idempotent Cascading)
+- [ ] Implement `uv run site` command with subcommands
+  - [ ] `site validate` - Pre-flight checks, lazy execution
+  - [ ] `site organize` - NormPic orchestration (calls validate if needed)
+  - [ ] `site build` - Galleria + Pelican generation (calls organize if needed)
+  - [ ] `site deploy` - Bunny CDN upload (calls build if needed)
+- [ ] Each command checks if work already done and skips unnecessary operations
+
+#### 2.3: Configuration Architecture (Separate Configs)
+- [ ] Create JSON serializer/schema system in `serializers/json.py`
+- [ ] Create config files with JSON schemas:
+  - [ ] `config/site.json` - Orchestration, output paths, Bunny CDN deployment
+  - [ ] `config/normpic.json` - Photo organization settings for wedding collection
+  - [ ] `config/pelican.json` - Site page generation (theme, content paths, URLs)
+  - [ ] Update existing `config/galleria.json` for wedding gallery
+- [ ] Config schemas in `config/schemas/` for validation
+
+#### 2.4: Pelican + Galleria Integration (Plugin-Based)
+- [ ] Create `PelicanTemplatePlugin` extending Galleria's `TemplatePlugin`
+  - [ ] Plugin uses shared Jinja2 templates for consistent navigation/styling
+  - [ ] Configure Galleria to use `PelicanTemplatePlugin` instead of `BasicTemplatePlugin`
+  - [ ] Maintain Galleria extractability - site-specific logic stays in plugin
+- [ ] Set up Pelican with coordinated theme system
+  - [ ] Shared template files for navigation/layout components
+  - [ ] Configure Pelican theme to match Galleria styling
+
+#### 2.5: Content Pages & Output Structure
+- [ ] Create Pelican content structure:
+  - [ ] Gallery index page (`/galleries/`) - lists available galleries
+  - [ ] About page (`/about/`) - personal content
+- [ ] Configure output directory structure:
+  ```
+  output/
+  ├── pics/           # Full photos → Photos CDN bucket
+  ├── galleries/      # Gallery pages + thumbs → Site CDN
+  │   └── wedding/    # URL: /galleries/wedding/page1
+  ├── about/          # Pelican pages → Site CDN
+  └── index.html      # Site root → Site CDN
+  ```
+- [ ] Set up dual CDN deployment strategy (photos vs site content)
 
 ### Phase 3: Integration Testing
 
