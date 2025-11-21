@@ -14,18 +14,32 @@
 * **Specific Test Files**:
   * Use `uv run pytest test/test_filename.py -v` for focused testing
   * **ALWAYS** run full suites before every commit
-* Follow E2E + TDD approach:
-  * E2E/Integration tests to surface larger missing or broken pieces
-    * Therefore they should be prioritized first
-    * Nest into Unit tests when missing or broken piece discovered
-      * Should try and find existing tests needing modification first.
-      * If no test exists for that spec, make a new one
-  * TDD fills or fixes those pieces incrementally
-  * Build tests singularly first
-  * Ensure test fails as expected (red)
-  * Implement change to make test pass (green)
-  * Consider refactors for better solution (refactor)
-  * Move to next test when complete or to parent integration/E2E test
+* Follow Nested TDD Workflow:
+
+  **Outer Cycle (E2E/Integration Tests)**:
+  * Write E2E or integration test to surface missing/broken functionality
+  * Run test - it should fail, revealing what's missing
+  * Mark failing test with `@pytest.skip` decorator with reason
+  * This failure informs what unit tests need to be written/changed
+
+  **Inner Cycle (Unit TDD)**:
+  * Write unit test for the specific missing functionality identified by E2E test
+  * Run unit test - ensure it fails as expected (Red)
+  * Implement minimal code to make unit test pass (Green)
+  * Refactor for better solution while keeping test green (Refactor)
+  * Commit small change (typically 200-300 lines max)
+  * Repeat for next piece of missing functionality
+
+  **Documentation Cycle**:
+  * After several commits in the TDD cycles, consider documentation updates
+  * Make separate `Doc:` prefixed commit for documentation changes
+
+  **Key Workflow Points**:
+  * Don't develop entire E2E modules at once
+  * Stop when missing functionality is discovered
+  * Use `@pytest.skip` to mark incomplete E2E tests
+  * Focus on small, logical commits that build incrementally
+  * Each commit should be complete and testable
 * Task management:
   * Every test should usually only cover one TODO task
   * Some tasks require multiple tests
