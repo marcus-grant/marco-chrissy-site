@@ -2,7 +2,6 @@
 
 import pytest
 from pathlib import Path
-from unittest.mock import patch, MagicMock
 
 
 class TestConfigValidator:
@@ -13,50 +12,59 @@ class TestConfigValidator:
         from validator.config import ConfigValidator
         assert ConfigValidator is not None
 
-    def test_config_validator_checks_required_files(self):
+    def test_config_validator_checks_required_files(self, temp_filesystem, full_config_setup):
         """Test that config validator checks for required config files."""
         from validator.config import ConfigValidator
+        import os
         
-        validator = ConfigValidator()
+        # Set up all required config files
+        full_config_setup()
         
-        # Should check for these config files
-        required_files = [
-            "config/site.json",
-            "config/normpic.json", 
-            "config/pelican.json",
-            "config/galleria.json"
-        ]
-        
-        with patch('pathlib.Path.exists') as mock_exists:
-            mock_exists.return_value = True
+        # Change to temp directory so validator finds the configs
+        original_cwd = os.getcwd()
+        try:
+            os.chdir(str(temp_filesystem))
+            validator = ConfigValidator()
             result = validator.validate_config_files()
+        finally:
+            os.chdir(original_cwd)
             
         assert result.success is True
         assert len(result.errors) == 0
 
-    def test_config_validator_fails_on_missing_files(self):
+    def test_config_validator_fails_on_missing_files(self, temp_filesystem):
         """Test that config validator fails when required files are missing."""
         from validator.config import ConfigValidator
+        import os
         
-        validator = ConfigValidator()
-        
-        with patch('pathlib.Path.exists') as mock_exists:
-            mock_exists.return_value = False  # All files missing
+        # Don't create any config files - use empty temp filesystem
+        original_cwd = os.getcwd()
+        try:
+            os.chdir(str(temp_filesystem))
+            validator = ConfigValidator()
             result = validator.validate_config_files()
+        finally:
+            os.chdir(original_cwd)
             
         assert result.success is False
         assert len(result.errors) > 0
         assert any("missing" in error.lower() for error in result.errors)
 
-    def test_config_validator_result_has_required_attributes(self):
+    def test_config_validator_result_has_required_attributes(self, temp_filesystem, full_config_setup):
         """Test that validation result has success and errors attributes."""
         from validator.config import ConfigValidator
+        import os
         
-        validator = ConfigValidator()
+        # Set up config files
+        full_config_setup()
         
-        with patch('pathlib.Path.exists') as mock_exists:
-            mock_exists.return_value = True
+        original_cwd = os.getcwd()
+        try:
+            os.chdir(str(temp_filesystem))
+            validator = ConfigValidator()
             result = validator.validate_config_files()
+        finally:
+            os.chdir(original_cwd)
             
         assert hasattr(result, 'success')
         assert hasattr(result, 'errors')
