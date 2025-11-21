@@ -16,6 +16,7 @@
 **Architecture:** 4-stage idempotent pipeline with plugin-based Pelican integration
 
 #### 2.1: Project Structure Setup
+- [x] Create test structure (`test/e2e/` and `test/unit/`)
 - [ ] Create root-level module directories
   - [ ] `validator/` - Pre-flight checks (configs, dependencies, permissions)
   - [ ] `build/` - Orchestration modules (Galleria + Pelican coordination)
@@ -24,14 +25,18 @@
   - [ ] `serializers/` - JSON config loading with schema validation
 
 #### 2.2: CLI Command System (Idempotent Cascading)
+- [ ] E2E test: `uv run site` command discovery and basic functionality (`test/e2e/`)
+- [ ] Unit tests: Individual command modules (`test/unit/`)
 - [ ] Implement `uv run site` command with subcommands
   - [ ] `site validate` - Pre-flight checks, lazy execution
   - [ ] `site organize` - NormPic orchestration (calls validate if needed)
-  - [ ] `site build` - Galleria + Pelican generation (calls organize if needed)
+  - [ ] `site build` - Galleria + Pelican generation (calls organize if needed)  
   - [ ] `site deploy` - Bunny CDN upload (calls build if needed)
 - [ ] Each command checks if work already done and skips unnecessary operations
 
 #### 2.3: Configuration Architecture (Separate Configs)
+- [ ] E2E test: Config loading and validation across modules (`test/e2e/`)
+- [ ] Unit tests: JSON serializer and schema validation (`test/unit/serializers/`)
 - [ ] Create JSON serializer/schema system in `serializers/json.py`
 - [ ] Create config files with JSON schemas:
   - [ ] `config/site.json` - Orchestration, output paths, Bunny CDN deployment
@@ -41,6 +46,8 @@
 - [ ] Config schemas in `config/schemas/` for validation
 
 #### 2.4: Pelican + Galleria Integration (Plugin-Based)
+- [ ] E2E test: Complete plugin-based gallery generation workflow (`test/e2e/`)
+- [ ] Unit tests: PelicanTemplatePlugin functionality (`test/unit/plugins/`)
 - [ ] Create `PelicanTemplatePlugin` extending Galleria's `TemplatePlugin`
   - [ ] Plugin uses shared Jinja2 templates for consistent navigation/styling
   - [ ] Configure Galleria to use `PelicanTemplatePlugin` instead of `BasicTemplatePlugin`
@@ -50,6 +57,8 @@
   - [ ] Configure Pelican theme to match Galleria styling
 
 #### 2.5: Content Pages & Output Structure
+- [ ] E2E test: Full site generation with proper output structure (`test/e2e/`)
+- [ ] Unit tests: Output directory management and CDN coordination (`test/unit/build/`)
 - [ ] Create Pelican content structure:
   - [ ] Gallery index page (`/galleries/`) - lists available galleries
   - [ ] About page (`/about/`) - personal content
