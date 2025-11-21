@@ -5,56 +5,11 @@
 ### Phase 1: Galleria Development - ✅ COMPLETED
 
 **Status Summary:**
-- ✅ Complete 5-stage plugin system implemented
-- ✅ CLI `generate` command with 239 passing E2E tests  
-- ✅ Production-ready gallery generation functionality
-- ✅ Comprehensive documentation and workflow guides
 
-### Phase 1.5: Additional CLI Commands - ✅ COMPLETED
-
-**Commit 10: Serve Command Implementation (6 commits total)**
-
-- [x] **Commit 10a: `Tst: Add serve command E2E tests`** (COMPLETED)
-  - [x] Create comprehensive E2E tests for serve command functionality
-  - [x] Test serve command cascading pattern (generate → serve)
-  - [x] Test HTTP server startup, file serving, and error handling scenarios
-  - [x] Add tests for port validation, missing configs, and help functionality
-
-- [x] **Commit 10b: `Ft: Add serve command entry point`** (COMPLETED)  
-  - [x] Add complete `serve` command to CLI with argument parsing
-  - [x] Implement --port, --host, --no-generate, --no-watch, --verbose flags
-  - [x] Add HTTP server setup with custom request handler and CORS support
-
-- [x] **Commit 10c: `Ft: Implement generate-then-serve workflow`** (COMPLETED)
-  - [x] Implement robust generate-then-serve workflow using subprocess calls
-  - [x] Add comprehensive error handling and progress reporting
-  - [x] Implement static file serving with proper MIME types and root redirect
-
-- [x] **Commit 10d: `Ft: Add hot reload and watch functionality`** (COMPLETED)
-  - [x] Add file watching for configuration and manifest files using polling
-  - [x] Implement automatic gallery regeneration when watched files change
-  - [x] Add threading-based file monitor with proper error handling
-  - [x] Support --no-watch flag to disable file monitoring
-
-- [x] **Commit 10e: `Tst: Validate serve command E2E`** (COMPLETED)
-  - [x] Add comprehensive end-to-end validation test
-  - [x] Test complete workflow including pagination, themes, and thumbnail serving
-  - [x] Validate HTTP responses, MIME types, and server functionality
-  - [x] Confirm all 8 E2E tests pass with hot reload functionality
-
-- [x] **Commit 10f: `Doc: Update documentation for serve command`** (COMPLETED)
-  - [x] Update `doc/commands/galleria.md` with complete serve command documentation
-  - [x] Update `doc/workflow.md` with development workflow and serve command examples
-  - [x] Add serve command to changelog with comprehensive feature documentation
-  - [x] Document all serve command options, features, and usage patterns
-
-**Implemented Features:**
-- ✅ Local development server on configurable port (default 8000)
-- ✅ Automatic gallery generation before serving (with --no-generate option)
-- ✅ Hot reload when source files change (config.json, manifest.json)
-- ✅ Real-time development workflow with file watching
-- ✅ Comprehensive error handling and verbose logging
-- ✅ Production-ready HTTP server with CORS and proper MIME types
+- [x] Complete 5-stage plugin system implemented
+- [x] CLI `generate` command with 239 passing E2E tests  
+- [x] Production-ready gallery generation functionality
+- [x] Comprehensive documentation and workflow guides
 
 ### Phase 2: Site Structure
 
@@ -212,11 +167,11 @@
 
 MVP is complete when:
 
-1. \u2705 Wedding gallery is live on Bunny CDN
-2. \u2705 Gallery index and about pages are live
-3. \u2705 Site works without JavaScript
-4. \u2705 Performance metrics are documented
-5. \u2705 Build process is repeatable via script
+1. [ ] Wedding gallery is live on Bunny CDN
+2. [ ] Gallery index and about pages are live
+3. [ ] Site works without JavaScript
+4. [ ] Performance metrics are documented
+5. [ ] Build process is repeatable via script
 
 ## Notes
 
