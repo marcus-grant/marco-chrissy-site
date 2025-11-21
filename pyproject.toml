@@ -36,6 +36,7 @@ build-backend = "hatchling.build"
 packages = ["."]
 
 [project.scripts]
+site = "cli.main:main"
 build = "orchestrator.builder:main"
 deploy = "deployer.cdn:main"
 galleria = "galleria.__main__:main"

@@ -24,6 +24,20 @@
   * Added architecture documentation for planned pipeline
   * Established feature branch workflow for Phase 2 development
 
+### Phase 2 CLI Implementation Start
+
+* **Test structure setup**
+  * Created test/e2e/ and test/unit/ directories for site functionality
+  * Updated TODO.md to specify test locations for all future development
+  * Established nested TDD workflow with clear test organization
+
+* **Basic CLI command structure**
+  * Implemented Click-based CLI with main entry point (cli/main.py)
+  * Created minimal validate, organize, build, deploy command stubs
+  * Registered site command in pyproject.toml for uv run site access
+  * All basic command discovery E2E tests pass (5/6 tests passing)
+  * One test remains skipped for idempotent cascading behavior (Phase 2 MVP milestone)
+
 ## 2025-11-20
 
 ### Serve Command Implementation (Phase 1.5)
