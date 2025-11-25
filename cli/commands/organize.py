@@ -9,7 +9,7 @@ def organize():
     """Orchestrate NormPic photo organization."""
     click.echo("Running photo organization...")
     
-    # Initialize organizer
+    # Initialize organizer with config
     organizer = NormPicOrganizer()
     
     # Organize photos using NormPic
@@ -18,6 +18,10 @@ def organize():
     
     if result.success:
         click.echo("✓ NormPic organization completed successfully!")
+        if result.pics_processed:
+            click.echo(f"  Processed {result.pics_processed} photos")
+        if result.manifest_path:
+            click.echo(f"  Generated manifest: {result.manifest_path}")
     else:
         click.echo("✗ NormPic organization failed:")
         for error in result.errors:
