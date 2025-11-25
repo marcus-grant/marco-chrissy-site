@@ -30,7 +30,7 @@
 - [x] Unit tests: Individual command modules (`test/unit/`)
 - [x] Implement `uv run site` command with subcommands
   - [x] `site validate` - Pre-flight checks (config file validation implemented)
-  - [ ] `site organize` - NormPic orchestration (calls validate if needed)
+  - [x] `site organize` - NormPic orchestration (real integration implemented)
   - [ ] `site build` - Galleria + Pelican generation (calls organize if needed)  
   - [ ] `site deploy` - Bunny CDN upload (calls build if needed)
 - [ ] Each command checks if work already done and skips unnecessary operations
@@ -41,6 +41,16 @@
 - [ ] Dependency validation (check for required packages)
 - [ ] Output directory permissions validation
 - [ ] Error handling for invalid config content
+
+**Organize Command Status:**
+- [x] Real NormPic integration with direct Python imports
+- [x] Config loading from config/normpic.json with fallback defaults
+- [x] Photo organization: ~/Pictures/wedding/full → output/pics/full
+- [x] E2E test with fake JPEG files and comprehensive verification
+- [x] Manifest generation and symlink creation verification
+- [ ] Validation cascade (organize calls validate if needed)
+- [ ] Idempotent behavior (skip if already organized)
+- [ ] Additional unit tests for error handling and config edge cases
 
 #### 2.3: Configuration Architecture (Separate Configs)
 - [ ] E2E test: Config loading and validation across modules (`test/e2e/`)

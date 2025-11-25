@@ -1,5 +1,36 @@
 # Changelog
 
+## 2025-11-26
+
+## 2025-11-25
+
+### Phase 2 Organize Command Implementation
+
+* **Real NormPic integration with direct Python imports**
+  * Add normpic as git dependency with direct references support
+  * Replace NormPicOrganizer stub with real normpic module integration
+  * Implement actual photo organization: ~/Pictures/wedding/full → output/pics/full
+  * Support proper NormPic API: organize_photos() with manifest generation
+
+* **Configuration loading and path management**
+  * Add config loading from config/normpic.json with sensible fallback defaults
+  * Support constructor parameter overrides for testing and flexibility
+  * Set production paths: source from ~/Pictures/wedding/full, dest to output/pics/full
+  * Handle missing config files gracefully with default configuration
+
+* **Comprehensive organize E2E testing**
+  * Create fake JPEG files with minimal EXIF structure for realistic testing
+  * Verify symlink creation with actual NormPic filename patterns containing collection name
+  * Parse and validate manifest.json content with comprehensive photo entry verification
+  * Test complete source→dest path mapping and symlink integrity
+  * Use fixture system for config setup with temporary filesystem paths
+  * Unskip test_organize_generates_manifest with full end-to-end verification
+
+* **Enhanced command output and error reporting**
+  * Update organize command to display processed photo counts and manifest paths
+  * Provide meaningful error messages for missing directories and NormPic failures
+  * Return structured results with success status, error details, and processing metrics
+
 ## 2025-11-21
 
 ### Phase 2 Architecture Planning
