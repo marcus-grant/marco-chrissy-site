@@ -12,25 +12,13 @@ from cli.commands.organize import organize
 class TestSiteOrganize:
     """Test the site organize command functionality."""
 
-    def test_organize_complete_workflow(self, temp_filesystem, full_config_setup):
+    def test_organize_complete_workflow(self, temp_filesystem, full_config_setup, fake_image_factory):
         """Test complete organize workflow: validation, organization, manifest, and idempotency."""
         
-        # Setup: Create source directory with test photos
+        # Setup: Create source directory with test photos using fixture
         source_dir = temp_filesystem / "source_photos"
-        source_dir.mkdir(parents=True, exist_ok=True)
-
-        # Create fake JPEG files with minimal JPEG structure and fake EXIF
-        fake_jpeg_with_exif = (
-            b'\xff\xe0\x00\x10JFIF\x00\x01\x01\x01\x00H\x00H\x00\x00'
-            b'\xff\xe1\x00\x16Exif\x00\x00II*\x00\x08\x00\x00\x00'  # Fake EXIF header
-            b'\xff\xdb\x00C\x00\x08\x06\x06\x07\x06\x05\x08\x07\x07\x07\t\t\x08\n\x0c\x14\r\x0c\x0b\x0b\x0c\x19\x12\x13\x0f'
-            b'\xff\xc0\x00\x11\x08\x00\x01\x00\x01\x01\x01\x11\x00\x02\x11\x01\x03\x11\x01'
-            b'\xff\xc4\x00\x14\x00\x01\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x08'
-            b'\xff\xda\x00\x08\x01\x01\x00\x00?\x00\xd2\xcf \xff\xd9'  # End of Image
-        )
-
-        (source_dir / "IMG_001.jpg").write_bytes(fake_jpeg_with_exif)
-        (source_dir / "IMG_002.jpg").write_bytes(fake_jpeg_with_exif)
+        fake_image_factory("IMG_001.jpg", directory="source_photos", use_raw_bytes=True)
+        fake_image_factory("IMG_002.jpg", directory="source_photos", use_raw_bytes=True)
 
         # Setup: Configure normpic with temp paths
         full_config_setup({

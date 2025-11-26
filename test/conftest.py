@@ -6,6 +6,7 @@ from pathlib import Path
 from typing import Any
 
 import pytest
+from PIL import Image
 
 
 @pytest.fixture
@@ -146,3 +147,54 @@ def full_config_setup(config_file_factory, directory_factory):
         return configs
 
     return _setup_configs
+
+
+@pytest.fixture
+def fake_image_factory(temp_filesystem):
+    """Factory for creating fake JPEG images for testing."""
+    def _create_fake_image(
+        filename: str,
+        directory: str = "",
+        color: str = "red",
+        size: tuple[int, int] = (800, 600),
+        use_raw_bytes: bool = False
+    ) -> Path:
+        """Create a fake JPEG image file.
+        
+        Args:
+            filename: Name of the image file (e.g., "IMG_001.jpg")
+            directory: Directory relative to temp filesystem (default: root)
+            color: PIL color name or RGB tuple for PIL images (default: "red")
+            size: Image dimensions as (width, height) tuple (default: 800x600)
+            use_raw_bytes: If True, create minimal JPEG bytes with fake EXIF
+                          If False, create PIL-generated JPEG (default: False)
+            
+        Returns:
+            Path to created image file
+        """
+        if directory:
+            image_dir = temp_filesystem / directory
+            image_dir.mkdir(parents=True, exist_ok=True)
+            image_path = image_dir / filename
+        else:
+            image_path = temp_filesystem / filename
+            
+        if use_raw_bytes:
+            # Create minimal JPEG bytes with fake EXIF (for NormPic tests)
+            fake_jpeg_with_exif = (
+                b'\xff\xe0\x00\x10JFIF\x00\x01\x01\x01\x00H\x00H\x00\x00'
+                b'\xff\xe1\x00\x16Exif\x00\x00II*\x00\x08\x00\x00\x00'  # Fake EXIF header
+                b'\xff\xdb\x00C\x00\x08\x06\x06\x07\x06\x05\x08\x07\x07\x07\t\t\x08\n\x0c\x14\r\x0c\x0b\x0b\x0c\x19\x12\x13\x0f'
+                b'\xff\xc0\x00\x11\x08\x00\x01\x00\x01\x01\x01\x11\x00\x02\x11\x01\x03\x11\x01'
+                b'\xff\xc4\x00\x14\x00\x01\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x08'
+                b'\xff\xda\x00\x08\x01\x01\x00\x00?\x00\xd2\xcf \xff\xd9'  # End of Image
+            )
+            image_path.write_bytes(fake_jpeg_with_exif)
+        else:
+            # Create PIL-generated JPEG (for Galleria tests)
+            img = Image.new('RGB', size, color=color)
+            img.save(image_path, 'JPEG')
+            
+        return image_path
+        
+    return _create_fake_image
