@@ -203,3 +203,101 @@ Galleria is designed for extraction:
 - No parent project dependencies
 - Clear interfaces
 - Configuration-driven
+
+## Unified Configuration Architecture
+
+### Design Principles
+
+The unified configuration system implements a centralized approach to configuration management with the following principles:
+
+- **Schema Validation**: All configs validated against JSON Schema draft-07 specifications
+- **Centralized Loading**: Single `JsonConfigLoader` class handles all configuration loading
+- **Extraction Ready**: Galleria config designed for future standalone package use
+- **Backward Compatible**: Graceful degradation when schema files are missing
+- **Comprehensive Error Handling**: Detailed validation messages with field context
+
+### Configuration Flow
+
+```
+Commands -> ConfigValidator -> JsonConfigLoader -> JSON Schema -> Config Files
+    |                                                                    |
+    v                                                                    v
+Business Logic <- Validated Config Data <- Schema Validation <- Raw JSON
+```
+
+**Implementation Details:**
+- Commands load configs through `JsonConfigLoader` with optional schema validation
+- `ConfigValidator` provides comprehensive validation across all config types
+- Schema files in `config/schema/` define validation rules for each config type
+- Detailed error messages guide users to fix configuration issues
+
+### Configuration Types
+
+**Site Orchestration** (`config/site.json`):
+- Output directory configuration
+- CDN URL mappings for dual-bucket strategy
+- Top-level orchestration settings
+
+**Photo Organization** (`config/normpic.json`):
+- Source and destination directories for photo organization
+- Collection naming and symlink preferences
+- Integration with NormPic external tool
+
+**Gallery Generation** (`config/galleria.json`):
+- Manifest path and output directory
+- Thumbnail generation settings (size, quality, theme)
+- Designed for extraction-ready galleria package
+
+**Site Generation** (`config/pelican.json`):
+- Theme and styling configuration  
+- Site metadata (URL, author, title)
+- Static site generation settings
+
+### Schema Architecture
+
+**Schema Location**: `config/schema/*.json`
+**Schema Standard**: JSON Schema draft-07
+**Validation Library**: `jsonschema` (optional dependency)
+
+Each schema defines:
+- Required vs optional fields
+- Field types and formats (string, integer, URI, etc.)
+- Value constraints (minimum/maximum, enums)
+- Default values and examples
+
+**Schema Design for Extraction**:
+- Galleria schema contains no wedding-site-specific fields
+- Generic configuration patterns suitable for any project
+- Clear separation between site-specific and tool-specific configuration
+
+### Error Handling Architecture
+
+**Exception Hierarchy**:
+```
+ConfigError (base)
+├── ConfigLoadError (file/parsing errors)
+└── ConfigValidationError (schema violations)
+```
+
+**Error Context**:
+- File path information for all errors
+- Field path context for validation errors
+- Original exception chaining for debugging
+- User-friendly error messages for configuration fixes
+
+### Testing Strategy
+
+**Unit Tests**:
+- Schema validation success/failure scenarios
+- Error handling and exception types
+- Configuration loading with various file states
+
+**Integration Tests**:  
+- ConfigValidator with actual schema files
+- End-to-end configuration loading workflows
+- Backward compatibility testing
+
+**E2E Tests**:
+- Complete command workflows using configuration system
+- Invalid configuration handling across all commands
+- Missing file scenarios and error reporting
