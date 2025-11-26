@@ -1,29 +1,21 @@
 """E2E tests for site organize command."""
 
 import json
-import subprocess
+import os
 from pathlib import Path
+
+from click.testing import CliRunner
+
+from cli.commands.organize import organize
 
 
 class TestSiteOrganize:
     """Test the site organize command functionality."""
 
-    def test_organize_calls_normpic(self, temp_filesystem, full_config_setup):
-        """Test that organize command orchestrates NormPic."""
-        full_config_setup()
-
-        result = subprocess.run(
-            ["uv", "run", "site", "organize"],
-            capture_output=True,
-            text=True,
-            cwd=str(temp_filesystem)
-        )
-        assert result.returncode == 0
-        assert "normpic" in result.stdout.lower()
-
-    def test_organize_generates_manifest(self, temp_filesystem, full_config_setup, file_factory):
-        """Test that organize command generates photo manifest."""
-        # Create source directory with test photos
+    def test_organize_complete_workflow(self, temp_filesystem, full_config_setup):
+        """Test complete organize workflow: validation, organization, manifest, and idempotency."""
+        
+        # Setup: Create source directory with test photos
         source_dir = temp_filesystem / "source_photos"
         source_dir.mkdir(parents=True, exist_ok=True)
 
@@ -33,148 +25,96 @@ class TestSiteOrganize:
             b'\xff\xe1\x00\x16Exif\x00\x00II*\x00\x08\x00\x00\x00'  # Fake EXIF header
             b'\xff\xdb\x00C\x00\x08\x06\x06\x07\x06\x05\x08\x07\x07\x07\t\t\x08\n\x0c\x14\r\x0c\x0b\x0b\x0c\x19\x12\x13\x0f'
             b'\xff\xc0\x00\x11\x08\x00\x01\x00\x01\x01\x01\x11\x00\x02\x11\x01\x03\x11\x01'
-            b'\xff\xc4\x00\x14\x00\x01\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x08'
+            b'\xff\xc4\x00\x14\x00\x01\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x08'
             b'\xff\xda\x00\x08\x01\x01\x00\x00?\x00\xd2\xcf \xff\xd9'  # End of Image
         )
 
-        # Create test image files with fake JPEG structure
         (source_dir / "IMG_001.jpg").write_bytes(fake_jpeg_with_exif)
         (source_dir / "IMG_002.jpg").write_bytes(fake_jpeg_with_exif)
 
-        # Set up configs with custom normpic config pointing to our temp paths
-        configs = full_config_setup({
+        # Setup: Configure normpic with temp paths
+        full_config_setup({
             "normpic": {
                 "source_dir": str(source_dir),
                 "dest_dir": str(temp_filesystem / "output" / "pics" / "full"),
-                "collection_name": "wedding",
+                "collection_name": "wedding", 
                 "collection_description": "Test wedding photos",
                 "create_symlinks": True
             }
         })
 
-        # Run organize command from temp filesystem directory
-        result = subprocess.run(
-            ["uv", "run", "site", "organize"],
-            capture_output=True,
-            text=True,
-            cwd=str(temp_filesystem)
-        )
+        # First Run: Initial organization
+        original_cwd = os.getcwd()
+        try:
+            os.chdir(str(temp_filesystem))
+            runner = CliRunner()
+            result1 = runner.invoke(organize)
+        finally:
+            os.chdir(original_cwd)
 
-        # Verify command success
-        assert result.returncode == 0, f"Command failed: {result.stderr}\nStdout: {result.stdout}"
-        assert "manifest" in result.stdout.lower()
-        assert "processed" in result.stdout.lower()
+        # Assert: Command succeeded and shows expected workflow
+        assert result1.exit_code == 0, f"Initial organize failed: {result1.output}"
+        assert "validation" in result1.output.lower(), "Should show validation cascade"
+        assert "normpic" in result1.output.lower(), "Should show NormPic orchestration" 
+        assert "manifest" in result1.output.lower(), "Should show manifest generation"
+        assert "processed" in result1.output.lower(), "Should show photos processed"
 
-        # Verify manifest file was created
+        # Assert: Files and directories created correctly
         manifest_path = temp_filesystem / "output" / "pics" / "full" / "manifest.json"
-        assert manifest_path.exists(), f"Manifest not found at {manifest_path}"
-
-        # Verify organized photos directory exists
         photos_dir = temp_filesystem / "output" / "pics" / "full"
-        assert photos_dir.exists(), f"Photos directory not found at {photos_dir}"
+        
+        assert manifest_path.exists(), f"Manifest not created at {manifest_path}"
+        assert photos_dir.exists(), f"Photos directory not created at {photos_dir}"
 
-        # Parse and verify manifest content
+        # Assert: Manifest content is correct
         with open(manifest_path) as f:
             manifest_data = json.load(f)
 
-        assert "collection_name" in manifest_data
         assert manifest_data["collection_name"] == "wedding"
         assert "pics" in manifest_data
         assert len(manifest_data["pics"]) == 2, f"Expected 2 pics, got {len(manifest_data['pics'])}"
 
-        # Verify each photo entry in manifest
+        # Assert: Each photo has correct metadata and symlinks
         for pic in manifest_data["pics"]:
+            # Required fields
             assert "source_path" in pic
             assert "dest_path" in pic
             assert "hash" in pic
             assert "size_bytes" in pic
 
-            # Verify source path points to our test files
+            # Source file exists
             source_path = Path(pic["source_path"])
-            assert source_path.exists(), f"Source file doesn't exist: {source_path}"
+            assert source_path.exists(), f"Source file missing: {source_path}"
             assert source_path.name in ["IMG_001.jpg", "IMG_002.jpg"]
 
-            # Verify symlink was created with NormPic naming pattern
+            # Symlink created correctly
             symlink_path = photos_dir / pic["dest_path"]
-            assert symlink_path.exists(), f"Symlink doesn't exist: {symlink_path}"
-            assert symlink_path.is_symlink(), f"Expected symlink, got regular file: {symlink_path}"
+            assert symlink_path.exists(), f"Symlink missing: {symlink_path}"
+            assert symlink_path.is_symlink(), f"Expected symlink: {symlink_path}"
+            assert symlink_path.resolve() == source_path.resolve()
 
-            # Verify symlink points to correct source
-            assert symlink_path.resolve() == source_path.resolve(), f"Symlink points to wrong file: {symlink_path} -> {symlink_path.resolve()}, expected {source_path}"
-
-            # Verify NormPic filename pattern (should contain collection name and timestamp)
+            # NormPic naming pattern
             dest_filename = pic["dest_path"]
-            assert "wedding" in dest_filename.lower(), f"Collection name not in filename: {dest_filename}"
-            assert dest_filename.endswith(".jpg"), f"Wrong file extension: {dest_filename}"
+            assert "wedding" in dest_filename.lower(), f"Missing collection name: {dest_filename}"
+            assert dest_filename.endswith(".jpg"), f"Wrong extension: {dest_filename}"
 
-        # Verify all symlinks are accounted for
+        # Assert: All expected symlinks created
         symlinks_created = list(photos_dir.glob("*.jpg"))
-        assert len(symlinks_created) == 2, f"Expected 2 symlinks, found {len(symlinks_created)}: {[s.name for s in symlinks_created]}"
+        assert len(symlinks_created) == 2, f"Expected 2 symlinks, found {len(symlinks_created)}"
 
-    def test_organize_calls_validate_automatically(self, temp_filesystem, full_config_setup):
-        """Test that organize automatically calls validate if needed."""
-        # Set up basic configs
-        full_config_setup()
+        # Second Run: Test idempotency
+        try:
+            os.chdir(str(temp_filesystem))
+            runner = CliRunner()
+            result2 = runner.invoke(organize)
+        finally:
+            os.chdir(original_cwd)
 
-        result = subprocess.run(
-            ["uv", "run", "site", "organize"],
-            capture_output=True,
-            text=True,
-            cwd=str(temp_filesystem)
-        )
-        assert result.returncode == 0
-        # Should see evidence that validate was called
-        assert "validation" in result.stdout.lower()
+        # Assert: Second run skips work (idempotent)
+        assert result2.exit_code == 0, f"Idempotent run failed: {result2.output}"
+        assert "validation" in result2.output.lower(), "Should still run validation"
+        assert ("already organized" in result2.output.lower() or 
+                "skipping" in result2.output.lower()), "Should skip organization work"
 
-    def test_organize_is_idempotent(self, temp_filesystem, full_config_setup, file_factory):
-        """Test that organize skips work if already done."""
-        # Create source directory with test photos
-        source_dir = temp_filesystem / "source_photos"
-        source_dir.mkdir(parents=True, exist_ok=True)
-
-        # Create fake JPEG files
-        fake_jpeg_with_exif = (
-            b'\xff\xe0\x00\x10JFIF\x00\x01\x01\x01\x00H\x00H\x00\x00'
-            b'\xff\xe1\x00\x16Exif\x00\x00II*\x00\x08\x00\x00\x00'
-            b'\xff\xdb\x00C\x00\x08\x06\x06\x07\x06\x05\x08\x07\x07\x07\t\t\x08\n\x0c\x14\r\x0c\x0b\x0b\x0c\x19\x12\x13\x0f'
-            b'\xff\xc0\x00\x11\x08\x00\x01\x00\x01\x01\x01\x11\x00\x02\x11\x01\x03\x11\x01'
-            b'\xff\xc4\x00\x14\x00\x01\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x08'
-            b'\xff\xda\x00\x08\x01\x01\x00\x00?\x00\xd2\xcf \xff\xd9'
-        )
-        (source_dir / "IMG_001.jpg").write_bytes(fake_jpeg_with_exif)
-
-        # Set up configs
-        full_config_setup({
-            "normpic": {
-                "source_dir": str(source_dir),
-                "dest_dir": str(temp_filesystem / "output" / "pics" / "full"),
-                "collection_name": "wedding",
-                "collection_description": "Test wedding photos",
-                "create_symlinks": True
-            }
-        })
-
-        # First run - should do full organization
-        result1 = subprocess.run(
-            ["uv", "run", "site", "organize"],
-            capture_output=True,
-            text=True,
-            cwd=str(temp_filesystem)
-        )
-        assert result1.returncode == 0
-        assert "processed" in result1.stdout.lower()
-
-        # Second run - should skip work (idempotent)
-        result2 = subprocess.run(
-            ["uv", "run", "site", "organize"],
-            capture_output=True,
-            text=True,
-            cwd=str(temp_filesystem)
-        )
-        assert result2.returncode == 0
-        # Should indicate that work was skipped
-        assert "already organized" in result2.stdout.lower() or "skipping" in result2.stdout.lower()
-
-        # Verify manifest still exists and is unchanged
-        manifest_path = temp_filesystem / "output" / "pics" / "full" / "manifest.json"
-        assert manifest_path.exists()
+        # Assert: Manifest unchanged after idempotent run
+        assert manifest_path.exists(), "Manifest should still exist after idempotent run"

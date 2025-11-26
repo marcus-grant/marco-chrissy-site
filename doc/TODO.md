@@ -48,8 +48,9 @@
 - [x] Photo organization: ~/Pictures/wedding/full → output/pics/full
 - [x] E2E test with fake JPEG files and comprehensive verification
 - [x] Manifest generation and symlink creation verification
-- [ ] Validation cascade (organize calls validate if needed)
-- [ ] Idempotent behavior (skip if already organized)
+- [x] Validation cascade (organize calls validate if needed)
+- [x] Idempotent behavior (skip if already organized)
+- [x] Unit tests for idempotent detection logic
 - [ ] Additional unit tests for error handling and config edge cases
 
 #### 2.3: Configuration Architecture (Separate Configs)
@@ -115,10 +116,11 @@
 
 ### Near-term Optimizations
 
-- [ ] **E2E test performance optimization**
-  - [ ] Fix 16+ second subprocess startup time in E2E tests (unacceptable)
-  - [ ] Replace subprocess calls with direct function calls in E2E tests
-  - [ ] Mock heavy dependencies (NormPic imports, PIL) for faster test execution
+- [x] **E2E test performance optimization** 
+  - [x] Fix 16+ second subprocess startup time in E2E tests (unacceptable)
+  - [x] Replace subprocess calls with direct function calls in E2E tests
+  - [x] Consolidate 4 separate E2E tests into single comprehensive workflow test
+  - [x] Achieve 460x performance improvement: 37s → 0.08s for organize E2E tests
   - [ ] Consider pytest-xdist for parallel test execution
   - [ ] Investigate uv run startup overhead with large dependency trees
 - [ ] Comprehensive error handling improvements

@@ -1,6 +1,7 @@
 """Unit tests for NormPic integration functionality."""
 
 import json
+from unittest.mock import Mock, patch
 
 from organizer.normpic import NormPicOrganizer, OrganizeResult
 
@@ -13,14 +14,23 @@ class TestNormPicOrganizer:
         organizer = NormPicOrganizer()
         assert organizer is not None
 
-    def test_organize_photos_returns_result(self):
+    @patch('organizer.normpic.organize_photos')
+    def test_organize_photos_returns_result(self, mock_organize_photos):
         """Test that organize_photos returns an OrganizeResult."""
+        # Mock the heavy NormPic function
+        mock_manifest = Mock()
+        mock_manifest.pics = [Mock(), Mock()]  # 2 pics
+        mock_manifest.errors = []
+        mock_organize_photos.return_value = mock_manifest
+        
         organizer = NormPicOrganizer()
         result = organizer.organize_photos()
 
         assert isinstance(result, OrganizeResult)
         assert hasattr(result, 'success')
         assert hasattr(result, 'errors')
+        assert result.success is True
+        assert result.pics_processed == 2
 
     def test_organize_result_dataclass(self):
         """Test OrganizeResult dataclass creation."""
