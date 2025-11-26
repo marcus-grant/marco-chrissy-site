@@ -60,36 +60,38 @@
   - [ ] Support for schema-based validation with jsonschema library
   - [ ] **Make unit tests pass (GREEN phase)**
 
-**Inner Cycle 2: Schema System (RED → GREEN → REFACTOR)**
-- [ ] Unit test: Config schema validation (`test/unit/schema/test_schemas.py`)
-  - [ ] Test each config schema validates correct configs
-  - [ ] Test schema rejection of invalid configs with specific errors
-  - [ ] Test schema validation for required vs optional fields
-  - [ ] Test schema validation for field types and formats
-  - [ ] **Should fail initially (RED phase)**
-- [ ] Research: Verify galleria's existing config schema in this project
-  - [ ] Check galleria/config.py structure and requirements
-  - [ ] Document galleria config requirements for schema design
-- [ ] Implementation: JSON schema files and validation (`config/schema/`)
-  - [ ] `site.json` schema - Orchestration, output paths, CDN deployment
-  - [ ] `normpic.json` schema - Photo organization settings (based on research)
-  - [ ] `pelican.json` schema - Site generation (theme, content, URLs)
-  - [ ] `galleria.json` schema - Gallery generation (based on existing config)
-  - [ ] Schema validation integration with serializer module
-  - [ ] **Make unit tests pass (GREEN phase)**
+**Inner Cycle 2: Schema System (RED → GREEN → REFACTOR)** ✅ COMPLETED
+- [x] Unit test: Config schema validation (`test/unit/config/test_schemas.py`)
+  - [x] Test each config schema validates correct configs
+  - [x] Test schema rejection of invalid configs with specific errors
+  - [x] Test schema validation for required vs optional fields
+  - [x] Test schema validation for field types and formats
+  - [x] **Should fail initially (RED phase)**
+- [x] Research: Verify galleria's existing config schema in this project
+  - [x] Check galleria/config.py structure and requirements
+  - [x] Document galleria config requirements for schema design
+- [x] Implementation: JSON schema files and validation (`config/schema/`)
+  - [x] `site.json` schema - Orchestration, output paths, CDN deployment
+  - [x] `normpic.json` schema - Photo organization settings (based on research)
+  - [x] `pelican.json` schema - Site generation (theme, content, URLs)
+  - [x] `galleria.json` schema - Gallery generation (based on existing config)
+  - [x] Schema validation integration with serializer module
+  - [x] **Make unit tests pass (GREEN phase)**
 
-**Inner Cycle 3: Command Integration (RED → GREEN → REFACTOR)**
-- [ ] Unit tests: Update existing command tests to use new config system
-  - [ ] Update `test/unit/cli/test_organize.py` for new config loading
-  - [ ] Update `test/unit/organizer/test_normpic.py` for new config system
-  - [ ] Add config validation tests to command unit tests
-  - [ ] **Should fail initially as commands don't use new system (RED phase)**
-- [ ] Implementation: Update commands to use unified config system
-  - [ ] Update `organizer/normpic.py` to use new config loader
-  - [ ] Update other commands (validate, build) to use new config system
-  - [ ] Replace ad-hoc config loading with centralized system
-  - [ ] Ensure backward compatibility during transition
-  - [ ] **Make command tests pass (GREEN phase)**
+**Inner Cycle 3: Command Integration (RED → GREEN → REFACTOR)** 🚧 IN PROGRESS  
+- [x] Unit tests: Update existing command tests to use new config system
+  - [x] Update `test/unit/validator/test_config.py` for schema validation
+  - [x] Add config validation tests to ConfigValidator unit tests  
+  - [x] **Should fail initially as commands don't use new system (RED phase)**
+- [x] Implementation: Update ConfigValidator to use unified config system
+  - [x] Update `validator/config.py` to use JsonConfigLoader with schemas
+  - [x] Replace file existence checks with content validation
+  - [x] Ensure backward compatibility when schemas missing
+  - [x] **Make validator tests pass (GREEN phase)**
+- [ ] Implementation: Update build command to use unified config system
+  - [ ] Update `cli/commands/build.py` to load site.json and galleria.json
+  - [ ] Replace hard-coded paths with config-driven orchestration
+  - [ ] Integrate with galleria CLI using proper config files
 
 **Final Integration and Documentation**
 - [ ] Unskip E2E test: Verify complete config workflow integration

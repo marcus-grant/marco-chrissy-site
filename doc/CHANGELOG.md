@@ -1,5 +1,24 @@
 # Changelog
 
+## 2025-11-27
+
+### Unified Configuration System Completion
+
+* **Complete JSON schema validation for all config types**
+  * Add comprehensive unit tests for pelican.json and galleria.json schema validation
+  * Create config/schema/pelican.json with required fields: theme, site_url, author, sitename
+  * Create config/schema/galleria.json designed for extraction-ready galleria package
+  * Include optional fields like timezone, default_lang for pelican and thumbnail settings for galleria
+  * All schemas follow JSON Schema draft-07 standard with proper validation rules
+
+* **Enhanced ConfigValidator with schema validation**
+  * Update ConfigValidator to use JsonConfigLoader for actual content validation
+  * Replace simple file existence checks with comprehensive schema validation  
+  * Load schemas from config/schema/ directory and validate config content against them
+  * Maintain backward compatibility when schema files are missing
+  * Provide detailed error messages for validation failures with field context
+  * Add unit tests for both valid and invalid config validation scenarios
+
 ## 2025-11-26
 
 ### Phase 2 Build Command Implementation
