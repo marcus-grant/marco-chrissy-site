@@ -133,17 +133,15 @@ def build():
         # Load pelican configuration
         pelican_config = config_loader.load_config(Path("config/pelican.json"))
         
-        # Create basic Pelican settings from config
+        # Create Pelican settings from config (ALL_CAPS required)
         pelican_settings = {
-            'THEME': pelican_config.get('theme', 'minimal'),
+            'AUTHOR': pelican_config.get('author', 'Unknown Author'),
+            'SITENAME': pelican_config.get('sitename', 'My Site'),  
             'SITEURL': pelican_config.get('site_url', ''),
-            'AUTHOR': pelican_config.get('author', ''),
-            'SITENAME': pelican_config.get('sitename', ''),
             'TIMEZONE': pelican_config.get('timezone', 'UTC'),
             'DEFAULT_LANG': pelican_config.get('default_lang', 'en'),
             'PATH': 'content',
-            'OUTPUT_PATH': site_config.get('output_dir', 'output'),
-            'IGNORE_FILES': ['.#*']
+            'OUTPUT_PATH': site_config.get('output_dir', 'output')
         }
         
         pelican_instance = pelican.Pelican(pelican_settings)
