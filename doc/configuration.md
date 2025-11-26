@@ -86,15 +86,30 @@ Configures Pelican static site generator:
 }
 ```
 
-**Required fields:**
-- `theme`: Theme name for site generation
+**⚠️ CURRENT SCHEMA INCOMPLETE - NEEDS UPDATE**
+
+**Known required fields (discovered during implementation):**
+- `theme`: Theme name for site generation (must be valid theme path or name)
 - `site_url`: Base URL for the site
 - `author`: Site author name
 - `sitename`: Site title/name
 
-**Optional fields:**
-- `timezone`: Site timezone (default: "UTC")
-- `default_lang`: Default language code (default: "en")
+**Additional required fields discovered during debugging:**
+- `THEME`: Pelican requires this in ALL_CAPS format
+- `IGNORE_FILES`: List of file patterns to ignore during generation
+- `DELETE_OUTPUT_DIRECTORY`: Boolean for output directory management
+- Many other settings required by `pelican.settings.configure_settings()`
+
+**Issues with current implementation:**
+- Current schema only covers basic fields, not complete Pelican requirements
+- Build command manually constructs settings dict instead of using Pelican's configuration system
+- Missing integration with Pelican's theme validation and content directory requirements
+- Pelican API is more complex than initially documented
+
+**Next developer should:**
+1. Research complete Pelican settings requirements from official documentation
+2. Update pelican.json schema to include all required fields
+3. Use `pelican.settings.configure_settings()` for proper defaults and validation
 
 ## Schema Validation
 

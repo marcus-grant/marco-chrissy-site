@@ -5,14 +5,18 @@
 ### 🚨 Build Command Integration Failure
 
 * **CRITICAL: Build command broken after galleria integration attempt**
-  * Replaced subprocess calls to galleria CLI with direct Python module imports
-  * Build command now fails due to incomplete Pelican configuration setup
-  * Missing required Pelican settings: THEME, IGNORE_FILES, DELETE_OUTPUT_DIRECTORY
-  * Pelican needs proper content directory structure and theme system
-  * All 9 unit tests in test/unit/cli/test_build.py are skipped (broken mock patterns)
-  * E2E test test_build_uses_galleria_module_not_subprocess is skipped (Pelican errors)
-  * **IMPACT: `uv run site build` command unusable, test coverage gap**
-  * **STATUS: PR not ready for merge - requires major fixes**
+  * Replaced subprocess calls to galleria CLI with direct Python module imports (architecturally correct)
+  * Galleria integration works: successfully uses PipelineManager, plugin registration, direct imports
+  * **Pelican integration failed**: build command now fails due to incomplete configuration setup
+  * Discovered Pelican requires ALL_CAPS settings dict and use of `pelican.settings.configure_settings()`
+  * Missing required Pelican settings: THEME, IGNORE_FILES, DELETE_OUTPUT_DIRECTORY (and likely others)
+  * Pelican needs existing content directory for configure_settings() validation
+  * Current pelican.json schema insufficient - covers only basic fields, not complete Pelican requirements
+  * All 9 unit tests in test/unit/cli/test_build.py are skipped (mock patterns broken by new imports)
+  * Unit tests now need to mock PipelineManager, configure_settings, plugin classes instead of galleria module
+  * E2E test test_build_uses_galleria_module_not_subprocess is skipped (Pelican setup errors)
+  * **IMPACT: `uv run site build` command unusable, test coverage gap, incomplete Pelican research**
+  * **STATUS: PR not ready for merge - galleria integration good, Pelican integration needs complete rewrite**
 
 ### Unified Configuration System Completion
 

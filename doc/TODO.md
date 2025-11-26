@@ -24,6 +24,15 @@ The build command implementation is completely broken after attempting to replac
 4. Test actual build command usage end-to-end
 5. Remove skip decorators only after fixing underlying issues
 
+**What we learned about Pelican requirements:**
+- Pelican constructor requires a settings dict with ALL_CAPS keys
+- Required settings: THEME, IGNORE_FILES, DELETE_OUTPUT_DIRECTORY (and others discovered during debugging)
+- Must use `pelican.settings.configure_settings()` to get defaults rather than manual dict
+- Needs existing content directory that `configure_settings()` can validate
+- Theme must be valid theme name or path to existing theme directory
+- Current pelican.json schema is insufficient - missing many required fields
+- Pelican API is much more complex than initially assumed
+
 ## MVP Roadmap
 
 ### Phase 1: Galleria Development - ✅ COMPLETED
@@ -127,9 +136,20 @@ The build command implementation is completely broken after attempting to replac
   - [ ] All 9 unit tests in `test/unit/cli/test_build.py` are skipped (broken mocks)
   - [ ] E2E test `test_build_uses_galleria_module_not_subprocess` is skipped (Pelican errors)
   - [ ] Build command now fails with real usage due to Pelican configuration issues
-  - [ ] Need to fix Pelican settings - missing THEME, IGNORE_FILES, DELETE_OUTPUT_DIRECTORY
-  - [ ] Need to create proper content directory structure for Pelican
-  - [ ] Need to fix all mocking in unit tests to match new direct import pattern
+  - [ ] **Fix Pelican integration issues:**
+    - [ ] Update pelican.json schema with all required Pelican settings (THEME, IGNORE_FILES, DELETE_OUTPUT_DIRECTORY, etc.)
+    - [ ] Use `pelican.settings.configure_settings()` instead of manual dict construction
+    - [ ] Create proper content directory structure in temp filesystem for tests
+    - [ ] Handle theme validation - either use default theme or create theme directory
+    - [ ] Research complete list of Pelican required settings through documentation or source code
+  - [ ] **Fix galleria integration pattern:**
+    - [ ] Current direct import approach works but implementation is incomplete
+    - [ ] Pipeline stages and plugin registration are correct
+    - [ ] Config mapping from galleria.json to plugin config needs validation
+  - [ ] **Rewrite unit tests for new architecture:**
+    - [ ] Mock `PipelineManager`, `configure_settings`, plugin classes instead of old `galleria` module
+    - [ ] Update all test assertions to match new direct import call patterns
+    - [ ] Fix config loader mocking to match JsonConfigLoader usage pattern
   - [ ] Need to complete E2E test to actually verify the integration works
 - [ ] Production config files: Create actual config files for wedding site
   - [ ] `config/site.json` - Production orchestration settings
@@ -195,6 +215,15 @@ The build command implementation is completely broken after attempting to replac
 ## Post-MVP Enhancements
 
 ### Near-term Optimizations
+
+- [ ] **Serve Command Implementation (Post-MVP)**
+  - [ ] Plan `site serve` command for development workflow
+    - [ ] E2E test: Development server with hot reload (`test/e2e/test_site_serve.py`)
+    - [ ] Unit tests: File watching, server management (`test/unit/serve/`)
+    - [ ] Inner cycles: Static file server, change detection, rebuild triggers
+    - [ ] Implementation: `cli/commands/serve.py` with build integration
+    - [ ] Documentation: Serve command usage, development workflow
+    - [ ] Commit intervals: test → implementation → integration → docs
 
 - [x] **E2E test performance optimization** 
   - [x] Fix 16+ second subprocess startup time in E2E tests (unacceptable)

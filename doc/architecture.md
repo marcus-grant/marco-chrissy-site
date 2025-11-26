@@ -64,6 +64,13 @@ Pre-flight      NormPic       Galleria +    Bunny CDN
 - **Idempotent behavior**: Commands skip work if output already exists
 - **Extractable design**: Galleria module prepared for post-MVP package extraction
 
+**⚠️ Current Status - Build Command Integration Issues:**
+- Replaced subprocess calls with direct galleria module imports (correct architectural approach)
+- Galleria integration working: uses `PipelineManager` and plugin system directly
+- **Pelican integration broken**: incomplete configuration setup, missing required settings
+- **Testing broken**: unit tests need complete rewrite for new import patterns
+- Integration approach is sound but implementation is incomplete
+
 ## Directory Structure
 
 ### Current (Phase 1)
