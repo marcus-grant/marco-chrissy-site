@@ -25,12 +25,12 @@ def file_factory(temp_filesystem):
         json_content: dict[str, Any] | None = None
     ) -> Path:
         """Create a file with given content.
-        
+
         Args:
             relative_path: Path relative to temp filesystem
             content: String content for file
             json_content: Dict to serialize as JSON (takes precedence over content)
-            
+
         Returns:
             Path to created file
         """
@@ -56,10 +56,10 @@ def directory_factory(temp_filesystem):
     """Factory for creating directories in temporary filesystem."""
     def _create_directory(relative_path: str) -> Path:
         """Create a directory structure.
-        
+
         Args:
             relative_path: Path relative to temp filesystem
-            
+
         Returns:
             Path to created directory
         """
@@ -78,11 +78,11 @@ def config_file_factory(file_factory):
         custom_content: dict[str, Any] | None = None
     ) -> Path:
         """Create a config file with default or custom content.
-        
+
         Args:
             config_name: Name of config (site, normpic, pelican, galleria)
             custom_content: Custom content dict, otherwise uses defaults
-            
+
         Returns:
             Path to created config file
         """
@@ -125,10 +125,10 @@ def full_config_setup(config_file_factory, directory_factory):
     """Create a complete config directory setup with all required files."""
     def _setup_configs(custom_configs: dict[str, dict[str, Any]] | None = None):
         """Create all required config files.
-        
+
         Args:
             custom_configs: Dict of {config_name: custom_content} overrides
-            
+
         Returns:
             Dict of {config_name: Path} for all created configs
         """
@@ -160,7 +160,7 @@ def fake_image_factory(temp_filesystem):
         use_raw_bytes: bool = False
     ) -> Path:
         """Create a fake JPEG image file.
-        
+
         Args:
             filename: Name of the image file (e.g., "IMG_001.jpg")
             directory: Directory relative to temp filesystem (default: root)
@@ -168,7 +168,7 @@ def fake_image_factory(temp_filesystem):
             size: Image dimensions as (width, height) tuple (default: 800x600)
             use_raw_bytes: If True, create minimal JPEG bytes with fake EXIF
                           If False, create PIL-generated JPEG (default: False)
-            
+
         Returns:
             Path to created image file
         """
@@ -178,7 +178,7 @@ def fake_image_factory(temp_filesystem):
             image_path = image_dir / filename
         else:
             image_path = temp_filesystem / filename
-            
+
         if use_raw_bytes:
             # Create minimal JPEG bytes with fake EXIF (for NormPic tests)
             fake_jpeg_with_exif = (
@@ -194,7 +194,7 @@ def fake_image_factory(temp_filesystem):
             # Create PIL-generated JPEG (for Galleria tests)
             img = Image.new('RGB', size, color=color)
             img.save(image_path, 'JPEG')
-            
+
         return image_path
-        
+
     return _create_fake_image

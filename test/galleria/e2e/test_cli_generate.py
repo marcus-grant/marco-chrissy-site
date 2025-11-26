@@ -10,7 +10,7 @@ class TestGalleriaCLIGenerate:
 
     def test_cli_generate_command_with_config_file(self, tmp_path):
         """E2E: Test galleria generate --config config.json command.
-        
+
         This test should initially fail since no CLI exists yet.
         Tests complete CLI workflow:
         1. Argument parsing (--config, --output, --verbose)

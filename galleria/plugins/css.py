@@ -146,7 +146,7 @@ class BasicCSSPlugin(CSSPlugin):
 }}
 
 body {{
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto,
                  Oxygen, Ubuntu, Cantarell, sans-serif;
     line-height: 1.6;
     color: #333;
@@ -284,33 +284,33 @@ body.theme-light {
         background: #1a1a1a;
         color: #e0e0e0;
     }
-    
+
     .theme-auto header {
         border-bottom-color: #333;
     }
-    
+
     .theme-auto header h1 {
         color: #fff;
     }
-    
+
     .theme-auto .pagination {
         border-top-color: #333;
     }
-    
+
     .theme-auto .pagination a {
         color: #4a9eff;
         border-color: #444;
         background: #2a2a2a;
     }
-    
+
     .theme-auto .pagination a:hover {
         background-color: #333;
     }
-    
+
     .theme-auto footer {
         color: #999;
     }
-    
+
     .theme-auto .empty-message {
         color: #999;
     }
@@ -324,26 +324,26 @@ body.theme-light {
     header h1 {
         font-size: 2rem;
     }
-    
+
     .gallery.layout-grid {
         grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
         gap: 0.5rem;
         padding: 0.5rem;
     }
-    
+
     .gallery {
         gap: 0.5rem;
         padding: 0.5rem;
     }
-    
+
     .gallery .photo-item {
         flex: 1 1 150px;
     }
-    
+
     .pagination {
         padding: 1rem 0.5rem;
     }
-    
+
     .pagination a {
         padding: 0.375rem 0.75rem;
         margin: 0 0.25rem;
@@ -355,19 +355,19 @@ body.theme-light {
     header {
         padding: 1rem 0.5rem;
     }
-    
+
     header h1 {
         font-size: 1.5rem;
     }
-    
+
     .gallery.layout-grid {
         grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
     }
-    
+
     .gallery .photo-item {
         flex: 1 1 120px;
     }
-    
+
     .pagination span {
         display: block;
         margin: 0.5rem 0;

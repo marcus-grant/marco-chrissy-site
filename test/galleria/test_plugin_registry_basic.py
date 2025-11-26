@@ -59,7 +59,7 @@ class TestPluginRegistryBasic:
         # This should require stage parameter
         try:
             registry.register(plugin)
-            assert False, "Should require stage parameter"
+            raise AssertionError("Should require stage parameter")
         except TypeError:
             pass  # Expected
 
@@ -125,7 +125,7 @@ class TestPluginRegistryBasic:
         # Invalid stage should raise error
         try:
             registry.register(plugin, stage="invalid")
-            assert False, "Should reject invalid stage"
+            raise AssertionError("Should reject invalid stage")
         except ValueError as e:
             assert "invalid" in str(e).lower()
 
@@ -138,7 +138,7 @@ class TestPluginRegistryBasic:
         # Invalid stage should raise error
         try:
             registry.get_plugin("test", stage="invalid")
-            assert False, "Should reject invalid stage"
+            raise AssertionError("Should reject invalid stage")
         except ValueError as e:
             assert "invalid" in str(e).lower()
 
@@ -173,12 +173,12 @@ class TestPluginRegistryBasic:
         discovered = registry.discover_plugins()
 
         # Should not include abstract base classes
-        for stage, plugin_classes in discovered.items():
+        for _stage, plugin_classes in discovered.items():
             for plugin_cls in plugin_classes:
                 # Should be able to instantiate (concrete, not abstract)
                 try:
                     instance = plugin_cls()
                     assert hasattr(instance, 'name')
                     assert hasattr(instance, 'version')
-                except TypeError:
-                    assert False, f"{plugin_cls} should be concrete, not abstract"
+                except TypeError as e:
+                    raise AssertionError(f"{plugin_cls} should be concrete, not abstract") from e

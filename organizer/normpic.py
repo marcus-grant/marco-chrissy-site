@@ -35,7 +35,7 @@ class NormPicOrganizer:
                  collection_name: str = None,
                  create_symlinks: bool = None):
         """Initialize NormPic organizer.
-        
+
         Args:
             config_dir: Path to config directory (defaults to ./config)
             source_dir: Override source directory from config
@@ -59,7 +59,7 @@ class NormPicOrganizer:
 
     def is_already_organized(self) -> bool:
         """Check if photos are already organized for current configuration.
-        
+
         Returns:
             True if manifest exists and is up to date, False otherwise
         """
@@ -97,7 +97,7 @@ class NormPicOrganizer:
 
     def organize_photos(self) -> OrganizeResult:
         """Orchestrate NormPic to organize photos.
-        
+
         Returns:
             OrganizeResult with success status and any errors
         """
@@ -152,7 +152,7 @@ class NormPicOrganizer:
 
     def _load_config(self) -> dict:
         """Load NormPic configuration from config file.
-        
+
         Returns:
             Configuration dictionary
         """

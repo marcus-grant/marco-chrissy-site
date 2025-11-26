@@ -42,7 +42,7 @@ class GalleriaConfig:
             with open(config_path) as f:
                 data = json.load(f)
         except json.JSONDecodeError as e:
-            raise click.ClickException(f"Invalid JSON in configuration file: {e}")
+            raise click.ClickException(f"Invalid JSON in configuration file: {e}") from e
 
         # Validate required top-level structure
         try:
@@ -50,13 +50,13 @@ class GalleriaConfig:
             output_config = data["output"]
             pipeline_config = data["pipeline"]
         except KeyError as e:
-            raise click.ClickException(f"Missing required configuration section: {e}")
+            raise click.ClickException(f"Missing required configuration section: {e}") from e
 
         # Parse input configuration
         try:
             manifest_path = Path(input_config["manifest_path"])
-        except KeyError:
-            raise click.ClickException("Missing required field: input.manifest_path")
+        except KeyError as e:
+            raise click.ClickException("Missing required field: input.manifest_path") from e
 
         # Parse output configuration (allow CLI override)
         if output_override:
@@ -64,8 +64,8 @@ class GalleriaConfig:
         else:
             try:
                 output_dir = Path(output_config["directory"])
-            except KeyError:
-                raise click.ClickException("Missing required field: output.directory")
+            except KeyError as e:
+                raise click.ClickException("Missing required field: output.directory") from e
 
         # Parse pipeline configuration
         try:
@@ -101,7 +101,7 @@ class GalleriaConfig:
         except Exception as e:
             if isinstance(e, click.ClickException):
                 raise
-            raise click.ClickException(f"Invalid pipeline configuration: {e}")
+            raise click.ClickException(f"Invalid pipeline configuration: {e}") from e
 
         return cls(
             input_manifest_path=manifest_path,

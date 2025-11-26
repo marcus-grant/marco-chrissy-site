@@ -22,7 +22,7 @@ class TestNormPicOrganizer:
         mock_manifest.pics = [Mock(), Mock()]  # 2 pics
         mock_manifest.errors = []
         mock_organize_photos.return_value = mock_manifest
-        
+
         organizer = NormPicOrganizer()
         result = organizer.organize_photos()
 
