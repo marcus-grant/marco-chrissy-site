@@ -1,9 +1,13 @@
 """Unit tests for NormPic integration functionality."""
 
 import json
+from pathlib import Path
 from unittest.mock import Mock, patch
 
+import pytest
+
 from organizer.normpic import NormPicOrganizer, OrganizeResult
+from serializer.exceptions import ConfigLoadError
 
 
 class TestNormPicOrganizer:
@@ -101,6 +105,69 @@ class TestNormPicOrganizer:
 
         organizer = NormPicOrganizer(dest_dir=dest_dir, collection_name="wedding")
         assert not organizer.is_already_organized()
+
+    @patch('organizer.normpic.JsonConfigLoader')
+    def test_unified_config_loading_success(self, mock_loader_class, temp_filesystem):
+        """Test NormPicOrganizer uses unified config system successfully."""
+        # Mock the JsonConfigLoader and its behavior
+        mock_loader_instance = Mock()
+        mock_loader_class.return_value = mock_loader_instance
+
+        # Mock successful config loading with schema validation
+        mock_config_data = {
+            "source_dir": "~/Pictures/wedding/full",
+            "dest_dir": "output/pics/full",
+            "collection_name": "wedding",
+            "create_symlinks": True
+        }
+        mock_loader_instance.load_config.return_value = mock_config_data
+
+        organizer = NormPicOrganizer()
+
+        # Verify organizer was created successfully
+        assert organizer is not None
+
+        # Verify JsonConfigLoader was called for both schema and config loading
+        assert mock_loader_class.call_count == 2
+
+        # Verify config was loaded twice (schema + actual config)
+        assert mock_loader_instance.load_config.call_count == 2
+
+    @patch('organizer.normpic.JsonConfigLoader')
+    def test_unified_config_loading_missing_file(self, mock_loader_class):
+        """Test NormPicOrganizer handles missing config file gracefully."""
+        mock_loader_instance = Mock()
+        mock_loader_class.return_value = mock_loader_instance
+
+        # Mock config file not found
+        mock_loader_instance.load_config.side_effect = ConfigLoadError(
+            Path("config/normpic.json"),
+            "Configuration file not found"
+        )
+
+        # Should fall back to defaults without crashing
+        organizer = NormPicOrganizer()
+        assert organizer is not None
+
+    @patch('organizer.normpic.JsonConfigLoader')
+    def test_unified_config_validation_failure(self, mock_loader_class):
+        """Test NormPicOrganizer handles schema validation failures."""
+        from serializer.exceptions import ConfigValidationError
+
+        mock_loader_instance = Mock()
+        mock_loader_class.return_value = mock_loader_instance
+
+        # Mock schema validation failure
+        mock_loader_instance.load_config.side_effect = ConfigValidationError(
+            Path("config/normpic.json"),
+            "Missing required field: source_dir"
+        )
+
+        # Should raise the validation error to caller
+        with pytest.raises(ConfigValidationError) as exc_info:
+            NormPicOrganizer()
+
+        assert "source_dir" in str(exc_info.value)
 
     def test_is_already_organized_missing_symlinks(self, temp_filesystem):
         """Test is_already_organized returns False when symlinks are missing."""
