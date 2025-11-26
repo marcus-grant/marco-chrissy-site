@@ -1,7 +1,5 @@
 """Unit tests for CLI main entry point."""
 
-import pytest
-from unittest.mock import patch, MagicMock
 
 
 class TestCLIMain:
@@ -15,11 +13,11 @@ class TestCLIMain:
     def test_main_creates_click_group(self):
         """Test that main function creates Click command group."""
         from cli.main import main
-        
+
         # Should be a Click group with commands
         assert hasattr(main, 'commands')
         assert 'validate' in main.commands
-        assert 'organize' in main.commands  
+        assert 'organize' in main.commands
         assert 'build' in main.commands
         assert 'deploy' in main.commands
 

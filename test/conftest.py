@@ -1,11 +1,12 @@
 """Shared pytest fixtures for all tests."""
 
-import pytest
-import tempfile
 import json
-import os
+import tempfile
 from pathlib import Path
-from typing import Dict, Any, Optional
+from typing import Any
+
+import pytest
+from PIL import Image
 
 
 @pytest.fixture
@@ -19,9 +20,9 @@ def temp_filesystem():
 def file_factory(temp_filesystem):
     """Factory for creating files in temporary filesystem."""
     def _create_file(
-        relative_path: str, 
-        content: Optional[str] = None,
-        json_content: Optional[Dict[str, Any]] = None
+        relative_path: str,
+        content: str | None = None,
+        json_content: dict[str, Any] | None = None
     ) -> Path:
         """Create a file with given content.
         
@@ -34,19 +35,19 @@ def file_factory(temp_filesystem):
             Path to created file
         """
         file_path = temp_filesystem / relative_path
-        
+
         # Ensure parent directories exist
         file_path.parent.mkdir(parents=True, exist_ok=True)
-        
+
         if json_content is not None:
             file_path.write_text(json.dumps(json_content, indent=2))
         elif content is not None:
             file_path.write_text(content)
         else:
             file_path.touch()  # Create empty file
-            
+
         return file_path
-    
+
     return _create_file
 
 
@@ -65,7 +66,7 @@ def directory_factory(temp_filesystem):
         dir_path = temp_filesystem / relative_path
         dir_path.mkdir(parents=True, exist_ok=True)
         return dir_path
-    
+
     return _create_directory
 
 
@@ -74,7 +75,7 @@ def config_file_factory(file_factory):
     """Factory for creating config files with standard content."""
     def _create_config(
         config_name: str,
-        custom_content: Optional[Dict[str, Any]] = None
+        custom_content: dict[str, Any] | None = None
     ) -> Path:
         """Create a config file with default or custom content.
         
@@ -95,7 +96,7 @@ def config_file_factory(file_factory):
                 }
             },
             "normpic": {
-                "input_dir": "photos", 
+                "input_dir": "photos",
                 "output_dir": "organized",
                 "manifest_file": "manifest.json"
             },
@@ -112,17 +113,17 @@ def config_file_factory(file_factory):
                 "css": {"plugin": "basic-css"}
             }
         }
-        
+
         content = custom_content or defaults.get(config_name, {})
         return file_factory(f"config/{config_name}.json", json_content=content)
-    
+
     return _create_config
 
 
 @pytest.fixture
 def full_config_setup(config_file_factory, directory_factory):
     """Create a complete config directory setup with all required files."""
-    def _setup_configs(custom_configs: Optional[Dict[str, Dict[str, Any]]] = None):
+    def _setup_configs(custom_configs: dict[str, dict[str, Any]] | None = None):
         """Create all required config files.
         
         Args:
@@ -132,17 +133,68 @@ def full_config_setup(config_file_factory, directory_factory):
             Dict of {config_name: Path} for all created configs
         """
         custom_configs = custom_configs or {}
-        
+
         # Ensure config directory exists
         directory_factory("config")
-        
+
         configs = {}
         for config_name in ["site", "normpic", "pelican", "galleria"]:
             configs[config_name] = config_file_factory(
-                config_name, 
+                config_name,
                 custom_configs.get(config_name)
             )
-        
+
         return configs
-    
+
     return _setup_configs
+
+
+@pytest.fixture
+def fake_image_factory(temp_filesystem):
+    """Factory for creating fake JPEG images for testing."""
+    def _create_fake_image(
+        filename: str,
+        directory: str = "",
+        color: str = "red",
+        size: tuple[int, int] = (800, 600),
+        use_raw_bytes: bool = False
+    ) -> Path:
+        """Create a fake JPEG image file.
+        
+        Args:
+            filename: Name of the image file (e.g., "IMG_001.jpg")
+            directory: Directory relative to temp filesystem (default: root)
+            color: PIL color name or RGB tuple for PIL images (default: "red")
+            size: Image dimensions as (width, height) tuple (default: 800x600)
+            use_raw_bytes: If True, create minimal JPEG bytes with fake EXIF
+                          If False, create PIL-generated JPEG (default: False)
+            
+        Returns:
+            Path to created image file
+        """
+        if directory:
+            image_dir = temp_filesystem / directory
+            image_dir.mkdir(parents=True, exist_ok=True)
+            image_path = image_dir / filename
+        else:
+            image_path = temp_filesystem / filename
+            
+        if use_raw_bytes:
+            # Create minimal JPEG bytes with fake EXIF (for NormPic tests)
+            fake_jpeg_with_exif = (
+                b'\xff\xe0\x00\x10JFIF\x00\x01\x01\x01\x00H\x00H\x00\x00'
+                b'\xff\xe1\x00\x16Exif\x00\x00II*\x00\x08\x00\x00\x00'  # Fake EXIF header
+                b'\xff\xdb\x00C\x00\x08\x06\x06\x07\x06\x05\x08\x07\x07\x07\t\t\x08\n\x0c\x14\r\x0c\x0b\x0b\x0c\x19\x12\x13\x0f'
+                b'\xff\xc0\x00\x11\x08\x00\x01\x00\x01\x01\x01\x11\x00\x02\x11\x01\x03\x11\x01'
+                b'\xff\xc4\x00\x14\x00\x01\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x08'
+                b'\xff\xda\x00\x08\x01\x01\x00\x00?\x00\xd2\xcf \xff\xd9'  # End of Image
+            )
+            image_path.write_bytes(fake_jpeg_with_exif)
+        else:
+            # Create PIL-generated JPEG (for Galleria tests)
+            img = Image.new('RGB', size, color=color)
+            img.save(image_path, 'JPEG')
+            
+        return image_path
+        
+    return _create_fake_image

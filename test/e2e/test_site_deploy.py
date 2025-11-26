@@ -1,6 +1,7 @@
 """E2E tests for site deploy command."""
 
 import subprocess
+
 import pytest
 
 
@@ -59,6 +60,6 @@ class TestSiteDeploy:
         assert result.returncode == 0
         # Should see evidence of all stages
         assert "validate" in result.stdout.lower()
-        assert "organize" in result.stdout.lower()  
+        assert "organize" in result.stdout.lower()
         assert "build" in result.stdout.lower()
         assert "deploy" in result.stdout.lower()

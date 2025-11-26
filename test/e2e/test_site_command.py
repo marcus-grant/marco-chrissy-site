@@ -1,6 +1,7 @@
 """E2E tests for site command functionality."""
 
 import subprocess
+
 import pytest
 
 

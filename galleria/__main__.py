@@ -1,9 +1,8 @@
 """Galleria CLI entry point."""
 
-from pathlib import Path
-import time
 import threading
-from typing import Set
+import time
+from pathlib import Path
 
 import click
 
@@ -195,11 +194,9 @@ def serve(config: Path, port: int, host: str, no_generate: bool, verbose: bool, 
     """
     import http.server
     import socketserver
-    import threading
-    from contextlib import suppress
-    
+
     if verbose:
-        click.echo(f"Starting galleria development server...")
+        click.echo("Starting galleria development server...")
         click.echo(f"Config: {config}")
         click.echo(f"Server: http://{host}:{port}")
         if no_generate:
@@ -215,10 +212,10 @@ def serve(config: Path, port: int, host: str, no_generate: bool, verbose: bool, 
         galleria_config = GalleriaConfig.from_file(config)
         galleria_config.validate_paths()
         output_directory = galleria_config.output_directory
-        
+
         if verbose:
             click.echo(f"Output directory: {output_directory}")
-            
+
     except Exception as e:
         raise click.ClickException(f"Configuration error: {e}") from e
 
@@ -226,33 +223,33 @@ def serve(config: Path, port: int, host: str, no_generate: bool, verbose: bool, 
     if not no_generate:
         if verbose:
             click.echo("Generating gallery before serving...")
-        
+
         try:
             # Use subprocess to call generate command for better isolation
             import subprocess
             import sys
-            
+
             generate_cmd = [
                 sys.executable, "-m", "galleria", "generate",
                 "--config", str(config)
             ]
             if verbose:
                 generate_cmd.append("--verbose")
-                
-            result = subprocess.run(generate_cmd, 
-                                  capture_output=True, 
+
+            result = subprocess.run(generate_cmd,
+                                  capture_output=True,
                                   text=True,
                                   cwd=Path.cwd())
-            
+
             if result.returncode != 0:
                 error_msg = f"Generation failed: {result.stderr or result.stdout}"
                 raise click.ClickException(error_msg)
-                
+
             if verbose:
                 click.echo("Gallery generation completed")
                 if result.stdout:
                     click.echo(result.stdout)
-                
+
         except subprocess.SubprocessError as e:
             raise click.ClickException(f"Generation subprocess failed: {e}") from e
         except Exception as e:
@@ -267,13 +264,13 @@ def serve(config: Path, port: int, host: str, no_generate: bool, verbose: bool, 
     # Setup file watching for hot reload (unless disabled)
     watch_files = set()
     file_watcher_thread = None
-    
+
     if not no_watch:
         # Files to watch for changes
         watch_files.add(config)
         if galleria_config.input_manifest_path.exists():
             watch_files.add(galleria_config.input_manifest_path)
-            
+
         if verbose and watch_files:
             click.echo(f"Watching files for changes: {[str(f) for f in watch_files]}")
 
@@ -281,7 +278,7 @@ def serve(config: Path, port: int, host: str, no_generate: bool, verbose: bool, 
         def file_watcher():
             """Watch files for changes and trigger regeneration."""
             file_mtimes = {}
-            
+
             # Initialize modification times
             for file_path in watch_files:
                 try:
@@ -290,11 +287,11 @@ def serve(config: Path, port: int, host: str, no_generate: bool, verbose: bool, 
                 except OSError:
                     if verbose:
                         click.echo(f"Warning: Could not get mtime for {file_path}")
-            
+
             while True:
                 try:
                     time.sleep(1)  # Check every second
-                    
+
                     # Check for file changes
                     for file_path in watch_files:
                         try:
@@ -304,43 +301,43 @@ def serve(config: Path, port: int, host: str, no_generate: bool, verbose: bool, 
                                     if verbose:
                                         click.echo(f"File changed: {file_path}")
                                         click.echo("Regenerating gallery...")
-                                    
+
                                     # Trigger regeneration
                                     regenerate_gallery(config, verbose)
                                     file_mtimes[file_path] = current_mtime
-                                    
+
                                     if verbose:
                                         click.echo("Gallery regeneration completed")
                         except OSError:
                             # File might have been deleted or inaccessible
                             if file_path in file_mtimes:
                                 del file_mtimes[file_path]
-                                
+
                 except Exception as e:
                     if verbose:
                         click.echo(f"File watcher error: {e}")
-                    
+
         def regenerate_gallery(config_path, verbose_mode):
             """Regenerate gallery when files change."""
             try:
                 import subprocess
                 import sys
-                
+
                 generate_cmd = [
                     sys.executable, "-m", "galleria", "generate",
                     "--config", str(config_path)
                 ]
                 if verbose_mode:
                     generate_cmd.append("--verbose")
-                    
-                result = subprocess.run(generate_cmd, 
-                                      capture_output=True, 
+
+                result = subprocess.run(generate_cmd,
+                                      capture_output=True,
                                       text=True,
                                       cwd=Path.cwd())
-                
+
                 if result.returncode != 0 and verbose_mode:
                     click.echo(f"Regeneration failed: {result.stderr}")
-                    
+
             except Exception as e:
                 if verbose_mode:
                     click.echo(f"Regeneration error: {e}")
@@ -348,25 +345,25 @@ def serve(config: Path, port: int, host: str, no_generate: bool, verbose: bool, 
         if watch_files:
             file_watcher_thread = threading.Thread(target=file_watcher, daemon=True)
             file_watcher_thread.start()
-            
+
             if verbose:
                 click.echo("File watcher started (hot reload enabled)")
 
     # Setup HTTP server
     class GalleriaHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
         """Custom request handler with gallery-specific behavior."""
-        
+
         def __init__(self, *args, **kwargs):
             # Change to output directory for serving files
             super().__init__(*args, directory=str(output_directory), **kwargs)
-        
+
         def end_headers(self):
             # Add CORS headers for local development
             self.send_header('Access-Control-Allow-Origin', '*')
             self.send_header('Access-Control-Allow-Methods', 'GET, POST, OPTIONS')
             self.send_header('Access-Control-Allow-Headers', '*')
             super().end_headers()
-        
+
         def log_message(self, format, *args):
             # Only log in verbose mode
             if verbose:
@@ -382,10 +379,10 @@ def serve(config: Path, port: int, host: str, no_generate: bool, verbose: bool, 
     try:
         # Allow port reuse to avoid "Address already in use" errors
         socketserver.TCPServer.allow_reuse_address = True
-        
+
         with socketserver.TCPServer((host, port), GalleriaHTTPRequestHandler) as httpd:
             actual_host, actual_port = httpd.server_address
-            
+
             if verbose:
                 click.echo(f"Server started at http://{actual_host}:{actual_port}")
                 click.echo("Press Ctrl+C to stop the server")
@@ -398,7 +395,7 @@ def serve(config: Path, port: int, host: str, no_generate: bool, verbose: bool, 
                 if verbose:
                     click.echo("\nShutting down server...")
                 httpd.shutdown()
-                
+
     except OSError as e:
         if e.errno == 98:  # Address already in use
             raise click.ClickException(f"Port {port} is already in use. Try a different port with --port")

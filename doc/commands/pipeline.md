@@ -28,9 +28,19 @@ The core site building pipeline follows this cascading sequence:
 **Calls**: `organize` only (which calls `validate`)
 
 **Responsibilities**:
-- Run galleria for gallery generation (`uv run python -m galleria` for each config)
-- Run Pelican for site generation
-- Integrate outputs
+- Run galleria for gallery generation via `galleria.generate()` Python module
+- Run Pelican for site generation via `pelican.Pelican().run()` Python module  
+- Create integrated output structure:
+  ```
+  output/
+  ├── pics/           # From organize (NormPic)
+  ├── galleries/      # From galleria generation
+  │   └── wedding/    
+  ├── about/          # From pelican generation  
+  └── index.html      # From pelican generation
+  ```
+- Provide progress reporting and error handling for each stage
+- Support basic idempotency (skip if output files exist)
 
 ### 4. deploy
 **Purpose**: Deploy site to CDN  
@@ -42,4 +52,4 @@ The core site building pipeline follows this cascading sequence:
 - Validate deployment
 
 ## Implementation Location
-Pipeline commands are implemented in the `orchestrator/` module as they coordinate multiple external tools.
+Pipeline commands are implemented in the `cli/commands/` module. Each command uses direct Python module imports rather than subprocess calls for better integration and error handling.

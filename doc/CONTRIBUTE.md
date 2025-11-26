@@ -11,10 +11,13 @@
 * This is a `**uv**`` managed project
   * **Test Command**: Use `uv run pytest` to run tests
     * **NOT**: `python -m pytest`
+* **ALWAYS run ruff first**: `uv run ruff check --fix` before testing
+* **ALWAYS run full test suite**: Before every single commit
 * **Specific Test Files**:
   * Use `uv run pytest test/test_filename.py -v` for focused testing
-  * **ALWAYS** run full suites before every commit
+  * **See Code Quality Workflow below** for complete pre-commit sequence
 * Follow Nested TDD Workflow (see [workflow.md](workflow.md) for full details):
+  * Also see [testing.md](./testing.md) for testing details and fixtures
 
   **Outer Cycle (E2E/Integration Tests)**:
   * Write E2E test for desired functionality - mark with `@pytest.skip` initially
@@ -63,6 +66,23 @@
   * Add one test case or feature at a time
   * Test immediately after each testable addition
   * Never write massive amounts of code without testing
+
+## Code Quality Workflow
+
+**CRITICAL: Always follow this exact sequence before every commit:**
+
+1. **Write/modify code** - Implement your changes
+2. **Run ruff with fixes** - `uv run ruff check --fix` 
+3. **Run relevant tests** - Verify formatting didn't break logic
+4. **Run full test suite** - `uv run pytest` (before every commit)
+5. **Commit** - Only if all tests pass
+
+**Why this order matters:**
+- Ruff auto-fixes can change code logic (rare but possible)
+- Style changes can break tests in unexpected ways  
+- Catching issues early prevents context pollution from easy-to-fix errors
+
+**Never skip step 3** - always test after ruff formatting.
 
 ## Commit Message Format
 
@@ -116,7 +136,7 @@
 
 * Avoid catch-all patterns like 'core' or 'util' directories
 * 'util' only acceptable for singular-purpose modules with simple, testable, pure functions
-* Split generic vs domain-specific modules clearly 
+* Split generic vs domain-specific modules clearly
 * Domain logic gets specific directories (e.g., galleria/template for all templating)
 
 ## Command System Rules
@@ -141,7 +161,8 @@
   * So ensure there's very loose coupling from rest of project
   * Consider how this part will eventually split out
   * Should be generalizable and easy to integrate in other projects.
-## Testing Infrastructure 
+
+## Testing Infrastructure
 
 * **Use shared fixtures** (see [testing.md](testing.md)):
   * `temp_filesystem` - Isolated temporary directories
@@ -155,7 +176,7 @@
 
 * Keep TODO.md updated:
   * Update "Current Tasks" section when starting/stopping work
-  * Mark completed items with [x] 
+  * Mark completed items with [x]
   * Add new tasks as they're discovered
   * Document progress for easy resumption
   * When I say delete from TODO, only when its section of the TODO is complete.

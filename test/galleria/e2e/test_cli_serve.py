@@ -3,9 +3,8 @@
 import json
 import subprocess
 import time
-import threading
+
 import requests
-from pathlib import Path
 
 
 class TestGalleriaCLIServe:
@@ -147,7 +146,7 @@ class TestGalleriaCLIServe:
             # Test HTTP responses for generated files
             response = requests.get(f"http://localhost:{test_port}/")
             assert response.status_code == 200, "Index page not served"
-            
+
             response = requests.get(f"http://localhost:{test_port}/page_1.html")
             assert response.status_code == 200, "Page 1 HTML not served"
             assert "test_photos" in response.text, "Collection name not in served HTML"
@@ -308,7 +307,7 @@ class TestGalleriaCLIServe:
         """E2E: Test serve command hot reload when config or manifest changes."""
         # Create initial test setup
         from PIL import Image
-        
+
         test_photo = tmp_path / "test.jpg"
         test_img = Image.new('RGB', (100, 100), (255, 0, 0))
         test_img.save(test_photo, 'JPEG')
@@ -374,7 +373,7 @@ class TestGalleriaCLIServe:
             response = requests.get(f"http://localhost:{test_port}/page_1.html", timeout=2)
             assert response.status_code == 200, "Server not responding after hot reload"
             updated_content = response.text
-            
+
             # The content should be different after hot reload
             # (This is a basic check - in reality we'd check for theme-specific changes)
             assert len(updated_content) > 100, "Page content should still be substantial"
@@ -390,7 +389,7 @@ class TestGalleriaCLIServe:
         """E2E: Test serve command with --no-watch flag disables hot reload."""
         # Create minimal test setup
         manifest = {
-            "version": "0.1.0", 
+            "version": "0.1.0",
             "collection_name": "no_watch_test",
             "pics": []
         }
@@ -430,7 +429,7 @@ class TestGalleriaCLIServe:
     def test_cli_serve_complete_workflow_validation(self, tmp_path):
         """E2E: Complete serve workflow validation with all features."""
         from PIL import Image
-        
+
         # Create realistic test setup
         test_photos = []
         for i in range(3):

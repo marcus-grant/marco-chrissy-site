@@ -2,8 +2,6 @@
 
 import json
 
-import pytest
-
 from galleria.manager.pipeline import PipelineManager
 from galleria.plugins.base import PluginContext
 from galleria.plugins.css import BasicCSSPlugin
@@ -179,7 +177,7 @@ class TestRealPluginIntegration:
         assert result.success  # Pipeline succeeds overall
         assert result.errors   # But individual photos have errors logged
         assert any("error" in error.lower() or "fail" in error.lower() for error in result.errors)
-        
+
         # Verify that the collection data is still present despite photo errors
         assert "collection_name" in result.output_data
         assert result.output_data["collection_name"] == "error_test"

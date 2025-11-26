@@ -1,6 +1,7 @@
 """Validate command implementation."""
 
 import click
+
 from validator.config import ConfigValidator
 
 
@@ -8,11 +9,11 @@ from validator.config import ConfigValidator
 def validate():
     """Pre-flight checks for configs, dependencies, and permissions."""
     click.echo("Running validation checks...")
-    
+
     # Check config files
     config_validator = ConfigValidator()
     result = config_validator.validate_config_files()
-    
+
     if result.success:
         click.echo("✓ Config files found")
     else:
@@ -20,5 +21,5 @@ def validate():
         for error in result.errors:
             click.echo(f"  - {error}")
         return
-    
+
     click.echo("Validation completed successfully!")

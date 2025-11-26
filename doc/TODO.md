@@ -15,32 +15,21 @@
 
 **Architecture:** 4-stage idempotent pipeline with plugin-based Pelican integration
 
-#### 2.1: Project Structure Setup
-- [x] Create test structure (`test/e2e/` and `test/unit/`)
-- [x] Create reusable filesystem and config fixtures in `test/conftest.py`
-- [x] Create root-level module directories:
-  - [x] `validator/` - Pre-flight checks (configs, dependencies, permissions)
-  - [x] `cli/` - Command-line interface with subcommands  
-  - [ ] `build/` - Orchestration modules (Galleria + Pelican coordination)
-  - [ ] `deploy/` - Bunny CDN upload logic
-  - [ ] `serializers/` - JSON config loading with schema validation
-
 #### 2.2: CLI Command System (Idempotent Cascading)
 - [x] E2E test: `uv run site` command discovery and basic functionality (`test/e2e/`)
 - [x] Unit tests: Individual command modules (`test/unit/`)
 - [x] Implement `uv run site` command with subcommands
   - [x] `site validate` - Pre-flight checks (config file validation implemented)
-  - [ ] `site organize` - NormPic orchestration (calls validate if needed)
-  - [ ] `site build` - Galleria + Pelican generation (calls organize if needed)  
+  - [x] `site organize` - NormPic orchestration (real integration implemented)
+  - [x] `site build` - Galleria + Pelican generation (calls organize if needed)
+    - [x] E2E test: Complete build pipeline with fake filesystem and images
+    - [x] Unit tests: Build command integration (organize cascade, Python modules)
+    - [x] Centralize fake image generation into shared fixtures
+    - [x] Implement build command with galleria and pelican integration
+    - [x] Verify BeautifulSoup validation of generated HTML content
+    - [x] Test idempotent behavior (trust galleria's internal change detection)
   - [ ] `site deploy` - Bunny CDN upload (calls build if needed)
 - [ ] Each command checks if work already done and skips unnecessary operations
-
-**Validate Command Status:**
-- [x] Basic config file validation with unit tests (4 tests)
-- [x] E2E test with temporary filesystem setup (1 test passing)
-- [ ] Dependency validation (check for required packages)
-- [ ] Output directory permissions validation
-- [ ] Error handling for invalid config content
 
 #### 2.3: Configuration Architecture (Separate Configs)
 - [ ] E2E test: Config loading and validation across modules (`test/e2e/`)
@@ -105,6 +94,24 @@
 
 ### Near-term Optimizations
 
+- [x] **E2E test performance optimization** 
+  - [x] Fix 16+ second subprocess startup time in E2E tests (unacceptable)
+  - [x] Replace subprocess calls with direct function calls in E2E tests
+  - [x] Consolidate 4 separate E2E tests into single comprehensive workflow test
+  - [x] Achieve 460x performance improvement: 37s → 0.08s for organize E2E tests
+  - [ ] Consider pytest-xdist for parallel test execution
+  - [ ] Investigate uv run startup overhead with large dependency trees
+- [ ] **Verify galleria idempotency behavior**
+  - [ ] Verify galleria already handles idempotent rebuilds correctly
+  - [ ] Confirm manifest-based change detection works as expected
+  - [ ] Document that galleria handles its own change detection (no reimplementation needed)
+  - [ ] Test galleria's lazy rebuild behavior with config/template/plugin changes
+- [ ] **Enhanced fake image fixture for EXIF testing**
+  - [ ] Extend fake_image_factory to create EXIF timestamped photos
+  - [ ] Create 5 test images with interesting chronological order for normpic testing
+  - [ ] Test normpic's time ordering behavior without camera timestamp collisions
+  - [ ] Verify proper handling of sub-second timestamp variations
+  - [ ] Test multiple camera scenarios with different timestamp patterns
 - [ ] Comprehensive error handling improvements
   - [ ] Manifest plugin errors (missing files, invalid JSON, version mismatches)
   - [ ] Processor plugin errors (missing photos, corrupted files, permissions)
