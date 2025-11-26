@@ -151,3 +151,37 @@ class TestBuildCommand:
         output_lower = result.output.lower()
         idempotent_indicators = ["already built", "up to date", "skipping", "no changes"]
         assert any(indicator in output_lower for indicator in idempotent_indicators)
+
+    @patch('cli.commands.build.organize')
+    @patch('cli.commands.build.JsonConfigLoader')
+    @patch('cli.commands.build.galleria')
+    @patch('cli.commands.build.pelican.Pelican')
+    def test_build_uses_config_system(self, mock_pelican_class, mock_galleria_module, mock_config_loader_class, mock_organize):
+        """Test that build command loads and uses configuration files."""
+        mock_organize.return_value = Mock(exit_code=0)
+        mock_galleria_module.generate.return_value = Mock(success=True)
+        mock_pelican_class.return_value = Mock()
+
+        # Mock config loader
+        mock_config_loader = Mock()
+        mock_config_loader_class.return_value = mock_config_loader
+        
+        # Mock config data
+        mock_site_config = {
+            "output_dir": "custom_output",
+            "cdn": {"photos": "https://photos.cdn", "site": "https://site.cdn"}
+        }
+        mock_galleria_config = {
+            "manifest_path": "custom/manifest.json",
+            "output_dir": "custom_output/galleries",
+            "theme": "custom"
+        }
+        
+        mock_config_loader.load_config.side_effect = [mock_site_config, mock_galleria_config]
+
+        runner = CliRunner()
+        result = runner.invoke(build)
+
+        assert result.exit_code == 0
+        # Should load both site.json and galleria.json configs
+        assert mock_config_loader.load_config.call_count >= 2
