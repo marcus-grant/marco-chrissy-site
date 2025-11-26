@@ -31,7 +31,13 @@
 - [x] Implement `uv run site` command with subcommands
   - [x] `site validate` - Pre-flight checks (config file validation implemented)
   - [x] `site organize` - NormPic orchestration (real integration implemented)
-  - [ ] `site build` - Galleria + Pelican generation (calls organize if needed)  
+  - [ ] `site build` - Galleria + Pelican generation (calls organize if needed)
+    - [ ] E2E test: Complete build pipeline with fake filesystem and images
+    - [ ] Unit tests: Build command integration (organize cascade, galleria CLI calls)
+    - [ ] Centralize fake image generation into shared fixtures
+    - [ ] Implement build command with galleria and pelican integration
+    - [ ] Verify BeautifulSoup validation of generated HTML content
+    - [ ] Test idempotent behavior (trust galleria's internal change detection)
   - [ ] `site deploy` - Bunny CDN upload (calls build if needed)
 - [ ] Each command checks if work already done and skips unnecessary operations
 
@@ -52,6 +58,12 @@
 - [x] Idempotent behavior (skip if already organized)
 - [x] Unit tests for idempotent detection logic
 - [ ] Additional unit tests for error handling and config edge cases
+
+**Build Command Documentation Plan:**
+- [ ] Update `doc/commands/pipeline.md` with build command details and responsibilities
+- [ ] Update `doc/workflow.md` with build command usage examples and integration
+- [ ] Update `doc/architecture.md` with galleria/pelican integration approach
+- [ ] Document build command cascading behavior and idempotency expectations
 
 #### 2.3: Configuration Architecture (Separate Configs)
 - [ ] E2E test: Config loading and validation across modules (`test/e2e/`)
@@ -123,6 +135,11 @@
   - [x] Achieve 460x performance improvement: 37s → 0.08s for organize E2E tests
   - [ ] Consider pytest-xdist for parallel test execution
   - [ ] Investigate uv run startup overhead with large dependency trees
+- [ ] **Verify galleria idempotency behavior**
+  - [ ] Verify galleria already handles idempotent rebuilds correctly
+  - [ ] Confirm manifest-based change detection works as expected
+  - [ ] Document that galleria handles its own change detection (no reimplementation needed)
+  - [ ] Test galleria's lazy rebuild behavior with config/template/plugin changes
 - [ ] Comprehensive error handling improvements
   - [ ] Manifest plugin errors (missing files, invalid JSON, version mismatches)
   - [ ] Processor plugin errors (missing photos, corrupted files, permissions)
