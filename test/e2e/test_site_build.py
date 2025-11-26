@@ -2,6 +2,7 @@
 
 import json
 import os
+from unittest.mock import patch
 
 import pytest
 from bs4 import BeautifulSoup
@@ -13,8 +14,7 @@ from cli.commands.build import build
 class TestSiteBuild:
     """Test the site build command functionality."""
 
-    @pytest.mark.skip(reason="Build command functionality not yet implemented")
-    def test_build_complete_workflow(self, temp_filesystem, full_config_setup, fake_image_factory):
+    def test_build_uses_galleria_module_not_subprocess(self, temp_filesystem, full_config_setup, fake_image_factory):
         """Test complete build workflow: organize → galleria → pelican with idempotency."""
 
         # Setup: Create source directory with test photos
@@ -32,33 +32,34 @@ class TestSiteBuild:
                 "create_symlinks": True
             },
             "galleria": {
-                "input": {
-                    "manifest_path": str(temp_filesystem / "output" / "pics" / "full" / "manifest.json")
-                },
-                "output": {
-                    "directory": str(temp_filesystem / "output" / "galleries" / "wedding")
-                },
-                "pipeline": {
-                    "provider": {"plugin": "normpic-provider"},
-                    "processor": {"plugin": "thumbnail-processor", "config": {"thumbnail_size": 400}},
-                    "transform": {"plugin": "basic-pagination", "config": {"page_size": 12}},
-                    "template": {"plugin": "basic-template", "config": {"title": "Wedding Gallery"}},
-                    "css": {"plugin": "basic-css"}
-                }
+                "manifest_path": str(temp_filesystem / "output" / "pics" / "full" / "manifest.json"),
+                "output_dir": str(temp_filesystem / "output" / "galleries" / "wedding"),
+                "thumbnail_size": 400,
+                "photos_per_page": 12,
+                "theme": "minimal",
+                "quality": 85
             },
             "pelican": {
-                "content_dir": str(temp_filesystem / "content"),
-                "output_dir": str(temp_filesystem / "output"),
-                "theme": "simple"
+                "theme": "minimal",
+                "site_url": "https://example.com",
+                "author": "Test Author",
+                "sitename": "Test Site"
             }
         })
 
-        # First Run: Initial build
+        # First Run: Initial build with subprocess monitoring
+        subprocess_calls = []
+        
+        def mock_subprocess_run(*args, **kwargs):
+            subprocess_calls.append((args, kwargs))
+            raise Exception("Build command should NOT use subprocess.run for galleria")
+        
         original_cwd = os.getcwd()
         try:
             os.chdir(str(temp_filesystem))
-            runner = CliRunner()
-            result1 = runner.invoke(build)
+            with patch('subprocess.run', side_effect=mock_subprocess_run):
+                runner = CliRunner()
+                result1 = runner.invoke(build)
         finally:
             os.chdir(original_cwd)
 

@@ -1,14 +1,20 @@
 """Build command implementation."""
 
 import os
-import subprocess
-import sys
 from pathlib import Path
 
 import click
 
 import pelican
 from serializer.json import JsonConfigLoader
+from galleria.config import GalleriaConfig
+from galleria.manager.pipeline import PipelineManager
+from galleria.plugins.base import PluginContext
+from galleria.plugins.css import BasicCSSPlugin
+from galleria.plugins.pagination import BasicPaginationPlugin
+from galleria.plugins.processors.thumbnail import ThumbnailProcessorPlugin
+from galleria.plugins.providers.normpic import NormPicProviderPlugin
+from galleria.plugins.template import BasicTemplatePlugin
 
 from .organize import organize
 
@@ -44,29 +50,79 @@ def build():
         click.echo("Build completed successfully!")
         return
 
-    # Generate galleries using Galleria
+    # Generate galleries using Galleria module directly
     click.echo("Generating galleries with Galleria...")
     try:
-        # Create galleria config file in temp location
-        import json
-        import tempfile
-
-        with tempfile.NamedTemporaryFile(mode='w', suffix='.json', delete=False) as f:
-            json.dump(galleria_config, f, indent=2)
-            temp_config_path = f.name
-
-        try:
-            # Call galleria CLI with the config
-            cmd = [sys.executable, "-m", "galleria", "generate", "--config", temp_config_path]
-            result = subprocess.run(cmd, capture_output=True, text=True, check=True)
-            click.echo("✓ Galleria generation completed successfully!")
-        finally:
-            # Clean up temp file
-            os.unlink(temp_config_path)
-
-    except subprocess.CalledProcessError as e:
-        click.echo(f"✗ Galleria generation failed: {e.stderr or e.stdout}")
-        ctx.exit(1)
+        # Create GalleriaConfig from our config data
+        manifest_path = Path(galleria_config["manifest_path"])
+        output_dir = Path(galleria_config["output_dir"])
+        
+        # Create output directory if it doesn't exist
+        output_dir.mkdir(parents=True, exist_ok=True)
+        
+        # Initialize pipeline manager and register plugins
+        pipeline = PipelineManager()
+        pipeline.registry.register(NormPicProviderPlugin(), "provider")
+        pipeline.registry.register(ThumbnailProcessorPlugin(), "processor") 
+        pipeline.registry.register(BasicPaginationPlugin(), "transform")
+        pipeline.registry.register(BasicTemplatePlugin(), "template")
+        pipeline.registry.register(BasicCSSPlugin(), "css")
+        
+        # Define pipeline stages
+        stages = [
+            ("provider", "normpic-provider"),
+            ("processor", "thumbnail-processor"), 
+            ("transform", "basic-pagination"),
+            ("template", "basic-template"),
+            ("css", "basic-css")
+        ]
+        
+        # Create initial context from galleria config
+        initial_context = PluginContext(
+            input_data={"manifest_path": str(manifest_path)},
+            config={
+                "provider": {},
+                "processor": {
+                    "thumbnail_size": galleria_config.get("thumbnail_size", 400),
+                    "quality": galleria_config.get("quality", 85)
+                },
+                "transform": {
+                    "page_size": galleria_config.get("photos_per_page", 60)
+                },
+                "template": {
+                    "theme": galleria_config.get("theme", "minimal"),
+                    "title": "Gallery"
+                },
+                "css": {}
+            },
+            output_dir=output_dir
+        )
+        
+        # Execute pipeline
+        final_result = pipeline.execute_stages(stages, initial_context)
+        
+        if not final_result.success:
+            error_msg = "Galleria pipeline execution failed:\n" + "\n".join(final_result.errors)
+            click.echo(f"✗ {error_msg}")
+            ctx.exit(1)
+            
+        # Write generated files to disk
+        final_output = final_result.output_data
+        
+        # Write HTML files
+        if "html_files" in final_output:
+            for html_file in final_output["html_files"]:
+                html_path = output_dir / html_file["filename"]
+                html_path.write_text(html_file["content"], encoding="utf-8")
+                
+        # Write CSS files  
+        if "css_files" in final_output:
+            for css_file in final_output["css_files"]:
+                css_path = output_dir / css_file["filename"]
+                css_path.write_text(css_file["content"], encoding="utf-8")
+        
+        click.echo("✓ Galleria generation completed successfully!")
+        
     except Exception as e:
         click.echo(f"✗ Galleria generation failed: {e}")
         ctx.exit(1)
@@ -74,7 +130,23 @@ def build():
     # Generate site pages using Pelican
     click.echo("Generating site pages with Pelican...")
     try:
-        pelican_instance = pelican.Pelican()
+        # Load pelican configuration
+        pelican_config = config_loader.load_config(Path("config/pelican.json"))
+        
+        # Create basic Pelican settings from config
+        pelican_settings = {
+            'THEME': pelican_config.get('theme', 'minimal'),
+            'SITEURL': pelican_config.get('site_url', ''),
+            'AUTHOR': pelican_config.get('author', ''),
+            'SITENAME': pelican_config.get('sitename', ''),
+            'TIMEZONE': pelican_config.get('timezone', 'UTC'),
+            'DEFAULT_LANG': pelican_config.get('default_lang', 'en'),
+            'PATH': 'content',
+            'OUTPUT_PATH': site_config.get('output_dir', 'output'),
+            'IGNORE_FILES': ['.#*']
+        }
+        
+        pelican_instance = pelican.Pelican(pelican_settings)
         pelican_instance.run()
         click.echo("✓ Pelican generation completed successfully!")
     except Exception as e:
