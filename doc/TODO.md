@@ -140,6 +140,12 @@
   - [ ] Confirm manifest-based change detection works as expected
   - [ ] Document that galleria handles its own change detection (no reimplementation needed)
   - [ ] Test galleria's lazy rebuild behavior with config/template/plugin changes
+- [ ] **Enhanced fake image fixture for EXIF testing**
+  - [ ] Extend fake_image_factory to create EXIF timestamped photos
+  - [ ] Create 5 test images with interesting chronological order for normpic testing
+  - [ ] Test normpic's time ordering behavior without camera timestamp collisions
+  - [ ] Verify proper handling of sub-second timestamp variations
+  - [ ] Test multiple camera scenarios with different timestamp patterns
 - [ ] Comprehensive error handling improvements
   - [ ] Manifest plugin errors (missing files, invalid JSON, version mismatches)
   - [ ] Processor plugin errors (missing photos, corrupted files, permissions)
