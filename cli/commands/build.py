@@ -8,8 +8,8 @@ from pathlib import Path
 import click
 
 import pelican
-
 from serializer.json import JsonConfigLoader
+
 from .organize import organize
 
 
@@ -48,13 +48,13 @@ def build():
     click.echo("Generating galleries with Galleria...")
     try:
         # Create galleria config file in temp location
-        import tempfile
         import json
-        
+        import tempfile
+
         with tempfile.NamedTemporaryFile(mode='w', suffix='.json', delete=False) as f:
             json.dump(galleria_config, f, indent=2)
             temp_config_path = f.name
-        
+
         try:
             # Call galleria CLI with the config
             cmd = [sys.executable, "-m", "galleria", "generate", "--config", temp_config_path]
@@ -63,7 +63,7 @@ def build():
         finally:
             # Clean up temp file
             os.unlink(temp_config_path)
-            
+
     except subprocess.CalledProcessError as e:
         click.echo(f"✗ Galleria generation failed: {e.stderr or e.stdout}")
         ctx.exit(1)

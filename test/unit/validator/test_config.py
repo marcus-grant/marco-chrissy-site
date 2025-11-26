@@ -82,7 +82,7 @@ class TestConfigValidator:
         # Copy schema files to temp filesystem
         schema_dir = temp_filesystem / "config" / "schema"
         schema_dir.mkdir(parents=True, exist_ok=True)
-        
+
         # Copy actual schema files
         shutil.copy("config/schema/normpic.json", schema_dir / "normpic.json")
         shutil.copy("config/schema/site.json", schema_dir / "site.json")
@@ -132,7 +132,7 @@ class TestConfigValidator:
         # Copy schema files to temp filesystem
         schema_dir = temp_filesystem / "config" / "schema"
         schema_dir.mkdir(parents=True, exist_ok=True)
-        
+
         # Copy actual schema files
         shutil.copy("config/schema/normpic.json", schema_dir / "normpic.json")
         shutil.copy("config/schema/site.json", schema_dir / "site.json")

@@ -3,8 +3,8 @@
 from dataclasses import dataclass
 from pathlib import Path
 
-from serializer.json import JsonConfigLoader
 from serializer.exceptions import ConfigError
+from serializer.json import JsonConfigLoader
 
 
 @dataclass
@@ -33,27 +33,27 @@ class ConfigValidator:
         for config_file, schema_file in self.config_schemas.items():
             config_path = Path(config_file)
             schema_path = Path(schema_file)
-            
+
             # Check if config file exists
             if not config_path.exists():
                 errors.append(f"Missing required config file: {config_file}")
                 continue
-                
+
             # Check if schema exists
             if not schema_path.exists():
                 # If no schema, just check file existence (backward compatibility)
                 continue
-                
+
             # Validate content against schema
             try:
                 # Load schema
                 schema_loader = JsonConfigLoader()
                 schema = schema_loader.load_config(schema_path)
-                
+
                 # Validate config against schema
                 config_loader = JsonConfigLoader(schema=schema)
                 config_loader.load_config(config_path)
-                
+
             except ConfigError as e:
                 errors.append(f"Config validation error in {config_file}: {e}")
             except Exception as e:

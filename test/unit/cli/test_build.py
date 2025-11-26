@@ -165,7 +165,7 @@ class TestBuildCommand:
         # Mock config loader
         mock_config_loader = Mock()
         mock_config_loader_class.return_value = mock_config_loader
-        
+
         # Mock config data
         mock_site_config = {
             "output_dir": "custom_output",
@@ -176,7 +176,7 @@ class TestBuildCommand:
             "output_dir": "custom_output/galleries",
             "theme": "custom"
         }
-        
+
         mock_config_loader.load_config.side_effect = [mock_site_config, mock_galleria_config]
 
         runner = CliRunner()
