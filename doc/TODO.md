@@ -15,16 +15,6 @@
 
 **Architecture:** 4-stage idempotent pipeline with plugin-based Pelican integration
 
-#### 2.1: Project Structure Setup
-- [x] Create test structure (`test/e2e/` and `test/unit/`)
-- [x] Create reusable filesystem and config fixtures in `test/conftest.py`
-- [x] Create root-level module directories:
-  - [x] `validator/` - Pre-flight checks (configs, dependencies, permissions)
-  - [x] `cli/` - Command-line interface with subcommands  
-  - [ ] `build/` - Orchestration modules (Galleria + Pelican coordination)
-  - [ ] `deploy/` - Bunny CDN upload logic
-  - [ ] `serializers/` - JSON config loading with schema validation
-
 #### 2.2: CLI Command System (Idempotent Cascading)
 - [x] E2E test: `uv run site` command discovery and basic functionality (`test/e2e/`)
 - [x] Unit tests: Individual command modules (`test/unit/`)
@@ -40,30 +30,6 @@
     - [x] Test idempotent behavior (trust galleria's internal change detection)
   - [ ] `site deploy` - Bunny CDN upload (calls build if needed)
 - [ ] Each command checks if work already done and skips unnecessary operations
-
-**Validate Command Status:**
-- [x] Basic config file validation with unit tests (4 tests)
-- [x] E2E test with temporary filesystem setup (1 test passing)
-- [ ] Dependency validation (check for required packages)
-- [ ] Output directory permissions validation
-- [ ] Error handling for invalid config content
-
-**Organize Command Status:**
-- [x] Real NormPic integration with direct Python imports
-- [x] Config loading from config/normpic.json with fallback defaults
-- [x] Photo organization: ~/Pictures/wedding/full → output/pics/full
-- [x] E2E test with fake JPEG files and comprehensive verification
-- [x] Manifest generation and symlink creation verification
-- [x] Validation cascade (organize calls validate if needed)
-- [x] Idempotent behavior (skip if already organized)
-- [x] Unit tests for idempotent detection logic
-- [ ] Additional unit tests for error handling and config edge cases
-
-**Build Command Documentation Plan:**
-- [ ] Update `doc/commands/pipeline.md` with build command details and responsibilities
-- [ ] Update `doc/workflow.md` with build command usage examples and integration
-- [ ] Update `doc/architecture.md` with galleria/pelican integration approach
-- [ ] Document build command cascading behavior and idempotency expectations
 
 #### 2.3: Configuration Architecture (Separate Configs)
 - [ ] E2E test: Config loading and validation across modules (`test/e2e/`)
