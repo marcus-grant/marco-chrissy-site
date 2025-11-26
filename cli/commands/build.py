@@ -133,22 +133,23 @@ def build():
         # Load pelican configuration
         pelican_config = config_loader.load_config(Path("config/pelican.json"))
         
-        # Create Pelican settings from config (ALL_CAPS required)
-        pelican_settings = {
+        # Use Pelican's default settings and override with our config
+        from pelican.settings import configure_settings
+        pelican_settings = configure_settings({
             'AUTHOR': pelican_config.get('author', 'Unknown Author'),
             'SITENAME': pelican_config.get('sitename', 'My Site'),  
             'SITEURL': pelican_config.get('site_url', ''),
-            'TIMEZONE': pelican_config.get('timezone', 'UTC'),
-            'DEFAULT_LANG': pelican_config.get('default_lang', 'en'),
             'PATH': 'content',
             'OUTPUT_PATH': site_config.get('output_dir', 'output')
-        }
+        })
         
         pelican_instance = pelican.Pelican(pelican_settings)
         pelican_instance.run()
         click.echo("✓ Pelican generation completed successfully!")
     except Exception as e:
+        import traceback
         click.echo(f"✗ Pelican generation failed: {e}")
+        click.echo(f"Full traceback: {traceback.format_exc()}")
         ctx.exit(1)
 
     click.echo("Build completed successfully!")
