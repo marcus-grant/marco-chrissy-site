@@ -1,5 +1,29 @@
 # Marco & Chrissy's Website - TODO
 
+## 🚨 CRITICAL ISSUES - FIX BEFORE MERGE
+
+### Build Command Integration Breakage
+The build command implementation is completely broken after attempting to replace subprocess calls with direct galleria module imports. **This PR is not ready for merge.**
+
+**Issues created:**
+- Build command fails in real usage due to incomplete Pelican configuration 
+- All 9 unit tests in `test/unit/cli/test_build.py` are skipped (broken mock patterns)
+- E2E test for build workflow is skipped due to Pelican setup errors
+- Pelican integration needs proper theme system, content directories, and required settings
+- Mock patterns need complete rewrite to match new import structure
+
+**Impact:**
+- `uv run site build` command is broken for actual usage
+- Test coverage gap leaves integration untested
+- Configuration system incomplete for Pelican workflow
+
+**Next developer must:**
+1. Fix Pelican configuration in build command (settings, themes, content structure)
+2. Rewrite all unit test mocks for new direct import pattern 
+3. Complete E2E test to verify full workflow
+4. Test actual build command usage end-to-end
+5. Remove skip decorators only after fixing underlying issues
+
 ## MVP Roadmap
 
 ### Phase 1: Galleria Development - ✅ COMPLETED
@@ -93,11 +117,20 @@
   - [x] Replace hard-coded paths with config-driven orchestration
   - [x] Integrate with galleria CLI using proper config files
 
-**Final Integration and Documentation** ✅ COMPLETED
+**Final Integration and Documentation** 🚧 BROKEN - NEEDS MAJOR FIXES
 - [x] Unskip E2E test: Verify complete config workflow integration
   - [x] Remove `@pytest.mark.skip` from E2E config integration test
   - [x] Run E2E test to validate complete config system workflow
   - [x] Fix any remaining integration issues discovered by E2E test
+- [ ] **CRITICAL: Fix build command galleria integration breakage**
+  - [ ] Build command replaced subprocess calls with direct imports but broke everything
+  - [ ] All 9 unit tests in `test/unit/cli/test_build.py` are skipped (broken mocks)
+  - [ ] E2E test `test_build_uses_galleria_module_not_subprocess` is skipped (Pelican errors)
+  - [ ] Build command now fails with real usage due to Pelican configuration issues
+  - [ ] Need to fix Pelican settings - missing THEME, IGNORE_FILES, DELETE_OUTPUT_DIRECTORY
+  - [ ] Need to create proper content directory structure for Pelican
+  - [ ] Need to fix all mocking in unit tests to match new direct import pattern
+  - [ ] Need to complete E2E test to actually verify the integration works
 - [ ] Production config files: Create actual config files for wedding site
   - [ ] `config/site.json` - Production orchestration settings
   - [ ] `config/normpic.json` - Wedding photo organization settings

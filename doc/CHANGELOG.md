@@ -2,6 +2,18 @@
 
 ## 2025-11-27
 
+### 🚨 Build Command Integration Failure
+
+* **CRITICAL: Build command broken after galleria integration attempt**
+  * Replaced subprocess calls to galleria CLI with direct Python module imports
+  * Build command now fails due to incomplete Pelican configuration setup
+  * Missing required Pelican settings: THEME, IGNORE_FILES, DELETE_OUTPUT_DIRECTORY
+  * Pelican needs proper content directory structure and theme system
+  * All 9 unit tests in test/unit/cli/test_build.py are skipped (broken mock patterns)
+  * E2E test test_build_uses_galleria_module_not_subprocess is skipped (Pelican errors)
+  * **IMPACT: `uv run site build` command unusable, test coverage gap**
+  * **STATUS: PR not ready for merge - requires major fixes**
+
 ### Unified Configuration System Completion
 
 * **Complete JSON schema validation for all config types**
