@@ -103,13 +103,13 @@
   - [ ] `config/normpic.json` - Wedding photo organization settings
   - [ ] `config/pelican.json` - Site generation configuration
   - [ ] `config/galleria.json` - Wedding gallery configuration
-- [ ] Documentation updates (before each commit):
-  - [ ] Update `doc/TODO.md` with completed items (mark with [x])
-  - [ ] Update `doc/CHANGELOG.md` with implementation details and dates
-  - [ ] Create `doc/configuration.md` - Config system usage guide
-  - [ ] Create `doc/modules/serializer.md` - Serializer module documentation
-  - [ ] Update `doc/architecture.md` with config architecture details
-  - [ ] Update `doc/workflow.md` with config file examples and usage
+- [x] Documentation updates (before each commit):
+  - [x] Update `doc/TODO.md` with completed items (mark with [x])
+  - [x] Update `doc/CHANGELOG.md` with implementation details and dates
+  - [x] Create `doc/configuration.md` - Config system usage guide
+  - [x] Create `doc/modules/serializer.md` - Serializer module documentation
+  - [x] Update `doc/architecture.md` with config architecture details
+  - [x] Update `doc/workflow.md` with config file examples and usage
 
 #### 2.4: Pelican + Galleria Integration (Plugin-Based)
 - [ ] E2E test: Complete plugin-based gallery generation workflow (`test/e2e/`)
