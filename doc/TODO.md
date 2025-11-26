@@ -115,6 +115,12 @@
 
 ### Near-term Optimizations
 
+- [ ] **E2E test performance optimization**
+  - [ ] Fix 16+ second subprocess startup time in E2E tests (unacceptable)
+  - [ ] Replace subprocess calls with direct function calls in E2E tests
+  - [ ] Mock heavy dependencies (NormPic imports, PIL) for faster test execution
+  - [ ] Consider pytest-xdist for parallel test execution
+  - [ ] Investigate uv run startup overhead with large dependency trees
 - [ ] Comprehensive error handling improvements
   - [ ] Manifest plugin errors (missing files, invalid JSON, version mismatches)
   - [ ] Processor plugin errors (missing photos, corrupted files, permissions)

@@ -3,7 +3,6 @@
 import json
 from pathlib import Path
 
-import pytest
 from click.testing import CliRunner
 from pyfakefs.fake_filesystem import FakeFilesystem
 from pyfakefs.fake_filesystem_unittest import Patcher
@@ -21,26 +20,27 @@ class TestGalleriaCLIE2E:
             fs: FakeFilesystem = patcher.fs
 
             # Create fake photo files with realistic content
-            from PIL import Image
             import io
-            
+
+            from PIL import Image
+
             fs.create_dir("/fake/photos")
             photo_data = []
             for i in range(3):
                 photo_path = f"/fake/photos/wedding_{i:03d}.jpg"
-                
+
                 # Create a simple colored image
                 color = (255 - i * 50, i * 50, 100 + i * 30)  # Different RGB for each
                 test_img = Image.new('RGB', (100, 100), color)
-                
+
                 # Save to bytes buffer
                 img_buffer = io.BytesIO()
                 test_img.save(img_buffer, format='JPEG')
                 img_bytes = img_buffer.getvalue()
-                
+
                 # Create fake file with real JPEG data
                 fs.create_file(photo_path, contents=img_bytes)
-                
+
                 photo_data.append({
                     "path": photo_path,
                     "size": len(img_bytes)

@@ -1,10 +1,11 @@
 """Main CLI entry point for site command."""
 
 import click
-from .commands.validate import validate
-from .commands.organize import organize
+
 from .commands.build import build
 from .commands.deploy import deploy
+from .commands.organize import organize
+from .commands.validate import validate
 
 
 @click.group()

@@ -1,11 +1,11 @@
 """Shared pytest fixtures for all tests."""
 
-import pytest
-import tempfile
 import json
-import os
+import tempfile
 from pathlib import Path
-from typing import Dict, Any, Optional
+from typing import Any
+
+import pytest
 
 
 @pytest.fixture
@@ -19,9 +19,9 @@ def temp_filesystem():
 def file_factory(temp_filesystem):
     """Factory for creating files in temporary filesystem."""
     def _create_file(
-        relative_path: str, 
-        content: Optional[str] = None,
-        json_content: Optional[Dict[str, Any]] = None
+        relative_path: str,
+        content: str | None = None,
+        json_content: dict[str, Any] | None = None
     ) -> Path:
         """Create a file with given content.
         
@@ -34,19 +34,19 @@ def file_factory(temp_filesystem):
             Path to created file
         """
         file_path = temp_filesystem / relative_path
-        
+
         # Ensure parent directories exist
         file_path.parent.mkdir(parents=True, exist_ok=True)
-        
+
         if json_content is not None:
             file_path.write_text(json.dumps(json_content, indent=2))
         elif content is not None:
             file_path.write_text(content)
         else:
             file_path.touch()  # Create empty file
-            
+
         return file_path
-    
+
     return _create_file
 
 
@@ -65,7 +65,7 @@ def directory_factory(temp_filesystem):
         dir_path = temp_filesystem / relative_path
         dir_path.mkdir(parents=True, exist_ok=True)
         return dir_path
-    
+
     return _create_directory
 
 
@@ -74,7 +74,7 @@ def config_file_factory(file_factory):
     """Factory for creating config files with standard content."""
     def _create_config(
         config_name: str,
-        custom_content: Optional[Dict[str, Any]] = None
+        custom_content: dict[str, Any] | None = None
     ) -> Path:
         """Create a config file with default or custom content.
         
@@ -95,7 +95,7 @@ def config_file_factory(file_factory):
                 }
             },
             "normpic": {
-                "input_dir": "photos", 
+                "input_dir": "photos",
                 "output_dir": "organized",
                 "manifest_file": "manifest.json"
             },
@@ -112,17 +112,17 @@ def config_file_factory(file_factory):
                 "css": {"plugin": "basic-css"}
             }
         }
-        
+
         content = custom_content or defaults.get(config_name, {})
         return file_factory(f"config/{config_name}.json", json_content=content)
-    
+
     return _create_config
 
 
 @pytest.fixture
 def full_config_setup(config_file_factory, directory_factory):
     """Create a complete config directory setup with all required files."""
-    def _setup_configs(custom_configs: Optional[Dict[str, Dict[str, Any]]] = None):
+    def _setup_configs(custom_configs: dict[str, dict[str, Any]] | None = None):
         """Create all required config files.
         
         Args:
@@ -132,17 +132,17 @@ def full_config_setup(config_file_factory, directory_factory):
             Dict of {config_name: Path} for all created configs
         """
         custom_configs = custom_configs or {}
-        
+
         # Ensure config directory exists
         directory_factory("config")
-        
+
         configs = {}
         for config_name in ["site", "normpic", "pelican", "galleria"]:
             configs[config_name] = config_file_factory(
-                config_name, 
+                config_name,
                 custom_configs.get(config_name)
             )
-        
+
         return configs
-    
+
     return _setup_configs

@@ -1,9 +1,8 @@
 """E2E tests for site validate command."""
 
 import subprocess
+
 import pytest
-import json
-from pyfakefs.fake_filesystem_unittest import Patcher
 
 
 class TestSiteValidate:
@@ -13,7 +12,7 @@ class TestSiteValidate:
         """Test that validate command checks for required config files."""
         # Set up all required config files
         full_config_setup()
-        
+
         # Run validate command from temp directory
         result = subprocess.run(
             ["uv", "run", "site", "validate"],
@@ -21,7 +20,7 @@ class TestSiteValidate:
             text=True,
             cwd=str(temp_filesystem)
         )
-        
+
         assert result.returncode == 0
         assert "config files found" in result.stdout.lower()
 
