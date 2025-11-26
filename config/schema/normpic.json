@@ -1,0 +1,26 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "title": "NormPic Configuration Schema",
+  "properties": {
+    "source_dir": {
+      "type": "string",
+      "description": "Source directory containing photos to organize"
+    },
+    "dest_dir": {
+      "type": "string", 
+      "description": "Destination directory for organized photos"
+    },
+    "collection_name": {
+      "type": "string",
+      "description": "Name of the photo collection"
+    },
+    "create_symlinks": {
+      "type": "boolean",
+      "description": "Whether to create symbolic links",
+      "default": true
+    }
+  },
+  "required": ["source_dir", "dest_dir", "collection_name"],
+  "additionalProperties": false
+}
