@@ -31,13 +31,13 @@
 - [x] Implement `uv run site` command with subcommands
   - [x] `site validate` - Pre-flight checks (config file validation implemented)
   - [x] `site organize` - NormPic orchestration (real integration implemented)
-  - [ ] `site build` - Galleria + Pelican generation (calls organize if needed)
-    - [ ] E2E test: Complete build pipeline with fake filesystem and images
-    - [ ] Unit tests: Build command integration (organize cascade, galleria CLI calls)
-    - [ ] Centralize fake image generation into shared fixtures
-    - [ ] Implement build command with galleria and pelican integration
-    - [ ] Verify BeautifulSoup validation of generated HTML content
-    - [ ] Test idempotent behavior (trust galleria's internal change detection)
+  - [x] `site build` - Galleria + Pelican generation (calls organize if needed)
+    - [x] E2E test: Complete build pipeline with fake filesystem and images
+    - [x] Unit tests: Build command integration (organize cascade, Python modules)
+    - [x] Centralize fake image generation into shared fixtures
+    - [x] Implement build command with galleria and pelican integration
+    - [x] Verify BeautifulSoup validation of generated HTML content
+    - [x] Test idempotent behavior (trust galleria's internal change detection)
   - [ ] `site deploy` - Bunny CDN upload (calls build if needed)
 - [ ] Each command checks if work already done and skips unnecessary operations
 

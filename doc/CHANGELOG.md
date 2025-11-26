@@ -2,6 +2,27 @@
 
 ## 2025-11-26
 
+### Phase 2 Build Command Implementation
+
+* **Complete build command TDD implementation**
+  * Create comprehensive E2E test with fake filesystem and BeautifulSoup HTML validation
+  * Add 8 unit tests covering organize cascade, galleria/pelican integration, error handling
+  * Implement cli/commands/build.py following organize command patterns
+  * Use direct Python module imports (galleria.generate(), pelican.Pelican()) not CLI subprocess
+  * Add proper error handling and user progress output for each pipeline stage
+
+* **Test infrastructure improvements**
+  * Centralize fake image generation into shared fake_image_factory fixture
+  * Support both raw JPEG bytes (NormPic tests) and PIL images (Galleria tests)
+  * Add BeautifulSoup dependency for HTML content validation in E2E tests
+  * Update existing organize tests to use centralized image fixtures
+
+* **Development workflow documentation**
+  * Add mandatory Code Quality Workflow section to CONTRIBUTE.md
+  * Document critical ruff → test → commit sequence to prevent logic breakage
+  * Update Testing Requirements with ruff-first workflow references
+  * Emphasize always testing after automatic formatting to catch edge cases
+
 ## 2025-11-25
 
 ### Phase 2 Organize Command Implementation

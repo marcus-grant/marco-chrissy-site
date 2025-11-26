@@ -20,11 +20,12 @@ The marco-chrissy-site project follows a modular, loosely-coupled architecture w
 - **Continuous integration**: Test suite remains passing throughout development
 - **Skip pattern**: New features start with skipped E2E tests until implementation complete
 
-### No Tight Coupling
-- Components communicate through files and manifests
-- No direct imports between tools
-- Configuration-driven behavior
-- Clear data contracts (JSON manifests)
+### Loose Coupling with Python Module Integration
+- **Extractable Modules**: NormPic already split out, Galleria designed for post-MVP extraction
+- **Python Package Imports**: Use `import galleria` and `import pelican` for better error handling
+- **Independent Development**: Each module can be developed, tested, and versioned separately
+- **Configuration-driven**: All tools configured via JSON manifests and config files
+- **Clear APIs**: Well-defined function interfaces enable easy package boundary changes
 
 ### Module Organization
 Following functional organization patterns:
@@ -48,16 +49,20 @@ Photos (source) -> NormPic -> Organized Photos + Manifest
                                Static Site -> CDN
 ```
 
-### Planned (Phase 2): 4-Stage Pipeline
+### Current (Phase 2): 4-Stage Pipeline Implementation
 ```
 site validate -> site organize -> site build -> site deploy
      |               |              |            |
 Pre-flight      NormPic       Galleria +    Bunny CDN
-  checks      orchestration   Pelican      (dual bucket)
-                             integration
+  checks    (import normpic)  (import galleria)  (planned)
+                              (import pelican)
 ```
 
-Each stage is idempotent and automatically calls predecessors if needed.
+**Implementation Details:**
+- **Cascading calls**: Each stage calls only its immediate predecessor
+- **Python integration**: Direct module imports for better error handling and performance
+- **Idempotent behavior**: Commands skip work if output already exists
+- **Extractable design**: Galleria module prepared for post-MVP package extraction
 
 ## Directory Structure
 

@@ -71,7 +71,28 @@ uv run site validate
 
 # Each stage checks dependencies automatically
 uv run site build  # Calls organize and validate if needed
+
+# Build creates complete site with galleries and pages
+uv run site build  # organize → galleria → pelican integration
 ```
+
+### Build Command Integration
+
+The `uv run site build` command orchestrates the complete site generation:
+
+1. **Automatic cascade**: Calls `organize` (which calls `validate`)
+2. **Gallery generation**: Uses galleria Python module to create galleries
+3. **Site generation**: Uses pelican Python module to create site pages  
+4. **Output integration**: Combines all outputs into unified structure
+
+**Expected output after build:**
+```
+output/
+├── pics/           # Organized photos (from organize/NormPic)
+├── galleries/      # Gallery HTML/CSS/thumbnails (from galleria)  
+│   └── wedding/    # Gallery pages: page_1.html, etc.
+├── about/          # Site pages (from pelican)
+└── index.html      # Site root (from pelican)
 
 ## Workflow Steps
 
