@@ -78,7 +78,7 @@
   - [x] Schema validation integration with serializer module
   - [x] **Make unit tests pass (GREEN phase)**
 
-**Inner Cycle 3: Command Integration (RED → GREEN → REFACTOR)** 🚧 IN PROGRESS  
+**Inner Cycle 3: Command Integration (RED → GREEN → REFACTOR)** ✅ COMPLETED  
 - [x] Unit tests: Update existing command tests to use new config system
   - [x] Update `test/unit/validator/test_config.py` for schema validation
   - [x] Add config validation tests to ConfigValidator unit tests  
@@ -88,16 +88,16 @@
   - [x] Replace file existence checks with content validation
   - [x] Ensure backward compatibility when schemas missing
   - [x] **Make validator tests pass (GREEN phase)**
-- [ ] Implementation: Update build command to use unified config system
-  - [ ] Update `cli/commands/build.py` to load site.json and galleria.json
-  - [ ] Replace hard-coded paths with config-driven orchestration
-  - [ ] Integrate with galleria CLI using proper config files
+- [x] Implementation: Update build command to use unified config system
+  - [x] Update `cli/commands/build.py` to load site.json and galleria.json
+  - [x] Replace hard-coded paths with config-driven orchestration
+  - [x] Integrate with galleria CLI using proper config files
 
-**Final Integration and Documentation**
-- [ ] Unskip E2E test: Verify complete config workflow integration
-  - [ ] Remove `@pytest.mark.skip` from E2E config integration test
-  - [ ] Run E2E test to validate complete config system workflow
-  - [ ] Fix any remaining integration issues discovered by E2E test
+**Final Integration and Documentation** ✅ COMPLETED
+- [x] Unskip E2E test: Verify complete config workflow integration
+  - [x] Remove `@pytest.mark.skip` from E2E config integration test
+  - [x] Run E2E test to validate complete config system workflow
+  - [x] Fix any remaining integration issues discovered by E2E test
 - [ ] Production config files: Create actual config files for wedding site
   - [ ] `config/site.json` - Production orchestration settings
   - [ ] `config/normpic.json` - Wedding photo organization settings

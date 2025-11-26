@@ -19,6 +19,21 @@
   * Provide detailed error messages for validation failures with field context
   * Add unit tests for both valid and invalid config validation scenarios
 
+* **Build command integration with unified config system**
+  * Update cli/commands/build.py to load site.json and galleria.json configurations
+  * Replace hard-coded galleria.generate() calls with proper CLI subprocess invocation
+  * Use config-driven output paths from site.json for idempotent behavior checks
+  * Create temporary galleria config files for CLI integration while maintaining extraction-ready design
+  * Integrate with galleria CLI using proper config file format matching schemas
+
+* **Complete E2E test validation and system integration**
+  * Remove @pytest.mark.skip from all config integration E2E tests
+  * Fix config formats in tests to match implemented JSON schemas
+  * Add schema file copying to temp filesystems in all E2E test scenarios
+  * Update galleria config format from pipeline structure to manifest_path/output_dir format
+  * All 4 E2E config integration tests now pass: valid configs, schema errors, missing files, JSON corruption
+  * Unified configuration architecture fully functional and comprehensively tested
+
 ## 2025-11-26
 
 ### Phase 2 Build Command Implementation
