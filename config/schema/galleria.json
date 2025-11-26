@@ -1,0 +1,53 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Galleria Configuration",
+  "description": "Configuration for Galleria gallery generator - designed for extraction as standalone package",
+  "type": "object",
+  "properties": {
+    "manifest_path": {
+      "type": "string",
+      "description": "Path to NormPic manifest JSON file",
+      "examples": ["/home/user/Photos/wedding/manifest.json", "output/pics/full/manifest.json"]
+    },
+    "output_dir": {
+      "type": "string",
+      "description": "Output directory for generated gallery",
+      "examples": ["output/galleries/wedding", "galleries"]
+    },
+    "thumbnail_size": {
+      "type": "integer",
+      "minimum": 100,
+      "maximum": 1000,
+      "default": 400,
+      "description": "Size of generated thumbnails in pixels (square)"
+    },
+    "photos_per_page": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 500,
+      "default": 60,
+      "description": "Number of photos per gallery page"
+    },
+    "theme": {
+      "type": "string",
+      "default": "minimal",
+      "description": "Gallery theme name",
+      "examples": ["minimal", "elegant", "modern"]
+    },
+    "quality": {
+      "type": "integer",
+      "minimum": 10,
+      "maximum": 100,
+      "default": 85,
+      "description": "JPEG quality for thumbnails (1-100)"
+    },
+    "layout": {
+      "type": "string",
+      "default": "grid",
+      "enum": ["grid", "flex"],
+      "description": "Gallery layout type"
+    }
+  },
+  "required": ["manifest_path", "output_dir"],
+  "additionalProperties": false
+}

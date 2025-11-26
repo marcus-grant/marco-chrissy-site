@@ -1,0 +1,43 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Pelican Configuration",
+  "description": "Configuration for Pelican static site generator",
+  "type": "object",
+  "properties": {
+    "theme": {
+      "type": "string",
+      "description": "Theme name for site generation",
+      "examples": ["minimal", "elegant", "modern"]
+    },
+    "site_url": {
+      "type": "string",
+      "format": "uri",
+      "description": "Base URL for the site",
+      "examples": ["https://example.com"]
+    },
+    "author": {
+      "type": "string",
+      "description": "Site author name",
+      "examples": ["Marco & Chrissy"]
+    },
+    "sitename": {
+      "type": "string",
+      "description": "Site title/name",
+      "examples": ["Marco & Chrissy's Wedding"]
+    },
+    "timezone": {
+      "type": "string",
+      "description": "Site timezone",
+      "default": "UTC",
+      "examples": ["America/New_York", "UTC"]
+    },
+    "default_lang": {
+      "type": "string",
+      "description": "Default language code",
+      "default": "en",
+      "examples": ["en", "es", "fr"]
+    }
+  },
+  "required": ["theme", "site_url", "author", "sitename"],
+  "additionalProperties": true
+}
