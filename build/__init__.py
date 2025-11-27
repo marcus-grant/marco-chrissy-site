@@ -9,5 +9,6 @@ from .exceptions import BuildError, ConfigError, GalleriaError, PelicanError
 from .config_manager import ConfigManager
 from .galleria_builder import GalleriaBuilder
 from .pelican_builder import PelicanBuilder
+from .orchestrator import BuildOrchestrator
 
-__all__ = ["BuildError", "ConfigError", "GalleriaError", "PelicanError", "ConfigManager", "GalleriaBuilder", "PelicanBuilder"]
+__all__ = ["BuildError", "ConfigError", "GalleriaError", "PelicanError", "ConfigManager", "GalleriaBuilder", "PelicanBuilder", "BuildOrchestrator"]
