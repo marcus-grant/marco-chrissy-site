@@ -1,42 +1,31 @@
 # Marco & Chrissy's Website - TODO
 
-## 🚨 CRITICAL ISSUES - FIX BEFORE MERGE
+## Next Immediate Tasks
 
-### Build Command Integration Breakage
+### Fix Remaining Pytest Errors and Skips
 
-The build command implementation is completely broken after attempting to replace subprocess calls with direct galleria module imports. **This PR is not ready for merge.**
+**Plan Step Recommended:**
+1. Run full test suite to identify all failing/skipped tests
+2. Categorize errors: unit test mocks, E2E test expectations, missing implementations
+3. Fix unit test mocking patterns for new orchestrator architecture
+4. Update/unskip E2E tests that were broken by refactoring
+5. Address any remaining test infrastructure issues
+6. Ensure 100% test suite passes before documentation and PR
 
-**Issues created:**
+**Implementation Plan:**
+- [ ] Run `uv run pytest` to get complete test status report
+- [ ] Fix unit test mocking in `test/unit/cli/test_build.py` for orchestrator pattern
+- [ ] Update any remaining E2E tests with incorrect expectations  
+- [ ] Remove skip decorators from tests that should now work
+- [ ] Verify all build module tests pass (ConfigManager, GalleriaBuilder, PelicanBuilder, BuildOrchestrator)
+- [ ] Test actual `uv run site build` command end-to-end manually
+- [ ] Document any test changes in CHANGELOG
 
-- Build command fails in real usage due to incomplete Pelican configuration
-- All 9 unit tests in `test/unit/cli/test_build.py` are skipped (broken mock patterns)
-- E2E test for build workflow is skipped due to Pelican setup errors
-- Pelican integration needs proper theme system, content directories, and required settings
-- Mock patterns need complete rewrite to match new import structure
-
-**Impact:**
-
-- `uv run site build` command is broken for actual usage
-- Test coverage gap leaves integration untested
-- Configuration system incomplete for Pelican workflow
-
-**Next developer must:**
-
-1. Fix Pelican configuration in build command (settings, themes, content structure)
-2. Rewrite all unit test mocks for new direct import pattern
-3. Complete E2E test to verify full workflow
-4. Test actual build command usage end-to-end
-5. Remove skip decorators only after fixing underlying issues
-
-**What we learned about Pelican requirements:**
-
-- Pelican constructor requires a settings dict with ALL_CAPS keys
-- Required settings: THEME, IGNORE_FILES, DELETE_OUTPUT_DIRECTORY (and others discovered during debugging)
-- Must use `pelican.settings.configure_settings()` to get defaults rather than manual dict
-- Needs existing content directory that `configure_settings()` can validate
-- Theme must be valid theme name or path to existing theme directory
-- Current pelican.json schema is insufficient - missing many required fields
-- Pelican API is much more complex than initially assumed
+**Next Steps After Test Fixes:**
+- [ ] Update documentation for major orchestrator refactoring changes
+- [ ] Push new PR with clean, passing test suite
+- [ ] Work on serve command E2E tests
+- [ ] Work on serve command unit tests
 
 ## MVP Roadmap
 
@@ -170,67 +159,6 @@ The build command implementation is completely broken after attempting to replac
   - [x] Create `doc/modules/serializer.md` - Serializer module documentation
   - [x] Update `doc/architecture.md` with config architecture details
   - [x] Update `doc/workflow.md` with config file examples and usage
-
-#### 2.3.5: Build Command Orchestrator Refactoring 🚧 IN PROGRESS
-
-**Problem:** Build command has become a "god function" - 167 lines with multiple responsibilities, difficult testing, mixed CLI/business logic.
-
-**Solution:** Extract business logic into dedicated orchestrator and builder classes.
-
-**TDD Implementation Plan** - Incremental refactoring with full test coverage
-
-**IMPORTANT:** Each top-level task below should be its own focused commit (200-300 lines max). Follow the commit workflow: write tests → implement → refactor → commit.
-
-**Phase 1: Create Core Architecture**
-
-- [x] **Commit 1: Create build module structure and exceptions** COMPLETED
-  - [x] `build/__init__.py` - Package initialization  
-  - [x] `build/exceptions.py` - Custom build exceptions (`BuildError`, `ConfigError`, `GalleriaError`, `PelicanError`)
-  - [x] Unit tests for exception hierarchy
-  - [x] **Single commit** after tests pass
-
-- [ ] **Commit 2: Create ConfigManager**
-  - [ ] Unit tests: Load all configs, validation, error scenarios
-  - [ ] `build/config_manager.py` - Unified config loading with proper error handling
-  - [ ] **Single commit** after tests pass
-  
-- [ ] **Commit 3: Create GalleriaBuilder** 
-  - [ ] Unit tests: Pipeline setup, execution, error handling
-  - [ ] `build/galleria_builder.py` - Extract galleria logic from build command
-  - [ ] **Single commit** after tests pass
-
-- [ ] **Commit 4: Create PelicanBuilder**
-  - [ ] Unit tests: Configuration merging, execution, theme validation
-  - [ ] `build/pelican_builder.py` - Extract pelican logic from build command  
-  - [ ] **Single commit** after tests pass
-
-**Phase 2: Main Orchestrator**
-
-- [ ] **Commit 5: Create BuildOrchestrator**
-  - [ ] Unit tests: Coordination, idempotent behavior, error propagation
-  - [ ] `build/orchestrator.py` - Main orchestration class
-  - [ ] **Single commit** after tests pass
-
-**Phase 3: Refactor Build Command**
-
-- [ ] **Commit 6: Update build command to use orchestrator**
-  - [ ] Replace 167-line function with simple orchestrator call
-  - [ ] Update existing unit tests to mock BuildOrchestrator instead of multiple dependencies
-  - [ ] **Single commit** after all tests pass
-
-**Phase 4: Integration Testing**
-
-- [ ] **Commit 7: Fix E2E test and remove skip decorators**
-  - [ ] Update E2E test for new architecture
-  - [ ] Fix thumbnail generation issue
-  - [ ] Remove skip decorators from working tests
-  - [ ] **Single commit** after E2E test passes
-
-**Benefits:**
-- **Testability**: Mock 1 class instead of 4+ dependencies per test
-- **Reusability**: BuildOrchestrator can be called from non-CLI contexts  
-- **Single Responsibility**: Each class has one clear job
-- **Maintainability**: Business logic separated from CLI presentation
 
 #### 2.4: Pelican + Galleria Integration (Plugin-Based)
 
