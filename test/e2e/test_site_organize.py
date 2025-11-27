@@ -14,7 +14,7 @@ class TestSiteOrganize:
 
     def test_organize_complete_workflow(self, temp_filesystem, full_config_setup, fake_image_factory):
         """Test complete organize workflow: validation, organization, manifest, and idempotency."""
-        
+
         # Setup: Create source directory with test photos using fixture
         source_dir = temp_filesystem / "source_photos"
         fake_image_factory("IMG_001.jpg", directory="source_photos", use_raw_bytes=True)
@@ -25,7 +25,7 @@ class TestSiteOrganize:
             "normpic": {
                 "source_dir": str(source_dir),
                 "dest_dir": str(temp_filesystem / "output" / "pics" / "full"),
-                "collection_name": "wedding", 
+                "collection_name": "wedding",
                 "collection_description": "Test wedding photos",
                 "create_symlinks": True
             }
@@ -43,14 +43,14 @@ class TestSiteOrganize:
         # Assert: Command succeeded and shows expected workflow
         assert result1.exit_code == 0, f"Initial organize failed: {result1.output}"
         assert "validation" in result1.output.lower(), "Should show validation cascade"
-        assert "normpic" in result1.output.lower(), "Should show NormPic orchestration" 
+        assert "normpic" in result1.output.lower(), "Should show NormPic orchestration"
         assert "manifest" in result1.output.lower(), "Should show manifest generation"
         assert "processed" in result1.output.lower(), "Should show photos processed"
 
         # Assert: Files and directories created correctly
         manifest_path = temp_filesystem / "output" / "pics" / "full" / "manifest.json"
         photos_dir = temp_filesystem / "output" / "pics" / "full"
-        
+
         assert manifest_path.exists(), f"Manifest not created at {manifest_path}"
         assert photos_dir.exists(), f"Photos directory not created at {photos_dir}"
 
@@ -101,7 +101,7 @@ class TestSiteOrganize:
         # Assert: Second run skips work (idempotent)
         assert result2.exit_code == 0, f"Idempotent run failed: {result2.output}"
         assert "validation" in result2.output.lower(), "Should still run validation"
-        assert ("already organized" in result2.output.lower() or 
+        assert ("already organized" in result2.output.lower() or
                 "skipping" in result2.output.lower()), "Should skip organization work"
 
         # Assert: Manifest unchanged after idempotent run

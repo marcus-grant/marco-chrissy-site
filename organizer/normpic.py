@@ -4,6 +4,9 @@ import json
 from dataclasses import dataclass
 from pathlib import Path
 
+from serializer.exceptions import ConfigLoadError, ConfigValidationError
+from serializer.json import JsonConfigLoader
+
 try:
     from normpic import Config, Manifest, Pic, organize_photos
     NORMPIC_AVAILABLE = True
@@ -35,7 +38,7 @@ class NormPicOrganizer:
                  collection_name: str = None,
                  create_symlinks: bool = None):
         """Initialize NormPic organizer.
-        
+
         Args:
             config_dir: Path to config directory (defaults to ./config)
             source_dir: Override source directory from config
@@ -59,7 +62,7 @@ class NormPicOrganizer:
 
     def is_already_organized(self) -> bool:
         """Check if photos are already organized for current configuration.
-        
+
         Returns:
             True if manifest exists and is up to date, False otherwise
         """
@@ -97,7 +100,7 @@ class NormPicOrganizer:
 
     def organize_photos(self) -> OrganizeResult:
         """Orchestrate NormPic to organize photos.
-        
+
         Returns:
             OrganizeResult with success status and any errors
         """
@@ -151,18 +154,29 @@ class NormPicOrganizer:
             )
 
     def _load_config(self) -> dict:
-        """Load NormPic configuration from config file.
-        
+        """Load NormPic configuration using unified config system.
+
         Returns:
-            Configuration dictionary
+            Configuration dictionary with schema validation
         """
         config_file = self.config_dir / "normpic.json"
 
-        if not config_file.exists():
-            return {}
-
+        # Load schema for validation
+        schema_file = Path("config/schema/normpic.json")
         try:
-            with open(config_file) as f:
-                return json.load(f)
-        except (OSError, json.JSONDecodeError):
+            schema_loader = JsonConfigLoader()
+            schema = schema_loader.load_config(schema_file)
+        except ConfigLoadError:
+            # Fall back to no schema validation if schema file missing
+            schema = None
+
+        # Load config with schema validation
+        try:
+            config_loader = JsonConfigLoader(schema=schema)
+            return config_loader.load_config(config_file)
+        except ConfigLoadError:
+            # Config file doesn't exist, return defaults
             return {}
+        except ConfigValidationError:
+            # Config file exists but is invalid, re-raise for caller to handle
+            raise

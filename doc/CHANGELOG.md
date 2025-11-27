@@ -1,5 +1,105 @@
 # Changelog
 
+## 2025-11-27
+
+### Build Command Integration FIXED + Build Orchestrator Refactoring COMPLETED + Documentation Updates
+
+* **COMPLETED: Pelican integration issues resolved**
+  * Fixed build command Pelican configuration to use proper pelican.settings.configure_settings()
+  * Updated pelican.json schema with all required Pelican settings (THEME, IGNORE_FILES, DELETE_OUTPUT_DIRECTORY, etc.)
+  * Use DEFAULT_CONFIG.copy() as base and override with our specific settings
+  * Added proper content directory creation and theme validation
+  * Core Pelican functionality now working - E2E test shows successful build pipeline
+  * Galleria integration remains solid with direct module imports and plugin system
+
+* **COMPLETED: Build orchestrator refactoring successfully finished**
+  * Problem SOLVED: Build command was "god function" (195 lines, multiple responsibilities)
+  * Solution IMPLEMENTED: Extracted business logic into dedicated orchestrator and builder classes
+  * Results ACHIEVED: 
+    - 77% code reduction: Build command reduced from 195 to 45 lines
+    - Perfect testability: Mock 1 class instead of 4+ dependencies per test
+    - Full reusability: BuildOrchestrator callable from non-CLI contexts
+    - Single responsibility: Each class has one clear job
+    - Maintainability: Business logic completely separated from CLI presentation
+  * Implementation: 7-commit incremental refactoring using strict TDD approach
+    - Commit 2: ConfigManager - Unified config loading (5 tests, 100% coverage)
+    - Commit 3: GalleriaBuilder - Galleria pipeline extraction (3 tests, 100% coverage)
+    - Commit 4: PelicanBuilder - Pelican generation extraction (3 tests, 100% coverage)  
+    - Commit 5: BuildOrchestrator - Main coordination class (3 tests, 100% coverage)
+    - Commit 6: Refactored build command - Simple orchestrator call (-157 lines deleted)
+    - Commit 7: E2E test updated and passing - Complete workflow verified
+    - Commit 8: Unit test fixes - Updated all 9 build unit tests for orchestrator pattern (0 skipped, 9 passing)
+
+* **Commit 1 COMPLETED: Build module structure and exceptions**
+  * Created build/ package for orchestration functionality
+  * Added BuildError base exception with ConfigError, GalleriaError, PelicanError subclasses
+  * Implemented proper exception hierarchy with inheritance and chaining support
+  * Full unit test coverage for exception behavior
+
+* **COMPLETED: Comprehensive documentation updates for orchestrator refactoring**
+  * Created complete build module documentation (doc/modules/build/)
+    - BuildOrchestrator usage and API reference
+    - ConfigManager unified config loading guide  
+    - GalleriaBuilder and PelicanBuilder integration patterns
+    - Build exception hierarchy documentation
+  * Updated architecture documentation (doc/architecture.md)
+    - Added Build Orchestrator Architecture section with benefits and structure
+    - Updated directory structure to reflect implemented build module
+    - Removed outdated "broken" status and added "completed" achievements
+  * Updated workflow documentation (doc/workflow.md) 
+    - Added orchestrator pattern benefits (77% code reduction, better testing)
+    - Updated build command integration section for new architecture
+  * Updated testing documentation (doc/testing.md)
+    - Added Build Module Testing Patterns section
+    - Documented simplified mocking (1 orchestrator vs 4+ dependencies)
+    - Added before/after testing pattern examples
+  * Updated TODO.md
+    - Removed completed orchestrator and test fixing tasks
+    - Cleaned up outdated configuration architecture tasks  
+    - Focused next immediate tasks on serve command implementation
+
+### Previous Build Command Integration Issues (RESOLVED)
+
+* **RESOLVED: Build command broken after galleria integration attempt**
+  * Galleria integration works: successfully uses PipelineManager, plugin registration, direct imports
+  * **Pelican integration FIXED**: All configuration issues resolved
+  * All required Pelican settings now handled properly
+  * Unit tests simplified with better mocking pattern (mock fewer dependencies)
+  * E2E test core functionality working (minor test assertions still being refined)
+  * **STATUS: Core functionality working, refactoring in progress for better architecture**
+
+### Unified Configuration System Completion
+
+* **Complete JSON schema validation for all config types**
+  * Add comprehensive unit tests for pelican.json and galleria.json schema validation
+  * Create config/schema/pelican.json with required fields: theme, site_url, author, sitename
+  * Create config/schema/galleria.json designed for extraction-ready galleria package
+  * Include optional fields like timezone, default_lang for pelican and thumbnail settings for galleria
+  * All schemas follow JSON Schema draft-07 standard with proper validation rules
+
+* **Enhanced ConfigValidator with schema validation**
+  * Update ConfigValidator to use JsonConfigLoader for actual content validation
+  * Replace simple file existence checks with comprehensive schema validation  
+  * Load schemas from config/schema/ directory and validate config content against them
+  * Maintain backward compatibility when schema files are missing
+  * Provide detailed error messages for validation failures with field context
+  * Add unit tests for both valid and invalid config validation scenarios
+
+* **Build command integration with unified config system**
+  * Update cli/commands/build.py to load site.json and galleria.json configurations
+  * Replace hard-coded galleria.generate() calls with proper CLI subprocess invocation
+  * Use config-driven output paths from site.json for idempotent behavior checks
+  * Create temporary galleria config files for CLI integration while maintaining extraction-ready design
+  * Integrate with galleria CLI using proper config file format matching schemas
+
+* **Complete E2E test validation and system integration**
+  * Remove @pytest.mark.skip from all config integration E2E tests
+  * Fix config formats in tests to match implemented JSON schemas
+  * Add schema file copying to temp filesystems in all E2E test scenarios
+  * Update galleria config format from pipeline structure to manifest_path/output_dir format
+  * All 4 E2E config integration tests now pass: valid configs, schema errors, missing files, JSON corruption
+  * Unified configuration architecture fully functional and comprehensively tested
+
 ## 2025-11-26
 
 ### Phase 2 Build Command Implementation

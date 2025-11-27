@@ -11,143 +11,171 @@ class TestBuildCommand:
     """Test build command functionality."""
 
     @patch('cli.commands.build.organize')
-    def test_build_calls_organize_cascade(self, mock_organize):
+    @patch('cli.commands.build.BuildOrchestrator')
+    def test_build_calls_organize_cascade(self, mock_orchestrator_class, mock_organize):
         """Test that build calls organize (which calls validate)."""
+        # Mock organize success
         mock_organize.return_value = Mock(exit_code=0)
 
-        with patch('cli.commands.build.galleria') as mock_galleria:
-            with patch('cli.commands.build.pelican.Pelican') as mock_pelican_class:
-                # Mock successful galleria and pelican runs
-                mock_galleria.generate.return_value = Mock(success=True)
-                mock_pelican_class.return_value = Mock()
+        # Mock orchestrator success
+        mock_orchestrator = Mock()
+        mock_orchestrator_class.return_value = mock_orchestrator
+        mock_orchestrator.execute.return_value = True
 
-                runner = CliRunner()
-                result = runner.invoke(build)
+        runner = CliRunner()
+        result = runner.invoke(build)
 
-                assert result.exit_code == 0
-                mock_organize.assert_called_once()
+        assert result.exit_code == 0
+        mock_organize.assert_called_once()
+        mock_orchestrator.execute.assert_called_once()
 
     @patch('cli.commands.build.organize')
-    @patch('cli.commands.build.galleria')
-    def test_build_runs_galleria_generation(self, mock_galleria_module, mock_organize):
-        """Test that build runs galleria generation via Python module."""
+    @patch('cli.commands.build.BuildOrchestrator')
+    def test_build_runs_orchestrator_execution(self, mock_orchestrator_class, mock_organize):
+        """Test that build runs the orchestrator to coordinate galleria and pelican."""
         mock_organize.return_value = Mock(exit_code=0)
 
-        # Mock galleria module functions
-        mock_galleria_module.generate.return_value = Mock(success=True)
+        # Mock orchestrator success
+        mock_orchestrator = Mock()
+        mock_orchestrator_class.return_value = mock_orchestrator
+        mock_orchestrator.execute.return_value = True
 
-        with patch('cli.commands.build.pelican.Pelican') as mock_pelican_class:
-            mock_pelican_class.return_value = Mock()
+        runner = CliRunner()
+        result = runner.invoke(build)
 
-            runner = CliRunner()
-            result = runner.invoke(build)
-
-            assert result.exit_code == 0
-            mock_galleria_module.generate.assert_called_once()
-
-    @patch('cli.commands.build.organize')
-    @patch('cli.commands.build.pelican.Pelican')
-    def test_build_runs_pelican_generation(self, mock_pelican_class, mock_organize):
-        """Test that build runs pelican generation via Python module."""
-        mock_organize.return_value = Mock(exit_code=0)
-
-        # Mock Pelican instance
-        mock_pelican = Mock()
-        mock_pelican_class.return_value = mock_pelican
-
-        with patch('cli.commands.build.galleria') as mock_galleria:
-            mock_galleria.generate.return_value = Mock(success=True)
-
-            runner = CliRunner()
-            result = runner.invoke(build)
-
-            assert result.exit_code == 0
-
-            # Should create Pelican instance and run generation
-            mock_pelican_class.assert_called_once()
-            mock_pelican.run.assert_called_once()
+        assert result.exit_code == 0
+        mock_orchestrator.execute.assert_called_once()
 
     @patch('cli.commands.build.organize')
-    def test_build_fails_if_organize_fails(self, mock_organize):
+    @patch('cli.commands.build.BuildOrchestrator')
+    def test_build_fails_if_organize_fails(self, mock_orchestrator_class, mock_organize):
         """Test that build fails if organize step fails."""
         mock_organize.return_value = Mock(exit_code=1)
+
+        # Orchestrator should not be called if organize fails
+        mock_orchestrator = Mock()
+        mock_orchestrator_class.return_value = mock_orchestrator
 
         runner = CliRunner()
         result = runner.invoke(build)
 
         assert result.exit_code != 0
         assert "organize failed" in result.output.lower()
+        mock_orchestrator.execute.assert_not_called()
 
     @patch('cli.commands.build.organize')
-    @patch('cli.commands.build.galleria')
-    def test_build_fails_if_galleria_fails(self, mock_galleria_module, mock_organize):
-        """Test that build fails if galleria generation fails."""
+    @patch('cli.commands.build.BuildOrchestrator')
+    def test_build_fails_if_orchestrator_fails(self, mock_orchestrator_class, mock_organize):
+        """Test that build fails if orchestrator step fails."""
         mock_organize.return_value = Mock(exit_code=0)
 
-        # Mock galleria failure
-        mock_galleria_module.generate.return_value = Mock(success=False, errors=["Test error"])
+        # Mock orchestrator failure - raises BuildError
+        mock_orchestrator = Mock()
+        mock_orchestrator_class.return_value = mock_orchestrator
+        from build.exceptions import BuildError
+        mock_orchestrator.execute.side_effect = BuildError("Test orchestrator failure")
 
         runner = CliRunner()
         result = runner.invoke(build)
 
         assert result.exit_code != 0
-        assert "galleria" in result.output.lower()
+        assert "build failed" in result.output.lower()
 
     @patch('cli.commands.build.organize')
-    @patch('cli.commands.build.pelican.Pelican')
-    def test_build_fails_if_pelican_fails(self, mock_pelican_class, mock_organize):
-        """Test that build fails if pelican generation fails."""
-        mock_organize.return_value = Mock(exit_code=0)
-
-        # Mock pelican failure
-        mock_pelican = Mock()
-        mock_pelican.run.side_effect = Exception("Pelican error")
-        mock_pelican_class.return_value = mock_pelican
-
-        with patch('cli.commands.build.galleria') as mock_galleria:
-            mock_galleria.generate.return_value = Mock(success=True)
-
-            runner = CliRunner()
-            result = runner.invoke(build)
-
-            assert result.exit_code != 0
-            assert "pelican" in result.output.lower()
-
-    @patch('cli.commands.build.organize')
-    @patch('cli.commands.build.galleria')
-    @patch('cli.commands.build.pelican.Pelican')
-    def test_build_shows_progress_output(self, mock_pelican_class, mock_galleria_module, mock_organize):
+    @patch('cli.commands.build.BuildOrchestrator')
+    def test_build_shows_progress_output(self, mock_orchestrator_class, mock_organize):
         """Test that build shows progress information to user."""
         mock_organize.return_value = Mock(exit_code=0)
-        mock_galleria_module.generate.return_value = Mock(success=True)
-        mock_pelican_class.return_value = Mock()
+
+        # Mock orchestrator success
+        mock_orchestrator = Mock()
+        mock_orchestrator_class.return_value = mock_orchestrator
+        mock_orchestrator.execute.return_value = True
 
         runner = CliRunner()
         result = runner.invoke(build)
 
         assert result.exit_code == 0
-        assert "building site" in result.output.lower() or "build" in result.output.lower()
-        assert "galleria" in result.output.lower()
-        assert "pelican" in result.output.lower()
+        assert "building site" in result.output.lower()
+        assert "organization" in result.output.lower()
+        assert "generating galleries" in result.output.lower()
 
     @patch('cli.commands.build.organize')
-    @patch('cli.commands.build.os.path.exists')
-    @patch('cli.commands.build.galleria')
-    @patch('cli.commands.build.pelican.Pelican')
-    def test_build_idempotent_behavior(self, mock_pelican_class, mock_galleria_module, mock_exists, mock_organize):
-        """Test that build skips work if output already exists and is up to date."""
+    @patch('cli.commands.build.BuildOrchestrator')
+    def test_build_orchestrator_success_message(self, mock_orchestrator_class, mock_organize):
+        """Test that build shows success message when orchestrator succeeds."""
         mock_organize.return_value = Mock(exit_code=0)
-        mock_galleria_module.generate.return_value = Mock(success=True)
-        mock_pelican_class.return_value = Mock()
 
-        # Mock that output directories already exist
-        mock_exists.return_value = True
+        # Mock orchestrator success
+        mock_orchestrator = Mock()
+        mock_orchestrator_class.return_value = mock_orchestrator
+        mock_orchestrator.execute.return_value = True
 
         runner = CliRunner()
         result = runner.invoke(build)
 
         assert result.exit_code == 0
-        # Should either skip work or show it's up to date
-        output_lower = result.output.lower()
-        idempotent_indicators = ["already built", "up to date", "skipping", "no changes"]
-        assert any(indicator in output_lower for indicator in idempotent_indicators)
+        assert "completed successfully" in result.output.lower()
+
+    @patch('cli.commands.build.organize')
+    @patch('cli.commands.build.BuildOrchestrator')
+    def test_build_organize_cascade_result_handling(self, mock_orchestrator_class, mock_organize):
+        """Test that build properly handles organize result with exit_code attribute."""
+        # Test that organize result with exit_code=0 allows build to proceed
+        mock_organize.return_value = Mock(exit_code=0)
+
+        mock_orchestrator = Mock()
+        mock_orchestrator_class.return_value = mock_orchestrator
+        mock_orchestrator.execute.return_value = True
+
+        runner = CliRunner()
+        result = runner.invoke(build)
+
+        assert result.exit_code == 0
+        mock_orchestrator.execute.assert_called_once()
+
+        # Test that organize result without exit_code also works
+        mock_organize.reset_mock()
+        mock_orchestrator.execute.reset_mock()
+        mock_organize.return_value = Mock(spec=[])  # No exit_code attribute
+
+        result = runner.invoke(build)
+        assert result.exit_code == 0
+        mock_orchestrator.execute.assert_called_once()
+
+    @patch('cli.commands.build.organize')
+    @patch('cli.commands.build.BuildOrchestrator')
+    def test_build_orchestrator_delegates_idempotency(self, mock_orchestrator_class, mock_organize):
+        """Test that build delegates idempotency logic to orchestrator."""
+        mock_organize.return_value = Mock(exit_code=0)
+
+        # Mock orchestrator success - idempotency is handled by orchestrator internally
+        mock_orchestrator = Mock()
+        mock_orchestrator_class.return_value = mock_orchestrator
+        mock_orchestrator.execute.return_value = True
+
+        runner = CliRunner()
+        result = runner.invoke(build)
+
+        assert result.exit_code == 0
+        # Build command trusts orchestrator to handle idempotency
+        mock_orchestrator.execute.assert_called_once()
+
+    @patch('cli.commands.build.organize')
+    @patch('cli.commands.build.BuildOrchestrator')
+    def test_build_orchestrator_handles_config_loading(self, mock_orchestrator_class, mock_organize):
+        """Test that build delegates config handling to orchestrator."""
+        mock_organize.return_value = Mock(exit_code=0)
+
+        # Mock orchestrator success - config loading is handled by orchestrator internally
+        mock_orchestrator = Mock()
+        mock_orchestrator_class.return_value = mock_orchestrator
+        mock_orchestrator.execute.return_value = True
+
+        runner = CliRunner()
+        result = runner.invoke(build)
+
+        assert result.exit_code == 0
+        # Build command delegates config loading to orchestrator
+        mock_orchestrator_class.assert_called_once()
+        mock_orchestrator.execute.assert_called_once()

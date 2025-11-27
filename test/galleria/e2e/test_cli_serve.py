@@ -12,7 +12,7 @@ class TestGalleriaCLIServe:
 
     def test_cli_serve_command_with_config_file(self, tmp_path):
         """E2E: Test galleria serve --config config.json command.
-        
+
         This test should initially fail since no serve command exists yet.
         Tests complete serve workflow:
         1. Argument parsing (--config, --port, --host, --verbose)

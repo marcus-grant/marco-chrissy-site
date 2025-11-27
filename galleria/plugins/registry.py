@@ -23,11 +23,11 @@ class PluginRegistry:
 
     def register(self, plugin, stage):
         """Register a plugin for a specific stage.
-        
+
         Args:
             plugin: Plugin instance to register
             stage: Stage name (e.g., 'provider', 'processor')
-            
+
         Raises:
             ValueError: If stage is not valid
         """
@@ -40,14 +40,14 @@ class PluginRegistry:
 
     def get_plugin(self, name, stage):
         """Retrieve a plugin by name and stage.
-        
+
         Args:
             name: Plugin name to find
             stage: Stage name to search in
-            
+
         Returns:
             Plugin instance if found, None otherwise
-            
+
         Raises:
             ValueError: If stage is not valid
         """
@@ -64,7 +64,7 @@ class PluginRegistry:
 
     def discover_plugins(self):
         """Discover concrete plugin implementations.
-        
+
         Returns:
             Dict mapping stage names to lists of plugin classes
         """
@@ -96,10 +96,10 @@ class PluginRegistry:
 
     def _discover_in_module(self, module, stage, interface_cls, discovered):
         """Helper to discover plugins in a specific module."""
-        for importer, modname, ispkg in pkgutil.iter_modules(module.__path__, module.__name__ + "."):
+        for _importer, modname, _ispkg in pkgutil.iter_modules(module.__path__, module.__name__ + "."):
             try:
                 plugin_module = __import__(modname, fromlist=[""])
-                for name, obj in inspect.getmembers(plugin_module, inspect.isclass):
+                for _name, obj in inspect.getmembers(plugin_module, inspect.isclass):
                     if (issubclass(obj, interface_cls) and
                         obj is not interface_cls and
                         not inspect.isabstract(obj)):

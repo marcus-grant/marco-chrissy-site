@@ -174,3 +174,82 @@ def test_validator_function(self, temp_filesystem, file_factory):
 7. **Commit and move to next feature**
 
 This ensures continuous progress while maintaining a passing test suite.
+
+## Build Module Testing Patterns
+
+The build module uses simplified testing patterns enabled by the orchestrator architecture.
+
+### Orchestrator Testing Strategy
+
+**Before (Complex Mocking):**
+```python
+@patch('cli.commands.build.organize')
+@patch('cli.commands.build.JsonConfigLoader') 
+@patch('cli.commands.build.PipelineManager')
+@patch('cli.commands.build.pelican')
+def test_build_complex(mock_pelican, mock_pipeline, mock_config, mock_organize):
+    # Setup 4+ mocks with complex interactions
+    mock_organize.return_value = Mock(exit_code=0)
+    mock_config.return_value.load_config.side_effect = [config1, config2, config3]
+    mock_pipeline.return_value.execute_stages.return_value = Mock(success=True)
+    mock_pelican.Pelican.return_value = Mock()
+```
+
+**After (Simple Orchestrator Mocking):**
+```python
+@patch('cli.commands.build.organize')
+@patch('cli.commands.build.BuildOrchestrator')
+def test_build_simple(mock_orchestrator_class, mock_organize):
+    # Mock only the orchestrator - much simpler
+    mock_organize.return_value = Mock(exit_code=0)
+    mock_orchestrator = Mock()
+    mock_orchestrator_class.return_value = mock_orchestrator
+    mock_orchestrator.execute.return_value = True
+    
+    result = runner.invoke(build)
+    assert result.exit_code == 0
+```
+
+### Business Logic Testing
+
+Each builder component can be tested independently:
+
+**ConfigManager Testing:**
+```python
+def test_config_manager_loads_site_config(temp_filesystem, config_file_factory):
+    config_manager = ConfigManager(temp_filesystem)
+    config_file_factory("site.json", {"output_dir": "test"})
+    
+    config = config_manager.load_site_config()
+    assert config["output_dir"] == "test"
+```
+
+**GalleriaBuilder Testing:**
+```python
+@patch('build.galleria_builder.PipelineManager')
+def test_galleria_builder_success(mock_pipeline_manager):
+    mock_pipeline = Mock()
+    mock_pipeline_manager.return_value = mock_pipeline
+    mock_pipeline.execute_stages.return_value = Mock(success=True)
+    
+    builder = GalleriaBuilder()
+    success = builder.build(galleria_config)
+    assert success is True
+```
+
+### Testing Benefits
+
+**Reduced Complexity:**
+- Test business logic classes directly instead of through CLI
+- Mock 1 orchestrator instead of 4+ dependencies
+- Clear separation between CLI and business logic testing
+
+**Better Test Organization:**
+- `test/unit/cli/` - Tests CLI command behavior (simple orchestrator mocking)
+- `test/unit/build/` - Tests business logic classes (focused responsibility testing)
+- `test/e2e/` - Tests complete workflow integration
+
+**Maintainable Tests:**
+- Changes to internal implementation don't break CLI tests
+- Business logic tests focus on specific functionality
+- Clear test boundaries match architectural boundaries

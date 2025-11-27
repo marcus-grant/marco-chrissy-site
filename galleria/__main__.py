@@ -398,9 +398,9 @@ def serve(config: Path, port: int, host: str, no_generate: bool, verbose: bool, 
 
     except OSError as e:
         if e.errno == 98:  # Address already in use
-            raise click.ClickException(f"Port {port} is already in use. Try a different port with --port")
+            raise click.ClickException(f"Port {port} is already in use. Try a different port with --port") from None
         elif e.errno == 13:  # Permission denied
-            raise click.ClickException(f"Permission denied for port {port}. Try a port > 1024 or run with sudo")
+            raise click.ClickException(f"Permission denied for port {port}. Try a port > 1024 or run with sudo") from None
         else:
             raise click.ClickException(f"Failed to start server on {host}:{port}: {e}") from e
 

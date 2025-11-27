@@ -57,7 +57,7 @@ class TestFixtures:
         assert "galleria" in configs
 
         # All config files should exist
-        for config_name, config_path in configs.items():
+        for _config_name, config_path in configs.items():
             assert config_path.exists()
             assert config_path.suffix == ".json"
 

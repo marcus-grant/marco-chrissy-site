@@ -1,0 +1,30 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "title": "Site Configuration Schema",
+  "properties": {
+    "output_dir": {
+      "type": "string",
+      "description": "Base output directory for generated site"
+    },
+    "cdn": {
+      "type": "object",
+      "properties": {
+        "photos": {
+          "type": "string",
+          "format": "uri",
+          "description": "CDN URL for photo assets"
+        },
+        "site": {
+          "type": "string", 
+          "format": "uri",
+          "description": "CDN URL for site assets"
+        }
+      },
+      "required": ["photos", "site"],
+      "additionalProperties": false
+    }
+  },
+  "required": ["output_dir", "cdn"],
+  "additionalProperties": false
+}

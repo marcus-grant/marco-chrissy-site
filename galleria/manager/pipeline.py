@@ -9,7 +9,7 @@ class PipelineManager:
 
     def __init__(self, registry=None):
         """Initialize pipeline manager.
-        
+
         Args:
             registry: PluginRegistry instance, creates new one if None
         """
@@ -17,12 +17,12 @@ class PipelineManager:
 
     def execute_single_stage(self, stage, plugin_name, context):
         """Execute a single plugin stage.
-        
+
         Args:
             stage: Stage name (e.g., 'provider', 'processor')
             plugin_name: Name of plugin to execute
             context: PluginContext with input data
-            
+
         Returns:
             PluginResult with execution results
         """
@@ -46,13 +46,13 @@ class PipelineManager:
 
     def execute_stages(self, stages, initial_context):
         """Execute multiple stages in sequence.
-        
+
         Args:
             stages: List of stage configs. Supports both formats:
                 - Dict format: [{"stage": "provider", "plugin": "name"}, ...]
                 - Tuple format: [("provider", "plugin-name"), ...]
             initial_context: Initial PluginContext
-            
+
         Returns:
             Final PluginResult from last stage
         """
@@ -86,11 +86,11 @@ class PipelineManager:
 
     def execute_workflow(self, workflow_name, **kwargs):
         """Execute a predefined workflow.
-        
+
         Args:
             workflow_name: Name of workflow to execute
             **kwargs: Workflow-specific parameters
-            
+
         Returns:
             PluginResult with workflow execution results
         """

@@ -1,21 +1,19 @@
 # Marco & Chrissy's Website - TODO
 
+## Next Immediate Tasks
+
+### Serve Command Implementation
+
+See detailed implementation plan in [Phase 3: Integration Testing & Serve Command](#phase-3-integration-testing--serve-command)
+
 ## MVP Roadmap
-
-### Phase 1: Galleria Development - ✅ COMPLETED
-
-**Status Summary:**
-
-- [x] Complete 5-stage plugin system implemented
-- [x] CLI `generate` command with 239 passing E2E tests  
-- [x] Production-ready gallery generation functionality
-- [x] Comprehensive documentation and workflow guides
 
 ### Phase 2: Site Structure
 
 **Architecture:** 4-stage idempotent pipeline with plugin-based Pelican integration
 
 #### 2.2: CLI Command System (Idempotent Cascading)
+
 - [x] E2E test: `uv run site` command discovery and basic functionality (`test/e2e/`)
 - [x] Unit tests: Individual command modules (`test/unit/`)
 - [x] Implement `uv run site` command with subcommands
@@ -31,18 +29,16 @@
   - [ ] `site deploy` - Bunny CDN upload (calls build if needed)
 - [ ] Each command checks if work already done and skips unnecessary operations
 
-#### 2.3: Configuration Architecture (Separate Configs)
-- [ ] E2E test: Config loading and validation across modules (`test/e2e/`)
-- [ ] Unit tests: JSON serializer and schema validation (`test/unit/serializers/`)
-- [ ] Create JSON serializer/schema system in `serializers/json.py`
-- [ ] Create config files with JSON schemas:
-  - [ ] `config/site.json` - Orchestration, output paths, Bunny CDN deployment
-  - [ ] `config/normpic.json` - Photo organization settings for wedding collection
-  - [ ] `config/pelican.json` - Site page generation (theme, content paths, URLs)
-  - [ ] Update existing `config/galleria.json` for wedding gallery
-- [ ] Config schemas in `config/schemas/` for validation
+#### 2.3: Production Configuration Files
+
+- [ ] Production config files: Create actual config files for wedding site
+  - [ ] `config/site.json` - Production orchestration settings
+  - [ ] `config/normpic.json` - Wedding photo organization settings
+  - [ ] `config/pelican.json` - Site generation configuration
+  - [ ] `config/galleria.json` - Wedding gallery configuration
 
 #### 2.4: Pelican + Galleria Integration (Plugin-Based)
+
 - [ ] E2E test: Complete plugin-based gallery generation workflow (`test/e2e/`)
 - [ ] Unit tests: PelicanTemplatePlugin functionality (`test/unit/plugins/`)
 - [ ] Create `PelicanTemplatePlugin` extending Galleria's `TemplatePlugin`
@@ -54,12 +50,14 @@
   - [ ] Configure Pelican theme to match Galleria styling
 
 #### 2.5: Content Pages & Output Structure
+
 - [ ] E2E test: Full site generation with proper output structure (`test/e2e/`)
 - [ ] Unit tests: Output directory management and CDN coordination (`test/unit/build/`)
 - [ ] Create Pelican content structure:
   - [ ] Gallery index page (`/galleries/`) - lists available galleries
   - [ ] About page (`/about/`) - personal content
 - [ ] Configure output directory structure:
+
   ```
   output/
   ├── pics/           # Full photos → Photos CDN bucket
@@ -68,11 +66,20 @@
   ├── about/          # Pelican pages → Site CDN
   └── index.html      # Site root → Site CDN
   ```
-- [ ] Set up dual CDN deployment strategy (photos vs site content)
 
-### Phase 3: Integration Testing
+### Phase 3: Integration Testing & Serve Command
+
+- [ ] **Serve Command Implementation**
+  - [ ] Plan `site serve` command for development workflow
+    - [ ] E2E test: Development server with hot reload (`test/e2e/test_site_serve.py`)
+    - [ ] Unit tests: File watching, server management (`test/unit/serve/`)
+    - [ ] Inner cycles: Static file server, change detection, rebuild triggers
+    - [ ] Implementation: `cli/commands/serve.py` with build integration
+    - [ ] Documentation: Serve command usage, development workflow
+    - [ ] Commit intervals: test → implementation → integration → docs
 
 - [ ] Test command system end-to-end
+  - [ ] First check what's already there
 - [ ] Validate site generation workflow
 - [ ] Test Galleria + Pelican integration
 
@@ -90,15 +97,20 @@
   - [ ] Photo collections: lazy upload (only changed files)
   - [ ] Site content: always upload (smaller transfer, less optimization needed)
 
+### Phase 5: Deploy Command & Guided Real-World Deployment
+
+- [ ] Plan rest of this step, needs much more detail
+- [ ] Set up dual CDN deployment strategy (photos vs site content)
+
 ## Post-MVP Enhancements
 
 ### Near-term Optimizations
 
-- [x] **E2E test performance optimization** 
-  - [x] Fix 16+ second subprocess startup time in E2E tests (unacceptable)
-  - [x] Replace subprocess calls with direct function calls in E2E tests
-  - [x] Consolidate 4 separate E2E tests into single comprehensive workflow test
-  - [x] Achieve 460x performance improvement: 37s → 0.08s for organize E2E tests
+- [ ] **E2E test performance optimization**
+  - [ ] Fix 16+ second subprocess startup time in E2E tests (unacceptable)
+  - [ ] Replace subprocess calls with direct function calls in E2E tests
+  - [ ] Consolidate 4 separate E2E tests into single comprehensive workflow test
+  - [ ] Achieve 460x performance improvement: 37s → 0.08s for organize E2E tests
   - [ ] Consider pytest-xdist for parallel test execution
   - [ ] Investigate uv run startup overhead with large dependency trees
 - [ ] **Verify galleria idempotency behavior**

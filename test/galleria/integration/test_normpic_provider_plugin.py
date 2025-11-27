@@ -17,11 +17,11 @@ class TestNormPicProviderPlugin:
 
         This is the E2E integration test that will initially FAIL since
         NormPicProviderPlugin doesn't exist yet. This test defines:
-        
+
         1. Input: Real NormPic manifest.json format
         2. Expected output: ProviderPlugin contract format
         3. Error handling: Missing files, invalid JSON
-        
+
         This test will drive the implementation of NormPicProviderPlugin.
         """
         # This import will FAIL initially - that's expected for TDD red phase
@@ -175,7 +175,7 @@ class TestNormPicProviderPlugin:
 
     def test_normpic_provider_integration_with_existing_serializer_data(self, tmp_path):
         """NormPicProviderPlugin should produce same results as existing serializer.
-        
+
         This test ensures backward compatibility by comparing plugin output
         with existing serializer.load_photo_collection() output.
         """

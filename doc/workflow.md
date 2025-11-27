@@ -78,21 +78,28 @@ uv run site build  # organize → galleria → pelican integration
 
 ### Build Command Integration
 
-The `uv run site build` command orchestrates the complete site generation:
+The `uv run site build` command uses the orchestrator pattern for clean, maintainable site generation:
 
-1. **Automatic cascade**: Calls `organize` (which calls `validate`)
-2. **Gallery generation**: Uses galleria Python module to create galleries
-3. **Site generation**: Uses pelican Python module to create site pages  
-4. **Output integration**: Combines all outputs into unified structure
+1. **Automatic cascade**: Calls `organize` (which calls `validate`) first
+2. **Orchestrated execution**: BuildOrchestrator coordinates all build steps
+3. **Gallery generation**: GalleriaBuilder uses Galleria plugin system
+4. **Site generation**: PelicanBuilder uses Pelican static site generator
+5. **Unified output**: All components write to coordinated output structure
+
+**Orchestrator Pattern Benefits:**
+- **77% code reduction**: From 195-line "god function" to 45-line orchestrator call
+- **Better testing**: Mock 1 orchestrator instead of 4+ dependencies
+- **Reusable**: BuildOrchestrator callable from CLI, API, scripts, or tests
+- **Single responsibility**: Each component has one clear job
 
 **Expected output after build:**
 ```
 output/
 ├── pics/           # Organized photos (from organize/NormPic)
-├── galleries/      # Gallery HTML/CSS/thumbnails (from galleria)  
+├── galleries/      # Gallery HTML/CSS/thumbnails (from GalleriaBuilder)  
 │   └── wedding/    # Gallery pages: page_1.html, etc.
-├── about/          # Site pages (from pelican)
-└── index.html      # Site root (from pelican)
+├── about/          # Site pages (from PelicanBuilder)
+└── index.html      # Site root (from PelicanBuilder)
 
 ## Workflow Steps
 
@@ -483,3 +490,214 @@ Planned workflow improvements:
 5. **Cloud Integration**: Direct upload to CDN/cloud storage
 
 See the [TODO](TODO.md) for complete roadmap and implementation timeline.
+
+## Unified Configuration System Workflow
+
+### Configuration Setup
+
+The site uses a unified configuration system with schema validation. Set up your configuration files:
+
+#### 1. Site Configuration - `config/site.json`
+```json
+{
+  "output_dir": "output",
+  "cdn": {
+    "photos": "https://photos.cdn.example.com",
+    "site": "https://site.cdn.example.com"
+  }
+}
+```
+
+#### 2. Photo Organization - `config/normpic.json`
+```json
+{
+  "source_dir": "~/Pictures/wedding/full",
+  "dest_dir": "output/pics/full",
+  "collection_name": "wedding",
+  "create_symlinks": true
+}
+```
+
+#### 3. Gallery Generation - `config/galleria.json`
+```json
+{
+  "manifest_path": "output/pics/full/manifest.json",
+  "output_dir": "output/galleries",
+  "thumbnail_size": 400,
+  "photos_per_page": 60,
+  "theme": "minimal",
+  "quality": 85
+}
+```
+
+#### 4. Site Generation - `config/pelican.json`
+```json
+{
+  "theme": "minimal",
+  "site_url": "https://example.com",
+  "author": "Your Name",
+  "sitename": "Your Site Title"
+}
+```
+
+### Site Command Pipeline
+
+Use the unified `site` command for the complete workflow:
+
+```bash
+# Validate all configurations
+uv run site validate
+
+# Organize photos with NormPic
+uv run site organize
+
+# Build site and galleries  
+uv run site build
+
+# Deploy to CDN (planned)
+uv run site deploy
+```
+
+#### Command Cascading
+
+Commands automatically call their prerequisites:
+- `site deploy` → calls `site build` → calls `site organize` → calls `site validate`
+- Commands skip work if output is already up-to-date (idempotent behavior)
+- Each command loads and validates its required configurations
+
+### Configuration Validation
+
+#### Schema Validation
+All configs are validated against JSON schemas in `config/schema/`:
+- Detailed error messages for missing or invalid fields
+- Type checking (string, integer, URI, etc.)
+- Required vs optional field validation
+
+```bash
+# Check all config files
+uv run site validate
+
+# Example validation error:
+# Config validation error in config/galleria.json: Field 'manifest_path': 'missing_field' is a required property
+```
+
+#### Error Handling
+- **Missing files**: Clear messages about which config files are missing
+- **Invalid JSON**: Parsing errors with line/column information  
+- **Schema violations**: Field-specific validation errors with context
+- **File permissions**: Access errors with suggested fixes
+
+### Development Workflow
+
+#### 1. Initial Setup
+```bash
+# Set up project structure
+mkdir -p config/schema
+mkdir -p output/{pics,galleries}
+
+# Create configuration files (see examples above)
+# Schemas are provided in config/schema/
+```
+
+#### 2. Photo Organization
+```bash
+# Organize photos and generate manifest
+uv run site organize
+
+# This runs NormPic with config from normpic.json
+# Creates organized photos and manifest.json
+```
+
+#### 3. Site Generation
+```bash
+# Build complete site with galleries
+uv run site build
+
+# This runs:
+# 1. Galleria CLI with galleria.json config
+# 2. Pelican with pelican.json config
+# Uses output paths from site.json
+```
+
+#### 4. Configuration Changes
+```bash
+# After changing configs, validate first
+uv run site validate
+
+# Then rebuild (idempotent - only regenerates if needed)
+uv run site build
+```
+
+### Config File Examples
+
+#### Wedding Photography Site
+**`config/galleria.json`:**
+```json
+{
+  "manifest_path": "output/pics/wedding/manifest.json",
+  "output_dir": "output/galleries/wedding",
+  "thumbnail_size": 600,
+  "photos_per_page": 48,
+  "theme": "elegant",
+  "quality": 95
+}
+```
+
+#### Portfolio Website
+**`config/galleria.json`:**
+```json
+{
+  "manifest_path": "output/pics/portfolio/manifest.json", 
+  "output_dir": "output/galleries/portfolio",
+  "thumbnail_size": 800,
+  "photos_per_page": 24,
+  "theme": "modern",
+  "quality": 85
+}
+```
+
+#### Event Documentation
+**`config/galleria.json`:**
+```json
+{
+  "manifest_path": "output/pics/event/manifest.json",
+  "output_dir": "output/galleries/event", 
+  "thumbnail_size": 300,
+  "photos_per_page": 80,
+  "theme": "minimal",
+  "quality": 80
+}
+```
+
+### Error Troubleshooting
+
+#### Configuration Validation Errors
+```bash
+# Run validation to see specific errors
+uv run site validate
+
+# Common fixes:
+# 1. Check required fields in schema files
+# 2. Verify file paths exist
+# 3. Check JSON syntax
+# 4. Ensure proper field types (string vs integer)
+```
+
+#### Command Failures
+```bash
+# Organize command fails
+uv run site organize --help
+
+# Build command fails - check individual configs
+uv run site validate
+```
+
+### Integration Benefits
+
+- **Schema Validation**: Catch configuration errors early with detailed messages
+- **Unified Loading**: Single JsonConfigLoader handles all config types
+- **Extraction Ready**: Galleria config works as standalone package
+- **Command Integration**: All commands use validated configurations
+- **Error Context**: Clear error messages guide configuration fixes
+
+For complete configuration reference, see [Configuration Guide](configuration.md).

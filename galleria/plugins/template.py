@@ -134,13 +134,13 @@ class BasicTemplatePlugin(TemplatePlugin):
     <header>
         <h1>{collection_name}</h1>
     </header>
-    
+
     <main class="gallery layout-{layout}">
         {photo_html}
     </main>
-    
+
     {nav_html}
-    
+
     <footer>
         <p>Generated with Galleria</p>
     </footer>
@@ -170,11 +170,11 @@ class BasicTemplatePlugin(TemplatePlugin):
     <header>
         <h1>{collection_name}</h1>
     </header>
-    
+
     <main class="gallery">
         <p class="empty-message">No photos found in this collection.</p>
     </main>
-    
+
     <footer>
         <p>Generated with Galleria</p>
     </footer>
