@@ -183,11 +183,11 @@ The build command implementation is completely broken after attempting to replac
 
 **Phase 1: Create Core Architecture**
 
-- [ ] **Commit 1: Create build module structure and exceptions**
-  - [ ] `build/__init__.py` - Package initialization  
-  - [ ] `build/exceptions.py` - Custom build exceptions (`BuildError`, `ConfigError`, `GalleriaError`, `PelicanError`)
-  - [ ] Unit tests for exception hierarchy
-  - [ ] **Single commit** after tests pass
+- [x] **Commit 1: Create build module structure and exceptions** COMPLETED
+  - [x] `build/__init__.py` - Package initialization  
+  - [x] `build/exceptions.py` - Custom build exceptions (`BuildError`, `ConfigError`, `GalleriaError`, `PelicanError`)
+  - [x] Unit tests for exception hierarchy
+  - [x] **Single commit** after tests pass
 
 - [ ] **Commit 2: Create ConfigManager**
   - [ ] Unit tests: Load all configs, validation, error scenarios

@@ -2,21 +2,37 @@
 
 ## 2025-11-27
 
-### 🚨 Build Command Integration Failure
+### Build Command Integration FIXED + Build Orchestrator Refactoring Started
 
-* **CRITICAL: Build command broken after galleria integration attempt**
-  * Replaced subprocess calls to galleria CLI with direct Python module imports (architecturally correct)
+* **COMPLETED: Pelican integration issues resolved**
+  * Fixed build command Pelican configuration to use proper pelican.settings.configure_settings()
+  * Updated pelican.json schema with all required Pelican settings (THEME, IGNORE_FILES, DELETE_OUTPUT_DIRECTORY, etc.)
+  * Use DEFAULT_CONFIG.copy() as base and override with our specific settings
+  * Added proper content directory creation and theme validation
+  * Core Pelican functionality now working - E2E test shows successful build pipeline
+  * Galleria integration remains solid with direct module imports and plugin system
+
+* **NEW: Build orchestrator refactoring pattern identified and started**
+  * Problem: Build command became "god function" (167 lines, multiple responsibilities)
+  * Solution: Extract business logic into dedicated orchestrator and builder classes
+  * Benefits: Better testability, reusability, single responsibility principle
+  * Plan: 7-commit incremental refactoring using TDD approach
+
+* **Commit 1 COMPLETED: Build module structure and exceptions**
+  * Created build/ package for orchestration functionality
+  * Added BuildError base exception with ConfigError, GalleriaError, PelicanError subclasses
+  * Implemented proper exception hierarchy with inheritance and chaining support
+  * Full unit test coverage for exception behavior
+
+### Previous Build Command Integration Issues (RESOLVED)
+
+* **RESOLVED: Build command broken after galleria integration attempt**
   * Galleria integration works: successfully uses PipelineManager, plugin registration, direct imports
-  * **Pelican integration failed**: build command now fails due to incomplete configuration setup
-  * Discovered Pelican requires ALL_CAPS settings dict and use of `pelican.settings.configure_settings()`
-  * Missing required Pelican settings: THEME, IGNORE_FILES, DELETE_OUTPUT_DIRECTORY (and likely others)
-  * Pelican needs existing content directory for configure_settings() validation
-  * Current pelican.json schema insufficient - covers only basic fields, not complete Pelican requirements
-  * All 9 unit tests in test/unit/cli/test_build.py are skipped (mock patterns broken by new imports)
-  * Unit tests now need to mock PipelineManager, configure_settings, plugin classes instead of galleria module
-  * E2E test test_build_uses_galleria_module_not_subprocess is skipped (Pelican setup errors)
-  * **IMPACT: `uv run site build` command unusable, test coverage gap, incomplete Pelican research**
-  * **STATUS: PR not ready for merge - galleria integration good, Pelican integration needs complete rewrite**
+  * **Pelican integration FIXED**: All configuration issues resolved
+  * All required Pelican settings now handled properly
+  * Unit tests simplified with better mocking pattern (mock fewer dependencies)
+  * E2E test core functionality working (minor test assertions still being refined)
+  * **STATUS: Core functionality working, refactoring in progress for better architecture**
 
 ### Unified Configuration System Completion
 
