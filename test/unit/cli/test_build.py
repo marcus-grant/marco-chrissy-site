@@ -1,8 +1,8 @@
 """Unit tests for build command."""
 
-import pytest
 from unittest.mock import Mock, patch
 
+import pytest
 from click.testing import CliRunner
 
 from cli.commands.build import build
@@ -11,38 +11,39 @@ from cli.commands.build import build
 class TestBuildCommand:
     """Test build command functionality."""
 
-    @pytest.mark.skip(reason="Unit tests need updating after galleria module integration")
     @patch('cli.commands.build.organize')
     @patch('cli.commands.build.JsonConfigLoader')
     @patch('cli.commands.build.PipelineManager')
-    @patch('cli.commands.build.configure_settings')
-    def test_build_calls_organize_cascade(self, mock_configure_settings, mock_pipeline_manager, mock_config_loader, mock_organize):
+    @patch('cli.commands.build.pelican')
+    def test_build_calls_organize_cascade(self, mock_pelican_module, mock_pipeline_manager, mock_config_loader_class, mock_organize):
         """Test that build calls organize (which calls validate)."""
+        # Mock organize success
         mock_organize.return_value = Mock(exit_code=0)
-        
-        # Mock config loading
+
+        # Mock config loading - just return minimal valid configs
         mock_loader = Mock()
-        mock_config_loader.return_value = mock_loader
-        mock_loader.load_config.return_value = {"output_dir": "output", "manifest_path": "test.json", "output_dir": "galleries"}
-        
-        # Mock pipeline
+        mock_config_loader_class.return_value = mock_loader
+        mock_loader.load_config.side_effect = [
+            {"output_dir": "output"},  # site config
+            {"manifest_path": "test.json", "output_dir": "galleries"},  # galleria config
+            {"author": "Test", "sitename": "Test Site", "site_url": "https://test.com"}  # pelican config
+        ]
+
+        # Mock galleria pipeline success
         mock_pipeline = Mock()
         mock_pipeline_manager.return_value = mock_pipeline
-        mock_result = Mock()
-        mock_result.success = True
-        mock_result.output_data = {"html_files": [], "css_files": []}
+        mock_result = Mock(success=True, output_data={"html_files": [], "css_files": []})
         mock_pipeline.execute_stages.return_value = mock_result
-        
-        # Mock pelican
-        mock_pelican_instance = Mock()
-        mock_configure_settings.return_value = {"test": "settings"}
-        
-        with patch('cli.commands.build.pelican.Pelican', return_value=mock_pelican_instance):
-            runner = CliRunner()
-            result = runner.invoke(build)
 
-            assert result.exit_code == 0
-            mock_organize.assert_called_once()
+        # Mock pelican success (just mock the whole module to avoid internal complexity)
+        mock_pelican_instance = Mock()
+        mock_pelican_module.Pelican.return_value = mock_pelican_instance
+
+        runner = CliRunner()
+        result = runner.invoke(build)
+
+        assert result.exit_code == 0
+        mock_organize.assert_called_once()
 
     @pytest.mark.skip(reason="Unit tests need updating after galleria module integration")
     @patch('cli.commands.build.organize')
