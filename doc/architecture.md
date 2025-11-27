@@ -64,12 +64,13 @@ Pre-flight      NormPic       Galleria +    Bunny CDN
 - **Idempotent behavior**: Commands skip work if output already exists
 - **Extractable design**: Galleria module prepared for post-MVP package extraction
 
-**⚠️ Current Status - Build Command Integration Issues:**
-- Replaced subprocess calls with direct galleria module imports (correct architectural approach)
-- Galleria integration working: uses `PipelineManager` and plugin system directly
-- **Pelican integration broken**: incomplete configuration setup, missing required settings
-- **Testing broken**: unit tests need complete rewrite for new import patterns
-- Integration approach is sound but implementation is incomplete
+**✅ Current Status - Build Orchestrator Pattern Implemented:**
+- **Completed**: Major refactoring from 195-line "god function" to clean orchestrator pattern
+- **77% Code Reduction**: Build command reduced from 195 to 45 lines
+- **Business Logic Separation**: Core functionality separated from CLI presentation
+- **Perfect Testability**: Mock 1 orchestrator instead of 4+ dependencies per test
+- **Full Reusability**: BuildOrchestrator callable from CLI, API, scripts, or any context
+- **Complete Integration**: Both Galleria and Pelican integration working end-to-end
 
 ## Directory Structure
 
@@ -83,16 +84,21 @@ marco-chrissy-site/
 └── pelican/          # Pelican configuration
 ```
 
-### Planned (Phase 2): 4-Stage Pipeline Structure
+### Current (Phase 2): 4-Stage Pipeline Structure - Implemented
 ```
 marco-chrissy-site/
 ├── cli/              # Command-line interface (site command)
 ├── validator/        # Pre-flight checks module
-├── build/           # Orchestration modules (Galleria + Pelican)
-├── deploy/          # Bunny CDN deployment logic
-├── serializers/     # Config loading with schema validation
+├── build/           # ✅ Build orchestration modules
+│   ├── orchestrator.py     # Main coordination class
+│   ├── config_manager.py   # Unified config loading
+│   ├── galleria_builder.py # Gallery generation
+│   ├── pelican_builder.py  # Site generation
+│   └── exceptions.py       # Build exception hierarchy
+├── organizer/        # Photo organization (NormPic integration)
+├── serializer/       # JSON config loading with schema validation
 ├── config/          # All configuration files
-│   ├── schemas/     # JSON schemas for validation
+│   ├── schema/      # JSON schemas for validation
 │   ├── site.json    # Pipeline orchestration config
 │   ├── normpic.json # Photo organization config
 │   ├── pelican.json # Site generation config
@@ -105,6 +111,48 @@ marco-chrissy-site/
     ├── about/       # Pelican pages -> Site CDN
     └── index.html   # Site root -> Site CDN
 ```
+
+## Build Orchestrator Architecture
+
+The build system uses an orchestrator pattern that separates business logic from CLI concerns, enabling better testability and reusability.
+
+### Orchestrator Pattern Structure
+```
+cli/commands/build.py (45 lines)
+         ↓
+BuildOrchestrator.execute()
+    ├── ConfigManager.load_*_config()
+    ├── GalleriaBuilder.build()
+    └── PelicanBuilder.build()
+```
+
+### Key Components
+
+- **BuildOrchestrator**: Main coordination class that manages the complete build workflow
+- **ConfigManager**: Unified configuration loading for all config files (site.json, galleria.json, pelican.json, normpic.json)  
+- **GalleriaBuilder**: Handles gallery generation using Galleria plugin system
+- **PelicanBuilder**: Handles static site generation using Pelican
+- **Build Exceptions**: Comprehensive hierarchy (BuildError → ConfigError, GalleriaError, PelicanError)
+
+### Architecture Benefits
+
+**Code Reduction**: 77% reduction from 195-line "god function" to 45-line simple orchestrator call
+
+**Testing Simplification**: 
+- Before: Mock 4+ dependencies per test (JsonConfigLoader, PipelineManager, pelican module, etc.)
+- After: Mock 1 BuildOrchestrator class
+
+**Business Logic Separation**:
+- CLI layer only handles user interaction and error display
+- Core build logic completely independent of CLI framework
+- Orchestrator callable from any context (API, scripts, tests)
+
+**Single Responsibility**:
+- Each builder class has one clear job (gallery vs site generation)
+- Configuration loading centralized and reusable
+- Error handling consistent across all components
+
+See [Build Module Documentation](modules/build/) for detailed usage and API reference.
 
 ## Galleria Plugin Architecture
 

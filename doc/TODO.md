@@ -2,30 +2,9 @@
 
 ## Next Immediate Tasks
 
-### Fix Remaining Pytest Errors and Skips
+### Serve Command Implementation
 
-**Plan Step Recommended:**
-1. Run full test suite to identify all failing/skipped tests
-2. Categorize errors: unit test mocks, E2E test expectations, missing implementations
-3. Fix unit test mocking patterns for new orchestrator architecture
-4. Update/unskip E2E tests that were broken by refactoring
-5. Address any remaining test infrastructure issues
-6. Ensure 100% test suite passes before documentation and PR
-
-**Implementation Plan:**
-- [ ] Run `uv run pytest` to get complete test status report
-- [ ] Fix unit test mocking in `test/unit/cli/test_build.py` for orchestrator pattern
-- [ ] Update any remaining E2E tests with incorrect expectations  
-- [ ] Remove skip decorators from tests that should now work
-- [ ] Verify all build module tests pass (ConfigManager, GalleriaBuilder, PelicanBuilder, BuildOrchestrator)
-- [ ] Test actual `uv run site build` command end-to-end manually
-- [ ] Document any test changes in CHANGELOG
-
-**Next Steps After Test Fixes:**
-- [ ] Update documentation for major orchestrator refactoring changes
-- [ ] Push new PR with clean, passing test suite
-- [ ] Work on serve command E2E tests
-- [ ] Work on serve command unit tests
+See detailed implementation plan in [Phase 3: Integration Testing & Serve Command](#phase-3-integration-testing--serve-command)
 
 ## MVP Roadmap
 
@@ -50,115 +29,13 @@
   - [ ] `site deploy` - Bunny CDN upload (calls build if needed)
 - [ ] Each command checks if work already done and skips unnecessary operations
 
-#### 2.3: Configuration Architecture (Separate Configs)
+#### 2.3: Production Configuration Files
 
-**TDD Implementation Plan** - Replace ad-hoc config loading with unified architecture
-
-- [ ] Check whether these incomplete sections were actually implemented
-  - [ ] Check past 12 commits
-  - [ ] Check past 3 days of changelog
-  - [ ] Update this document and changelog with completed tasks
-
-**Outer Cycle: E2E Integration Test (Initially Skipped)**
-
-- [ ] E2E test: Complete config integration workflow (`test/e2e/test_config_integration.py`)
-  - [ ] Test all commands (validate, organize, build) load configs correctly
-  - [ ] Test config validation across site, normpic, pelican, galleria modules
-  - [ ] Test missing config file scenarios with meaningful error messages
-  - [ ] Test invalid config content scenarios with schema validation
-  - [ ] Test config file corruption and JSON parsing errors
-  - [ ] **Mark with `@pytest.mark.skip` initially - drives inner cycles**
-
-**Inner Cycle 1: Serializer Module (RED → GREEN → REFACTOR)**
-
-- [ ] Unit test: JSON config loader with schema validation (`test/unit/serializer/test_json_loader.py`)
-  - [ ] Test JSON loading with valid configs
-  - [ ] Test error handling for malformed JSON files
-  - [ ] Test schema validation failures with specific error messages
-  - [ ] Test config file not found scenarios
-  - [ ] **Should fail initially (RED phase)**
-- [ ] Research: Verify normpic's JSON schema format and requirements
-  - [ ] Check normpic.Config class structure and expected fields
-  - [ ] Document normpic config requirements for schema design
-- [ ] Implementation: Core config serializer (`serializer/json.py`)
-  - [ ] JSON config loader with schema validation support
-  - [ ] Comprehensive error handling with meaningful messages
-  - [ ] Support for schema-based validation with jsonschema library
-  - [ ] **Make unit tests pass (GREEN phase)**
-
-**Inner Cycle 2: Schema System (RED → GREEN → REFACTOR)** ✅ COMPLETED
-
-- [x] Unit test: Config schema validation (`test/unit/config/test_schemas.py`)
-  - [x] Test each config schema validates correct configs
-  - [x] Test schema rejection of invalid configs with specific errors
-  - [x] Test schema validation for required vs optional fields
-  - [x] Test schema validation for field types and formats
-  - [x] **Should fail initially (RED phase)**
-- [x] Research: Verify galleria's existing config schema in this project
-  - [x] Check galleria/config.py structure and requirements
-  - [x] Document galleria config requirements for schema design
-- [x] Implementation: JSON schema files and validation (`config/schema/`)
-  - [x] `site.json` schema - Orchestration, output paths, CDN deployment
-  - [x] `normpic.json` schema - Photo organization settings (based on research)
-  - [x] `pelican.json` schema - Site generation (theme, content, URLs)
-  - [x] `galleria.json` schema - Gallery generation (based on existing config)
-  - [x] Schema validation integration with serializer module
-  - [x] **Make unit tests pass (GREEN phase)**
-
-**Inner Cycle 3: Command Integration (RED → GREEN → REFACTOR)** ✅ COMPLETED  
-
-- [x] Unit tests: Update existing command tests to use new config system
-  - [x] Update `test/unit/validator/test_config.py` for schema validation
-  - [x] Add config validation tests to ConfigValidator unit tests  
-  - [x] **Should fail initially as commands don't use new system (RED phase)**
-- [x] Implementation: Update ConfigValidator to use unified config system
-  - [x] Update `validator/config.py` to use JsonConfigLoader with schemas
-  - [x] Replace file existence checks with content validation
-  - [x] Ensure backward compatibility when schemas missing
-  - [x] **Make validator tests pass (GREEN phase)**
-- [x] Implementation: Update build command to use unified config system
-  - [x] Update `cli/commands/build.py` to load site.json and galleria.json
-  - [x] Replace hard-coded paths with config-driven orchestration
-  - [x] Integrate with galleria CLI using proper config files
-
-**Final Integration and Documentation** 🚧 BROKEN - NEEDS MAJOR FIXES
-
-- [x] Unskip E2E test: Verify complete config workflow integration
-  - [x] Remove `@pytest.mark.skip` from E2E config integration test
-  - [x] Run E2E test to validate complete config system workflow
-  - [x] Fix any remaining integration issues discovered by E2E test
-- [x] **CRITICAL: Fix build command galleria integration breakage** ✅ COMPLETED
-  - [x] Build command replaced subprocess calls with direct imports but broke everything
-  - [x] All 9 unit tests in `test/unit/cli/test_build.py` are skipped (broken mocks) - IDENTIFIED FOR REFACTORING  
-  - [x] E2E test `test_build_uses_galleria_module_not_subprocess` is skipped (Pelican errors) - CORE PELICAN ISSUE FIXED
-  - [x] Build command now fails with real usage due to Pelican configuration issues - FIXED
-  - [x] **Fix Pelican integration issues:** ✅ COMPLETED
-    - [x] Update pelican.json schema with all required Pelican settings (THEME, IGNORE_FILES, DELETE_OUTPUT_DIRECTORY, etc.)
-    - [x] Use `pelican.settings.configure_settings()` instead of manual dict construction
-    - [x] Create proper content directory structure in temp filesystem for tests
-    - [x] Handle theme validation - either use default theme or create theme directory
-    - [x] Research complete list of Pelican required settings through documentation or source code
-  - [x] **Fix galleria integration pattern:** ✅ WORKING
-    - [x] Current direct import approach works but implementation is incomplete - CORE FUNCTIONALITY WORKING
-    - [x] Pipeline stages and plugin registration are correct
-    - [x] Config mapping from galleria.json to plugin config needs validation - WORKING IN E2E TEST
-  - [ ] **Build command architecture refactoring needed:**
-    - [ ] Build command has become too complex (167 lines, multiple responsibilities)
-    - [ ] Unit tests are difficult to maintain due to excessive mocking (4+ dependencies per test)
-    - [ ] Business logic mixed with CLI concerns - not reusable outside CLI context
-    - [ ] **SOLUTION: Build Orchestrator Pattern** (see new section below)
 - [ ] Production config files: Create actual config files for wedding site
   - [ ] `config/site.json` - Production orchestration settings
   - [ ] `config/normpic.json` - Wedding photo organization settings
   - [ ] `config/pelican.json` - Site generation configuration
   - [ ] `config/galleria.json` - Wedding gallery configuration
-- [x] Documentation updates (before each commit):
-  - [x] Update `doc/TODO.md` with completed items (mark with [x])
-  - [x] Update `doc/CHANGELOG.md` with implementation details and dates
-  - [x] Create `doc/configuration.md` - Config system usage guide
-  - [x] Create `doc/modules/serializer.md` - Serializer module documentation
-  - [x] Update `doc/architecture.md` with config architecture details
-  - [x] Update `doc/workflow.md` with config file examples and usage
 
 #### 2.4: Pelican + Galleria Integration (Plugin-Based)
 

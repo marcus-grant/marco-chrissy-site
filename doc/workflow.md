@@ -78,21 +78,28 @@ uv run site build  # organize → galleria → pelican integration
 
 ### Build Command Integration
 
-The `uv run site build` command orchestrates the complete site generation:
+The `uv run site build` command uses the orchestrator pattern for clean, maintainable site generation:
 
-1. **Automatic cascade**: Calls `organize` (which calls `validate`)
-2. **Gallery generation**: Uses galleria Python module to create galleries
-3. **Site generation**: Uses pelican Python module to create site pages  
-4. **Output integration**: Combines all outputs into unified structure
+1. **Automatic cascade**: Calls `organize` (which calls `validate`) first
+2. **Orchestrated execution**: BuildOrchestrator coordinates all build steps
+3. **Gallery generation**: GalleriaBuilder uses Galleria plugin system
+4. **Site generation**: PelicanBuilder uses Pelican static site generator
+5. **Unified output**: All components write to coordinated output structure
+
+**Orchestrator Pattern Benefits:**
+- **77% code reduction**: From 195-line "god function" to 45-line orchestrator call
+- **Better testing**: Mock 1 orchestrator instead of 4+ dependencies
+- **Reusable**: BuildOrchestrator callable from CLI, API, scripts, or tests
+- **Single responsibility**: Each component has one clear job
 
 **Expected output after build:**
 ```
 output/
 ├── pics/           # Organized photos (from organize/NormPic)
-├── galleries/      # Gallery HTML/CSS/thumbnails (from galleria)  
+├── galleries/      # Gallery HTML/CSS/thumbnails (from GalleriaBuilder)  
 │   └── wedding/    # Gallery pages: page_1.html, etc.
-├── about/          # Site pages (from pelican)
-└── index.html      # Site root (from pelican)
+├── about/          # Site pages (from PelicanBuilder)
+└── index.html      # Site root (from PelicanBuilder)
 
 ## Workflow Steps
 
