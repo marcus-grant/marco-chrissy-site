@@ -6,5 +6,6 @@ static site generation with Pelican.
 """
 
 from .exceptions import BuildError, ConfigError, GalleriaError, PelicanError
+from .config_manager import ConfigManager
 
-__all__ = ["BuildError", "ConfigError", "GalleriaError", "PelicanError"]
+__all__ = ["BuildError", "ConfigError", "GalleriaError", "PelicanError", "ConfigManager"]
