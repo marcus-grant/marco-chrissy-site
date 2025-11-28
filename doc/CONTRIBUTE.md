@@ -13,7 +13,7 @@ When adding complex features, update doc/TODO.md with concrete, actionable tasks
 ### Task Structure
 Each task must specify exactly:
 - **What to implement/test** (specific files, classes, methods)
-- **Pre-commit workflow**: `uv run ruff check --fix`, `uv run pytest`, update docs
+- **Pre-commit workflow**: `uv run ruff check --fix --unsafe-fixes`, `uv run pytest`, update docs
 - **Commit message format**: `Prefix: Description`
 - **Expected outcome** (tests pass/fail, what functionality works)
 
@@ -28,7 +28,7 @@ Each task must specify exactly:
 - [ ] **Create galleria serve E2E tests (skipped)**
   - [ ] Create `galleria/test/test_serve_e2e.py` with tests:
     - [ ] `@pytest.mark.skip` test_serve_cli_integration - Test CLI starts server
-  - [ ] `uv run ruff check --fix`
+  - [ ] `uv run ruff check --fix --unsafe-fixes`
   - [ ] `uv run pytest` (tests should be skipped)
   - [ ] Update doc/CHANGELOG.md and doc/TODO.md
   - [ ] Commit: `Tst: Add galleria serve E2E tests (skipped)`
@@ -45,7 +45,7 @@ Each task must specify exactly:
 * This is a `**uv**`` managed project
   * **Test Command**: Use `uv run pytest` to run tests
     * **NOT**: `python -m pytest`
-* **ALWAYS run ruff first**: `uv run ruff check --fix` before testing
+* **ALWAYS run ruff first**: `uv run ruff check --fix --unsafe-fixes` before testing
 * **ALWAYS run full test suite**: Before every single commit
 * **Specific Test Files**:
   * Use `uv run pytest test/test_filename.py -v` for focused testing
@@ -106,7 +106,7 @@ Each task must specify exactly:
 **CRITICAL: Always follow this exact sequence before every commit:**
 
 1. **Write/modify code** - Implement your changes
-2. **Run ruff with fixes** - `uv run ruff check --fix` 
+2. **Run ruff with fixes** - `uv run ruff check --fix --unsafe-fixes` 
 3. **Run relevant tests** - Verify formatting didn't break logic
 4. **Run full test suite** - `uv run pytest` (before every commit)
 5. **Commit** - Only if all tests pass

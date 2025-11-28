@@ -73,14 +73,14 @@ See detailed implementation plan in [Phase 3: Integration Testing & Serve Comman
   - [x] Smart rebuild feature for serve command (incremental rebuilds vs full rebuilds)
   - [x] Configurable plugin/template paths + file watcher integration
   - [x] Document serve URL patterns for development vs production CDN routing
-  - [x] `uv run ruff check --fix`
+  - [x] `uv run ruff check --fix --unsafe-fixes`
   - [x] `uv run pytest`
   - [x] Update doc/CHANGELOG.md and doc/TODO.md
   - [x] Commit: `Pln: Add serve command future enhancement tasks`
 
 - [x] **Add watchdog dev dependency**
   - [x] Add `watchdog` to pyproject.toml dev dependencies
-  - [x] `uv run ruff check --fix`
+  - [x] `uv run ruff check --fix --unsafe-fixes`
   - [x] `uv run pytest` 
   - [x] Update doc/CHANGELOG.md and doc/TODO.md
   - [x] Commit: `Ft: Add development server dependencies`
@@ -88,7 +88,7 @@ See detailed implementation plan in [Phase 3: Integration Testing & Serve Comman
 - [ ] **Replace existing serve command with proper architecture**
   - [ ] Remove old serve command implementation from galleria/__main__.py
   - [ ] Remove old serve tests from test/galleria/e2e/test_cli_serve.py
-  - [ ] `uv run ruff check --fix`
+  - [ ] `uv run ruff check --fix --unsafe-fixes`
   - [ ] `uv run pytest` (may have failures - expected)
   - [ ] Update doc/CHANGELOG.md and doc/TODO.md
   - [ ] Commit: `Ref: Remove old serve command implementation`
@@ -98,7 +98,7 @@ See detailed implementation plan in [Phase 3: Integration Testing & Serve Comman
     - [ ] `@pytest.mark.skip` test_galleria_serve_cli_integration - Test CLI starts server, serves files, handles shutdown
     - [ ] `@pytest.mark.skip` test_serve_file_watching_workflow - Test config/manifest changes trigger rebuilds  
     - [ ] `@pytest.mark.skip` test_serve_static_file_serving - Test HTTP requests return correct gallery files
-  - [ ] `uv run ruff check --fix`
+  - [ ] `uv run ruff check --fix --unsafe-fixes`
   - [ ] `uv run pytest` (tests should be skipped)
   - [ ] Update doc/CHANGELOG.md and doc/TODO.md
   - [ ] Commit: `Tst: Add new galleria serve E2E tests (skipped)`
@@ -107,7 +107,7 @@ See detailed implementation plan in [Phase 3: Integration Testing & Serve Comman
   - [ ] Create `galleria/orchestrator/serve.py` with ServeOrchestrator class stub
   - [ ] Create `galleria/server/__init__.py` with static file server stub
   - [ ] Create `galleria/util/watcher.py` with file watcher stub
-  - [ ] `uv run ruff check --fix`
+  - [ ] `uv run ruff check --fix --unsafe-fixes`
   - [ ] `uv run pytest`
   - [ ] Update doc/CHANGELOG.md and doc/TODO.md
   - [ ] Commit: `Ft: Create new galleria serve module structure`
@@ -119,7 +119,7 @@ See detailed implementation plan in [Phase 3: Integration Testing & Serve Comman
   - [ ] Hard-code paths for galleria config, manifest, template, plugin directories
   - [ ] `uv run pytest` (tests should pass - GREEN)
   - [ ] Refactor if needed while keeping tests green
-  - [ ] `uv run ruff check --fix`
+  - [ ] `uv run ruff check --fix --unsafe-fixes`
   - [ ] `uv run pytest`
   - [ ] Update doc/CHANGELOG.md and doc/TODO.md
   - [ ] Commit: `Ft: Implement file watcher for galleria serve`
@@ -130,7 +130,7 @@ See detailed implementation plan in [Phase 3: Integration Testing & Serve Comman
   - [ ] Implement `galleria/server/__init__.py` using Python's SimpleHTTPRequestHandler
   - [ ] `uv run pytest` (tests should pass - GREEN)
   - [ ] Refactor if needed while keeping tests green
-  - [ ] `uv run ruff check --fix`
+  - [ ] `uv run ruff check --fix --unsafe-fixes`
   - [ ] `uv run pytest`
   - [ ] Update doc/CHANGELOG.md and doc/TODO.md
   - [ ] Commit: `Ft: Implement static file server for galleria`
@@ -141,7 +141,7 @@ See detailed implementation plan in [Phase 3: Integration Testing & Serve Comman
   - [ ] Implement `galleria/orchestrator/serve.py` to coordinate server + watcher + rebuilds
   - [ ] `uv run pytest` (tests should pass - GREEN)
   - [ ] Refactor if needed while keeping tests green
-  - [ ] `uv run ruff check --fix`
+  - [ ] `uv run ruff check --fix --unsafe-fixes`
   - [ ] `uv run pytest`
   - [ ] Update doc/CHANGELOG.md and doc/TODO.md
   - [ ] Commit: `Ft: Implement ServeOrchestrator for galleria`
@@ -151,7 +151,7 @@ See detailed implementation plan in [Phase 3: Integration Testing & Serve Comman
   - [ ] `uv run pytest` (tests should fail - RED)
   - [ ] Add new serve command to galleria CLI using Click, calls ServeOrchestrator
   - [ ] `uv run pytest` (tests should pass - GREEN)
-  - [ ] `uv run ruff check --fix`
+  - [ ] `uv run ruff check --fix --unsafe-fixes`
   - [ ] `uv run pytest`
   - [ ] Update doc/CHANGELOG.md and doc/TODO.md
   - [ ] Commit: `Ft: Add new galleria serve CLI command`
@@ -159,7 +159,7 @@ See detailed implementation plan in [Phase 3: Integration Testing & Serve Comman
 - [ ] **Enable new galleria serve E2E tests**
   - [ ] Remove `@pytest.mark.skip` decorators from `test/galleria/e2e/test_serve_e2e.py`
   - [ ] `uv run pytest` (fix any integration issues until tests pass)
-  - [ ] `uv run ruff check --fix`
+  - [ ] `uv run ruff check --fix --unsafe-fixes`
   - [ ] `uv run pytest`
   - [ ] Update doc/CHANGELOG.md and doc/TODO.md
   - [ ] Commit: `Tst: Enable and fix new galleria serve E2E tests`
@@ -168,7 +168,7 @@ See detailed implementation plan in [Phase 3: Integration Testing & Serve Comman
   - [ ] Create `test/e2e/test_site_serve.py` with tests:
     - [ ] `@pytest.mark.skip` test_site_serve_proxy_coordination - Test site serve starts both Galleria and Pelican servers
     - [ ] `@pytest.mark.skip` test_site_serve_routing - Test proxy routes /galleries/, /pics/, other requests correctly
-  - [ ] `uv run ruff check --fix`
+  - [ ] `uv run ruff check --fix --unsafe-fixes`
   - [ ] `uv run pytest`
   - [ ] Update doc/CHANGELOG.md and doc/TODO.md
   - [ ] Commit: `Tst: Add site serve E2E tests (skipped)`
@@ -181,7 +181,7 @@ See detailed implementation plan in [Phase 3: Integration Testing & Serve Comman
     - [ ] `/pics/*` → Static file server for output/pics/
     - [ ] Everything else → Pelican --listen (port 8002)
   - [ ] `uv run pytest` (tests should pass - GREEN)
-  - [ ] `uv run ruff check --fix`
+  - [ ] `uv run ruff check --fix --unsafe-fixes`
   - [ ] `uv run pytest`
   - [ ] Update doc/CHANGELOG.md and doc/TODO.md
   - [ ] Commit: `Ft: Implement site serve proxy command`
@@ -189,7 +189,7 @@ See detailed implementation plan in [Phase 3: Integration Testing & Serve Comman
 - [ ] **Enable site serve E2E tests**
   - [ ] Remove `@pytest.mark.skip` decorators from `test/e2e/test_site_serve.py`
   - [ ] `uv run pytest` (fix any integration issues until tests pass)
-  - [ ] `uv run ruff check --fix`
+  - [ ] `uv run ruff check --fix --unsafe-fixes`
   - [ ] `uv run pytest`
   - [ ] Update doc/CHANGELOG.md and doc/TODO.md
   - [ ] Commit: `Tst: Enable and fix site serve E2E tests`
@@ -197,7 +197,7 @@ See detailed implementation plan in [Phase 3: Integration Testing & Serve Comman
 - [ ] **Document serve command usage**
   - [ ] Create `doc/commands/serve.md` with usage examples and URL pattern explanations
   - [ ] Update `doc/commands/README.md` to link to serve.md
-  - [ ] `uv run ruff check --fix`
+  - [ ] `uv run ruff check --fix --unsafe-fixes`
   - [ ] `uv run pytest`
   - [ ] Update doc/CHANGELOG.md and doc/TODO.md
   - [ ] Commit: `Doc: Add serve command usage documentation`
@@ -206,7 +206,7 @@ See detailed implementation plan in [Phase 3: Integration Testing & Serve Comman
   - [ ] Create `doc/modules/galleria/serve.md` documenting ServeOrchestrator, server, watcher modules
   - [ ] Update `doc/architecture.md` with serve command integration
   - [ ] Update `doc/workflow.md` with development workflow using serve
-  - [ ] `uv run ruff check --fix`
+  - [ ] `uv run ruff check --fix --unsafe-fixes`
   - [ ] `uv run pytest`
   - [ ] Update doc/CHANGELOG.md and doc/TODO.md
   - [ ] Commit: `Doc: Document serve command architecture and workflow`
