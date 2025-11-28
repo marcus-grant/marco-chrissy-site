@@ -93,76 +93,102 @@ See detailed implementation plan in [Phase 3: Integration Testing & Serve Comman
   - [ ] Update doc/CHANGELOG.md and doc/TODO.md
   - [ ] Commit: `Ref: Remove old serve command implementation`
 
-- [ ] **Create new Galleria serve E2E tests (skipped)**
-  - [ ] Create `test/galleria/e2e/test_serve_e2e.py` with tests:
-    - [ ] `@pytest.mark.skip` test_galleria_serve_cli_integration - Test CLI starts server, serves files, handles shutdown
-    - [ ] `@pytest.mark.skip` test_serve_file_watching_workflow - Test config/manifest changes trigger rebuilds  
-    - [ ] `@pytest.mark.skip` test_serve_static_file_serving - Test HTTP requests return correct gallery files
-  - [ ] `uv run ruff check --fix --unsafe-fixes`
-  - [ ] `uv run pytest` (tests should be skipped)
-  - [ ] Update doc/CHANGELOG.md and doc/TODO.md
-  - [ ] Commit: `Tst: Add new galleria serve E2E tests (skipped)`
+- [x] **Create new Galleria serve E2E tests (skipped)**
+  - [x] Create `test/galleria/e2e/test_serve_e2e.py` with tests:
+    - [x] `@pytest.mark.skip` test_galleria_serve_cli_integration - Test CLI starts server, serves files, handles shutdown
+    - [x] `@pytest.mark.skip` test_serve_file_watching_workflow - Test config/manifest changes trigger rebuilds  
+    - [x] `@pytest.mark.skip` test_serve_static_file_serving - Test HTTP requests return correct gallery files
+  - [x] `uv run ruff check --fix --unsafe-fixes`
+  - [x] `uv run pytest` (tests should be skipped)
+  - [x] Update doc/CHANGELOG.md and doc/TODO.md
+  - [x] Commit: `Tst: Add new galleria serve E2E tests (skipped)`
 
-- [ ] **Create galleria serve module structure**
-  - [ ] Create `galleria/orchestrator/serve.py` with ServeOrchestrator class stub
-  - [ ] Create `galleria/server/__init__.py` with static file server stub
-  - [ ] Create `galleria/util/watcher.py` with file watcher stub
-  - [ ] `uv run ruff check --fix --unsafe-fixes`
-  - [ ] `uv run pytest`
-  - [ ] Update doc/CHANGELOG.md and doc/TODO.md
-  - [ ] Commit: `Ft: Create new galleria serve module structure`
+- [x] **Create galleria serve module structure**
+  - [x] Create `galleria/orchestrator/serve.py` with ServeOrchestrator class stub
+  - [x] Create `galleria/server/__init__.py` with static file server stub
+  - [x] Create `galleria/util/watcher.py` with file watcher stub
+  - [x] `uv run ruff check --fix --unsafe-fixes`
+  - [x] `uv run pytest`
+  - [x] Update doc/CHANGELOG.md and doc/TODO.md
+  - [x] Commit: `Ft: Create new galleria serve module structure`
 
-- [ ] **Implement file watcher (TDD cycle)**
-  - [ ] Create `test/galleria/unit/test_watcher.py` with unit tests for file watching
-  - [ ] `uv run pytest` (tests should fail - RED)
-  - [ ] Implement `galleria/util/watcher.py` using watchdog library
-  - [ ] Hard-code paths for galleria config, manifest, template, plugin directories
-  - [ ] `uv run pytest` (tests should pass - GREEN)
-  - [ ] Refactor if needed while keeping tests green
-  - [ ] `uv run ruff check --fix --unsafe-fixes`
-  - [ ] `uv run pytest`
-  - [ ] Update doc/CHANGELOG.md and doc/TODO.md
-  - [ ] Commit: `Ft: Implement file watcher for galleria serve`
+- [x] **Implement file watcher (TDD cycle)**
+  - [x] Create `test/galleria/unit/test_watcher.py` with unit tests for file watching
+  - [x] `uv run pytest` (tests should fail - RED)
+  - [x] Implement `galleria/util/watcher.py` using watchdog library
+  - [x] Hard-code paths for galleria config, manifest, template, plugin directories
+  - [x] `uv run pytest` (tests should pass - GREEN)
+  - [x] Refactor if needed while keeping tests green
+  - [x] `uv run ruff check --fix --unsafe-fixes`
+  - [x] `uv run pytest`
+  - [x] Update doc/CHANGELOG.md and doc/TODO.md
+  - [x] Commit: `Ft: Implement file watcher for galleria serve`
 
-- [ ] **Implement static file server (TDD cycle)**
-  - [ ] Create `test/galleria/unit/test_server.py` with unit tests for HTTP server
-  - [ ] `uv run pytest` (tests should fail - RED)
-  - [ ] Implement `galleria/server/__init__.py` using Python's SimpleHTTPRequestHandler
-  - [ ] `uv run pytest` (tests should pass - GREEN)
-  - [ ] Refactor if needed while keeping tests green
-  - [ ] `uv run ruff check --fix --unsafe-fixes`
-  - [ ] `uv run pytest`
-  - [ ] Update doc/CHANGELOG.md and doc/TODO.md
-  - [ ] Commit: `Ft: Implement static file server for galleria`
+- [x] **Implement static file server (TDD cycle)**
+  - [x] Create `test/galleria/unit/test_server.py` with unit tests for HTTP server
+  - [x] `uv run pytest` (tests should fail - RED)
+  - [x] Implement `galleria/server/__init__.py` using Python's SimpleHTTPRequestHandler
+  - [x] `uv run pytest` (tests should pass - GREEN)
+  - [x] Refactor if needed while keeping tests green
+  - [x] `uv run ruff check --fix --unsafe-fixes`
+  - [x] `uv run pytest`
+  - [x] Update doc/CHANGELOG.md and doc/TODO.md
+  - [x] Commit: `Ft: Implement static file server for galleria`
 
-- [ ] **Implement ServeOrchestrator (TDD cycle)**
-  - [ ] Create `test/galleria/unit/test_serve_orchestrator.py` with unit tests
-  - [ ] `uv run pytest` (tests should fail - RED)
-  - [ ] Implement `galleria/orchestrator/serve.py` to coordinate server + watcher + rebuilds
-  - [ ] `uv run pytest` (tests should pass - GREEN)
-  - [ ] Refactor if needed while keeping tests green
-  - [ ] `uv run ruff check --fix --unsafe-fixes`
-  - [ ] `uv run pytest`
-  - [ ] Update doc/CHANGELOG.md and doc/TODO.md
-  - [ ] Commit: `Ft: Implement ServeOrchestrator for galleria`
+- [x] **Implement ServeOrchestrator (TDD cycle)**
+  - [x] Create `test/galleria/unit/test_serve_orchestrator.py` with unit tests
+  - [x] `uv run pytest` (tests should fail - RED)
+  - [x] Implement `galleria/orchestrator/serve.py` to coordinate server + watcher + rebuilds
+  - [x] `uv run pytest` (tests should pass - GREEN)
+  - [x] Refactor if needed while keeping tests green
+  - [x] `uv run ruff check --fix --unsafe-fixes`
+  - [x] `uv run pytest`
+  - [x] Update doc/CHANGELOG.md and doc/TODO.md
+  - [x] Commit: `Ft: Implement ServeOrchestrator for galleria`
 
-- [ ] **Add new galleria serve CLI command (TDD cycle)**
-  - [ ] Create `test/galleria/unit/test_cli_serve.py` with CLI integration tests
-  - [ ] `uv run pytest` (tests should fail - RED)
-  - [ ] Add new serve command to galleria CLI using Click, calls ServeOrchestrator
-  - [ ] `uv run pytest` (tests should pass - GREEN)
-  - [ ] `uv run ruff check --fix --unsafe-fixes`
-  - [ ] `uv run pytest`
-  - [ ] Update doc/CHANGELOG.md and doc/TODO.md
-  - [ ] Commit: `Ft: Add new galleria serve CLI command`
+- [x] **Add new galleria serve CLI command (TDD cycle)**
+  - [x] Create `test/galleria/unit/test_cli_serve.py` with CLI integration tests
+  - [x] `uv run pytest` (tests should fail - RED)
+  - [x] Add new serve command to galleria CLI using Click, calls ServeOrchestrator
+  - [x] `uv run pytest` (tests should pass - GREEN)
+  - [x] `uv run ruff check --fix --unsafe-fixes`
+  - [x] `uv run pytest`
+  - [x] Update doc/CHANGELOG.md and doc/TODO.md
+  - [x] Commit: `Ft: Add new galleria serve CLI command`
 
-- [ ] **Enable new galleria serve E2E tests**
-  - [ ] Remove `@pytest.mark.skip` decorators from `test/galleria/e2e/test_serve_e2e.py`
-  - [ ] `uv run pytest` (fix any integration issues until tests pass)
-  - [ ] `uv run ruff check --fix --unsafe-fixes`
-  - [ ] `uv run pytest`
+- [x] **Enable new galleria serve E2E tests**
+  - [x] Remove `@pytest.mark.skip` decorators from `test/galleria/e2e/test_serve_e2e.py`
+  - [x] `uv run pytest` (fix any integration issues until tests pass)
+  - [x] `uv run ruff check --fix --unsafe-fixes`
+  - [x] `uv run pytest`
+  - [x] Update doc/CHANGELOG.md and doc/TODO.md
+  - [x] Commit: `Tst: Enable and fix new galleria serve E2E tests`
+
+- [ ] **Fix CLI file writing infinite loop bug**
+  - [ ] Debug and fix infinite loop in `galleria/__main__.py` lines 121-140
+  - [ ] Add error handling and debugging for file writing section
+  - [ ] `uv run pytest` (ensure fix works)
   - [ ] Update doc/CHANGELOG.md and doc/TODO.md
-  - [ ] Commit: `Tst: Enable and fix new galleria serve E2E tests`
+  - [ ] Commit: `Fix: Resolve CLI file writing infinite loop bug`
+
+- [ ] **Setup production galleria config using real photos**
+  - [ ] Create `config/galleria.json` using existing `output/pics/full/manifest.json`
+  - [ ] Configure output to `output/galleries/wedding` (git-ignored)
+  - [ ] Test config with real wedding photos (380+ photos)
+  - [ ] Update doc/CHANGELOG.md and doc/TODO.md
+  - [ ] Commit: `Ft: Add production galleria config for real photos`
+
+- [ ] **Manual testing guide with real photo set**
+  - [ ] Guide through testing serve command with real photos
+  - [ ] Test hot reload, file watching, skip generation modes
+  - [ ] Verify full E2E workflow works correctly
+  - [ ] Document any issues found and solutions
+
+- [ ] **Cleanup test galleries and artifacts**
+  - [ ] Remove `test_config/` and `test_output/` directories
+  - [ ] Ensure `.gitignore` covers all output directories
+  - [ ] Clean up any other test artifacts
+  - [ ] Commit: `Ref: Clean up test galleries and artifacts`
 
 - [ ] **Create site serve E2E tests (skipped)**
   - [ ] Create `test/e2e/test_site_serve.py` with tests:

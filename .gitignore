@@ -17,6 +17,9 @@ dist/
 build/
 *.egg
 
+# DELETEME files
+*DELETEME*
+
 # uv
 .venv/
 uv.lock
