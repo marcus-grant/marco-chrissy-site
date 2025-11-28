@@ -6,6 +6,7 @@ import click
 
 from .config import GalleriaConfig
 from .manager.pipeline import PipelineManager
+from .orchestrator.serve import ServeOrchestrator
 from .plugins.base import PluginContext
 from .plugins.css import BasicCSSPlugin
 from .plugins.pagination import BasicPaginationPlugin
@@ -148,6 +149,73 @@ def generate(config: Path, output: Path | None, verbose: bool):
         if isinstance(e, click.ClickException):
             raise
         raise click.ClickException(f"Pipeline execution error: {e}") from e
+
+
+@cli.command()
+@click.option(
+    "--config", "-c",
+    type=click.Path(exists=True, path_type=Path),
+    required=True,
+    help="Path to galleria configuration file"
+)
+@click.option(
+    "--host", "-h",
+    default="127.0.0.1",
+    help="Host address to bind server (default: 127.0.0.1)"
+)
+@click.option(
+    "--port", "-p",
+    type=int,
+    default=8000,
+    help="Port number for development server (default: 8000)"
+)
+@click.option(
+    "--no-generate",
+    is_flag=True,
+    help="Skip gallery generation phase"
+)
+@click.option(
+    "--no-watch",
+    is_flag=True,
+    help="Disable file watching and hot reload"
+)
+@click.option(
+    "--verbose", "-v",
+    is_flag=True,
+    help="Enable verbose output"
+)
+def serve(config: Path, host: str, port: int, no_generate: bool, no_watch: bool, verbose: bool):
+    """Start development server for gallery with hot reload.
+
+    This command starts an HTTP server to serve the generated gallery files
+    with optional file watching for hot reload during development.
+    """
+    if verbose:
+        click.echo("Starting galleria development server...")
+        click.echo(f"Configuration: {config}")
+        click.echo(f"Server: http://{host}:{port}")
+        if no_generate:
+            click.echo("Skipping gallery generation")
+        if no_watch:
+            click.echo("File watching disabled")
+
+    try:
+        # Initialize and execute serve orchestrator
+        orchestrator = ServeOrchestrator()
+        orchestrator.execute(
+            config_path=config,
+            host=host,
+            port=port,
+            no_generate=no_generate,
+            no_watch=no_watch,
+            verbose=verbose
+        )
+    except KeyboardInterrupt:
+        if verbose:
+            click.echo("\nShutting down server...")
+        click.echo("Development server stopped.")
+    except Exception as e:
+        raise click.ClickException(f"Server error: {e}") from e
 
 
 

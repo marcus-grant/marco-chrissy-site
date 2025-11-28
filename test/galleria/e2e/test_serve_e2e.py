@@ -3,14 +3,12 @@
 import subprocess
 import time
 
-import pytest
 import requests
 
 
 class TestGalleriaServeE2E:
     """E2E tests for galleria serve command."""
 
-    @pytest.mark.skip("Implementation not ready - orchestrator pattern not yet built")
     def test_galleria_serve_cli_integration(self, complete_serving_scenario):
         """E2E: Test CLI starts server, serves files, handles shutdown.
 
@@ -82,7 +80,6 @@ class TestGalleriaServeE2E:
                 serve_process.kill()
                 serve_process.wait()
 
-    @pytest.mark.skip("Implementation not ready - file watcher not yet built")
     def test_serve_file_watching_workflow(self, file_watcher_scenario, galleria_file_factory, free_port):
         """E2E: Test config/manifest changes trigger rebuilds.
 
@@ -146,7 +143,6 @@ class TestGalleriaServeE2E:
             except subprocess.TimeoutExpired:
                 serve_process.kill()
 
-    @pytest.mark.skip("Implementation not ready - HTTP server not yet built")
     def test_serve_static_file_serving(self, complete_serving_scenario):
         """E2E: Test HTTP requests return correct gallery files.
 
