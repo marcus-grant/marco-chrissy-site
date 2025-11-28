@@ -11,13 +11,7 @@ class TestGalleriaServeE2E:
     """E2E tests for galleria serve command."""
 
     @pytest.mark.skip("Implementation not ready - orchestrator pattern not yet built")
-    def test_galleria_serve_cli_integration(
-        self,
-        temp_filesystem,
-        fake_image_factory,
-        config_file_factory,
-        file_factory
-    ):
+    def test_galleria_serve_cli_integration(self, complete_serving_scenario):
         """E2E: Test CLI starts server, serves files, handles shutdown.
 
         Test complete serve workflow:
@@ -28,56 +22,16 @@ class TestGalleriaServeE2E:
         5. Basic HTTP response validation
         6. Clean shutdown handling
         """
-        # Arrange: Create test photos using fake_image_factory
-        test_photos = []
-        for i in range(2):  # Small set for faster testing
-            photo_path = fake_image_factory(
-                f"test_{i:03d}.jpg",
-                directory="source_photos",
-                color=(255 - i * 50, i * 50, 100 + i * 30),
-                size=(200, 150)
-            )
-            test_photos.append(str(photo_path))
+        # Arrange: Create complete serving scenario with all components
+        scenario = complete_serving_scenario(
+            collection_name="e2e_test_photos",
+            num_photos=4,
+            photos_per_page=2
+        )
 
-        # Create NormPic manifest using file_factory
-        manifest_data = {
-            "version": "0.1.0",
-            "collection_name": "test_photos",
-            "pics": [
-                {
-                    "source_path": test_photos[0],
-                    "dest_path": "test_001.jpg",
-                    "hash": "hash001",
-                    "size_bytes": 2048,
-                    "mtime": 1234567890
-                },
-                {
-                    "source_path": test_photos[1],
-                    "dest_path": "test_002.jpg",
-                    "hash": "hash002",
-                    "size_bytes": 2048,
-                    "mtime": 1234567891
-                }
-            ]
-        }
-        manifest_path = file_factory("manifest.json", json_content=manifest_data)
-
-        # Create galleria config using config_file_factory with custom overrides
-        galleria_config_content = {
-            "input": {"manifest_path": str(manifest_path)},
-            "output": {"directory": str(temp_filesystem / "gallery_output")},
-            "pipeline": {
-                "provider": {"plugin": "normpic-provider", "config": {}},
-                "processor": {"plugin": "thumbnail-processor", "config": {"thumbnail_size": 200}},
-                "transform": {"plugin": "basic-pagination", "config": {"page_size": 2}},
-                "template": {"plugin": "basic-template", "config": {"theme": "minimal"}},
-                "css": {"plugin": "basic-css", "config": {"theme": "light"}}
-            }
-        }
-        config_path = config_file_factory("galleria", galleria_config_content)
-
-        test_port = 8001
-        output_dir = temp_filesystem / "gallery_output"
+        config_path = scenario["config_path"]
+        test_port = scenario["port"]
+        output_dir = scenario["output_path"]
 
         # Act: Execute galleria serve command in subprocess
         serve_process = subprocess.Popen([
@@ -129,13 +83,7 @@ class TestGalleriaServeE2E:
                 serve_process.wait()
 
     @pytest.mark.skip("Implementation not ready - file watcher not yet built")
-    def test_serve_file_watching_workflow(
-        self,
-        temp_filesystem,
-        fake_image_factory,
-        config_file_factory,
-        file_factory
-    ):
+    def test_serve_file_watching_workflow(self, file_watcher_scenario, galleria_file_factory, free_port):
         """E2E: Test config/manifest changes trigger rebuilds.
 
         Test hot reload functionality:
@@ -146,42 +94,13 @@ class TestGalleriaServeE2E:
         5. Verify gallery regeneration occurs
         6. Verify updated content is served
         """
-        # Arrange: Create test photo
-        photo_path = fake_image_factory(
-            "test.jpg",
-            directory="source_photos",
-            color="blue",
-            size=(100, 100)
-        )
+        # Arrange: Create file watching scenario
+        scenario = file_watcher_scenario()
+        config_path = scenario["config_path"]
+        scenario["manifest_path"]
+        initial_config = scenario["initial_config"]
 
-        # Create manifest
-        manifest_data = {
-            "version": "0.1.0",
-            "collection_name": "watch_test",
-            "pics": [{
-                "source_path": str(photo_path),
-                "dest_path": "test.jpg",
-                "hash": "hash001",
-                "size_bytes": 2048,
-                "mtime": 1234567890
-            }]
-        }
-        manifest_path = file_factory("manifest.json", json_content=manifest_data)
-
-        # Create initial config with "minimal" theme
-        config_content = {
-            "input": {"manifest_path": str(manifest_path)},
-            "output": {"directory": str(temp_filesystem / "output")},
-            "pipeline": {
-                "provider": {"plugin": "normpic-provider", "config": {}},
-                "processor": {"plugin": "thumbnail-processor", "config": {"thumbnail_size": 200}},
-                "transform": {"plugin": "basic-pagination", "config": {"page_size": 1}},
-                "template": {"plugin": "basic-template", "config": {"theme": "minimal"}},
-                "css": {"plugin": "basic-css", "config": {"theme": "light"}}
-            }
-        }
-        config_path = config_file_factory("galleria", config_content)
-        test_port = 8002
+        test_port = free_port()
 
         # Act: Start serve command with watching enabled
         serve_process = subprocess.Popen([
@@ -202,10 +121,11 @@ class TestGalleriaServeE2E:
             assert "minimal" in initial_content, "Initial theme not applied"
 
             # Modify config to change theme (trigger hot reload)
-            config_content["pipeline"]["template"]["config"]["theme"] = "elegant"
-            file_factory(
-                "config/galleria.json",
-                json_content=config_content
+            modified_config = initial_config.copy()
+            modified_config["pipeline"]["template"]["config"]["theme"] = "elegant"
+            galleria_file_factory(
+                str(config_path.relative_to(config_path.parent.parent)),
+                json_content=modified_config
             )
 
             # Wait for hot reload to detect change and regenerate
@@ -227,13 +147,7 @@ class TestGalleriaServeE2E:
                 serve_process.kill()
 
     @pytest.mark.skip("Implementation not ready - HTTP server not yet built")
-    def test_serve_static_file_serving(
-        self,
-        temp_filesystem,
-        fake_image_factory,
-        config_file_factory,
-        file_factory
-    ):
+    def test_serve_static_file_serving(self, complete_serving_scenario):
         """E2E: Test HTTP requests return correct gallery files.
 
         Test static file serving functionality:
@@ -245,43 +159,16 @@ class TestGalleriaServeE2E:
         6. Test root path redirect to page_1.html
         7. Test 404 handling for missing files
         """
-        # Arrange: Create multiple test photos for comprehensive test
-        test_photos = []
-        for i in range(3):
-            photo_path = fake_image_factory(
-                f"photo_{i:03d}.jpg",
-                directory="photos",
-                color=(255 - i * 60, i * 80, 100 + i * 40),
-                size=(300, 200)
-            )
-            test_photos.append(str(photo_path))
+        # Arrange: Create comprehensive serving scenario
+        scenario = complete_serving_scenario(
+            collection_name="serving_test",
+            num_photos=6,
+            photos_per_page=3
+        )
 
-        # Create manifest with multiple photos
-        manifest_data = {
-            "version": "0.1.0",
-            "collection_name": "serving_test",
-            "pics": [
-                {"source_path": test_photos[0], "dest_path": "photo_001.jpg", "hash": "h001", "size_bytes": 4096, "mtime": 1000000},
-                {"source_path": test_photos[1], "dest_path": "photo_002.jpg", "hash": "h002", "size_bytes": 4096, "mtime": 1000001},
-                {"source_path": test_photos[2], "dest_path": "photo_003.jpg", "hash": "h003", "size_bytes": 4096, "mtime": 1000002}
-            ]
-        }
-        manifest_path = file_factory("manifest.json", json_content=manifest_data)
-
-        # Create config with pagination to generate multiple pages
-        config_content = {
-            "input": {"manifest_path": str(manifest_path)},
-            "output": {"directory": str(temp_filesystem / "output")},
-            "pipeline": {
-                "provider": {"plugin": "normpic-provider", "config": {}},
-                "processor": {"plugin": "thumbnail-processor", "config": {"thumbnail_size": 150}},
-                "transform": {"plugin": "basic-pagination", "config": {"page_size": 2}},
-                "template": {"plugin": "basic-template", "config": {"theme": "elegant"}},
-                "css": {"plugin": "basic-css", "config": {"theme": "dark"}}
-            }
-        }
-        config_path = config_file_factory("galleria", config_content)
-        test_port = 8003
+        config_path = scenario["config_path"]
+        test_port = scenario["port"]
+        output_dir = scenario["output_path"]
 
         # Act: Start serve command
         serve_process = subprocess.Popen([
@@ -296,7 +183,6 @@ class TestGalleriaServeE2E:
             time.sleep(4)
 
             # Assert: Test various file serving scenarios
-            output_dir = temp_filesystem / "output"
             assert output_dir.exists(), "Output directory not created"
             assert (output_dir / "page_1.html").exists(), "Page 1 not generated"
             assert (output_dir / "page_2.html").exists(), "Page 2 not generated"
@@ -322,7 +208,8 @@ class TestGalleriaServeE2E:
 
             # Test thumbnail serving with correct content-type
             thumbnails = list((output_dir / "thumbnails").glob("*.webp"))
-            assert len(thumbnails) == 3, f"Expected 3 thumbnails, found {len(thumbnails)}"
+            expected_thumbnails = scenario["num_photos"]
+            assert len(thumbnails) == expected_thumbnails, f"Expected {expected_thumbnails} thumbnails, found {len(thumbnails)}"
 
             for thumb in thumbnails:
                 thumb_response = requests.get(f"http://localhost:{test_port}/thumbnails/{thumb.name}", timeout=2)

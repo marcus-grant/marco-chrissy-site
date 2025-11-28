@@ -1,6 +1,34 @@
 """Static file server for galleria development."""
 
+import os
+from http.server import HTTPServer, SimpleHTTPRequestHandler
 from pathlib import Path
+from typing import Any
+
+
+class GalleriaRequestHandler(SimpleHTTPRequestHandler):
+    """Custom request handler with CORS headers and root redirect."""
+
+    def end_headers(self) -> None:
+        """Add CORS headers before ending headers."""
+        self.send_header('Access-Control-Allow-Origin', '*')
+        self.send_header('Access-Control-Allow-Methods', 'GET, POST, OPTIONS')
+        self.send_header('Access-Control-Allow-Headers', 'Content-Type')
+        super().end_headers()
+
+    def do_GET(self) -> None:
+        """Handle GET requests with root path redirect to page_1.html."""
+        if self.path == "/" and Path("page_1.html").exists():
+            self.send_response(302)
+            self.send_header('Location', '/page_1.html')
+            self.end_headers()
+            return
+
+        super().do_GET()
+
+    def log_request(self, code: int = '-', size: int | str = '-') -> None:
+        """Log requests with custom format for development server."""
+        self.log_message(f"Galleria server: {code} {self.path}")
 
 
 class GalleriaHTTPServer:
@@ -13,11 +41,19 @@ class GalleriaHTTPServer:
             output_directory: Directory containing generated gallery files
             host: Host address to bind server
             port: Port number for server
+
+        Raises:
+            ValueError: If output_directory doesn't exist or isn't a directory
         """
+        if not output_directory.exists():
+            raise ValueError(f"Output directory {output_directory} does not exist")
+        if not output_directory.is_dir():
+            raise ValueError(f"Path {output_directory} is not a directory")
+
         self.output_directory = output_directory
         self.host = host
         self.port = port
-        # TODO: Initialize HTTP server components
+        self._server: HTTPServer | None = None
 
     def start(self, verbose: bool = False) -> None:
         """Start the HTTP server.
@@ -28,14 +64,23 @@ class GalleriaHTTPServer:
         Raises:
             ServerError: If server fails to start
         """
-        # TODO: Implement HTTP server startup using SimpleHTTPRequestHandler
-        # - Serve files from output_directory
-        # - Handle root requests (/ -> /page_1.html)
-        # - Add CORS headers for development
-        # - Custom request logging based on verbose flag
-        raise NotImplementedError("GalleriaHTTPServer.start not yet implemented")
+        # Change to output directory so SimpleHTTPRequestHandler serves from there
+        os.chdir(str(self.output_directory))
+
+        # Create and start the HTTP server
+        self._server = HTTPServer((self.host, self.port), GalleriaRequestHandler)
+        self._server.serve_forever()
 
     def stop(self) -> None:
         """Stop the HTTP server gracefully."""
-        # TODO: Implement graceful server shutdown
-        raise NotImplementedError("GalleriaHTTPServer.stop not yet implemented")
+        if self._server is not None:
+            self._server.shutdown()
+
+    def __enter__(self) -> "GalleriaHTTPServer":
+        """Context manager entry."""
+        self.start()
+        return self
+
+    def __exit__(self, exc_type: Any, exc_val: Any, exc_tb: Any) -> None:
+        """Context manager exit."""
+        self.stop()
