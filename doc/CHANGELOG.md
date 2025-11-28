@@ -19,6 +19,12 @@
   * Established task structure format with concrete file paths and pre-commit workflows
   * All dependencies installed and tests passing (315 passed, 9 skipped)
 
+* **PLANNED: Replace existing serve command with proper architecture**
+  * Updated TODO.md to replace old serve implementation with modular design
+  * Plan includes removal of existing serve command and tests
+  * New implementation will follow orchestrator pattern with proper separation
+  * Module organization: galleria/orchestrator/serve.py, galleria/server/, galleria/util/watcher.py
+
 ## 2025-11-27
 
 ### Build Command Integration FIXED + Build Orchestrator Refactoring COMPLETED + Documentation Updates

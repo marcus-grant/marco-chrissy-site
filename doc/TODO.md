@@ -85,15 +85,23 @@ See detailed implementation plan in [Phase 3: Integration Testing & Serve Comman
   - [x] Update doc/CHANGELOG.md and doc/TODO.md
   - [x] Commit: `Ft: Add development server dependencies`
 
-- [ ] **Create Galleria serve E2E tests (skipped)**
-  - [ ] Create `galleria/test/test_serve_e2e.py` with tests:
+- [ ] **Replace existing serve command with proper architecture**
+  - [ ] Remove old serve command implementation from galleria/__main__.py
+  - [ ] Remove old serve tests from test/galleria/e2e/test_cli_serve.py
+  - [ ] `uv run ruff check --fix`
+  - [ ] `uv run pytest` (may have failures - expected)
+  - [ ] Update doc/CHANGELOG.md and doc/TODO.md
+  - [ ] Commit: `Ref: Remove old serve command implementation`
+
+- [ ] **Create new Galleria serve E2E tests (skipped)**
+  - [ ] Create `test/galleria/e2e/test_serve_e2e.py` with tests:
     - [ ] `@pytest.mark.skip` test_galleria_serve_cli_integration - Test CLI starts server, serves files, handles shutdown
     - [ ] `@pytest.mark.skip` test_serve_file_watching_workflow - Test config/manifest changes trigger rebuilds  
     - [ ] `@pytest.mark.skip` test_serve_static_file_serving - Test HTTP requests return correct gallery files
   - [ ] `uv run ruff check --fix`
   - [ ] `uv run pytest` (tests should be skipped)
   - [ ] Update doc/CHANGELOG.md and doc/TODO.md
-  - [ ] Commit: `Tst: Add galleria serve E2E tests (skipped)`
+  - [ ] Commit: `Tst: Add new galleria serve E2E tests (skipped)`
 
 - [ ] **Create galleria serve module structure**
   - [ ] Create `galleria/orchestrator/serve.py` with ServeOrchestrator class stub
@@ -102,10 +110,10 @@ See detailed implementation plan in [Phase 3: Integration Testing & Serve Comman
   - [ ] `uv run ruff check --fix`
   - [ ] `uv run pytest`
   - [ ] Update doc/CHANGELOG.md and doc/TODO.md
-  - [ ] Commit: `Ft: Create galleria serve module structure`
+  - [ ] Commit: `Ft: Create new galleria serve module structure`
 
 - [ ] **Implement file watcher (TDD cycle)**
-  - [ ] Create `galleria/test/test_watcher.py` with unit tests for file watching
+  - [ ] Create `test/galleria/unit/test_watcher.py` with unit tests for file watching
   - [ ] `uv run pytest` (tests should fail - RED)
   - [ ] Implement `galleria/util/watcher.py` using watchdog library
   - [ ] Hard-code paths for galleria config, manifest, template, plugin directories
@@ -117,7 +125,7 @@ See detailed implementation plan in [Phase 3: Integration Testing & Serve Comman
   - [ ] Commit: `Ft: Implement file watcher for galleria serve`
 
 - [ ] **Implement static file server (TDD cycle)**
-  - [ ] Create `galleria/test/test_server.py` with unit tests for HTTP server
+  - [ ] Create `test/galleria/unit/test_server.py` with unit tests for HTTP server
   - [ ] `uv run pytest` (tests should fail - RED)
   - [ ] Implement `galleria/server/__init__.py` using Python's SimpleHTTPRequestHandler
   - [ ] `uv run pytest` (tests should pass - GREEN)
@@ -128,7 +136,7 @@ See detailed implementation plan in [Phase 3: Integration Testing & Serve Comman
   - [ ] Commit: `Ft: Implement static file server for galleria`
 
 - [ ] **Implement ServeOrchestrator (TDD cycle)**
-  - [ ] Create `galleria/test/test_serve_orchestrator.py` with unit tests
+  - [ ] Create `test/galleria/unit/test_serve_orchestrator.py` with unit tests
   - [ ] `uv run pytest` (tests should fail - RED)
   - [ ] Implement `galleria/orchestrator/serve.py` to coordinate server + watcher + rebuilds
   - [ ] `uv run pytest` (tests should pass - GREEN)
@@ -138,23 +146,23 @@ See detailed implementation plan in [Phase 3: Integration Testing & Serve Comman
   - [ ] Update doc/CHANGELOG.md and doc/TODO.md
   - [ ] Commit: `Ft: Implement ServeOrchestrator for galleria`
 
-- [ ] **Add galleria serve CLI command (TDD cycle)**
-  - [ ] Create `galleria/test/test_cli_serve.py` with CLI integration tests
+- [ ] **Add new galleria serve CLI command (TDD cycle)**
+  - [ ] Create `test/galleria/unit/test_cli_serve.py` with CLI integration tests
   - [ ] `uv run pytest` (tests should fail - RED)
-  - [ ] Add serve command to galleria CLI using Click, calls ServeOrchestrator
+  - [ ] Add new serve command to galleria CLI using Click, calls ServeOrchestrator
   - [ ] `uv run pytest` (tests should pass - GREEN)
   - [ ] `uv run ruff check --fix`
   - [ ] `uv run pytest`
   - [ ] Update doc/CHANGELOG.md and doc/TODO.md
-  - [ ] Commit: `Ft: Add galleria serve CLI command`
+  - [ ] Commit: `Ft: Add new galleria serve CLI command`
 
-- [ ] **Enable galleria serve E2E tests**
-  - [ ] Remove `@pytest.mark.skip` decorators from `galleria/test/test_serve_e2e.py`
+- [ ] **Enable new galleria serve E2E tests**
+  - [ ] Remove `@pytest.mark.skip` decorators from `test/galleria/e2e/test_serve_e2e.py`
   - [ ] `uv run pytest` (fix any integration issues until tests pass)
   - [ ] `uv run ruff check --fix`
   - [ ] `uv run pytest`
   - [ ] Update doc/CHANGELOG.md and doc/TODO.md
-  - [ ] Commit: `Tst: Enable and fix galleria serve E2E tests`
+  - [ ] Commit: `Tst: Enable and fix new galleria serve E2E tests`
 
 - [ ] **Create site serve E2E tests (skipped)**
   - [ ] Create `test/e2e/test_site_serve.py` with tests:
