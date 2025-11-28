@@ -78,12 +78,12 @@ See detailed implementation plan in [Phase 3: Integration Testing & Serve Comman
   - [x] Update doc/CHANGELOG.md and doc/TODO.md
   - [x] Commit: `Pln: Add serve command future enhancement tasks`
 
-- [ ] **Add watchdog dev dependency**
-  - [ ] Add `watchdog` to pyproject.toml dev dependencies
-  - [ ] `uv run ruff check --fix`
-  - [ ] `uv run pytest` 
-  - [ ] Update doc/CHANGELOG.md and doc/TODO.md
-  - [ ] Commit: `Ft: Add development server dependencies`
+- [x] **Add watchdog dev dependency**
+  - [x] Add `watchdog` to pyproject.toml dev dependencies
+  - [x] `uv run ruff check --fix`
+  - [x] `uv run pytest` 
+  - [x] Update doc/CHANGELOG.md and doc/TODO.md
+  - [x] Commit: `Ft: Add development server dependencies`
 
 - [ ] **Create Galleria serve E2E tests (skipped)**
   - [ ] Create `galleria/test/test_serve_e2e.py` with tests:
