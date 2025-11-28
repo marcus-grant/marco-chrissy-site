@@ -1,5 +1,18 @@
 # Changelog
 
+## 2025-11-28
+
+### Serve Command Implementation Planning
+
+* **STARTED: Serve command implementation planning and task breakdown**
+  * Added comprehensive serve command implementation tasks to doc/TODO.md Phase 3
+  * Created step-by-step TDD workflow plan for Galleria serve (standalone) and Site serve (coordinated)
+  * Defined module organization: galleria/orchestrator/serve.py, galleria/server/, galleria/util/watcher.py
+  * Added future enhancement tasks: smart rebuilds, configurable paths, URL pattern documentation
+  * Planned proxy architecture: /galleries/* → Galleria, /pics/* → static files, else → Pelican
+  * Each task specifies exact implementation, testing, documentation, and commit workflow
+  * Ready to begin implementation following nested TDD pattern (E2E → unit tests → implementation)
+
 ## 2025-11-27
 
 ### Build Command Integration FIXED + Build Orchestrator Refactoring COMPLETED + Documentation Updates

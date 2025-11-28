@@ -69,14 +69,139 @@ See detailed implementation plan in [Phase 3: Integration Testing & Serve Comman
 
 ### Phase 3: Integration Testing & Serve Command
 
-- [ ] **Serve Command Implementation**
-  - [ ] Plan `site serve` command for development workflow
-    - [ ] E2E test: Development server with hot reload (`test/e2e/test_site_serve.py`)
-    - [ ] Unit tests: File watching, server management (`test/unit/serve/`)
-    - [ ] Inner cycles: Static file server, change detection, rebuild triggers
-    - [ ] Implementation: `cli/commands/serve.py` with build integration
-    - [ ] Documentation: Serve command usage, development workflow
-    - [ ] Commit intervals: test → implementation → integration → docs
+- [x] **Add future enhancement tasks to end of TODO.md**
+  - [x] Smart rebuild feature for serve command (incremental rebuilds vs full rebuilds)
+  - [x] Configurable plugin/template paths + file watcher integration
+  - [x] Document serve URL patterns for development vs production CDN routing
+  - [x] `uv run ruff check --fix`
+  - [x] `uv run pytest`
+  - [x] Update doc/CHANGELOG.md and doc/TODO.md
+  - [x] Commit: `Pln: Add serve command future enhancement tasks`
+
+- [ ] **Add watchdog dev dependency**
+  - [ ] Add `watchdog` to pyproject.toml dev dependencies
+  - [ ] `uv run ruff check --fix`
+  - [ ] `uv run pytest` 
+  - [ ] Update doc/CHANGELOG.md and doc/TODO.md
+  - [ ] Commit: `Ft: Add development server dependencies`
+
+- [ ] **Create Galleria serve E2E tests (skipped)**
+  - [ ] Create `galleria/test/test_serve_e2e.py` with tests:
+    - [ ] `@pytest.mark.skip` test_galleria_serve_cli_integration - Test CLI starts server, serves files, handles shutdown
+    - [ ] `@pytest.mark.skip` test_serve_file_watching_workflow - Test config/manifest changes trigger rebuilds  
+    - [ ] `@pytest.mark.skip` test_serve_static_file_serving - Test HTTP requests return correct gallery files
+  - [ ] `uv run ruff check --fix`
+  - [ ] `uv run pytest` (tests should be skipped)
+  - [ ] Update doc/CHANGELOG.md and doc/TODO.md
+  - [ ] Commit: `Tst: Add galleria serve E2E tests (skipped)`
+
+- [ ] **Create galleria serve module structure**
+  - [ ] Create `galleria/orchestrator/serve.py` with ServeOrchestrator class stub
+  - [ ] Create `galleria/server/__init__.py` with static file server stub
+  - [ ] Create `galleria/util/watcher.py` with file watcher stub
+  - [ ] `uv run ruff check --fix`
+  - [ ] `uv run pytest`
+  - [ ] Update doc/CHANGELOG.md and doc/TODO.md
+  - [ ] Commit: `Ft: Create galleria serve module structure`
+
+- [ ] **Implement file watcher (TDD cycle)**
+  - [ ] Create `galleria/test/test_watcher.py` with unit tests for file watching
+  - [ ] `uv run pytest` (tests should fail - RED)
+  - [ ] Implement `galleria/util/watcher.py` using watchdog library
+  - [ ] Hard-code paths for galleria config, manifest, template, plugin directories
+  - [ ] `uv run pytest` (tests should pass - GREEN)
+  - [ ] Refactor if needed while keeping tests green
+  - [ ] `uv run ruff check --fix`
+  - [ ] `uv run pytest`
+  - [ ] Update doc/CHANGELOG.md and doc/TODO.md
+  - [ ] Commit: `Ft: Implement file watcher for galleria serve`
+
+- [ ] **Implement static file server (TDD cycle)**
+  - [ ] Create `galleria/test/test_server.py` with unit tests for HTTP server
+  - [ ] `uv run pytest` (tests should fail - RED)
+  - [ ] Implement `galleria/server/__init__.py` using Python's SimpleHTTPRequestHandler
+  - [ ] `uv run pytest` (tests should pass - GREEN)
+  - [ ] Refactor if needed while keeping tests green
+  - [ ] `uv run ruff check --fix`
+  - [ ] `uv run pytest`
+  - [ ] Update doc/CHANGELOG.md and doc/TODO.md
+  - [ ] Commit: `Ft: Implement static file server for galleria`
+
+- [ ] **Implement ServeOrchestrator (TDD cycle)**
+  - [ ] Create `galleria/test/test_serve_orchestrator.py` with unit tests
+  - [ ] `uv run pytest` (tests should fail - RED)
+  - [ ] Implement `galleria/orchestrator/serve.py` to coordinate server + watcher + rebuilds
+  - [ ] `uv run pytest` (tests should pass - GREEN)
+  - [ ] Refactor if needed while keeping tests green
+  - [ ] `uv run ruff check --fix`
+  - [ ] `uv run pytest`
+  - [ ] Update doc/CHANGELOG.md and doc/TODO.md
+  - [ ] Commit: `Ft: Implement ServeOrchestrator for galleria`
+
+- [ ] **Add galleria serve CLI command (TDD cycle)**
+  - [ ] Create `galleria/test/test_cli_serve.py` with CLI integration tests
+  - [ ] `uv run pytest` (tests should fail - RED)
+  - [ ] Add serve command to galleria CLI using Click, calls ServeOrchestrator
+  - [ ] `uv run pytest` (tests should pass - GREEN)
+  - [ ] `uv run ruff check --fix`
+  - [ ] `uv run pytest`
+  - [ ] Update doc/CHANGELOG.md and doc/TODO.md
+  - [ ] Commit: `Ft: Add galleria serve CLI command`
+
+- [ ] **Enable galleria serve E2E tests**
+  - [ ] Remove `@pytest.mark.skip` decorators from `galleria/test/test_serve_e2e.py`
+  - [ ] `uv run pytest` (fix any integration issues until tests pass)
+  - [ ] `uv run ruff check --fix`
+  - [ ] `uv run pytest`
+  - [ ] Update doc/CHANGELOG.md and doc/TODO.md
+  - [ ] Commit: `Tst: Enable and fix galleria serve E2E tests`
+
+- [ ] **Create site serve E2E tests (skipped)**
+  - [ ] Create `test/e2e/test_site_serve.py` with tests:
+    - [ ] `@pytest.mark.skip` test_site_serve_proxy_coordination - Test site serve starts both Galleria and Pelican servers
+    - [ ] `@pytest.mark.skip` test_site_serve_routing - Test proxy routes /galleries/, /pics/, other requests correctly
+  - [ ] `uv run ruff check --fix`
+  - [ ] `uv run pytest`
+  - [ ] Update doc/CHANGELOG.md and doc/TODO.md
+  - [ ] Commit: `Tst: Add site serve E2E tests (skipped)`
+
+- [ ] **Implement site serve proxy (TDD cycle)**
+  - [ ] Create `test/unit/test_site_serve.py` with unit tests for proxy logic
+  - [ ] `uv run pytest` (tests should fail - RED)
+  - [ ] Implement `cli/commands/serve.py` with proxy that routes:
+    - [ ] `/galleries/*` → Galleria serve (port 8001)
+    - [ ] `/pics/*` → Static file server for output/pics/
+    - [ ] Everything else → Pelican --listen (port 8002)
+  - [ ] `uv run pytest` (tests should pass - GREEN)
+  - [ ] `uv run ruff check --fix`
+  - [ ] `uv run pytest`
+  - [ ] Update doc/CHANGELOG.md and doc/TODO.md
+  - [ ] Commit: `Ft: Implement site serve proxy command`
+
+- [ ] **Enable site serve E2E tests**
+  - [ ] Remove `@pytest.mark.skip` decorators from `test/e2e/test_site_serve.py`
+  - [ ] `uv run pytest` (fix any integration issues until tests pass)
+  - [ ] `uv run ruff check --fix`
+  - [ ] `uv run pytest`
+  - [ ] Update doc/CHANGELOG.md and doc/TODO.md
+  - [ ] Commit: `Tst: Enable and fix site serve E2E tests`
+
+- [ ] **Document serve command usage**
+  - [ ] Create `doc/commands/serve.md` with usage examples and URL pattern explanations
+  - [ ] Update `doc/commands/README.md` to link to serve.md
+  - [ ] `uv run ruff check --fix`
+  - [ ] `uv run pytest`
+  - [ ] Update doc/CHANGELOG.md and doc/TODO.md
+  - [ ] Commit: `Doc: Add serve command usage documentation`
+
+- [ ] **Document serve architecture**
+  - [ ] Create `doc/modules/galleria/serve.md` documenting ServeOrchestrator, server, watcher modules
+  - [ ] Update `doc/architecture.md` with serve command integration
+  - [ ] Update `doc/workflow.md` with development workflow using serve
+  - [ ] `uv run ruff check --fix`
+  - [ ] `uv run pytest`
+  - [ ] Update doc/CHANGELOG.md and doc/TODO.md
+  - [ ] Commit: `Doc: Document serve command architecture and workflow`
 
 - [ ] Test command system end-to-end
   - [ ] First check what's already there
@@ -226,6 +351,12 @@ See detailed implementation plan in [Phase 3: Integration Testing & Serve Comman
   - [ ] RAW file processing
   - [ ] Cloud storage integration
   - [ ] GUI configuration tool
+
+### Serve Command Future Enhancements
+
+- [ ] Smart rebuild feature for serve command (incremental rebuilds vs full rebuilds)
+- [ ] Configurable plugin/template paths + file watcher integration  
+- [ ] Document serve URL patterns for development vs production CDN routing
 
 ## Success Criteria
 
