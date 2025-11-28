@@ -163,6 +163,27 @@ def test_validator_function(self, temp_filesystem, file_factory):
     assert result.success is True
 ```
 
+## Galleria-Specific Fixtures
+
+Galleria has its own comprehensive fixture ecosystem for serve command testing and general galleria development. These fixtures are duplicated for independence to support future extraction as a standalone package.
+
+See: [Galleria Testing Fixtures Guide](modules/galleria/testing-fixtures.md)
+
+**Key Galleria Fixtures:**
+- `complete_serving_scenario` - End-to-end serve command scenarios
+- `gallery_output_factory` - Realistic gallery structures with HTML/CSS/thumbnails  
+- `manifest_factory` - Normpic manifests with customizable photo collections
+- `free_port` - Dynamic port allocation for HTTP testing
+- `file_watcher_scenario` - Hot reload and file watching test scenarios
+
+**Usage Example:**
+```python
+def test_serve_command(complete_serving_scenario):
+    scenario = complete_serving_scenario(num_photos=6, photos_per_page=3)
+    # All components ready: config, manifest, output, port allocation
+    assert scenario["num_pages"] == 2  # Calculated automatically
+```
+
 ## Test Development Workflow
 
 1. **Write E2E test** for new feature (skipped)

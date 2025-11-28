@@ -19,6 +19,21 @@
   * Established task structure format with concrete file paths and pre-commit workflows
   * All dependencies installed and tests passing (315 passed, 9 skipped)
 
+* **COMPLETED: Static file server TDD implementation**
+  * Implemented GalleriaHTTPServer and GalleriaRequestHandler classes in galleria/server/
+  * Features: CORS headers, root path redirect to page_1.html, context manager support
+  * Complete TDD cycle: 15 unit tests (RED) → implementation (GREEN) → refactor
+  * All tests passing, ready for integration with ServeOrchestrator
+
+* **COMPLETED: Comprehensive galleria test fixtures for serve command**
+  * Created complete test fixture ecosystem in test/galleria/conftest.py (duplicated for independence)
+  * Core fixtures: galleria_temp_filesystem, galleria_file_factory, galleria_image_factory, galleria_config_factory
+  * Specialized factories: manifest_factory, gallery_output_factory (creates realistic HTML/CSS/thumbnails)
+  * Complete scenarios: complete_serving_scenario, file_watcher_scenario for end-to-end testing
+  * HTTP testing: free_port, mock_http_server with request tracking
+  * Updated E2E serve tests to use new fixtures (simplified from ~40 lines to ~4 lines setup)
+  * All 271 galleria tests passing, fixtures ready for comprehensive serve command testing
+
 * **PLANNED: Replace existing serve command with proper architecture**
   * Updated TODO.md to replace old serve implementation with modular design
   * Plan includes removal of existing serve command and tests
