@@ -172,13 +172,15 @@ See detailed implementation plan in [Phase 3: Integration Testing & Serve Comman
   - [x] ✅ **COMMITS**: 3 commits fixing fixture API, dependency injection, and test expectations
   - [x] **PROGRESS**: Reduced failing tests from 29 to 15 (48% improvement)
 
-- [ ] **CRITICAL: Fix remaining test infrastructure issues (15 tests still failing)**
-  - [ ] **Schema test isolation**: 7 tests pass individually but fail in full suite due to fixture contamination
-  - [ ] **Serve E2E failures**: Connection refused (server not starting) + thumbnail count mismatch  
-  - [ ] **Filesystem dependency elimination**: Tests must not depend on real config files, manifests, or images
-  - [ ] **Config validator tests**: Likely have filesystem dependencies that need mocking
-  - [ ] **NormPic organizer tests**: Need investigation of specific failure modes
-  - [ ] **Test isolation**: Ensure complete isolation between tests with proper cleanup
+- [ ] **CRITICAL: Fix remaining test infrastructure issues (13 tests still failing)**
+  - [x] ✅ **ROOT CAUSE IDENTIFIED**: Tests load real files with hardcoded `Path("config/schema/file.json")`
+  - [x] ✅ **PATTERN ESTABLISHED**: Replace filesystem dependencies with inline mock schemas
+  - [x] ✅ **PROOF OF CONCEPT**: Fixed 2 normpic schema tests using mock pattern (da44126)
+  - [ ] **Apply pattern to remaining 5 schema tests**: site, pelican (2), galleria (2) - use same mock approach
+  - [ ] **Serve E2E failures**: `galleria serve` command fails to start (connection refused on startup)
+  - [ ] **Config validator failures**: 5 tests failing, likely filesystem dependencies like schema tests
+  - [ ] **1 organizer test failure**: Investigate specific failure mode
+  - [ ] **CRITICAL INSIGHT**: All tests pass individually, fail in full suite = isolation/contamination issues
   - [ ] **BLOCKING**: Must achieve 100% test pass rate before continuing serve development
 
 - [ ] **Manual testing guide with real photo set**

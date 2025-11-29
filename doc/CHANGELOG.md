@@ -48,11 +48,19 @@
   * **Fixed Test Expectations**: Updated test assertions for new builder API signature
   * **Commits**: c1cf9bd, 855727c, 61e2b47 - systematic test infrastructure improvements
 
-* **REMAINING TEST INFRASTRUCTURE ISSUES (15 tests still failing):**
-  * **Schema Test Isolation**: 7 tests pass individually but fail in full suite (fixture contamination)
-  * **Serve E2E Architecture**: Connection refused errors and thumbnail count mismatches
-  * **Filesystem Dependencies**: Tests still depend on real config files, manifests, and images
-  * **CRITICAL**: Must eliminate all filesystem dependencies and achieve 100% mock-based testing
+* **ROOT CAUSE IDENTIFIED - FILESYSTEM DEPENDENCIES:**
+  * **BREAKTHROUGH**: Found tests load real files with hardcoded `Path("config/schema/file.json")`
+  * **PATTERN ESTABLISHED**: Replace filesystem paths with inline mock schema definitions
+  * **PROOF OF CONCEPT**: Fixed 2 normpic schema tests (commit da44126) using mock pattern
+  * **Current Status**: 13 tests still failing (down from 29 original, 55% improvement total)
+
+* **REMAINING TEST INFRASTRUCTURE ISSUES (13 tests still failing):**
+  * **Schema Tests (5 remaining)**: Apply mock pattern to site, pelican (2), galleria (2) schema tests
+  * **Serve E2E Failures**: `galleria serve` command startup failures (connection refused)
+  * **Config Validator Tests (5)**: Likely same filesystem dependency pattern as schemas
+  * **Organizer Test (1)**: Single test failure needing investigation
+  * **CRITICAL INSIGHT**: All tests pass individually, only fail in full test suite (isolation issues)
+  * **NEXT STEP**: Systematic application of mock pattern to eliminate all filesystem dependencies
 
 * **TESTING: Regression prevention**
   * Added large content payload tests to test/galleria/unit/plugins/test_css.py
