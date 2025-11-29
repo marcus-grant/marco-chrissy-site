@@ -255,7 +255,7 @@ class TestGalleriaCLIGenerate:
             })
 
         manifest_path = manifest_factory("large_wedding", photos)
-        config_path = galleria_config_factory(custom_config={
+        config_path = galleria_config_factory(custom_content={
             "input": {"manifest_path": str(manifest_path)},
             "pipeline": {
                 "transform": {
