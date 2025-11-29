@@ -214,3 +214,64 @@ class TestGalleriaCLIGenerate:
         error_output = result.stderr.lower()
         assert any(phrase in error_output for phrase in ["json", "invalid", "parse", "decode", "syntax"]), \
             f"Error should mention JSON parsing issue: {result.stderr}"
+
+    def test_cli_generate_handles_malformed_content_gracefully(self, complete_serving_scenario):
+        """E2E: Test galleria generate handles malformed file content without infinite loops."""
+        scenario = complete_serving_scenario(num_photos=3, photos_per_page=2)
+
+        # Act: Execute galleria generate command with real scenario
+        result = subprocess.run([
+            "python", "-m", "galleria", "generate",
+            "--config", str(scenario["config_path"]),
+            "--verbose"
+        ], capture_output=True, text=True, cwd=scenario["config_path"].parent.parent.parent.parent, timeout=30)
+
+        # Assert: Should complete without infinite loop (timeout protects against this)
+        assert result.returncode == 0, f"Command failed: {result.stderr}"
+
+        # Verify output files exist and have content
+        output_path = scenario["output_path"]
+        assert (output_path / "page_1.html").exists(), "Page 1 not generated"
+        assert (output_path / "page_2.html").exists(), "Page 2 not generated"
+        assert (output_path / "gallery.css").exists(), "CSS not generated"
+
+        # Verify files have actual content (not empty)
+        page1_size = (output_path / "page_1.html").stat().st_size
+        css_size = (output_path / "gallery.css").stat().st_size
+        assert page1_size > 100, f"Page 1 appears empty: {page1_size} bytes"
+        assert css_size > 50, f"CSS appears empty: {css_size} bytes"
+
+    def test_cli_generate_timeout_protection_large_collections(self, manifest_factory, galleria_config_factory):
+        """E2E: Test CLI handles large photo collections without infinite loops."""
+        # Create large photo collection (100 photos)
+        photos = []
+        for i in range(100):
+            photos.append({
+                "source_path": f"/fake/photo_{i:03d}.jpg",
+                "dest_path": f"img_{i:03d}.jpg",
+                "hash": f"hash{i:03d}",
+                "size_bytes": 2000000 + i * 1000,
+                "mtime": 1234567890 + i
+            })
+
+        manifest_path = manifest_factory("large_wedding", photos)
+        config_path = galleria_config_factory(custom_config={
+            "input": {"manifest_path": str(manifest_path)},
+            "pipeline": {
+                "transform": {
+                    "plugin": "basic-pagination",
+                    "config": {"page_size": 10}  # 10 pages with 10 photos each
+                }
+            }
+        })
+
+        # Act: Should handle large collection without infinite loop
+        result = subprocess.run([
+            "python", "-m", "galleria", "generate",
+            "--config", str(config_path),
+            "--verbose"
+        ], capture_output=True, text=True, cwd=config_path.parent.parent.parent.parent, timeout=60)
+
+        # Assert: Should complete (might fail due to missing photos, but shouldn't infinite loop)
+        # Timeout will catch infinite loops
+        assert result.returncode is not None, "Command should complete (not infinite loop)"

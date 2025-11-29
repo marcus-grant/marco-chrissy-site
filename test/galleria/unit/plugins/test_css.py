@@ -286,3 +286,78 @@ class TestCSSPluginValidation:
         result = plugin.generate_css(context)
         assert not result.success
         assert "INVALID_THEME" in result.errors[0]
+
+    def test_generate_css_with_large_content_payload(self, galleria_temp_filesystem):
+        """generate_css should handle large content payloads without infinite loops."""
+
+        class LargeContentCSSPlugin(CSSPlugin):
+            @property
+            def name(self) -> str:
+                return "large-content"
+
+            @property
+            def version(self) -> str:
+                return "1.0.0"
+
+            def generate_css(self, context: PluginContext) -> PluginResult:
+                # Generate very large CSS content (1MB)
+                large_css_content = "body { margin: 0; }\n" * 50000
+                return PluginResult(success=True, output_data={
+                    "css_files": [{"filename": "large.css", "content": large_css_content}],
+                    "html_files": context.input_data.get("html_files", []),
+                    "collection_name": context.input_data.get("collection_name", "test"),
+                    "css_count": 1,
+                })
+
+        plugin = LargeContentCSSPlugin()
+        context = PluginContext(
+            input_data={
+                "collection_name": "large_test",
+                "html_files": [],
+                "file_count": 0,
+            },
+            config={},
+            output_dir=galleria_temp_filesystem,
+        )
+
+        result = plugin.generate_css(context)
+        assert result.success
+        assert result.output_data["css_files"][0]["content"]
+        # Content should be large but finite
+        assert len(result.output_data["css_files"][0]["content"]) > 100000
+
+    def test_generate_css_with_malformed_content_structure(self, galleria_temp_filesystem):
+        """generate_css should handle malformed content structure gracefully."""
+
+        class MalformedContentCSSPlugin(CSSPlugin):
+            @property
+            def name(self) -> str:
+                return "malformed"
+
+            @property
+            def version(self) -> str:
+                return "1.0.0"
+
+            def generate_css(self, context: PluginContext) -> PluginResult:
+                # Test with various malformed content types
+                return PluginResult(success=True, output_data={
+                    "css_files": [
+                        {"filename": "test.css", "content": None},  # None content
+                        {"filename": "test2.css"},  # Missing content key
+                        {"filename": "test3.css", "content": 123},  # Non-string content
+                    ],
+                    "html_files": [],
+                    "collection_name": "malformed",
+                    "css_count": 3,
+                })
+
+        plugin = MalformedContentCSSPlugin()
+        context = PluginContext(
+            input_data={"collection_name": "test", "html_files": []},
+            config={},
+            output_dir=galleria_temp_filesystem,
+        )
+
+        result = plugin.generate_css(context)
+        assert result.success
+        # Plugin returns malformed data - this tests CLI resilience

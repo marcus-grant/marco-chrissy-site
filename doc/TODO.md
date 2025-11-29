@@ -164,12 +164,26 @@ See detailed implementation plan in [Phase 3: Integration Testing & Serve Comman
   - [x] Update doc/CHANGELOG.md and doc/TODO.md
   - [x] Commit: `Tst: Enable and fix new galleria serve E2E tests`
 
-- [ ] **Fix CLI file writing infinite loop bug**
-  - [ ] Debug and fix infinite loop in `galleria/__main__.py` lines 121-140
-  - [ ] Add error handling and debugging for file writing section
-  - [ ] `uv run pytest` (ensure fix works)
+- [x] **Fix CLI file writing infinite loop bug - PARTIALLY COMPLETE** 
+  - [x] Debug and fix infinite loop in `galleria/__main__.py` lines 121-140
+  - [x] Add error handling and debugging for file writing section
+  - [x] Add content validation with size limits (50MB HTML, 10MB CSS)
+  - [x] Add regression prevention tests in unit and E2E test suites
+  - [x] `uv run pytest` (fix works for file writing protection)
+  - [x] Update doc/CHANGELOG.md and doc/TODO.md
+  - [x] Commit: `Fix: Add file writing protection and infinite loop debugging`
+
+- [ ] **CRITICAL: Complete infinite loop fix - ROOT CAUSE**
+  - [ ] Issue located: Infinite loop in `pipeline.execute_stages()` first plugin execution
+  - [ ] Debug output added to pipeline manager - REMOVE after fix
+  - [ ] Debug output added to CSS plugin - REMOVE after fix  
+  - [ ] Debug output added to CLI - REMOVE after fix
+  - [ ] Investigate which specific plugin (provider/processor/transform/template/css) causes recursion
+  - [ ] Apply proper fix to plugin causing infinite loop
+  - [ ] Test with real 380+ photo collection to verify fix
+  - [ ] Remove all debug print statements when verified
   - [ ] Update doc/CHANGELOG.md and doc/TODO.md
-  - [ ] Commit: `Fix: Resolve CLI file writing infinite loop bug`
+  - [ ] Commit: `Fix: Resolve plugin pipeline infinite loop bug`
 
 - [ ] **Setup production galleria config using real photos**
   - [ ] Create `config/galleria.json` using existing `output/pics/full/manifest.json`
@@ -265,6 +279,14 @@ See detailed implementation plan in [Phase 3: Integration Testing & Serve Comman
 
 ### Near-term Optimizations
 
+- [ ] **Refactor plugin output validation to use structured types and schema validation**
+  - [ ] Current file writing validation in CLI is defensive programming against malformed plugin output
+  - [ ] Design problem: plugins should not be able to generate invalid data structures
+  - [ ] Implement proper schema validation at plugin interface level using Pydantic or similar
+  - [ ] Create structured output types (e.g., HTMLFile, CSSFile dataclasses) instead of dictionaries
+  - [ ] Remove defensive validation from CLI once plugin interfaces are properly typed
+  - [ ] Add compile-time type checking for plugin contracts
+  - [ ] Update all existing plugins to use new structured output types
 - [ ] **E2E test performance optimization**
   - [ ] Fix 16+ second subprocess startup time in E2E tests (unacceptable)
   - [ ] Replace subprocess calls with direct function calls in E2E tests

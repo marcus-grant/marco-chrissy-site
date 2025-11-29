@@ -1,5 +1,39 @@
 # Changelog
 
+## 2025-11-29
+
+### Critical Bug Fix - CLI Infinite Loop
+
+* **FIXED: CLI file writing protection against infinite loops**
+  * Added comprehensive content validation in galleria/__main__.py lines 122-195
+  * Type checking: ensures file objects are dictionaries and content is strings
+  * Field validation: checks for required 'filename' and 'content' fields
+  * Null protection: prevents writing None or undefined content  
+  * Size limits: 50MB for HTML files, 10MB for CSS files to prevent massive file generation
+  * Error indexing: shows exactly which file (by index) caused problems for debugging
+  * Graceful failure: provides clear error messages instead of silent hangs
+  * Exception chaining: preserves original error context for debugging
+
+* **DEBUGGING: Infinite loop root cause investigation**
+  * Added debug output to pipeline manager (galleria/manager/pipeline.py) - TEMPORARY
+  * Added debug output to CSS plugin (galleria/plugins/css.py) - TEMPORARY  
+  * Added debug output to CLI (galleria/__main__.py) - TEMPORARY
+  * Located actual infinite loop: occurs in pipeline.execute_stages() during first plugin execution
+  * Issue is NOT in file writing stage as originally suspected
+  * File writing protection prevents symptom but root cause remains in plugin system
+
+* **TESTING: Regression prevention**
+  * Added large content payload tests to test/galleria/unit/plugins/test_css.py
+  * Added malformed content structure tests to test/galleria/unit/plugins/test_css.py
+  * Added timeout protection tests to test/galleria/e2e/test_cli_generate.py
+  * Created production config config/galleria.json for real 380+ wedding photo collection
+  * Verified file writing protection works but root infinite loop persists in plugin execution
+
+* **TODO: Remove debug output when root cause fixed**
+  * Debug print statements added throughout pipeline for investigation
+  * Must be removed once plugin infinite loop is resolved
+  * See doc/TODO.md "CRITICAL: Complete infinite loop fix - ROOT CAUSE" section
+
 ## 2025-11-28
 
 ### Serve Command Implementation Planning

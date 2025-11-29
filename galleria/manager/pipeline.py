@@ -26,9 +26,11 @@ class PipelineManager:
         Returns:
             PluginResult with execution results
         """
+        print(f"DEBUG SINGLE: Getting plugin '{plugin_name}' for stage '{stage}'...")
         plugin = self.registry.get_plugin(plugin_name, stage)
 
         if plugin is None:
+            print(f"DEBUG SINGLE: Plugin '{plugin_name}' not found!")
             return PluginResult(
                 success=False,
                 output_data={},
@@ -36,8 +38,12 @@ class PipelineManager:
             )
 
         try:
-            return plugin.execute(context)
+            print(f"DEBUG SINGLE: Executing plugin '{plugin_name}'...")
+            result = plugin.execute(context)
+            print(f"DEBUG SINGLE: Plugin '{plugin_name}' execution finished, success: {result.success}")
+            return result
         except Exception as e:
+            print(f"DEBUG SINGLE: Plugin '{plugin_name}' execution failed with exception: {e}")
             return PluginResult(
                 success=False,
                 output_data={},
@@ -66,8 +72,10 @@ class PipelineManager:
                 stage = stage_config["stage"]
                 plugin_name = stage_config["plugin"]
 
+            print(f"DEBUG PIPELINE: Executing {stage} stage with plugin '{plugin_name}'...")
             # Execute this stage
             result = self.execute_single_stage(stage, plugin_name, current_context)
+            print(f"DEBUG PIPELINE: Stage {stage} completed, success: {result.success}")
 
             # If stage failed, return failure
             if not result.success:
