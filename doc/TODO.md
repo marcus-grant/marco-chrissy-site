@@ -69,122 +69,6 @@ See detailed implementation plan in [Phase 3: Integration Testing & Serve Comman
 
 ### Phase 3: Integration Testing & Serve Command
 
-- [x] **Add future enhancement tasks to end of TODO.md**
-  - [x] Smart rebuild feature for serve command (incremental rebuilds vs full rebuilds)
-  - [x] Configurable plugin/template paths + file watcher integration
-  - [x] Document serve URL patterns for development vs production CDN routing
-  - [x] `uv run ruff check --fix --unsafe-fixes`
-  - [x] `uv run pytest`
-  - [x] Update doc/CHANGELOG.md and doc/TODO.md
-  - [x] Commit: `Pln: Add serve command future enhancement tasks`
-
-- [x] **Add watchdog dev dependency**
-  - [x] Add `watchdog` to pyproject.toml dev dependencies
-  - [x] `uv run ruff check --fix --unsafe-fixes`
-  - [x] `uv run pytest` 
-  - [x] Update doc/CHANGELOG.md and doc/TODO.md
-  - [x] Commit: `Ft: Add development server dependencies`
-
-- [ ] **Replace existing serve command with proper architecture**
-  - [ ] Remove old serve command implementation from galleria/__main__.py
-  - [ ] Remove old serve tests from test/galleria/e2e/test_cli_serve.py
-  - [ ] `uv run ruff check --fix --unsafe-fixes`
-  - [ ] `uv run pytest` (may have failures - expected)
-  - [ ] Update doc/CHANGELOG.md and doc/TODO.md
-  - [ ] Commit: `Ref: Remove old serve command implementation`
-
-- [x] **Create new Galleria serve E2E tests (skipped)**
-  - [x] Create `test/galleria/e2e/test_serve_e2e.py` with tests:
-    - [x] `@pytest.mark.skip` test_galleria_serve_cli_integration - Test CLI starts server, serves files, handles shutdown
-    - [x] `@pytest.mark.skip` test_serve_file_watching_workflow - Test config/manifest changes trigger rebuilds  
-    - [x] `@pytest.mark.skip` test_serve_static_file_serving - Test HTTP requests return correct gallery files
-  - [x] `uv run ruff check --fix --unsafe-fixes`
-  - [x] `uv run pytest` (tests should be skipped)
-  - [x] Update doc/CHANGELOG.md and doc/TODO.md
-  - [x] Commit: `Tst: Add new galleria serve E2E tests (skipped)`
-
-- [x] **Create galleria serve module structure**
-  - [x] Create `galleria/orchestrator/serve.py` with ServeOrchestrator class stub
-  - [x] Create `galleria/server/__init__.py` with static file server stub
-  - [x] Create `galleria/util/watcher.py` with file watcher stub
-  - [x] `uv run ruff check --fix --unsafe-fixes`
-  - [x] `uv run pytest`
-  - [x] Update doc/CHANGELOG.md and doc/TODO.md
-  - [x] Commit: `Ft: Create new galleria serve module structure`
-
-- [x] **Implement file watcher (TDD cycle)**
-  - [x] Create `test/galleria/unit/test_watcher.py` with unit tests for file watching
-  - [x] `uv run pytest` (tests should fail - RED)
-  - [x] Implement `galleria/util/watcher.py` using watchdog library
-  - [x] Hard-code paths for galleria config, manifest, template, plugin directories
-  - [x] `uv run pytest` (tests should pass - GREEN)
-  - [x] Refactor if needed while keeping tests green
-  - [x] `uv run ruff check --fix --unsafe-fixes`
-  - [x] `uv run pytest`
-  - [x] Update doc/CHANGELOG.md and doc/TODO.md
-  - [x] Commit: `Ft: Implement file watcher for galleria serve`
-
-- [x] **Implement static file server (TDD cycle)**
-  - [x] Create `test/galleria/unit/test_server.py` with unit tests for HTTP server
-  - [x] `uv run pytest` (tests should fail - RED)
-  - [x] Implement `galleria/server/__init__.py` using Python's SimpleHTTPRequestHandler
-  - [x] `uv run pytest` (tests should pass - GREEN)
-  - [x] Refactor if needed while keeping tests green
-  - [x] `uv run ruff check --fix --unsafe-fixes`
-  - [x] `uv run pytest`
-  - [x] Update doc/CHANGELOG.md and doc/TODO.md
-  - [x] Commit: `Ft: Implement static file server for galleria`
-
-- [x] **Implement ServeOrchestrator (TDD cycle)**
-  - [x] Create `test/galleria/unit/test_serve_orchestrator.py` with unit tests
-  - [x] `uv run pytest` (tests should fail - RED)
-  - [x] Implement `galleria/orchestrator/serve.py` to coordinate server + watcher + rebuilds
-  - [x] `uv run pytest` (tests should pass - GREEN)
-  - [x] Refactor if needed while keeping tests green
-  - [x] `uv run ruff check --fix --unsafe-fixes`
-  - [x] `uv run pytest`
-  - [x] Update doc/CHANGELOG.md and doc/TODO.md
-  - [x] Commit: `Ft: Implement ServeOrchestrator for galleria`
-
-- [x] **Add new galleria serve CLI command (TDD cycle)**
-  - [x] Create `test/galleria/unit/test_cli_serve.py` with CLI integration tests
-  - [x] `uv run pytest` (tests should fail - RED)
-  - [x] Add new serve command to galleria CLI using Click, calls ServeOrchestrator
-  - [x] `uv run pytest` (tests should pass - GREEN)
-  - [x] `uv run ruff check --fix --unsafe-fixes`
-  - [x] `uv run pytest`
-  - [x] Update doc/CHANGELOG.md and doc/TODO.md
-  - [x] Commit: `Ft: Add new galleria serve CLI command`
-
-- [x] **Enable new galleria serve E2E tests**
-  - [x] Remove `@pytest.mark.skip` decorators from `test/galleria/e2e/test_serve_e2e.py`
-  - [x] `uv run pytest` (fix any integration issues until tests pass)
-  - [x] `uv run ruff check --fix --unsafe-fixes`
-  - [x] `uv run pytest`
-  - [x] Update doc/CHANGELOG.md and doc/TODO.md
-  - [x] Commit: `Tst: Enable and fix new galleria serve E2E tests`
-
-- [x] **MAJOR PROGRESS: Fixed broken test infrastructure (14/29 tests fixed)**
-  - [x] ✅ **FIXED**: ServeOrchestrator dependency injection - removed file I/O bypassing mocks
-  - [x] ✅ **FIXED**: CLI timeout test fixture API - corrected galleria_config_factory usage  
-  - [x] ✅ **FIXED**: All 13 ServeOrchestrator unit tests now pass with proper mocking
-  - [x] ✅ **FIXED**: ConfigManager now supports path parameters for better dependency injection
-  - [x] ✅ **COMMITS**: 3 commits fixing fixture API, dependency injection, and test expectations
-  - [x] **PROGRESS**: Reduced failing tests from 29 to 15 (48% improvement)
-
-- [x] **BREAKTHROUGH: Systematic elimination of filesystem isolation violations (75% remaining issues resolved)**
-  - [x] ✅ **ROOT CAUSE IDENTIFIED**: Tests load real files with hardcoded `Path("config/schema/file.json")`
-  - [x] ✅ **PATTERN ESTABLISHED**: Replace filesystem dependencies with inline mock schemas
-  - [x] ✅ **PROOF OF CONCEPT**: Fixed 2 normpic schema tests using mock pattern (da44126)
-  - [x] ✅ **COMPLETED**: Applied pattern to remaining 5 schema tests - site, pelican (2), galleria (2) using mock schemas
-  - [x] ✅ **COMPLETED**: Fixed config validator filesystem dependencies - eliminated `os.chdir()` anti-pattern
-  - [x] ✅ **COMPLETED**: Added `base_path` parameter to ConfigValidator for dependency injection
-  - [x] ✅ **COMPLETED**: Fixed serve E2E filesystem contamination - eliminated direct `glob()` usage
-  - [x] ✅ **COMPLETED**: Replaced real schema file copying with inline mock schemas
-  - [x] ✅ **MAJOR PROGRESS**: Reduced failing tests from 8 to 2 (75% improvement)
-  - [ ] **REMAINING**: 2 tests still failing - 1 subprocess startup issue, 1 contamination source
-  - [x] ✅ **CRITICAL INSIGHT**: Systematic application of isolation principles vs treating each failure individually
-
 - [ ] **Manual testing guide with real photo set**
   - [ ] Guide through testing serve command with real photos
   - [ ] Test hot reload, file watching, skip generation modes
@@ -284,14 +168,19 @@ See detailed implementation plan in [Phase 3: Integration Testing & Serve Comman
 
 ### Near-term Optimizations
 
-- [ ] **PRIORITY HIGH: Refactor hardcoded paths to configuration-based path management**
-  - [ ] **Context**: Test infrastructure fixes revealed hardcoded paths throughout codebase (ConfigValidator, schema tests, etc.)
-  - [ ] **Current anti-pattern**: Scattered hardcoded paths like `"config/schema/normpic.json"` cause testing and deployment issues
-  - [ ] **Solution**: Centralized path configuration in config/site.json with dependency injection
-  - [ ] Create PathConfig class with configurable: config_dir, schema_dir, output_dir, temp_dir paths
+- [ ] **PRIORITY HIGH: Eliminate stateful operations and hardcoded paths**
+  - [ ] **Context**: Test infrastructure revealed hardcoded paths and stateful operations throughout codebase
+  - [ ] **Current anti-patterns**:
+    - [ ] Scattered hardcoded paths like `"config/schema/normpic.json"` cause testing and deployment issues
+    - [ ] `os.chdir()` calls in galleria server create stateful contamination between tests
+    - [ ] Working directory dependencies make tests fragile and non-isolated
+  - [ ] **Solution**: Centralized path configuration with dependency injection and stateless operations
+  - [ ] Create PathConfig class with configurable: config_dir, schema_dir, output_dir, temp_dir, working_dir paths
+  - [ ] Refactor galleria server to accept `serve_directory` parameter instead of using `os.chdir()`
   - [ ] Refactor ConfigValidator to use PathConfig instead of hardcoded relative paths  
   - [ ] Update all modules to use dependency-injected paths instead of hardcoded strings
-  - [ ] Benefits: deployment flexibility, Docker support, testing isolation, CDN integration
+  - [ ] Replace all stateful operations with explicit parameter passing
+  - [ ] Benefits: deployment flexibility, Docker support, testing isolation, CDN integration, parallel test execution
   - [ ] Enable different path structures for development vs production vs containerized environments
   - [ ] Document path configuration options and deployment scenarios
 

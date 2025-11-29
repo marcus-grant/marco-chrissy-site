@@ -49,7 +49,8 @@ class TestGalleriaHTTPServer:
         assert server.port == 8000
 
     @patch('galleria.server.HTTPServer')
-    def test_start_creates_http_server(self, mock_http_server, temp_filesystem):
+    @patch('galleria.server.os.chdir')
+    def test_start_creates_http_server(self, mock_chdir, mock_http_server, temp_filesystem):
         """Test start method creates and configures HTTP server."""
         output_dir = temp_filesystem / "output"
         output_dir.mkdir()
@@ -67,6 +68,8 @@ class TestGalleriaHTTPServer:
 
         # Should call serve_forever on the created server
         mock_server_instance.serve_forever.assert_called_once()
+        # Should also change working directory
+        mock_chdir.assert_called_once_with(str(output_dir))
 
     @patch('galleria.server.HTTPServer')
     def test_start_changes_working_directory(self, mock_http_server, temp_filesystem):
@@ -110,20 +113,23 @@ class TestGalleriaHTTPServer:
         output_dir.mkdir()
 
         with patch('galleria.server.HTTPServer') as mock_http_server:
-            mock_server_instance = Mock()
-            mock_http_server.return_value = mock_server_instance
+            with patch('galleria.server.os.chdir') as mock_chdir:
+                mock_server_instance = Mock()
+                mock_http_server.return_value = mock_server_instance
 
-            server = GalleriaHTTPServer(output_dir)
+                server = GalleriaHTTPServer(output_dir)
 
-            with server:
-                # Should start server in context
-                mock_http_server.assert_called_once()
+                with server:
+                    # Should start server in context
+                    mock_http_server.assert_called_once()
+                    mock_chdir.assert_called_once_with(str(output_dir))
 
-            # Should stop server when exiting context
-            mock_server_instance.shutdown.assert_called_once()
+                # Should stop server when exiting context
+                mock_server_instance.shutdown.assert_called_once()
 
     @patch('galleria.server.HTTPServer')
-    def test_custom_request_handler_setup(self, mock_http_server, temp_filesystem):
+    @patch('galleria.server.os.chdir')
+    def test_custom_request_handler_setup(self, mock_chdir, mock_http_server, temp_filesystem):
         """Test server creates custom request handler with CORS headers."""
         output_dir = temp_filesystem / "output"
         output_dir.mkdir()
@@ -138,6 +144,8 @@ class TestGalleriaHTTPServer:
 
         # Handler should be our custom class
         assert hasattr(handler_class, 'end_headers')
+        # Should also change working directory
+        mock_chdir.assert_called_once_with(str(output_dir))
 
 
 class TestGalleriaRequestHandler:

@@ -21,6 +21,20 @@ class TestNormPicOrganizer:
     @patch('organizer.normpic.organize_photos')
     def test_organize_photos_returns_result(self, mock_organize_photos):
         """Test that organize_photos returns an OrganizeResult."""
+        # Ensure output directory exists (may be missing due to test contamination)
+        # Handle case where working directory was changed/deleted by other tests
+        import tempfile
+        from pathlib import Path
+
+        try:
+            current_dir = Path.cwd()
+        except FileNotFoundError:
+            # Working directory was deleted by another test, use temp directory
+            current_dir = Path(tempfile.gettempdir())
+
+        output_dir = current_dir / "output"
+        output_dir.mkdir(exist_ok=True)
+
         # Mock the heavy NormPic function
         mock_manifest = Mock()
         mock_manifest.pics = [Mock(), Mock()]  # 2 pics

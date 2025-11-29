@@ -519,18 +519,7 @@ def file_watcher_scenario(galleria_config_factory, manifest_factory):
         Returns:
             Dict with paths to files that can be modified during tests
         """
-        # Create initial config
-        initial_config = {
-            "input": {"manifest_path": "manifest.json"},
-            "output": {"directory": "gallery_output"},
-            "pipeline": {
-                "template": {"plugin": "basic-template", "config": {"theme": "minimal"}},
-                "css": {"plugin": "basic-css", "config": {"theme": "light"}}
-            }
-        }
-        config_path = galleria_config_factory(custom_content=initial_config)
-
-        # Create initial manifest
+        # Create initial manifest first to get the temp filesystem root
         initial_photos = [
             {
                 "source_path": "source/photo1.jpg",
@@ -544,6 +533,25 @@ def file_watcher_scenario(galleria_config_factory, manifest_factory):
             collection_name="watch_test",
             photos=initial_photos
         )
+
+        # Create output directory and get its absolute path
+        output_dir = manifest_path.parent / "gallery_output"
+        output_dir.mkdir(parents=True, exist_ok=True)
+
+        # Also create some initial gallery files so serve has something to serve
+        (output_dir / "page_1.html").write_text("<html><body>Test Gallery</body></html>")
+        (output_dir / "gallery.css").write_text("body { font-family: Arial; }")
+
+        # Create initial config with absolute paths to avoid resolution issues
+        initial_config = {
+            "input": {"manifest_path": str(manifest_path)},
+            "output": {"directory": str(output_dir)},
+            "pipeline": {
+                "template": {"plugin": "basic-template", "config": {"theme": "minimal"}},
+                "css": {"plugin": "basic-css", "config": {"theme": "light"}}
+            }
+        }
+        config_path = galleria_config_factory(custom_content=initial_config)
 
         return {
             "config_path": config_path,

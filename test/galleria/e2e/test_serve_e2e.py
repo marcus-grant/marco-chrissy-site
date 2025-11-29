@@ -111,11 +111,21 @@ class TestGalleriaServeE2E:
             # Wait for initial server startup and generation
             time.sleep(3)
 
+            # Check if process is still running and capture any errors
+            if serve_process.poll() is not None:
+                stdout, stderr = serve_process.communicate()
+                error_msg = f"Serve process exited with code {serve_process.returncode}. "
+                if stderr:
+                    error_msg += f"Stderr: {stderr}"
+                if stdout:
+                    error_msg += f"Stdout: {stdout}"
+                raise AssertionError(error_msg)
+
             # Verify initial content
             response = requests.get(f"http://localhost:{test_port}/page_1.html", timeout=2)
             assert response.status_code == 200, "Initial server not responding"
             initial_content = response.text
-            assert "minimal" in initial_content, "Initial theme not applied"
+            assert "theme-light" in initial_content, "Initial theme not applied"
 
             # Modify config to change theme (trigger hot reload)
             modified_config = initial_config.copy()
