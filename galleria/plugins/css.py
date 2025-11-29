@@ -17,7 +17,6 @@ class BasicCSSPlugin(CSSPlugin):
 
     def generate_css(self, context: PluginContext) -> PluginResult:
         """Generate CSS files from template HTML data."""
-        print("DEBUG: CSS plugin started")
         try:
             # Validate required input fields
             if "collection_name" not in context.input_data:
@@ -57,15 +56,12 @@ class BasicCSSPlugin(CSSPlugin):
 
             collection_name = context.input_data["collection_name"]
             html_files = context.input_data["html_files"]
-            print(f"DEBUG: Processing {len(html_files)} HTML files for collection '{collection_name}'")
 
             # Generate CSS files
             css_files = []
 
             # Main gallery CSS (needs layout from template config)
-            print("DEBUG: Generating gallery CSS...")
             gallery_css = self._generate_gallery_css(template_config)
-            print(f"DEBUG: Gallery CSS generated, size: {len(gallery_css)} bytes")
             css_files.append({
                 "filename": "gallery.css",
                 "content": gallery_css,
@@ -74,9 +70,7 @@ class BasicCSSPlugin(CSSPlugin):
 
             # Theme-specific CSS if theme is specified
             if theme:
-                print(f"DEBUG: Generating theme CSS for '{theme}'...")
                 theme_css = self._generate_theme_css(theme, context.config)
-                print(f"DEBUG: Theme CSS generated, size: {len(theme_css)} bytes")
                 css_files.append({
                     "filename": f"theme-{theme}.css",
                     "content": theme_css,
@@ -85,16 +79,13 @@ class BasicCSSPlugin(CSSPlugin):
 
             # Responsive CSS if enabled
             if css_config.get("responsive", True):
-                print("DEBUG: Generating responsive CSS...")
                 responsive_css = self._generate_responsive_css(css_config)
-                print(f"DEBUG: Responsive CSS generated, size: {len(responsive_css)} bytes")
                 css_files.append({
                     "filename": "responsive.css",
                     "content": responsive_css,
                     "type": "responsive"
                 })
 
-            print(f"DEBUG: CSS generation complete. Created {len(css_files)} CSS files.")
             return PluginResult(
                 success=True,
                 output_data={
@@ -117,10 +108,182 @@ class BasicCSSPlugin(CSSPlugin):
         layout = config.get("layout", "grid")
 
         if layout == "grid":
-            pass
+            return """/* Grid Layout Gallery Styles */
+.gallery.layout-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+    padding: 1rem;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.gallery.layout-grid .photo-item {
+    position: relative;
+    overflow: hidden;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.gallery.layout-grid .photo-item:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+}
+
+.gallery.layout-grid .photo-item img {
+    width: 100%;
+    height: auto;
+    display: block;
+}
+
+/* Base Gallery Styles */
+header {
+    text-align: center;
+    padding: 2rem 0;
+    border-bottom: 1px solid #eee;
+    margin-bottom: 2rem;
+}
+
+header h1 {
+    margin: 0;
+    font-size: 2.5rem;
+    color: #333;
+    font-weight: 300;
+}
+
+.pagination {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 1rem;
+    padding: 2rem 0;
+    border-top: 1px solid #eee;
+    margin-top: 2rem;
+}
+
+.pagination a {
+    text-decoration: none;
+    padding: 0.5rem 1rem;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    color: #007bff;
+    background: #fff;
+    transition: background-color 0.2s ease;
+}
+
+.pagination a:hover {
+    background-color: #f8f9fa;
+}
+
+.pagination span {
+    font-weight: 500;
+    color: #666;
+}
+
+footer {
+    text-align: center;
+    padding: 2rem 0;
+    color: #666;
+    font-size: 0.875rem;
+}
+
+.empty-message {
+    text-align: center;
+    color: #666;
+    font-style: italic;
+    padding: 3rem 0;
+}"""
         else:
             # Default to flexbox layout
-            pass
+            return """/* Flexbox Layout Gallery Styles */
+.gallery {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    padding: 1rem;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.gallery .photo-item {
+    flex: 1 1 200px;
+    max-width: 300px;
+    position: relative;
+    overflow: hidden;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.gallery .photo-item:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+}
+
+.gallery .photo-item img {
+    width: 100%;
+    height: auto;
+    display: block;
+}
+
+/* Base Gallery Styles */
+header {
+    text-align: center;
+    padding: 2rem 0;
+    border-bottom: 1px solid #eee;
+    margin-bottom: 2rem;
+}
+
+header h1 {
+    margin: 0;
+    font-size: 2.5rem;
+    color: #333;
+    font-weight: 300;
+}
+
+.pagination {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 1rem;
+    padding: 2rem 0;
+    border-top: 1px solid #eee;
+    margin-top: 2rem;
+}
+
+.pagination a {
+    text-decoration: none;
+    padding: 0.5rem 1rem;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    color: #007bff;
+    background: #fff;
+    transition: background-color 0.2s ease;
+}
+
+.pagination a:hover {
+    background-color: #f8f9fa;
+}
+
+.pagination span {
+    font-weight: 500;
+    color: #666;
+}
+
+footer {
+    text-align: center;
+    padding: 2rem 0;
+    color: #666;
+    font-size: 0.875rem;
+}
+
+.empty-message {
+    text-align: center;
+    color: #666;
+    font-style: italic;
+    padding: 3rem 0;
+}"""
 
 
     def _generate_theme_css(self, theme: str, config: dict) -> str:

@@ -99,16 +99,12 @@ def generate(config: Path, output: Path | None, verbose: bool):
         click.echo("Executing plugin pipeline:")
 
     try:
-        print(f"DEBUG: About to enumerate stages: {stages}")
         for i, (stage, plugin_name) in enumerate(stages, 1):
-            print(f"DEBUG: Loop iteration {i}, stage: {stage}, plugin: {plugin_name}")
             if verbose:
                 click.echo(f"  [{i}/{len(stages)}] Running {stage} ({plugin_name})...")
 
-        print("DEBUG: About to execute pipeline")
         # Execute complete pipeline
         final_result = pipeline.execute_stages(stages, initial_context)
-        print("DEBUG: Pipeline execution completed")
 
         if not final_result.success:
             error_msg = "Pipeline execution failed:\n" + "\n".join(final_result.errors)

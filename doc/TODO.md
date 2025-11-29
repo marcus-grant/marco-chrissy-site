@@ -164,33 +164,19 @@ See detailed implementation plan in [Phase 3: Integration Testing & Serve Comman
   - [x] Update doc/CHANGELOG.md and doc/TODO.md
   - [x] Commit: `Tst: Enable and fix new galleria serve E2E tests`
 
-- [x] **Fix CLI file writing infinite loop bug - PARTIALLY COMPLETE** 
-  - [x] Debug and fix infinite loop in `galleria/__main__.py` lines 121-140
-  - [x] Add error handling and debugging for file writing section
-  - [x] Add content validation with size limits (50MB HTML, 10MB CSS)
-  - [x] Add regression prevention tests in unit and E2E test suites
-  - [x] `uv run pytest` (fix works for file writing protection)
-  - [x] Update doc/CHANGELOG.md and doc/TODO.md
-  - [x] Commit: `Fix: Add file writing protection and infinite loop debugging`
-
-- [ ] **CRITICAL: Complete infinite loop fix - ROOT CAUSE**
-  - [ ] Issue located: Infinite loop in `pipeline.execute_stages()` first plugin execution
-  - [ ] Debug output added to pipeline manager - REMOVE after fix
-  - [ ] Debug output added to CSS plugin - REMOVE after fix  
-  - [ ] Debug output added to CLI - REMOVE after fix
-  - [ ] Investigate which specific plugin (provider/processor/transform/template/css) causes recursion
-  - [ ] Apply proper fix to plugin causing infinite loop
-  - [ ] Test with real 380+ photo collection to verify fix
-  - [ ] Remove all debug print statements when verified
-  - [ ] Update doc/CHANGELOG.md and doc/TODO.md
-  - [ ] Commit: `Fix: Resolve plugin pipeline infinite loop bug`
-
-- [ ] **Setup production galleria config using real photos**
-  - [ ] Create `config/galleria.json` using existing `output/pics/full/manifest.json`
-  - [ ] Configure output to `output/galleries/wedding` (git-ignored)
-  - [ ] Test config with real wedding photos (380+ photos)
-  - [ ] Update doc/CHANGELOG.md and doc/TODO.md
-  - [ ] Commit: `Ft: Add production galleria config for real photos`
+- [ ] **CRITICAL: Fix broken test infrastructure (poor mocking and fixture design)**
+  - [ ] PROBLEM: 28 tests failing due to terrible test design (bad mocking, incorrect fixture usage)
+  - [ ] ServeOrchestrator tests: Mock ConfigManager but code bypasses it and opens real files
+  - [ ] CLI timeout test: Uses non-existent fixture API (galleria_config_factory custom_config param)
+  - [ ] Schema tests: Pass individually but fail in full suite (test isolation issues)
+  - [ ] TERRIBLE DESIGN: Tests try to open real file paths instead of using proper mocks
+  - [ ] BLOCKING: Cannot proceed with serve command development until test infrastructure is fixed
+  - [ ] Fix ServeOrchestrator mocking: galleria/orchestrator/serve.py:46 opens files directly
+  - [ ] Fix CLI test fixture usage: test/galleria/e2e/test_cli_generate.py:258 incorrect API
+  - [ ] Investigate test isolation problems causing schema test failures in full suite
+  - [ ] Ensure all 28 failing tests pass with proper mocking and isolation
+  - [ ] Update doc/CHANGELOG.md and doc/TODO.md  
+  - [ ] Commit: `Fix: Repair broken test infrastructure mocking and fixtures`
 
 - [ ] **Manual testing guide with real photo set**
   - [ ] Guide through testing serve command with real photos
@@ -256,7 +242,19 @@ See detailed implementation plan in [Phase 3: Integration Testing & Serve Comman
 - [ ] Validate site generation workflow
 - [ ] Test Galleria + Pelican integration
 
-### Phase 4: Performance Baseline
+### Phase 4: Template & CSS Architecture Fix (Pre-MVP Critical)
+
+- [ ] **Refactor template and CSS plugins to use file-based theme system**
+  - [ ] CRITICAL: Current template and CSS plugins hardcode HTML/CSS as Python strings (poor architecture)
+  - [ ] Move HTML to Jinja2 template files in galleria/themes/*/templates/ directory
+  - [ ] Move CSS to static files in galleria/themes/*/static/ directory  
+  - [ ] Refactor BasicTemplatePlugin to load and render actual template files
+  - [ ] Refactor BasicCSSPlugin to copy/process static CSS files instead of generating strings
+  - [ ] Update theme loading system to work with file-based templates and CSS
+  - [ ] Preserve existing theme switching functionality but with proper separation of concerns
+  - [ ] This addresses the fundamental violation: mixing Python logic with presentation layer
+
+### Phase 5: Performance Baseline
 
 - [ ] Measure initial performance metrics
   - [ ] Page weight (HTML + CSS + thumbnails)
@@ -270,7 +268,7 @@ See detailed implementation plan in [Phase 3: Integration Testing & Serve Comman
   - [ ] Photo collections: lazy upload (only changed files)
   - [ ] Site content: always upload (smaller transfer, less optimization needed)
 
-### Phase 5: Deploy Command & Guided Real-World Deployment
+### Phase 6: Deploy Command & Guided Real-World Deployment
 
 - [ ] Plan rest of this step, needs much more detail
 - [ ] Set up dual CDN deployment strategy (photos vs site content)

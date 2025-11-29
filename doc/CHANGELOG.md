@@ -2,22 +2,37 @@
 
 ## 2025-11-29
 
-### Critical Bug Fix - CLI Infinite Loop
+### Critical Bug Fix - Galleria Plugin Pipeline Infinite Loop
 
-* **FIXED: CLI file writing protection against infinite loops**
-  * Added comprehensive content validation in galleria/__main__.py lines 122-195
-  * Type checking: ensures file objects are dictionaries and content is strings
-  * Field validation: checks for required 'filename' and 'content' fields
-  * Null protection: prevents writing None or undefined content  
-  * Size limits: 50MB for HTML files, 10MB for CSS files to prevent massive file generation
-  * Error indexing: shows exactly which file (by index) caused problems for debugging
-  * Graceful failure: provides clear error messages instead of silent hangs
-  * Exception chaining: preserves original error context for debugging
+* **ROOT CAUSE IDENTIFIED AND FIXED: CSS Plugin Missing Return Statement**
+  * Fixed `_generate_gallery_css()` method in `galleria/plugins/css.py` that returned `None` instead of CSS string
+  * The `None` return value caused string concatenation issues that created an infinite loop with large photo collections
+  * Added proper CSS generation for both grid and flexbox layouts with complete styling
+  * Verified fix with real 645 photo collection - now completes successfully without infinite loops
 
-* **DEBUGGING: Infinite loop root cause investigation**
-  * Added debug output to pipeline manager (galleria/manager/pipeline.py) - TEMPORARY
-  * Added debug output to CSS plugin (galleria/plugins/css.py) - TEMPORARY  
-  * Added debug output to CLI (galleria/__main__.py) - TEMPORARY
+* **INVESTIGATION METHODOLOGY:**
+  * Systematically tested each plugin individually (normpic-provider, thumbnail-processor, pagination, template, css)
+  * Used timeout protection to detect infinite loops during plugin execution  
+  * Identified that CSS plugin was the culprit causing pipeline hang
+  * Debug output revealed CSS generation was failing silently
+
+* **TECHNICAL DEBT IDENTIFIED:**
+  * CSS and HTML are hardcoded as Python strings instead of using file-based theme system
+  * Added task to Phase 4 (pre-MVP) to refactor template and CSS plugins to use proper theme files
+  * This architectural issue violates separation of concerns and makes theming difficult
+
+* **CLEANUP COMPLETED:**
+  * Removed all temporary debug print statements from pipeline, CSS plugin, and CLI
+  * Maintained existing file writing protection as defensive programming
+  * Successfully verified 645 photo collection processes without issues
+
+* **TEST INFRASTRUCTURE ISSUES DISCOVERED:**
+  * 28 tests failing due to dependencies on production files (config/schema/*.json)
+  * Poor test design: tests should be self-contained with mocked data, not depend on real files
+  * Missing schema files cause validation tests to fail
+  * Serve command tests fail due to missing schema infrastructure  
+  * BLOCKING ISSUE: Test suite must be fixed before continuing serve command development
+  * Next task: Create mock schema files and remove production file dependencies from tests
   * Located actual infinite loop: occurs in pipeline.execute_stages() during first plugin execution
   * Issue is NOT in file writing stage as originally suspected
   * File writing protection prevents symptom but root cause remains in plugin system
