@@ -34,8 +34,11 @@ class ConfigManager:
         except (ConfigLoadError, ConfigValidationError) as e:
             raise ConfigError(f"Failed to load site configuration: {e}") from e
 
-    def load_galleria_config(self) -> dict:
-        """Load galleria configuration from galleria.json.
+    def load_galleria_config(self, config_path: str | Path | None = None) -> dict:
+        """Load galleria configuration from galleria.json or specified path.
+        
+        Args:
+            config_path: Path to galleria config file, defaults to config_dir/galleria.json
         
         Returns:
             Galleria configuration data
@@ -43,7 +46,11 @@ class ConfigManager:
         Raises:
             ConfigError: If config cannot be loaded or is invalid
         """
-        config_path = self.config_dir / "galleria.json"
+        if config_path is None:
+            config_path = self.config_dir / "galleria.json"
+        else:
+            config_path = Path(config_path)
+            
         try:
             return self.loader.load_config(config_path)
         except (ConfigLoadError, ConfigValidationError) as e:

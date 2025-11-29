@@ -37,23 +37,19 @@ class ServeOrchestrator:
             ServeError: If any step of the serve process fails
         """
         try:
-            # 1. Load and validate configuration
-            # Use GalleriaConfig from CLI instead of ConfigManager
-            import json
+            # 1. Load and validate configuration using injected ConfigManager
+            raw_config = self.config_manager.load_galleria_config(config_path)
 
-            from galleria.config import GalleriaConfig
-
-            with open(config_path) as f:
-                raw_config = json.load(f)
-
-            galleria_config_obj = GalleriaConfig.from_file(config_path)
+            # Extract needed paths from config data
+            output_dir = Path(raw_config["output"]["directory"])
+            manifest_path = Path(raw_config["input"]["manifest_path"])
 
             # 2. Generate gallery (unless no_generate)
             if not no_generate:
                 # Transform config for GalleriaBuilder
                 builder_config = {
                     "manifest_path": raw_config["input"]["manifest_path"],
-                    "output_dir": str(galleria_config_obj.output_directory),
+                    "output_dir": str(output_dir),
                     **raw_config.get("pipeline", {}).get("provider", {}).get("config", {}),
                     **raw_config.get("pipeline", {}).get("processor", {}).get("config", {}),
                     **raw_config.get("pipeline", {}).get("transform", {}).get("config", {}),
@@ -62,11 +58,7 @@ class ServeOrchestrator:
                 }
                 self.galleria_builder.build(builder_config, config_path.parent)
 
-            # Extract output directory for server
-            output_dir = galleria_config_obj.output_directory
-
-            # Store manifest path for file watching
-            manifest_path = galleria_config_obj.input_manifest_path
+            # output_dir and manifest_path already extracted from config above
 
             # 3. Setup file watcher (unless no_watch)
             if not no_watch:
@@ -101,18 +93,16 @@ class ServeOrchestrator:
         def rebuild_callback(changed_path: Path) -> None:
             """Callback to regenerate gallery when files change."""
             try:
-                # Reload config in case it changed
-                import json
+                # Reload config in case it changed using ConfigManager
+                updated_raw_config = self.config_manager.load_galleria_config(config_path)
 
-                from galleria.config import GalleriaConfig
-                with open(config_path) as f:
-                    updated_raw_config = json.load(f)
-                updated_config_obj = GalleriaConfig.from_file(config_path)
+                # Extract updated output directory
+                updated_output_dir = Path(updated_raw_config["output"]["directory"])
 
                 # Transform config for GalleriaBuilder
                 updated_builder_config = {
                     "manifest_path": updated_raw_config["input"]["manifest_path"],
-                    "output_dir": str(updated_config_obj.output_directory),
+                    "output_dir": str(updated_output_dir),
                     **updated_raw_config.get("pipeline", {}).get("provider", {}).get("config", {}),
                     **updated_raw_config.get("pipeline", {}).get("processor", {}).get("config", {}),
                     **updated_raw_config.get("pipeline", {}).get("transform", {}).get("config", {}),

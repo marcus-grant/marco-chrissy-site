@@ -25,7 +25,10 @@ class TestServeOrchestrator:
         # Arrange
         config_path = Path("/test/config/galleria.json")
         mock_config_manager = mock_config.return_value
-        mock_galleria_config = {"output": {"directory": "/test/output"}}
+        mock_galleria_config = {
+            "output": {"directory": "/test/output"},
+            "input": {"manifest_path": "/test/manifest.json"}
+        }
         mock_config_manager.load_galleria_config.return_value = mock_galleria_config
 
         orchestrator = ServeOrchestrator()
@@ -47,7 +50,10 @@ class TestServeOrchestrator:
         # Arrange
         config_path = Path("/test/config/galleria.json")
         mock_config_manager = mock_config.return_value
-        mock_galleria_config = {"output": {"directory": "/test/output"}}
+        mock_galleria_config = {
+            "output": {"directory": "/test/output"},
+            "input": {"manifest_path": "/test/manifest.json"}
+        }
         mock_config_manager.load_galleria_config.return_value = mock_galleria_config
         mock_galleria_builder = mock_builder.return_value
 
@@ -68,7 +74,10 @@ class TestServeOrchestrator:
         # Arrange
         config_path = Path("/test/config/galleria.json")
         mock_config_manager = mock_config.return_value
-        mock_galleria_config = {"output": {"directory": "/test/output"}}
+        mock_galleria_config = {
+            "output": {"directory": "/test/output"},
+            "input": {"manifest_path": "/test/manifest.json"}
+        }
         mock_config_manager.load_galleria_config.return_value = mock_galleria_config
         mock_galleria_builder = mock_builder.return_value
 
@@ -112,7 +121,10 @@ class TestServeOrchestrator:
         # Arrange
         config_path = Path("/test/config/galleria.json")
         mock_config_manager = mock_config.return_value
-        mock_galleria_config = {"output": {"directory": "/test/output"}}
+        mock_galleria_config = {
+            "output": {"directory": "/test/output"},
+            "input": {"manifest_path": "/test/manifest.json"}
+        }
         mock_config_manager.load_galleria_config.return_value = mock_galleria_config
         mock_http_server = mock_server.return_value
 
@@ -168,7 +180,10 @@ class TestServeOrchestrator:
         # Arrange
         config_path = Path("/test/config/galleria.json")
         mock_config_manager = mock_config.return_value
-        mock_galleria_config = {"output": {"directory": "/test/output"}}
+        mock_galleria_config = {
+            "output": {"directory": "/test/output"},
+            "input": {"manifest_path": "/test/manifest.json"}
+        }
         mock_config_manager.load_galleria_config.return_value = mock_galleria_config
 
         orchestrator = ServeOrchestrator()
@@ -208,8 +223,15 @@ class TestServeOrchestrator:
         # Assert: Gallery should be regenerated
         # build() should be called twice: once for initial generation, once for rebuild
         assert mock_galleria_builder.build.call_count == 2
-        # Both calls should use the same config
-        expected_calls = [call(mock_galleria_config), call(mock_galleria_config)]
+        # Both calls should use the same transformed config
+        expected_builder_config = {
+            "manifest_path": str(manifest_path),
+            "output_dir": "/test/output"
+        }
+        expected_calls = [
+            call(expected_builder_config, config_path.parent),
+            call(expected_builder_config, config_path.parent)
+        ]
         mock_galleria_builder.build.assert_has_calls(expected_calls)
 
     @patch('galleria.orchestrator.serve.ConfigManager')
@@ -284,7 +306,10 @@ class TestServeOrchestrator:
         # Arrange
         config_path = Path("/test/config/galleria.json")
         mock_config_manager = mock_config.return_value
-        mock_galleria_config = {"output": {"directory": "/test/output"}}
+        mock_galleria_config = {
+            "output": {"directory": "/test/output"},
+            "input": {"manifest_path": "/test/manifest.json"}
+        }
         mock_config_manager.load_galleria_config.return_value = mock_galleria_config
         mock_file_watcher = mock_watcher.return_value
         mock_http_server = mock_server.return_value
