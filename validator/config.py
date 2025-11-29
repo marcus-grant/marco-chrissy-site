@@ -17,8 +17,9 @@ class ValidationResult:
 class ConfigValidator:
     """Validates configuration files and directories."""
 
-    def __init__(self):
+    def __init__(self, base_path=None):
         """Initialize config validator."""
+        self.base_path = Path(base_path) if base_path else Path.cwd()
         self.config_schemas = {
             "config/site.json": "config/schema/site.json",
             "config/normpic.json": "config/schema/normpic.json",
@@ -31,8 +32,8 @@ class ConfigValidator:
         errors = []
 
         for config_file, schema_file in self.config_schemas.items():
-            config_path = Path(config_file)
-            schema_path = Path(schema_file)
+            config_path = self.base_path / config_file
+            schema_path = self.base_path / schema_file
 
             # Check if config file exists
             if not config_path.exists():

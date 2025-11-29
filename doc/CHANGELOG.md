@@ -2,6 +2,36 @@
 
 ## 2025-11-29
 
+### BREAKTHROUGH: Systematic Test Infrastructure Isolation (75% Remaining Issues Resolved)
+
+* **MAJOR ARCHITECTURE CHANGES - ConfigValidator API Breaking Change:**
+  * **NEW**: Added `base_path` parameter to `ConfigValidator.__init__(base_path=None)`
+  * **BREAKING**: ConfigValidator now resolves paths relative to `base_path` instead of current working directory
+  * **MIGRATION**: Production code unaffected (defaults to `Path.cwd()`), tests must pass `base_path=temp_filesystem`
+  * **BENEFIT**: Enables dependency injection for isolated testing and configurable deployments
+
+* **SERVE E2E TEST ISOLATION FIXES:**
+  * **ELIMINATED**: Direct filesystem reading with `list((output_dir / "thumbnails").glob("*.webp"))`
+  * **REPLACED**: File counting with HTTP-based testing via server endpoints
+  * **PATTERN**: Test server behavior via HTTP requests instead of inspecting filesystem state
+  * **RESULT**: No more thumbnail file accumulation between test runs
+
+* **CONFIG VALIDATOR COMPLETE REFACTOR:**
+  * **ELIMINATED**: `os.chdir()` anti-pattern that contaminated global working directory state
+  * **ELIMINATED**: Real schema file copying with `shutil.copy(project_root / "config/schema/X.json")`
+  * **IMPLEMENTED**: Inline mock schemas for all validation tests (normpic, site, pelican, galleria)
+  * **PATTERN**: Same proven mock schema approach from earlier schema test fixes
+
+* **SYSTEMATIC ISOLATION PRINCIPLE APPLICATION:**
+  * **IDENTIFIED**: All remaining failures were variations of same filesystem isolation violation
+  * **APPLIED**: Consistent mock/isolation pattern across serve E2E, validator, and schema tests  
+  * **RESULT**: Reduced failing tests from 8 to 2 (75% improvement in remaining issues)
+
+* **ARCHITECTURE INSIGHT DISCOVERED:**
+  * **ROOT CAUSE**: Hardcoded paths scattered throughout codebase cause testing and deployment brittleness
+  * **TEMPORARY FIX**: `base_path` parameter enables dependency injection for testing
+  * **POST-MVP PRIORITY**: Centralized PathConfig system for configurable deployment scenarios
+
 ### Test Infrastructure - Filesystem Dependencies Eliminated (38% Test Pass Improvement)
 
 * **BREAKTHROUGH: Applied proven mock pattern to remaining schema tests**

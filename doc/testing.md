@@ -4,6 +4,8 @@
 
 This project uses a nested TDD approach with comprehensive E2E and unit tests. Tests are organized to drive development workflow and ensure reliable functionality.
 
+**CRITICAL: All tests must use isolation patterns to prevent contamination between test runs. Direct filesystem access is prohibited in tests.**
+
 ## Test Organization
 
 ### Directory Structure
@@ -96,6 +98,58 @@ def test_custom_configs(self, full_config_setup):
     }
     configs = full_config_setup(custom_configs)
 ```
+
+## Test Isolation Patterns
+
+### CRITICAL: No Direct Filesystem Access
+
+**❌ PROHIBITED PATTERNS:**
+```python
+# NEVER do direct filesystem access in tests
+thumbnails = list((output_dir / "thumbnails").glob("*.webp"))  # NO!
+schema = loader.load_config(Path("config/schema/file.json"))   # NO!
+os.chdir(str(temp_directory))  # NO!
+shutil.copy("real/file.json", temp_dir)  # NO!
+```
+
+**✅ REQUIRED PATTERNS:**
+
+### Mock Schemas Instead of Real Files
+```python
+# Use inline mock schemas
+file_factory("config/schema/normpic.json", json_content={
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "type": "object", 
+    "required": ["source_dir", "dest_dir"],
+    "properties": {
+        "source_dir": {"type": "string"},
+        "dest_dir": {"type": "string"}
+    }
+})
+```
+
+### HTTP Testing Instead of Filesystem Inspection
+```python
+# Test via HTTP interface, not filesystem counting
+for i in range(1, expected_count + 1):
+    response = requests.get(f"http://localhost:{port}/file_{i}.html")
+    assert response.status_code == 200
+```
+
+### Dependency Injection for Paths
+```python
+# Use configurable base paths instead of os.chdir()
+validator = ConfigValidator(base_path=temp_filesystem)
+result = validator.validate_config_files()
+```
+
+### Isolation Principles
+
+1. **Each test runs in completely isolated temporary directory**
+2. **No shared state between tests** 
+3. **All data generated fresh per test run**
+4. **Test behavior via public interfaces (HTTP, API calls)**
+5. **Mock all external dependencies**
 
 ## Running Tests
 

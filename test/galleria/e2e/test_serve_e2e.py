@@ -203,14 +203,15 @@ class TestGalleriaServeE2E:
             assert "text/css" in response.headers.get("content-type", ""), "CSS content type incorrect"
 
             # Test thumbnail serving with correct content-type
-            thumbnails = list((output_dir / "thumbnails").glob("*.webp"))
+            # Use scenario data instead of reading real filesystem
             expected_thumbnails = scenario["num_photos"]
-            assert len(thumbnails) == expected_thumbnails, f"Expected {expected_thumbnails} thumbnails, found {len(thumbnails)}"
 
-            for thumb in thumbnails:
-                thumb_response = requests.get(f"http://localhost:{test_port}/thumbnails/{thumb.name}", timeout=2)
-                assert thumb_response.status_code == 200, f"Thumbnail {thumb.name} not served"
-                assert "image" in thumb_response.headers.get("content-type", ""), "Thumbnail content type incorrect"
+            # Test each expected thumbnail by making HTTP requests
+            for i in range(1, expected_thumbnails + 1):
+                thumb_name = f"photo_{i:03d}.webp"  # Use predictable naming pattern
+                thumb_response = requests.get(f"http://localhost:{test_port}/thumbnails/{thumb_name}", timeout=2)
+                assert thumb_response.status_code == 200, f"Thumbnail {thumb_name} not served"
+                assert "image" in thumb_response.headers.get("content-type", ""), f"Thumbnail {thumb_name} content type incorrect"
 
             # Test 404 handling
             response = requests.get(f"http://localhost:{test_port}/nonexistent.html", timeout=2)

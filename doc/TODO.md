@@ -172,17 +172,18 @@ See detailed implementation plan in [Phase 3: Integration Testing & Serve Comman
   - [x] ✅ **COMMITS**: 3 commits fixing fixture API, dependency injection, and test expectations
   - [x] **PROGRESS**: Reduced failing tests from 29 to 15 (48% improvement)
 
-- [x] **MAJOR PROGRESS: Fixed filesystem dependencies in test infrastructure (38% improvement)**
+- [x] **BREAKTHROUGH: Systematic elimination of filesystem isolation violations (75% remaining issues resolved)**
   - [x] ✅ **ROOT CAUSE IDENTIFIED**: Tests load real files with hardcoded `Path("config/schema/file.json")`
   - [x] ✅ **PATTERN ESTABLISHED**: Replace filesystem dependencies with inline mock schemas
   - [x] ✅ **PROOF OF CONCEPT**: Fixed 2 normpic schema tests using mock pattern (da44126)
   - [x] ✅ **COMPLETED**: Applied pattern to remaining 5 schema tests - site, pelican (2), galleria (2) using mock schemas
-  - [x] ✅ **COMPLETED**: Fixed config validator filesystem dependencies with absolute paths
-  - [x] ✅ **IDENTIFIED**: Serve E2E failures due to `galleria serve` command startup issues (connection refused)
-  - [x] ✅ **IDENTIFIED**: Config validator test isolation/contamination - tests pass individually, fail in full suite
-  - [x] ✅ **PROGRESS**: Reduced failing tests from 13 to 8 (38% improvement)
-  - [ ] **REMAINING**: 8 tests still failing due to isolation issues and serve command problems
-  - [ ] **CRITICAL INSIGHT**: All problematic tests pass individually, fail in full suite = isolation/contamination issues
+  - [x] ✅ **COMPLETED**: Fixed config validator filesystem dependencies - eliminated `os.chdir()` anti-pattern
+  - [x] ✅ **COMPLETED**: Added `base_path` parameter to ConfigValidator for dependency injection
+  - [x] ✅ **COMPLETED**: Fixed serve E2E filesystem contamination - eliminated direct `glob()` usage
+  - [x] ✅ **COMPLETED**: Replaced real schema file copying with inline mock schemas
+  - [x] ✅ **MAJOR PROGRESS**: Reduced failing tests from 8 to 2 (75% improvement)
+  - [ ] **REMAINING**: 2 tests still failing - 1 subprocess startup issue, 1 contamination source
+  - [x] ✅ **CRITICAL INSIGHT**: Systematic application of isolation principles vs treating each failure individually
 
 - [ ] **Manual testing guide with real photo set**
   - [ ] Guide through testing serve command with real photos
@@ -282,6 +283,17 @@ See detailed implementation plan in [Phase 3: Integration Testing & Serve Comman
 ## Post-MVP Enhancements
 
 ### Near-term Optimizations
+
+- [ ] **PRIORITY HIGH: Refactor hardcoded paths to configuration-based path management**
+  - [ ] **Context**: Test infrastructure fixes revealed hardcoded paths throughout codebase (ConfigValidator, schema tests, etc.)
+  - [ ] **Current anti-pattern**: Scattered hardcoded paths like `"config/schema/normpic.json"` cause testing and deployment issues
+  - [ ] **Solution**: Centralized path configuration in config/site.json with dependency injection
+  - [ ] Create PathConfig class with configurable: config_dir, schema_dir, output_dir, temp_dir paths
+  - [ ] Refactor ConfigValidator to use PathConfig instead of hardcoded relative paths  
+  - [ ] Update all modules to use dependency-injected paths instead of hardcoded strings
+  - [ ] Benefits: deployment flexibility, Docker support, testing isolation, CDN integration
+  - [ ] Enable different path structures for development vs production vs containerized environments
+  - [ ] Document path configuration options and deployment scenarios
 
 - [ ] **Refactor plugin output validation to use structured types and schema validation**
   - [ ] Current file writing validation in CLI is defensive programming against malformed plugin output

@@ -8,6 +8,7 @@ This project follows functional module organization with clear separation of con
 
 - [Organization Patterns](patterns.md) - Rules and anti-patterns for module structure
 - [Site Project Structure](site-structure.md) - Main site project modules
+- [Validator Module](validator.md) - Configuration validation and path management
 - [Build System](build/) - Site build orchestration and coordination
 - [Galleria Structure](galleria-structure.md) - Gallery generator overview
 - [Galleria Modules](galleria/) - Detailed Galleria module documentation
