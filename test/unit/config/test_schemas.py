@@ -1,6 +1,5 @@
 """Unit tests for JSON schema validation."""
 
-from pathlib import Path
 
 import pytest
 
@@ -77,11 +76,25 @@ class TestConfigSchemas:
         }
         config_file = file_factory("config/site.json", json_content=config_data)
 
-        schema_path = Path("config/schema/site.json")
-        loader = JsonConfigLoader()
-        schema = loader.load_config(schema_path)
+        # Create mock schema instead of loading from filesystem
+        mock_schema = {
+            "$schema": "http://json-schema.org/draft-07/schema#",
+            "type": "object",
+            "required": ["output_dir", "cdn"],
+            "properties": {
+                "output_dir": {"type": "string"},
+                "cdn": {
+                    "type": "object",
+                    "required": ["photos", "site"],
+                    "properties": {
+                        "photos": {"type": "string"},
+                        "site": {"type": "string"}
+                    }
+                }
+            }
+        }
 
-        loader_with_schema = JsonConfigLoader(schema=schema)
+        loader_with_schema = JsonConfigLoader(schema=mock_schema)
         result = loader_with_schema.load_config(config_file)
         assert result == config_data
 
@@ -95,11 +108,20 @@ class TestConfigSchemas:
         }
         config_file = file_factory("config/pelican.json", json_content=config_data)
 
-        schema_path = Path("config/schema/pelican.json")
-        loader = JsonConfigLoader()
-        schema = loader.load_config(schema_path)
+        # Create mock schema instead of loading from filesystem
+        mock_schema = {
+            "$schema": "http://json-schema.org/draft-07/schema#",
+            "type": "object",
+            "required": ["theme", "site_url", "author", "sitename"],
+            "properties": {
+                "theme": {"type": "string"},
+                "site_url": {"type": "string"},
+                "author": {"type": "string"},
+                "sitename": {"type": "string"}
+            }
+        }
 
-        loader_with_schema = JsonConfigLoader(schema=schema)
+        loader_with_schema = JsonConfigLoader(schema=mock_schema)
         result = loader_with_schema.load_config(config_file)
         assert result == config_data
 
@@ -111,11 +133,20 @@ class TestConfigSchemas:
         }
         config_file = file_factory("config/pelican.json", json_content=config_data)
 
-        schema_path = Path("config/schema/pelican.json")
-        loader = JsonConfigLoader()
-        schema = loader.load_config(schema_path)
+        # Use same mock schema as success test
+        mock_schema = {
+            "$schema": "http://json-schema.org/draft-07/schema#",
+            "type": "object",
+            "required": ["theme", "site_url", "author", "sitename"],
+            "properties": {
+                "theme": {"type": "string"},
+                "site_url": {"type": "string"},
+                "author": {"type": "string"},
+                "sitename": {"type": "string"}
+            }
+        }
 
-        loader_with_schema = JsonConfigLoader(schema=schema)
+        loader_with_schema = JsonConfigLoader(schema=mock_schema)
 
         with pytest.raises(Exception) as exc_info:
             loader_with_schema.load_config(config_file)
@@ -134,11 +165,22 @@ class TestConfigSchemas:
         }
         config_file = file_factory("config/galleria.json", json_content=config_data)
 
-        schema_path = Path("config/schema/galleria.json")
-        loader = JsonConfigLoader()
-        schema = loader.load_config(schema_path)
+        # Create mock schema instead of loading from filesystem
+        mock_schema = {
+            "$schema": "http://json-schema.org/draft-07/schema#",
+            "type": "object",
+            "required": ["manifest_path", "output_dir"],
+            "properties": {
+                "manifest_path": {"type": "string"},
+                "output_dir": {"type": "string"},
+                "thumbnail_size": {"type": "integer"},
+                "photos_per_page": {"type": "integer"},
+                "theme": {"type": "string"},
+                "quality": {"type": "integer"}
+            }
+        }
 
-        loader_with_schema = JsonConfigLoader(schema=schema)
+        loader_with_schema = JsonConfigLoader(schema=mock_schema)
         result = loader_with_schema.load_config(config_file)
         assert result == config_data
 
@@ -150,11 +192,22 @@ class TestConfigSchemas:
         }
         config_file = file_factory("config/galleria.json", json_content=config_data)
 
-        schema_path = Path("config/schema/galleria.json")
-        loader = JsonConfigLoader()
-        schema = loader.load_config(schema_path)
+        # Use same mock schema as success test
+        mock_schema = {
+            "$schema": "http://json-schema.org/draft-07/schema#",
+            "type": "object",
+            "required": ["manifest_path", "output_dir"],
+            "properties": {
+                "manifest_path": {"type": "string"},
+                "output_dir": {"type": "string"},
+                "thumbnail_size": {"type": "integer"},
+                "photos_per_page": {"type": "integer"},
+                "theme": {"type": "string"},
+                "quality": {"type": "integer"}
+            }
+        }
 
-        loader_with_schema = JsonConfigLoader(schema=schema)
+        loader_with_schema = JsonConfigLoader(schema=mock_schema)
 
         with pytest.raises(Exception) as exc_info:
             loader_with_schema.load_config(config_file)

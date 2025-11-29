@@ -83,11 +83,13 @@ class TestConfigValidator:
         schema_dir = temp_filesystem / "config" / "schema"
         schema_dir.mkdir(parents=True, exist_ok=True)
 
-        # Copy actual schema files
-        shutil.copy("config/schema/normpic.json", schema_dir / "normpic.json")
-        shutil.copy("config/schema/site.json", schema_dir / "site.json")
-        shutil.copy("config/schema/pelican.json", schema_dir / "pelican.json")
-        shutil.copy("config/schema/galleria.json", schema_dir / "galleria.json")
+        # Copy actual schema files using absolute paths
+        import pathlib
+        project_root = pathlib.Path(__file__).parent.parent.parent.parent
+        shutil.copy(project_root / "config/schema/normpic.json", schema_dir / "normpic.json")
+        shutil.copy(project_root / "config/schema/site.json", schema_dir / "site.json")
+        shutil.copy(project_root / "config/schema/pelican.json", schema_dir / "pelican.json")
+        shutil.copy(project_root / "config/schema/galleria.json", schema_dir / "galleria.json")
 
         # Create invalid config files that exist but have bad content
         file_factory("config/normpic.json", json_content={
@@ -133,11 +135,13 @@ class TestConfigValidator:
         schema_dir = temp_filesystem / "config" / "schema"
         schema_dir.mkdir(parents=True, exist_ok=True)
 
-        # Copy actual schema files
-        shutil.copy("config/schema/normpic.json", schema_dir / "normpic.json")
-        shutil.copy("config/schema/site.json", schema_dir / "site.json")
-        shutil.copy("config/schema/pelican.json", schema_dir / "pelican.json")
-        shutil.copy("config/schema/galleria.json", schema_dir / "galleria.json")
+        # Copy actual schema files using absolute paths
+        import pathlib
+        project_root = pathlib.Path(__file__).parent.parent.parent.parent
+        shutil.copy(project_root / "config/schema/normpic.json", schema_dir / "normpic.json")
+        shutil.copy(project_root / "config/schema/site.json", schema_dir / "site.json")
+        shutil.copy(project_root / "config/schema/pelican.json", schema_dir / "pelican.json")
+        shutil.copy(project_root / "config/schema/galleria.json", schema_dir / "galleria.json")
 
         # Create valid config files
         file_factory("config/normpic.json", json_content={

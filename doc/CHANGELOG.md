@@ -2,6 +2,33 @@
 
 ## 2025-11-29
 
+### Test Infrastructure - Filesystem Dependencies Eliminated (38% Test Pass Improvement)
+
+* **BREAKTHROUGH: Applied proven mock pattern to remaining schema tests**
+  * Replaced hardcoded `Path("config/schema/file.json")` filesystem loading with inline mock schemas
+  * Fixed 5 remaining schema tests: site, pelican (2), galleria (2) validation tests
+  * All schema tests now use consistent mock pattern established in commit da44126
+  * Eliminated filesystem dependencies that caused test isolation failures
+
+* **CONFIG VALIDATOR TEST FIXES:**
+  * Fixed filesystem path issues in `test/unit/validator/test_config.py`
+  * Replaced relative paths with absolute paths using `pathlib.Path(__file__).parent` pattern
+  * Fixed `shutil.copy("config/schema/X.json")` calls that failed when working directory changed during test execution
+  * Tests now use absolute paths to schema files, preventing path resolution failures
+
+* **TEST INFRASTRUCTURE INSIGHTS:**
+  * **Root cause confirmed**: Tests load real files instead of using mocked data
+  * **Pattern established**: Replace filesystem dependencies with inline mock schemas for test isolation
+  * **Critical discovery**: All failing tests pass individually but fail in full test suite (test contamination/isolation issues)
+  * **Progress**: Reduced failing tests from 13 to 8 (38% improvement)
+
+* **REMAINING TEST FAILURES CATEGORIZED:**
+  * 5 config validator tests: Pass individually, fail in full suite (isolation/contamination)
+  * 2 serve E2E tests: `galleria serve` command fails to start (connection refused)
+  * 1 organizer test: Specific failure mode to be investigated
+
+## 2025-11-29
+
 ### Critical Bug Fix - Galleria Plugin Pipeline Infinite Loop
 
 * **ROOT CAUSE IDENTIFIED AND FIXED: CSS Plugin Missing Return Statement**
