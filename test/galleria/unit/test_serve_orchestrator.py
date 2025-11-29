@@ -63,7 +63,11 @@ class TestServeOrchestrator:
         orchestrator.execute(config_path, no_generate=False)
 
         # Assert
-        mock_galleria_builder.build.assert_called_once_with(mock_galleria_config)
+        expected_builder_config = {
+            "manifest_path": "/test/manifest.json",
+            "output_dir": "/test/output"
+        }
+        mock_galleria_builder.build.assert_called_once_with(expected_builder_config, config_path.parent)
 
     @patch('galleria.orchestrator.serve.ConfigManager')
     @patch('galleria.orchestrator.serve.GalleriaBuilder')
@@ -99,7 +103,10 @@ class TestServeOrchestrator:
         config_path = Path("/test/config/galleria.json")
         output_dir = Path("/test/output")
         mock_config_manager = mock_config.return_value
-        mock_galleria_config = {"output": {"directory": str(output_dir)}}
+        mock_galleria_config = {
+            "output": {"directory": str(output_dir)},
+            "input": {"manifest_path": "/test/manifest.json"}
+        }
         mock_config_manager.load_galleria_config.return_value = mock_galleria_config
         mock_http_server = mock_server.return_value
 
@@ -260,7 +267,10 @@ class TestServeOrchestrator:
         config_path = Path("/test/config/galleria.json")
         expected_output_dir = Path("/custom/output/path")
         mock_config_manager = mock_config.return_value
-        mock_galleria_config = {"output": {"directory": str(expected_output_dir)}}
+        mock_galleria_config = {
+            "output": {"directory": str(expected_output_dir)},
+            "input": {"manifest_path": "/test/manifest.json"}
+        }
         mock_config_manager.load_galleria_config.return_value = mock_galleria_config
 
         orchestrator = ServeOrchestrator()
