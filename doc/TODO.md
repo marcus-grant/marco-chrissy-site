@@ -164,19 +164,22 @@ See detailed implementation plan in [Phase 3: Integration Testing & Serve Comman
   - [x] Update doc/CHANGELOG.md and doc/TODO.md
   - [x] Commit: `Tst: Enable and fix new galleria serve E2E tests`
 
-- [ ] **CRITICAL: Fix broken test infrastructure (poor mocking and fixture design)**
-  - [ ] PROBLEM: 28 tests failing due to terrible test design (bad mocking, incorrect fixture usage)
-  - [ ] ServeOrchestrator tests: Mock ConfigManager but code bypasses it and opens real files
-  - [ ] CLI timeout test: Uses non-existent fixture API (galleria_config_factory custom_config param)
-  - [ ] Schema tests: Pass individually but fail in full suite (test isolation issues)
-  - [ ] TERRIBLE DESIGN: Tests try to open real file paths instead of using proper mocks
-  - [ ] BLOCKING: Cannot proceed with serve command development until test infrastructure is fixed
-  - [ ] Fix ServeOrchestrator mocking: galleria/orchestrator/serve.py:46 opens files directly
-  - [ ] Fix CLI test fixture usage: test/galleria/e2e/test_cli_generate.py:258 incorrect API
-  - [ ] Investigate test isolation problems causing schema test failures in full suite
-  - [ ] Ensure all 28 failing tests pass with proper mocking and isolation
-  - [ ] Update doc/CHANGELOG.md and doc/TODO.md  
-  - [ ] Commit: `Fix: Repair broken test infrastructure mocking and fixtures`
+- [x] **MAJOR PROGRESS: Fixed broken test infrastructure (14/29 tests fixed)**
+  - [x] ✅ **FIXED**: ServeOrchestrator dependency injection - removed file I/O bypassing mocks
+  - [x] ✅ **FIXED**: CLI timeout test fixture API - corrected galleria_config_factory usage  
+  - [x] ✅ **FIXED**: All 13 ServeOrchestrator unit tests now pass with proper mocking
+  - [x] ✅ **FIXED**: ConfigManager now supports path parameters for better dependency injection
+  - [x] ✅ **COMMITS**: 3 commits fixing fixture API, dependency injection, and test expectations
+  - [x] **PROGRESS**: Reduced failing tests from 29 to 15 (48% improvement)
+
+- [ ] **CRITICAL: Fix remaining test infrastructure issues (15 tests still failing)**
+  - [ ] **Schema test isolation**: 7 tests pass individually but fail in full suite due to fixture contamination
+  - [ ] **Serve E2E failures**: Connection refused (server not starting) + thumbnail count mismatch  
+  - [ ] **Filesystem dependency elimination**: Tests must not depend on real config files, manifests, or images
+  - [ ] **Config validator tests**: Likely have filesystem dependencies that need mocking
+  - [ ] **NormPic organizer tests**: Need investigation of specific failure modes
+  - [ ] **Test isolation**: Ensure complete isolation between tests with proper cleanup
+  - [ ] **BLOCKING**: Must achieve 100% test pass rate before continuing serve development
 
 - [ ] **Manual testing guide with real photo set**
   - [ ] Guide through testing serve command with real photos

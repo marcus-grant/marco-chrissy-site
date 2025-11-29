@@ -37,6 +37,23 @@
   * Issue is NOT in file writing stage as originally suspected
   * File writing protection prevents symptom but root cause remains in plugin system
 
+* **MAJOR TEST INFRASTRUCTURE FIXES COMPLETED:**
+  * **48% IMPROVEMENT**: Reduced failing tests from 29 to 15 through systematic fixes
+  * **Fixed ServeOrchestrator Architecture**: Removed direct file I/O that bypassed mocked ConfigManager
+    - Updated ConfigManager.load_galleria_config() to accept optional path parameter
+    - Refactored ServeOrchestrator.execute() to use proper dependency injection
+    - Removed GalleriaConfig dependencies and extracted data directly from ConfigManager
+    - All 13 ServeOrchestrator unit tests now pass with proper mocking
+  * **Fixed Fixture API Issues**: Corrected galleria_config_factory parameter name (custom_config → custom_content)
+  * **Fixed Test Expectations**: Updated test assertions for new builder API signature
+  * **Commits**: c1cf9bd, 855727c, 61e2b47 - systematic test infrastructure improvements
+
+* **REMAINING TEST INFRASTRUCTURE ISSUES (15 tests still failing):**
+  * **Schema Test Isolation**: 7 tests pass individually but fail in full suite (fixture contamination)
+  * **Serve E2E Architecture**: Connection refused errors and thumbnail count mismatches
+  * **Filesystem Dependencies**: Tests still depend on real config files, manifests, and images
+  * **CRITICAL**: Must eliminate all filesystem dependencies and achieve 100% mock-based testing
+
 * **TESTING: Regression prevention**
   * Added large content payload tests to test/galleria/unit/plugins/test_css.py
   * Added malformed content structure tests to test/galleria/unit/plugins/test_css.py
