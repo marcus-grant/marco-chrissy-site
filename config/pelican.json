@@ -1,0 +1,16 @@
+{
+  "author": "Marco & Chrissy",
+  "sitename": "Marco & Chrissy's Wedding",
+  "site_url": "https://marco-chrissy.com",
+  "content_path": "content",
+  "output_path": "output",
+  "theme": "pelican/theme/simple",
+  "timezone": "Europe/Stockholm",
+  "default_lang": "en",
+  "delete_output_directory": false,
+  "ignore_files": [".#*", "__pycache__", "*~", "*.pyc"],
+  "static_paths": ["images"],
+  "article_paths": [""],
+  "page_paths": ["pages"],
+  "default_pagination": false
+}

@@ -1,0 +1,6 @@
+{
+  "source_dir": "/tmp/photos",
+  "dest_dir": "output/pics/full", 
+  "collection_name": "wedding",
+  "create_symlinks": true
+}

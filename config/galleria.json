@@ -1,41 +1,9 @@
 {
-  "input": {
-    "manifest_path": "output/pics/full/manifest.json"
-  },
-  "output": {
-    "directory": "output/galleries/wedding"
-  },
-  "pipeline": {
-    "provider": {
-      "plugin": "normpic-provider",
-      "config": {}
-    },
-    "processor": {
-      "plugin": "thumbnail-processor",
-      "config": {
-        "thumbnail_size": 400,
-        "quality": 85
-      }
-    },
-    "transform": {
-      "plugin": "basic-pagination",
-      "config": {
-        "page_size": 20
-      }
-    },
-    "template": {
-      "plugin": "basic-template",
-      "config": {
-        "theme": "elegant",
-        "layout": "grid"
-      }
-    },
-    "css": {
-      "plugin": "basic-css",
-      "config": {
-        "theme": "light",
-        "responsive": true
-      }
-    }
-  }
+  "manifest_path": "output/pics/full/manifest.json",
+  "output_dir": "output/galleries/wedding",
+  "thumbnail_size": 400,
+  "photos_per_page": 20,
+  "theme": "elegant",
+  "quality": 85,
+  "layout": "grid"
 }

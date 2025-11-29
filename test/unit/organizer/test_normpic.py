@@ -13,27 +13,29 @@ from serializer.exceptions import ConfigLoadError
 class TestNormPicOrganizer:
     """Test NormPic orchestration functionality."""
 
-    def test_organizer_initialization(self):
+    def test_organizer_initialization(self, temp_filesystem):
         """Test that NormPicOrganizer can be initialized."""
-        organizer = NormPicOrganizer()
+        # Use test parameters to avoid loading production config
+        source_dir = temp_filesystem / "test_source"
+        dest_dir = temp_filesystem / "test_dest"
+        source_dir.mkdir()
+        dest_dir.mkdir()
+
+        organizer = NormPicOrganizer(
+            source_dir=source_dir,
+            dest_dir=dest_dir,
+            collection_name="test"
+        )
         assert organizer is not None
 
     @patch('organizer.normpic.organize_photos')
-    def test_organize_photos_returns_result(self, mock_organize_photos):
+    def test_organize_photos_returns_result(self, mock_organize_photos, temp_filesystem):
         """Test that organize_photos returns an OrganizeResult."""
-        # Ensure output directory exists (may be missing due to test contamination)
-        # Handle case where working directory was changed/deleted by other tests
-        import tempfile
-        from pathlib import Path
-
-        try:
-            current_dir = Path.cwd()
-        except FileNotFoundError:
-            # Working directory was deleted by another test, use temp directory
-            current_dir = Path(tempfile.gettempdir())
-
-        output_dir = current_dir / "output"
-        output_dir.mkdir(exist_ok=True)
+        # Create test directories using temp_filesystem fixture
+        source_dir = temp_filesystem / "source_photos"
+        dest_dir = temp_filesystem / "output"
+        source_dir.mkdir()
+        dest_dir.mkdir()
 
         # Mock the heavy NormPic function
         mock_manifest = Mock()
@@ -41,7 +43,13 @@ class TestNormPicOrganizer:
         mock_manifest.errors = []
         mock_organize_photos.return_value = mock_manifest
 
-        organizer = NormPicOrganizer()
+        # Use test parameters to avoid loading production config
+        organizer = NormPicOrganizer(
+            source_dir=source_dir,
+            dest_dir=dest_dir,
+            collection_name="test_wedding",
+            create_symlinks=True
+        )
         result = organizer.organize_photos()
 
         assert isinstance(result, OrganizeResult)

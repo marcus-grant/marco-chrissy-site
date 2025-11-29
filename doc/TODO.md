@@ -29,25 +29,18 @@ See detailed implementation plan in [Phase 3: Integration Testing & Serve Comman
   - [ ] `site deploy` - Bunny CDN upload (calls build if needed)
 - [ ] Each command checks if work already done and skips unnecessary operations
 
-#### 2.3: Production Configuration Files
-
-- [ ] Production config files: Create actual config files for wedding site
-  - [ ] `config/site.json` - Production orchestration settings
-  - [ ] `config/normpic.json` - Wedding photo organization settings
-  - [ ] `config/pelican.json` - Site generation configuration
-  - [ ] `config/galleria.json` - Wedding gallery configuration
-
 #### 2.4: Pelican + Galleria Integration (Plugin-Based)
 
-- [ ] E2E test: Complete plugin-based gallery generation workflow (`test/e2e/`)
-- [ ] Unit tests: PelicanTemplatePlugin functionality (`test/unit/plugins/`)
-- [ ] Create `PelicanTemplatePlugin` extending Galleria's `TemplatePlugin`
-  - [ ] Plugin uses shared Jinja2 templates for consistent navigation/styling
-  - [ ] Configure Galleria to use `PelicanTemplatePlugin` instead of `BasicTemplatePlugin`
-  - [ ] Maintain Galleria extractability - site-specific logic stays in plugin
-- [ ] Set up Pelican with coordinated theme system
-  - [ ] Shared template files for navigation/layout components
-  - [ ] Configure Pelican theme to match Galleria styling
+- [ ] These need verification of being complete - delete this whole section if so
+  - [ ] E2E test: Complete plugin-based gallery generation workflow (`test/e2e/`)
+  - [ ] Unit tests: PelicanTemplatePlugin functionality (`test/unit/plugins/`)
+  - [ ] Create `PelicanTemplatePlugin` extending Galleria's `TemplatePlugin`
+    - [ ] Plugin uses shared Jinja2 templates for consistent navigation/styling
+    - [ ] Configure Galleria to use `PelicanTemplatePlugin` instead of `BasicTemplatePlugin`
+    - [ ] Maintain Galleria extractability - site-specific logic stays in plugin
+  - [ ] Set up Pelican with coordinated theme system
+    - [ ] Shared template files for navigation/layout components
+    - [ ] Configure Pelican theme to match Galleria styling
 
 #### 2.5: Content Pages & Output Structure
 
@@ -68,6 +61,13 @@ See detailed implementation plan in [Phase 3: Integration Testing & Serve Comman
   ```
 
 ### Phase 3: Integration Testing & Serve Command
+
+- [ ] **CRITICAL: Fix test dependency on production configs**
+  - [ ] **BLOCKING ISSUE**: Tests load real config files causing failures
+  - [ ] Fix NormPicOrganizer test that reads production normpic.json
+  - [ ] Ensure all tests use mocked/isolated configs, never production
+  - [ ] Add this pattern to testing guidelines to prevent recurrence
+  - [ ] Run full test suite to ensure no other config dependencies
 
 - [ ] **Manual testing guide with real photo set**
   - [ ] Guide through testing serve command with real photos
