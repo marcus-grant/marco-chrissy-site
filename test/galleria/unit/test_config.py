@@ -18,15 +18,12 @@ class TestGalleriaConfig:
         manifest_path.write_text('{"version": "0.1.0", "collection_name": "test", "pics": []}')
 
         config_data = {
-            "input": {"manifest_path": str(manifest_path)},
-            "output": {"directory": str(tmp_path / "output")},
-            "pipeline": {
-                "provider": {"plugin": "normpic-provider", "config": {}},
-                "processor": {"plugin": "thumbnail-processor", "config": {"size": 400}},
-                "transform": {"plugin": "basic-pagination", "config": {"page_size": 10}},
-                "template": {"plugin": "basic-template", "config": {"theme": "minimal"}},
-                "css": {"plugin": "basic-css", "config": {"responsive": True}}
-            }
+            "manifest_path": str(manifest_path),
+            "output_dir": str(tmp_path / "output"),
+            "thumbnail_size": 400,
+            "page_size": 10,
+            "theme": "minimal",
+            "quality": 85
         }
 
         config_path = tmp_path / "config.json"
@@ -39,10 +36,10 @@ class TestGalleriaConfig:
         assert config.input_manifest_path == manifest_path
         assert config.output_directory == tmp_path / "output"
         assert config.pipeline.provider.plugin == "normpic-provider"
-        assert config.pipeline.processor.config["size"] == 400
+        assert config.pipeline.processor.config["thumbnail_size"] == 400
         assert config.pipeline.transform.config["page_size"] == 10
         assert config.pipeline.template.config["theme"] == "minimal"
-        assert config.pipeline.css.config["responsive"] is True
+        assert config.pipeline.processor.config["quality"] == 85
 
     def test_load_config_with_output_override(self, tmp_path):
         """Test that CLI output override works correctly."""
@@ -51,15 +48,8 @@ class TestGalleriaConfig:
         manifest_path.write_text('{"version": "0.1.0", "collection_name": "test", "pics": []}')
 
         config_data = {
-            "input": {"manifest_path": str(manifest_path)},
-            "output": {"directory": str(tmp_path / "original_output")},
-            "pipeline": {
-                "provider": {"plugin": "normpic-provider", "config": {}},
-                "processor": {"plugin": "thumbnail-processor", "config": {}},
-                "transform": {"plugin": "basic-pagination", "config": {}},
-                "template": {"plugin": "basic-template", "config": {}},
-                "css": {"plugin": "basic-css", "config": {}}
-            }
+            "manifest_path": str(manifest_path),
+            "output_dir": str(tmp_path / "original_output")
         }
 
         config_path = tmp_path / "config.json"
@@ -90,28 +80,25 @@ class TestGalleriaConfig:
     def test_load_config_missing_input_section(self, tmp_path):
         """Test error handling for missing input section."""
         config_data = {
-            "output": {"directory": "/tmp/output"},
-            "pipeline": {}
+            "output_dir": "/tmp/output"
         }
 
         config_path = tmp_path / "config.json"
         config_path.write_text(json.dumps(config_data))
 
-        with pytest.raises(click.ClickException, match="Missing required configuration section"):
+        with pytest.raises(click.ClickException, match="Missing required field: manifest_path"):
             GalleriaConfig.from_file(config_path)
 
     def test_load_config_missing_manifest_path(self, tmp_path):
         """Test error handling for missing manifest path."""
         config_data = {
-            "input": {},  # Missing manifest_path
-            "output": {"directory": "/tmp/output"},
-            "pipeline": {}
+            "output_dir": "/tmp/output"
         }
 
         config_path = tmp_path / "config.json"
         config_path.write_text(json.dumps(config_data))
 
-        with pytest.raises(click.ClickException, match="input.manifest_path"):
+        with pytest.raises(click.ClickException, match="Missing required field: manifest_path"):
             GalleriaConfig.from_file(config_path)
 
     def test_load_config_missing_pipeline_stage(self, tmp_path):
@@ -120,19 +107,17 @@ class TestGalleriaConfig:
         manifest_path.write_text('{}')
 
         config_data = {
-            "input": {"manifest_path": str(manifest_path)},
-            "output": {"directory": "/tmp/output"},
-            "pipeline": {
-                "provider": {"plugin": "normpic-provider", "config": {}},
-                # Missing processor, transform, template, css
-            }
+            "manifest_path": str(manifest_path),
+            "output_dir": "/tmp/output"
         }
 
         config_path = tmp_path / "config.json"
         config_path.write_text(json.dumps(config_data))
 
-        with pytest.raises(click.ClickException, match="Missing required pipeline stage"):
-            GalleriaConfig.from_file(config_path)
+        # This test is no longer relevant since pipeline stages are auto-generated
+        # Test should pass with minimal config
+        config = GalleriaConfig.from_file(config_path)
+        assert config.pipeline.provider.plugin == "normpic-provider"
 
     def test_load_config_missing_plugin_name(self, tmp_path):
         """Test error handling for missing plugin name."""
@@ -140,37 +125,25 @@ class TestGalleriaConfig:
         manifest_path.write_text('{}')
 
         config_data = {
-            "input": {"manifest_path": str(manifest_path)},
-            "output": {"directory": "/tmp/output"},
-            "pipeline": {
-                "provider": {"config": {}},  # Missing plugin name
-                "processor": {"plugin": "thumbnail-processor", "config": {}},
-                "transform": {"plugin": "basic-pagination", "config": {}},
-                "template": {"plugin": "basic-template", "config": {}},
-                "css": {"plugin": "basic-css", "config": {}}
-            }
+            "manifest_path": str(manifest_path),
+            "output_dir": "/tmp/output"
         }
 
         config_path = tmp_path / "config.json"
         config_path.write_text(json.dumps(config_data))
 
-        with pytest.raises(click.ClickException, match="Missing plugin name"):
-            GalleriaConfig.from_file(config_path)
+        # This test is no longer relevant since pipeline stages are auto-generated
+        # Test should pass with minimal config
+        config = GalleriaConfig.from_file(config_path)
+        assert config.pipeline.provider.plugin == "normpic-provider"
 
     def test_validate_paths_missing_manifest(self, tmp_path):
         """Test path validation for missing manifest file."""
         nonexistent_manifest = tmp_path / "missing_manifest.json"
 
         config_data = {
-            "input": {"manifest_path": str(nonexistent_manifest)},
-            "output": {"directory": str(tmp_path / "output")},
-            "pipeline": {
-                "provider": {"plugin": "normpic-provider", "config": {}},
-                "processor": {"plugin": "thumbnail-processor", "config": {}},
-                "transform": {"plugin": "basic-pagination", "config": {}},
-                "template": {"plugin": "basic-template", "config": {}},
-                "css": {"plugin": "basic-css", "config": {}}
-            }
+            "manifest_path": str(nonexistent_manifest),
+            "output_dir": str(tmp_path / "output")
         }
 
         config_path = tmp_path / "config.json"
@@ -188,15 +161,11 @@ class TestGalleriaConfig:
         manifest_path.write_text('{}')
 
         config_data = {
-            "input": {"manifest_path": str(manifest_path)},
-            "output": {"directory": str(tmp_path / "output")},
-            "pipeline": {
-                "provider": {"plugin": "normpic-provider", "config": {"setting1": "value1"}},
-                "processor": {"plugin": "thumbnail-processor", "config": {"size": 400}},
-                "transform": {"plugin": "basic-pagination", "config": {"page_size": 10}},
-                "template": {"plugin": "basic-template", "config": {"theme": "minimal"}},
-                "css": {"plugin": "basic-css", "config": {"responsive": True}}
-            }
+            "manifest_path": str(manifest_path),
+            "output_dir": str(tmp_path / "output"),
+            "thumbnail_size": 400,
+            "page_size": 10,
+            "theme": "minimal"
         }
 
         config_path = tmp_path / "config.json"
@@ -208,8 +177,6 @@ class TestGalleriaConfig:
         pipeline_config = config.to_pipeline_config()
 
         # Assert
-        assert pipeline_config["provider"]["setting1"] == "value1"
-        assert pipeline_config["processor"]["size"] == 400
+        assert pipeline_config["processor"]["thumbnail_size"] == 400
         assert pipeline_config["transform"]["page_size"] == 10
         assert pipeline_config["template"]["theme"] == "minimal"
-        assert pipeline_config["css"]["responsive"] is True
