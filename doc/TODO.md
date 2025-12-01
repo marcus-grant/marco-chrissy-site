@@ -12,11 +12,11 @@
   - [x] Fix remaining unit tests expecting old config format (19 failing)
   - [x] Add this pattern to testing guidelines to prevent recurrence
 
-- [ ] **Cleanup test galleries and artifacts**
-  - [ ] Remove `test_config/` and `test_output/` directories
-  - [ ] Ensure `.gitignore` covers all output directories
-  - [ ] Clean up any other test artifacts
-  - [ ] Commit: `Ref: Clean up test galleries and artifacts`
+- [x] **Cleanup test galleries and artifacts**
+  - [x] Remove `test_config/` and `test_output/` directories (already removed)
+  - [x] Ensure `.gitignore` covers all output directories (already covered by output/)
+  - [x] Clean up any other test artifacts (none found)
+  - [x] Commit: `Ref: Clean up test galleries and artifacts` (no cleanup needed)
 
 - [ ] **Create site serve E2E tests**
   - [ ] Create `test/e2e/test_site_serve.py` with tests:
