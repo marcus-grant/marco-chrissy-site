@@ -68,45 +68,12 @@ class TestGalleriaCLIGenerate:
 
         # Create galleria configuration file
         config = {
-            "input": {
-                "manifest_path": str(manifest_path)
-            },
-            "output": {
-                "directory": str(tmp_path / "gallery_output")
-            },
-            "pipeline": {
-                "provider": {
-                    "plugin": "normpic-provider",
-                    "config": {}
-                },
-                "processor": {
-                    "plugin": "thumbnail-processor",
-                    "config": {
-                        "thumbnail_size": 400,
-                        "quality": 90
-                    }
-                },
-                "transform": {
-                    "plugin": "basic-pagination",
-                    "config": {
-                        "page_size": 2
-                    }
-                },
-                "template": {
-                    "plugin": "basic-template",
-                    "config": {
-                        "theme": "minimal",
-                        "layout": "grid"
-                    }
-                },
-                "css": {
-                    "plugin": "basic-css",
-                    "config": {
-                        "theme": "light",
-                        "responsive": True
-                    }
-                }
-            }
+            "manifest_path": str(manifest_path),
+            "output_dir": str(tmp_path / "gallery_output"),
+            "thumbnail_size": 400,
+            "quality": 90,
+            "page_size": 2,
+            "theme": "minimal"
         }
 
         config_path = tmp_path / "galleria_config.json"
