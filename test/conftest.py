@@ -1,6 +1,7 @@
 """Shared pytest fixtures for all tests."""
 
 import json
+import socket
 import tempfile
 from pathlib import Path
 from typing import Any
@@ -201,3 +202,17 @@ def fake_image_factory(temp_filesystem):
         return image_path
 
     return _create_fake_image
+
+
+@pytest.fixture
+def free_port():
+    """Get a free port number for testing HTTP servers."""
+
+    def _get_free_port():
+        with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+            s.bind(("", 0))
+            s.listen(1)
+            port = s.getsockname()[1]
+        return port
+
+    return _get_free_port

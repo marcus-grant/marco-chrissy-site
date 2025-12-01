@@ -91,3 +91,196 @@ class TestSiteServeProxy:
 
         proxy.galleria_process.terminate.assert_called_once()
         proxy.pelican_process.terminate.assert_called_once()
+
+
+class TestSiteServeCommand:
+    """Unit tests for site serve CLI command."""
+
+    @patch('cli.commands.serve.click.echo')
+    def test_serve_command_prints_complete_url(self, mock_echo):
+        """Test serve command prints complete HTTP URL for proxy server."""
+        from click.testing import CliRunner
+
+        from cli.commands.serve import serve
+
+        runner = CliRunner()
+        result = runner.invoke(serve, ['--host', '127.0.0.1', '--port', '8000'])
+
+        assert result.exit_code == 0
+        mock_echo.assert_any_call("Starting site serve proxy at http://127.0.0.1:8000")
+
+
+class TestProxyHTTPHandler:
+    """Unit tests for HTTP proxy handler that forwards requests."""
+
+    def test_handler_forwards_galleries_to_galleria_server(self):
+        """Test handler forwards /galleries/* requests to Galleria server."""
+        from unittest.mock import Mock
+
+        from cli.commands.serve import ProxyHTTPHandler
+
+        # Arrange: Create handler without calling constructor
+        handler = ProxyHTTPHandler.__new__(ProxyHTTPHandler)
+        handler.path = "/galleries/wedding/page_1.html"
+        handler.proxy = SiteServeProxy(8001, 8002, "/pics")
+
+        # Mock the forward_to_server method
+        handler.forward_to_server = Mock()
+
+        # Act: Handle GET request
+        handler.do_GET()
+
+        # Assert: Request forwarded to Galleria server
+        handler.forward_to_server.assert_called_once_with("127.0.0.1", 8001, "/galleries/wedding/page_1.html")
+
+    def test_handler_forwards_pics_to_static_files(self):
+        """Test handler serves /pics/* requests from static files."""
+        from unittest.mock import Mock
+
+        from cli.commands.serve import ProxyHTTPHandler
+
+        # Arrange: Create handler without calling constructor
+        handler = ProxyHTTPHandler.__new__(ProxyHTTPHandler)
+        handler.path = "/pics/full/photo1.jpg"
+        handler.proxy = SiteServeProxy(8001, 8002, "/path/to/pics")
+
+        # Mock the serve_static_file method
+        handler.serve_static_file = Mock()
+
+        # Act: Handle GET request
+        handler.do_GET()
+
+        # Assert: File served from static directory
+        handler.serve_static_file.assert_called_once_with("/path/to/pics", "/pics/full/photo1.jpg")
+
+    def test_handler_forwards_other_requests_to_pelican(self):
+        """Test handler forwards other requests to Pelican server."""
+        from unittest.mock import Mock
+
+        from cli.commands.serve import ProxyHTTPHandler
+
+        # Arrange: Create handler without calling constructor
+        handler = ProxyHTTPHandler.__new__(ProxyHTTPHandler)
+        handler.path = "/about.html"
+        handler.proxy = SiteServeProxy(8001, 8002, "/pics")
+
+        # Mock the forward_to_server method
+        handler.forward_to_server = Mock()
+
+        # Act: Handle GET request
+        handler.do_GET()
+
+        # Assert: Request forwarded to Pelican server
+        handler.forward_to_server.assert_called_once_with("127.0.0.1", 8002, "/about.html")
+
+    @patch('cli.commands.serve.http.client.HTTPConnection')
+    def test_forward_to_server_makes_http_request(self, mock_http_connection):
+        """Test forward_to_server makes HTTP request and returns response."""
+        from unittest.mock import Mock
+
+        from cli.commands.serve import ProxyHTTPHandler
+
+        # Arrange: Mock successful HTTP response
+        mock_conn = Mock()
+        mock_response = Mock()
+        mock_response.status = 200
+        mock_response.reason = "OK"
+        mock_response.read.return_value = b"<html>Gallery Page</html>"
+        mock_response.getheaders.return_value = [("Content-Type", "text/html")]
+
+        mock_conn.getresponse.return_value = mock_response
+        mock_http_connection.return_value = mock_conn
+
+        handler = ProxyHTTPHandler.__new__(ProxyHTTPHandler)
+        handler.send_response = Mock()
+        handler.send_header = Mock()
+        handler.end_headers = Mock()
+        handler.wfile = Mock()
+
+        # Act: Forward request to server
+        handler.forward_to_server("127.0.0.1", 8001, "/galleries/wedding/page_1.html")
+
+        # Assert: HTTP connection made and response sent
+        mock_http_connection.assert_called_once_with("127.0.0.1", 8001)
+        mock_conn.request.assert_called_once_with("GET", "/galleries/wedding/page_1.html")
+        handler.send_response.assert_called_once_with(200, "OK")
+        handler.wfile.write.assert_called_once_with(b"<html>Gallery Page</html>")
+
+    @patch('cli.commands.serve.mimetypes.guess_type')
+    @patch('cli.commands.serve.Path')
+    def test_serve_static_file_serves_existing_file(self, mock_path_class, mock_guess_type):
+        """Test serve_static_file serves existing files with correct headers."""
+        from unittest.mock import Mock
+
+        from cli.commands.serve import ProxyHTTPHandler
+
+        # Arrange: Mock existing file
+        mock_file_path = Mock()
+        mock_file_path.exists.return_value = True
+        mock_file_path.read_bytes.return_value = b"fake jpg data"
+
+        # Mock Path constructor and __truediv__ method
+        mock_path_instance = Mock()
+        mock_path_instance.__truediv__ = Mock(return_value=mock_file_path)
+        mock_path_class.return_value = mock_path_instance
+
+        # Mock mimetypes
+        mock_guess_type.return_value = ("image/jpeg", None)
+
+        handler = ProxyHTTPHandler.__new__(ProxyHTTPHandler)
+        handler.send_response = Mock()
+        handler.send_header = Mock()
+        handler.end_headers = Mock()
+        handler.wfile = Mock()
+
+        # Act: Serve static file
+        handler.serve_static_file("/path/to/pics", "/pics/full/photo1.jpg")
+
+        # Assert: File served with correct headers
+        handler.send_response.assert_called_once_with(200)
+        handler.send_header.assert_any_call("Content-Type", "image/jpeg")
+        handler.wfile.write.assert_called_once_with(b"fake jpg data")
+
+    @patch('cli.commands.serve.Path')
+    def test_serve_static_file_returns_404_for_missing_file(self, mock_path_class):
+        """Test serve_static_file returns 404 for missing files."""
+        from unittest.mock import Mock
+
+        from cli.commands.serve import ProxyHTTPHandler
+
+        # Arrange: Mock missing file
+        mock_file_path = Mock()
+        mock_file_path.exists.return_value = False
+
+        # Mock Path constructor and __truediv__ method
+        mock_path_instance = Mock()
+        mock_path_instance.__truediv__ = Mock(return_value=mock_file_path)
+        mock_path_class.return_value = mock_path_instance
+
+        handler = ProxyHTTPHandler.__new__(ProxyHTTPHandler)
+        handler.send_error = Mock()
+
+        # Act: Try to serve missing file
+        handler.serve_static_file("/path/to/pics", "/pics/full/missing.jpg")
+
+        # Assert: 404 error sent
+        handler.send_error.assert_called_once_with(404, "File not found")
+
+    @patch('cli.commands.serve.http.client.HTTPConnection')
+    def test_forward_to_server_handles_connection_error(self, mock_http_connection):
+        """Test forward_to_server handles connection errors gracefully."""
+        from unittest.mock import Mock
+
+        from cli.commands.serve import ProxyHTTPHandler
+
+        # Arrange: Mock connection error
+        mock_http_connection.side_effect = OSError("Connection refused")
+
+        handler = ProxyHTTPHandler.__new__(ProxyHTTPHandler)
+        handler.send_error = Mock()
+
+        # Act: Try to forward to unreachable server
+        handler.forward_to_server("127.0.0.1", 8001, "/galleries/wedding/page_1.html")
+
+        # Assert: 502 error sent
+        handler.send_error.assert_called_once_with(502, "Bad Gateway - Target server unreachable")

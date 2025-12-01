@@ -1,6 +1,10 @@
 """Site serve command with proxy routing functionality."""
 
+import http.client
+import http.server
+import mimetypes
 import subprocess
+from pathlib import Path
 from typing import Literal
 
 import click
@@ -76,6 +80,65 @@ class SiteServeProxy:
             self.pelican_process.terminate()
 
 
+class ProxyHTTPHandler(http.server.BaseHTTPRequestHandler):
+    """HTTP handler that routes requests to appropriate servers."""
+
+    def do_GET(self) -> None:
+        """Handle GET requests by routing to appropriate target."""
+        target_type, target_location = self.proxy.get_target_for_path(self.path)
+
+        if target_type == "galleria":
+            self.forward_to_server("127.0.0.1", target_location, self.path)
+        elif target_type == "static":
+            self.serve_static_file(target_location, self.path)
+        elif target_type == "pelican":
+            self.forward_to_server("127.0.0.1", target_location, self.path)
+
+    def forward_to_server(self, host: str, port: int, path: str) -> None:
+        """Forward HTTP request to target server."""
+        try:
+            conn = http.client.HTTPConnection(host, port)
+            conn.request("GET", path)
+            response = conn.getresponse()
+
+            # Send response back to client
+            self.send_response(response.status, response.reason)
+            for header_name, header_value in response.getheaders():
+                self.send_header(header_name, header_value)
+            self.end_headers()
+
+            # Forward response body
+            self.wfile.write(response.read())
+            conn.close()
+
+        except OSError:
+            self.send_error(502, "Bad Gateway - Target server unreachable")
+
+    def serve_static_file(self, static_dir: str, path: str) -> None:
+        """Serve static file from filesystem."""
+        # Remove /pics/ prefix and construct file path
+        if path.startswith("/pics/"):
+            relative_path = path[6:]  # Remove "/pics/" prefix
+        else:
+            relative_path = path
+        file_path = Path(static_dir) / relative_path
+
+        if not file_path.exists():
+            self.send_error(404, "File not found")
+            return
+
+        # Determine content type
+        content_type, _ = mimetypes.guess_type(str(file_path))
+        if content_type is None:
+            content_type = "application/octet-stream"
+
+        # Send file
+        self.send_response(200)
+        self.send_header("Content-Type", content_type)
+        self.end_headers()
+        self.wfile.write(file_path.read_bytes())
+
+
 @click.command()
 @click.option("--host", default="127.0.0.1", help="Host to bind proxy server")
 @click.option("--port", default=8000, help="Port for proxy server")
@@ -90,6 +153,6 @@ def serve(host: str, port: int, galleria_port: int, pelican_port: int) -> None:
     - Everything else → Pelican server
     """
     # This is a placeholder - full implementation will be added in next iteration
-    click.echo(f"Starting site serve proxy on {host}:{port}")
+    click.echo(f"Starting site serve proxy at http://{host}:{port}")
     click.echo(f"Galleria server will run on port {galleria_port}")
     click.echo(f"Pelican server will run on port {pelican_port}")
