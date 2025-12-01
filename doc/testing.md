@@ -363,3 +363,129 @@ def test_galleria_builder_success(mock_pipeline_manager):
 - Changes to internal implementation don't break CLI tests
 - Business logic tests focus on specific functionality
 - Clear test boundaries match architectural boundaries
+
+## HTTP Handler Testing Patterns
+
+The site serve functionality includes HTTP request handling that requires special testing patterns.
+
+### HTTP Handler Testing Strategy
+
+HTTP handlers inherit from `BaseHTTPRequestHandler` which makes testing challenging. Use the `__new__` pattern to avoid constructor issues:
+
+**✅ CORRECT - Using __new__ pattern:**
+```python
+def test_proxy_handler_routing():
+    from cli.commands.serve import ProxyHTTPHandler
+    
+    # Create handler without calling constructor 
+    handler = ProxyHTTPHandler.__new__(ProxyHTTPHandler)
+    handler.path = "/galleries/wedding/page_1.html"
+    handler.proxy = SiteServeProxy(8001, 8002, "/pics")
+    
+    # Mock methods that would send HTTP responses
+    handler.forward_to_server = Mock()
+    
+    # Test the routing logic
+    handler.do_GET()
+    
+    # Assert correct routing decision
+    handler.forward_to_server.assert_called_once_with("127.0.0.1", 8001, "/galleries/wedding/page_1.html")
+```
+
+**❌ INCORRECT - Direct construction:**
+```python
+# This triggers HTTP request handling and fails
+handler = ProxyHTTPHandler(request, address, server)  # Don't do this
+```
+
+### HTTP Request Forwarding Tests
+
+Test request forwarding by mocking the HTTP client:
+
+```python
+@patch('cli.commands.serve.http.client.HTTPConnection')
+def test_forward_to_server_makes_http_request(mock_http_connection):
+    # Mock successful HTTP response
+    mock_conn = Mock()
+    mock_response = Mock()
+    mock_response.status = 200
+    mock_response.read.return_value = b"<html>Content</html>"
+    
+    mock_conn.getresponse.return_value = mock_response
+    mock_http_connection.return_value = mock_conn
+    
+    handler = ProxyHTTPHandler.__new__(ProxyHTTPHandler)
+    handler.send_response = Mock()
+    handler.wfile = Mock()
+    
+    # Test request forwarding
+    handler.forward_to_server("127.0.0.1", 8001, "/galleries/page_1.html")
+    
+    # Verify HTTP connection and response handling
+    mock_http_connection.assert_called_once_with("127.0.0.1", 8001)
+    mock_conn.request.assert_called_once_with("GET", "/galleries/page_1.html")
+    handler.wfile.write.assert_called_once_with(b"<html>Content</html>")
+```
+
+### Static File Serving Tests
+
+Mock filesystem operations for static file tests:
+
+```python
+@patch('cli.commands.serve.mimetypes.guess_type')
+@patch('cli.commands.serve.Path')
+def test_serve_static_file(mock_path_class, mock_guess_type):
+    # Mock file operations
+    mock_file_path = Mock()
+    mock_file_path.exists.return_value = True
+    mock_file_path.read_bytes.return_value = b"fake jpg data"
+    
+    # Mock Path constructor and division operator
+    mock_path_instance = Mock()
+    mock_path_instance.__truediv__ = Mock(return_value=mock_file_path)
+    mock_path_class.return_value = mock_path_instance
+    
+    # Mock content type detection
+    mock_guess_type.return_value = ("image/jpeg", None)
+    
+    handler = ProxyHTTPHandler.__new__(ProxyHTTPHandler)
+    handler.send_response = Mock()
+    handler.send_header = Mock()
+    handler.wfile = Mock()
+    
+    # Test static file serving
+    handler.serve_static_file("/path/to/pics", "/pics/full/photo1.jpg")
+    
+    # Verify correct response
+    handler.send_response.assert_called_once_with(200)
+    handler.send_header.assert_any_call("Content-Type", "image/jpeg")
+    handler.wfile.write.assert_called_once_with(b"fake jpg data")
+```
+
+### Error Handling Tests
+
+Test error conditions with appropriate mock exceptions:
+
+```python
+@patch('cli.commands.serve.http.client.HTTPConnection')
+def test_forward_to_server_handles_connection_error(mock_http_connection):
+    # Mock connection failure
+    mock_http_connection.side_effect = OSError("Connection refused")
+    
+    handler = ProxyHTTPHandler.__new__(ProxyHTTPHandler)
+    handler.send_error = Mock()
+    
+    # Test error handling
+    handler.forward_to_server("127.0.0.1", 8001, "/galleries/page_1.html")
+    
+    # Verify 502 Bad Gateway response
+    handler.send_error.assert_called_once_with(502, "Bad Gateway - Target server unreachable")
+```
+
+### Key HTTP Testing Principles
+
+1. **Use `__new__` pattern** to avoid BaseHTTPRequestHandler constructor issues
+2. **Mock HTTP responses** instead of making real network calls
+3. **Mock filesystem operations** for static file tests  
+4. **Test error conditions** with appropriate exception mocking
+5. **Verify HTTP status codes and headers** are set correctly

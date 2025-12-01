@@ -8,6 +8,7 @@ This project uses a molecule-inspired cascading command system where each comman
 
 - [Pipeline Commands](pipeline.md) - Main site building commands
 - [Build Command](build.md) - Complete site generation documentation
+- [Serve Command](serve.md) - Development server with proxy routing
 - [Development Commands](development.md) - Developer workflow commands  
 - [Galleria Commands](galleria.md) - Gallery-specific commands
 
