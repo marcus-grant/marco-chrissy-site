@@ -474,17 +474,13 @@ def complete_serving_scenario(
             photos_per_page=photos_per_page
         )
 
-        # Create galleria config
+        # Create galleria config using flat format
         config_content = {
-            "input": {"manifest_path": str(manifest_path)},
-            "output": {"directory": str(output_path)},
-            "pipeline": {
-                "provider": {"plugin": "normpic-provider", "config": {}},
-                "processor": {"plugin": "thumbnail-processor", "config": {"thumbnail_size": 200}},
-                "transform": {"plugin": "basic-pagination", "config": {"page_size": photos_per_page}},
-                "template": {"plugin": "basic-template", "config": {"theme": "elegant"}},
-                "css": {"plugin": "basic-css", "config": {"theme": "light"}}
-            }
+            "manifest_path": str(manifest_path),
+            "output_dir": str(output_path),
+            "thumbnail_size": 200,
+            "page_size": photos_per_page,
+            "theme": "elegant"
         }
         config_path = galleria_config_factory(custom_content=config_content)
 
@@ -542,14 +538,11 @@ def file_watcher_scenario(galleria_config_factory, manifest_factory):
         (output_dir / "page_1.html").write_text("<html><body>Test Gallery</body></html>")
         (output_dir / "gallery.css").write_text("body { font-family: Arial; }")
 
-        # Create initial config with absolute paths to avoid resolution issues
+        # Create initial config using flat format
         initial_config = {
-            "input": {"manifest_path": str(manifest_path)},
-            "output": {"directory": str(output_dir)},
-            "pipeline": {
-                "template": {"plugin": "basic-template", "config": {"theme": "minimal"}},
-                "css": {"plugin": "basic-css", "config": {"theme": "light"}}
-            }
+            "manifest_path": str(manifest_path),
+            "output_dir": str(output_dir),
+            "theme": "minimal"
         }
         config_path = galleria_config_factory(custom_content=initial_config)
 
@@ -561,3 +554,4 @@ def file_watcher_scenario(galleria_config_factory, manifest_factory):
         }
 
     return _create_watcher_scenario
+

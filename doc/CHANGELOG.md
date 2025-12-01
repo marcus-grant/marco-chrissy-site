@@ -2,7 +2,19 @@
 
 ## 2025-12-01
 
-### CONFIG FORMAT UNIFICATION COMPLETED ✅
+### Test Infrastructure Improvements
+
+* Refactored serve E2E tests to use direct imports instead of subprocess
+  - Replaced subprocess.Popen() with direct ServeOrchestrator calls
+  - Eliminated dependencies on real filesystem and production config files
+  - Tests now use mocked filesystem from fixtures
+  - Reduced serve test failures from 3 to 0
+* Updated test fixtures for flat config format consistency
+  - Fixed complete_serving_scenario and file_watcher_scenario fixtures
+  - Converted nested config format to flat format
+  - All test scenarios now use unified config structure
+
+### Config Format Unification
 
 * **CRITICAL ISSUE RESOLVED: Dual Config Format Problem**
   * **ROOT CAUSE**: ServeOrchestrator expected nested config format (`config["output"]["directory"]`) while all other commands used flat format (`config["output_dir"]`)

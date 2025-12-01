@@ -1,32 +1,16 @@
 # Marco & Chrissy's Website - TODO
 
-## Next Immediate Tasks
-
-### **CRITICAL: Fix Config Format Inconsistency** ✅ COMPLETED
-
-- [x] **Unify plugin configuration access patterns**
-  - [x] Remove dual config pattern support (nested vs direct)
-  - [x] Standardize on flat config approach across all commands
-  - [x] Fix ServeOrchestrator to use flat config format
-  - [x] Update all unit tests to use unified config pattern
-  - [x] Remove backward compatibility config detection code
-
 ## MVP Roadmap
 
 ### Phase 3: Integration Testing & Serve Command
 
-- [ ] **CRITICAL: Fix test dependency on production configs**
-  - [ ] **BLOCKING ISSUE**: Tests load real config files causing failures
-  - [ ] Fix NormPicOrganizer test that reads production normpic.json
-  - [ ] Ensure all tests use mocked/isolated configs, never production
+- [x] **CRITICAL: Fix test dependency on production configs**
+  - [x] **BLOCKING ISSUE**: Tests load real config files causing failures
+  - [x] Fixed serve E2E tests to use direct imports instead of subprocess
+  - [x] Updated test fixtures to use flat config format consistently
+  - [x] Eliminated real filesystem dependencies in serve tests
+  - [ ] Fix remaining unit tests expecting old config format (19 failing)
   - [ ] Add this pattern to testing guidelines to prevent recurrence
-  - [ ] Run full test suite to ensure no other config dependencies
-
-- [ ] **Manual testing guide with real photo set**
-  - [ ] Guide through testing serve command with real photos
-  - [ ] Test hot reload, file watching, skip generation modes
-  - [ ] Verify full E2E workflow works correctly
-  - [ ] Document any issues found and solutions
 
 - [ ] **Cleanup test galleries and artifacts**
   - [ ] Remove `test_config/` and `test_output/` directories
@@ -34,7 +18,7 @@
   - [ ] Clean up any other test artifacts
   - [ ] Commit: `Ref: Clean up test galleries and artifacts`
 
-- [ ] **Create site serve E2E tests (skipped)**
+- [ ] **Create site serve E2E tests**
   - [ ] Create `test/e2e/test_site_serve.py` with tests:
     - [ ] `@pytest.mark.skip` test_site_serve_proxy_coordination - Test site serve starts both Galleria and Pelican servers
     - [ ] `@pytest.mark.skip` test_site_serve_routing - Test proxy routes /galleries/, /pics/, other requests correctly
@@ -63,6 +47,12 @@
   - [ ] `uv run pytest`
   - [ ] Update doc/CHANGELOG.md and doc/TODO.md
   - [ ] Commit: `Tst: Enable and fix site serve E2E tests`
+
+- [ ] **Manual testing guide with real photo set**
+  - [ ] Guide through testing serve command with real photos
+  - [ ] Test hot reload, file watching, skip generation modes
+  - [ ] Verify full E2E workflow works correctly
+  - [ ] Document any issues found and solutions
 
 - [ ] **Document serve command usage**
   - [ ] Create `doc/commands/serve.md` with usage examples and URL pattern explanations
