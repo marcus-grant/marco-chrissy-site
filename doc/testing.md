@@ -6,6 +6,8 @@ This project uses a nested TDD approach with comprehensive E2E and unit tests. T
 
 **CRITICAL: All tests must use isolation patterns to prevent contamination between test runs. Direct filesystem access is prohibited in tests.**
 
+**CRITICAL: All tests must use the current unified config format. Never hardcode nested config structures in tests.**
+
 ## Test Organization
 
 ### Directory Structure
@@ -249,6 +251,39 @@ def test_serve_command(complete_serving_scenario):
 7. **Commit and move to next feature**
 
 This ensures continuous progress while maintaining a passing test suite.
+
+## Config Format Testing Patterns
+
+**RULE: Always use flat config format in tests. Never hardcode nested format.**
+
+### Correct Config Format in Tests
+
+**✅ CORRECT - Flat format:**
+```python
+config_data = {
+    "manifest_path": str(manifest_path),
+    "output_dir": str(tmp_path / "output"),
+    "thumbnail_size": 400,
+    "theme": "minimal"
+}
+```
+
+**❌ INCORRECT - Old nested format:**
+```python
+# NEVER USE THIS - causes test failures
+config_data = {
+    "input": {"manifest_path": str(manifest_path)},
+    "output": {"directory": str(tmp_path / "output")},
+    "pipeline": {...}
+}
+```
+
+### Prevention Strategy
+
+1. **Use config fixtures**: Always use `galleria_config_factory` fixture instead of hardcoding
+2. **Review config examples**: Ensure all documentation shows flat format
+3. **Test config loading**: Verify `GalleriaConfig.from_file()` works with your test config
+4. **Follow TDD**: Write tests first using current config format, then implement
 
 ## Build Module Testing Patterns
 

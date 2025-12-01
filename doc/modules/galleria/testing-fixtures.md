@@ -57,7 +57,7 @@ def test_config_creation(galleria_config_factory):
     
     # Custom configuration
     custom_config = {
-        "input": {"manifest_path": "custom.json"},
+        "manifest_path": "custom.json",
         "pipeline": {
             "processor": {"plugin": "thumbnail-processor", "config": {"thumbnail_size": 300}}
         }
@@ -68,8 +68,8 @@ def test_config_creation(galleria_config_factory):
 **Default Config Structure:**
 ```json
 {
-  "input": {"manifest_path": "manifest.json"},
-  "output": {"directory": "gallery_output"},
+  "manifest_path": "manifest.json",
+  "output_dir": "gallery_output",
   "pipeline": {
     "provider": {"plugin": "normpic-provider", "config": {}},
     "processor": {"plugin": "thumbnail-processor", "config": {"thumbnail_size": 200}},
@@ -315,7 +315,7 @@ def test_old_way(temp_filesystem, fake_image_factory, file_factory, config_file_
     manifest_data = {"version": "0.1.0", "collection_name": "test", "pics": photos}
     manifest_path = file_factory("manifest.json", json_content=manifest_data)
     
-    config_content = {"input": {"manifest_path": str(manifest_path)}, ...}
+    config_content = {"manifest_path": str(manifest_path), ...}
     config_path = config_file_factory("galleria", config_content)
     # ... more setup
 ```

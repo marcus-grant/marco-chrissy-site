@@ -4,6 +4,13 @@
 
 ### Test Infrastructure Improvements
 
+* **COMPLETED: Config format unification unit test fixes**
+  - Fixed all 19 remaining unit tests expecting old nested config format
+  - Updated test/galleria/unit/test_config.py (8 failures fixed)
+  - Updated test/galleria/unit/test_cli.py (7 failures fixed) 
+  - Updated test/galleria/unit/test_cli_e2e.py (3 failures fixed)
+  - Updated test/galleria/e2e/test_cli_generate.py (1 failure fixed)
+  - All 353 tests now pass with unified flat config format
 * Refactored serve E2E tests to use direct imports instead of subprocess
   - Replaced subprocess.Popen() with direct ServeOrchestrator calls
   - Eliminated dependencies on real filesystem and production config files

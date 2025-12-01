@@ -9,8 +9,8 @@
   - [x] Fixed serve E2E tests to use direct imports instead of subprocess
   - [x] Updated test fixtures to use flat config format consistently
   - [x] Eliminated real filesystem dependencies in serve tests
-  - [ ] Fix remaining unit tests expecting old config format (19 failing)
-  - [ ] Add this pattern to testing guidelines to prevent recurrence
+  - [x] Fix remaining unit tests expecting old config format (19 failing)
+  - [x] Add this pattern to testing guidelines to prevent recurrence
 
 - [ ] **Cleanup test galleries and artifacts**
   - [ ] Remove `test_config/` and `test_output/` directories
