@@ -1,5 +1,32 @@
 # Changelog
 
+## 2025-12-01
+
+### CONFIG FORMAT UNIFICATION COMPLETED ✅
+
+* **CRITICAL ISSUE RESOLVED: Dual Config Format Problem**
+  * **ROOT CAUSE**: ServeOrchestrator expected nested config format (`config["output"]["directory"]`) while all other commands used flat format (`config["output_dir"]`)
+  * **SOLUTION**: Standardized entire system on flat config format following TDD methodology
+  * **IMPLEMENTATION**: 
+    - Updated ServeOrchestrator tests to expect flat format (`output_dir`, `manifest_path`)
+    - Updated ServeOrchestrator implementation to read flat config structure  
+    - Restored config/galleria.json to proper flat format
+    - Verified `uv run galleria serve -c config/galleria.json` works without errors
+  * **RESULT**: All commands now use unified flat config format - workflow no longer broken
+
+* **TDD METHODOLOGY FOLLOWED:**
+  * **Tests First**: Read existing ServeOrchestrator unit tests to understand specification
+  * **Specification Discovery**: Tests clearly expected nested format, not flat format
+  * **Correct Approach**: Updated tests to match desired flat format specification  
+  * **Implementation**: Updated ServeOrchestrator code to match updated test specification
+  * **Verification**: All 13 ServeOrchestrator unit tests pass, serve command functional
+
+* **ARCHITECTURAL INSIGHT:**
+  * **Terminology Confusion**: Original handoff incorrectly called nested format "flat" and flat format "nested"
+  * **True Flat Format**: `{"manifest_path": "...", "output_dir": "...", "theme": "..."}` (single-level keys)
+  * **True Nested Format**: `{"input": {"manifest_path": "..."}, "output": {"directory": "..."}}` (multi-level hierarchy)
+  * **Standardization Benefit**: Eliminates config format switching between commands
+
 ## 2025-11-29
 
 ### COMPLETE SUCCESS: Test Infrastructure Handoff (100% Improvement - All Tests Pass)

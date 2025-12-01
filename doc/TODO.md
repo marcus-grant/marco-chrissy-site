@@ -2,63 +2,16 @@
 
 ## Next Immediate Tasks
 
-### Serve Command Implementation
+### **CRITICAL: Fix Config Format Inconsistency** ✅ COMPLETED
 
-See detailed implementation plan in [Phase 3: Integration Testing & Serve Command](#phase-3-integration-testing--serve-command)
+- [x] **Unify plugin configuration access patterns**
+  - [x] Remove dual config pattern support (nested vs direct)
+  - [x] Standardize on flat config approach across all commands
+  - [x] Fix ServeOrchestrator to use flat config format
+  - [x] Update all unit tests to use unified config pattern
+  - [x] Remove backward compatibility config detection code
 
 ## MVP Roadmap
-
-### Phase 2: Site Structure
-
-**Architecture:** 4-stage idempotent pipeline with plugin-based Pelican integration
-
-#### 2.2: CLI Command System (Idempotent Cascading)
-
-- [x] E2E test: `uv run site` command discovery and basic functionality (`test/e2e/`)
-- [x] Unit tests: Individual command modules (`test/unit/`)
-- [x] Implement `uv run site` command with subcommands
-  - [x] `site validate` - Pre-flight checks (config file validation implemented)
-  - [x] `site organize` - NormPic orchestration (real integration implemented)
-  - [x] `site build` - Galleria + Pelican generation (calls organize if needed)
-    - [x] E2E test: Complete build pipeline with fake filesystem and images
-    - [x] Unit tests: Build command integration (organize cascade, Python modules)
-    - [x] Centralize fake image generation into shared fixtures
-    - [x] Implement build command with galleria and pelican integration
-    - [x] Verify BeautifulSoup validation of generated HTML content
-    - [x] Test idempotent behavior (trust galleria's internal change detection)
-  - [ ] `site deploy` - Bunny CDN upload (calls build if needed)
-- [ ] Each command checks if work already done and skips unnecessary operations
-
-#### 2.4: Pelican + Galleria Integration (Plugin-Based)
-
-- [ ] These need verification of being complete - delete this whole section if so
-  - [ ] E2E test: Complete plugin-based gallery generation workflow (`test/e2e/`)
-  - [ ] Unit tests: PelicanTemplatePlugin functionality (`test/unit/plugins/`)
-  - [ ] Create `PelicanTemplatePlugin` extending Galleria's `TemplatePlugin`
-    - [ ] Plugin uses shared Jinja2 templates for consistent navigation/styling
-    - [ ] Configure Galleria to use `PelicanTemplatePlugin` instead of `BasicTemplatePlugin`
-    - [ ] Maintain Galleria extractability - site-specific logic stays in plugin
-  - [ ] Set up Pelican with coordinated theme system
-    - [ ] Shared template files for navigation/layout components
-    - [ ] Configure Pelican theme to match Galleria styling
-
-#### 2.5: Content Pages & Output Structure
-
-- [ ] E2E test: Full site generation with proper output structure (`test/e2e/`)
-- [ ] Unit tests: Output directory management and CDN coordination (`test/unit/build/`)
-- [ ] Create Pelican content structure:
-  - [ ] Gallery index page (`/galleries/`) - lists available galleries
-  - [ ] About page (`/about/`) - personal content
-- [ ] Configure output directory structure:
-
-  ```
-  output/
-  ├── pics/           # Full photos → Photos CDN bucket
-  ├── galleries/      # Gallery pages + thumbs → Site CDN
-  │   └── wedding/    # URL: /galleries/wedding/page1
-  ├── about/          # Pelican pages → Site CDN
-  └── index.html      # Site root → Site CDN
-  ```
 
 ### Phase 3: Integration Testing & Serve Command
 
@@ -128,11 +81,6 @@ See detailed implementation plan in [Phase 3: Integration Testing & Serve Comman
   - [ ] Update doc/CHANGELOG.md and doc/TODO.md
   - [ ] Commit: `Doc: Document serve command architecture and workflow`
 
-- [ ] Test command system end-to-end
-  - [ ] First check what's already there
-- [ ] Validate site generation workflow
-- [ ] Test Galleria + Pelican integration
-
 ### Phase 4: Template & CSS Architecture Fix (Pre-MVP Critical)
 
 - [ ] **Refactor template and CSS plugins to use file-based theme system**
@@ -159,7 +107,25 @@ See detailed implementation plan in [Phase 3: Integration Testing & Serve Comman
   - [ ] Photo collections: lazy upload (only changed files)
   - [ ] Site content: always upload (smaller transfer, less optimization needed)
 
-### Phase 6: Deploy Command & Guided Real-World Deployment
+### 6: Verify Content Pages & Output Structure
+
+- [ ] E2E test: Full site generation with proper output structure (`test/e2e/`)
+- [ ] Unit tests: Output directory management and CDN coordination (`test/unit/build/`)
+- [ ] Create Pelican content structure:
+  - [ ] Gallery index page (`/galleries/`) - lists available galleries
+  - [ ] About page (`/about/`) - personal content
+- [ ] Configure output directory structure:
+
+  ```
+  output/
+  ├── pics/           # Full photos → Photos CDN bucket
+  ├── galleries/      # Gallery pages + thumbs → Site CDN
+  │   └── wedding/    # URL: /galleries/wedding/page1
+  ├── about/          # Pelican pages → Site CDN
+  └── index.html      # Site root → Site CDN
+  ```
+
+### Phase 7: Deploy Command & Guided Real-World Deployment
 
 - [ ] Plan rest of this step, needs much more detail
 - [ ] Set up dual CDN deployment strategy (photos vs site content)
@@ -279,12 +245,6 @@ See detailed implementation plan in [Phase 3: Integration Testing & Serve Comman
   - [ ] Create standalone pyproject.toml for Galleria
   - [ ] Document Galleria-only installation process
 - [ ] Galleria technical debt cleanup
-  - [ ] **CRITICAL**: Unify plugin configuration access patterns
-    - [ ] Remove dual config pattern support (nested vs direct)
-    - [ ] Standardize on single config approach across all plugins
-    - [ ] Update all unit tests to use unified config pattern
-    - [ ] Remove backward compatibility config detection code
-    - [ ] Choose either: nested stage-specific OR flattened direct access
   - [ ] Add comprehensive type hints
   - [ ] Improve error messages and logging
   - [ ] Create development/debug mode

@@ -41,20 +41,16 @@ class ServeOrchestrator:
             raw_config = self.config_manager.load_galleria_config(config_path)
 
             # Extract needed paths from config data
-            output_dir = Path(raw_config["output"]["directory"])
-            manifest_path = Path(raw_config["input"]["manifest_path"])
+            output_dir = Path(raw_config["output_dir"])
+            manifest_path = Path(raw_config["manifest_path"])
 
             # 2. Generate gallery (unless no_generate)
             if not no_generate:
                 # Transform config for GalleriaBuilder
                 builder_config = {
-                    "manifest_path": raw_config["input"]["manifest_path"],
+                    "manifest_path": raw_config["manifest_path"],
                     "output_dir": str(output_dir),
-                    **raw_config.get("pipeline", {}).get("provider", {}).get("config", {}),
-                    **raw_config.get("pipeline", {}).get("processor", {}).get("config", {}),
-                    **raw_config.get("pipeline", {}).get("transform", {}).get("config", {}),
-                    **raw_config.get("pipeline", {}).get("template", {}).get("config", {}),
-                    **raw_config.get("pipeline", {}).get("css", {}).get("config", {})
+                    **{k: v for k, v in raw_config.items() if k not in ["manifest_path", "output_dir"]}
                 }
                 self.galleria_builder.build(builder_config, config_path.parent)
 
@@ -97,17 +93,13 @@ class ServeOrchestrator:
                 updated_raw_config = self.config_manager.load_galleria_config(config_path)
 
                 # Extract updated output directory
-                updated_output_dir = Path(updated_raw_config["output"]["directory"])
+                updated_output_dir = Path(updated_raw_config["output_dir"])
 
                 # Transform config for GalleriaBuilder
                 updated_builder_config = {
-                    "manifest_path": updated_raw_config["input"]["manifest_path"],
+                    "manifest_path": updated_raw_config["manifest_path"],
                     "output_dir": str(updated_output_dir),
-                    **updated_raw_config.get("pipeline", {}).get("provider", {}).get("config", {}),
-                    **updated_raw_config.get("pipeline", {}).get("processor", {}).get("config", {}),
-                    **updated_raw_config.get("pipeline", {}).get("transform", {}).get("config", {}),
-                    **updated_raw_config.get("pipeline", {}).get("template", {}).get("config", {}),
-                    **updated_raw_config.get("pipeline", {}).get("css", {}).get("config", {})
+                    **{k: v for k, v in updated_raw_config.items() if k not in ["manifest_path", "output_dir"]}
                 }
                 self.galleria_builder.build(updated_builder_config, config_path.parent)
             except Exception:
