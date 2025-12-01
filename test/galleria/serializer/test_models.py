@@ -1,7 +1,6 @@
 """Unit tests for serializer data models."""
 
 
-
 class TestPhoto:
     """Unit tests for Photo model class."""
 

@@ -42,10 +42,7 @@ class PluginExecutionError(PluginError):
     """
 
     def __init__(
-        self,
-        message: str,
-        plugin_name: str = None,
-        original_error: Exception = None
+        self, message: str, plugin_name: str = None, original_error: Exception = None
     ):
         """Initialize execution error with optional original exception.
 
@@ -68,10 +65,7 @@ class PluginDependencyError(PluginError):
     """
 
     def __init__(
-        self,
-        message: str,
-        plugin_name: str = None,
-        missing_deps: list[str] = None
+        self, message: str, plugin_name: str = None, missing_deps: list[str] = None
     ):
         """Initialize dependency error with optional missing dependencies list.
 

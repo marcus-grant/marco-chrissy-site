@@ -46,7 +46,9 @@ class TestFixtures:
         assert "output_dir" in config_data
         assert "base_url" in config_data
 
-    def test_full_config_setup_creates_all_configs(self, full_config_setup, temp_filesystem):
+    def test_full_config_setup_creates_all_configs(
+        self, full_config_setup, temp_filesystem
+    ):
         """Test full_config_setup creates all required config files."""
         configs = full_config_setup()
 

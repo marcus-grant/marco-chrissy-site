@@ -14,6 +14,7 @@ from PIL import Image
 # Core Fixtures (Duplicated for Galleria Independence)
 # =============================================================================
 
+
 @pytest.fixture
 def galleria_temp_filesystem():
     """Create a temporary directory for galleria filesystem tests."""
@@ -24,10 +25,11 @@ def galleria_temp_filesystem():
 @pytest.fixture
 def galleria_file_factory(galleria_temp_filesystem):
     """Factory for creating files in galleria temporary filesystem."""
+
     def _create_file(
         relative_path: str,
         content: str | None = None,
-        json_content: dict[str, Any] | None = None
+        json_content: dict[str, Any] | None = None,
     ) -> Path:
         """Create a file with given content.
 
@@ -59,11 +61,12 @@ def galleria_file_factory(galleria_temp_filesystem):
 @pytest.fixture
 def galleria_image_factory(galleria_temp_filesystem):
     """Factory for creating fake images for galleria testing."""
+
     def _create_fake_image(
         filename: str,
         directory: str = "",
         color: str | tuple[int, int, int] = "red",
-        size: tuple[int, int] = (800, 600)
+        size: tuple[int, int] = (800, 600),
     ) -> Path:
         """Create a fake JPEG image file.
 
@@ -84,8 +87,8 @@ def galleria_image_factory(galleria_temp_filesystem):
             image_path = galleria_temp_filesystem / filename
 
         # Create PIL-generated JPEG
-        img = Image.new('RGB', size, color=color)
-        img.save(image_path, 'JPEG')
+        img = Image.new("RGB", size, color=color)
+        img.save(image_path, "JPEG")
 
         return image_path
 
@@ -96,12 +99,13 @@ def galleria_image_factory(galleria_temp_filesystem):
 # Galleria Config Fixtures
 # =============================================================================
 
+
 @pytest.fixture
 def galleria_config_factory(galleria_file_factory):
     """Factory for creating galleria config files with defaults."""
+
     def _create_config(
-        config_name: str = "galleria",
-        custom_content: dict[str, Any] | None = None
+        config_name: str = "galleria", custom_content: dict[str, Any] | None = None
     ) -> Path:
         """Create a galleria config file.
 
@@ -113,42 +117,24 @@ def galleria_config_factory(galleria_file_factory):
             Path to created config file
         """
         default_config = {
-            "input": {
-                "manifest_path": "manifest.json"
-            },
-            "output": {
-                "directory": "gallery_output"
-            },
+            "input": {"manifest_path": "manifest.json"},
+            "output": {"directory": "gallery_output"},
             "pipeline": {
-                "provider": {
-                    "plugin": "normpic-provider",
-                    "config": {}
-                },
+                "provider": {"plugin": "normpic-provider", "config": {}},
                 "processor": {
                     "plugin": "thumbnail-processor",
-                    "config": {
-                        "thumbnail_size": 200
-                    }
+                    "config": {"thumbnail_size": 200},
                 },
                 "transform": {
                     "plugin": "basic-pagination",
-                    "config": {
-                        "page_size": 10
-                    }
+                    "config": {"page_size": 10},
                 },
                 "template": {
                     "plugin": "basic-template",
-                    "config": {
-                        "theme": "minimal"
-                    }
+                    "config": {"theme": "minimal"},
                 },
-                "css": {
-                    "plugin": "basic-css",
-                    "config": {
-                        "theme": "light"
-                    }
-                }
-            }
+                "css": {"plugin": "basic-css", "config": {"theme": "light"}},
+            },
         }
 
         content = custom_content if custom_content is not None else default_config
@@ -161,13 +147,15 @@ def galleria_config_factory(galleria_file_factory):
 # Manifest Factory Fixture
 # =============================================================================
 
+
 @pytest.fixture
 def manifest_factory(galleria_file_factory):
     """Factory for creating normpic manifests for galleria testing."""
+
     def _create_manifest(
         collection_name: str = "test_collection",
         photos: list[dict[str, Any]] | None = None,
-        filename: str = "manifest.json"
+        filename: str = "manifest.json",
     ) -> Path:
         """Create a normpic manifest file.
 
@@ -186,21 +174,21 @@ def manifest_factory(galleria_file_factory):
                     "dest_path": "IMG_001.jpg",
                     "hash": "abc123",
                     "size_bytes": 2048000,
-                    "mtime": 1234567890
+                    "mtime": 1234567890,
                 },
                 {
                     "source_path": "source/IMG_002.jpg",
                     "dest_path": "IMG_002.jpg",
                     "hash": "def456",
                     "size_bytes": 1956000,
-                    "mtime": 1234567891
-                }
+                    "mtime": 1234567891,
+                },
             ]
 
         manifest_data = {
             "version": "0.1.0",
             "collection_name": collection_name,
-            "pics": photos
+            "pics": photos,
         }
 
         return galleria_file_factory(filename, json_content=manifest_data)
@@ -212,16 +200,20 @@ def manifest_factory(galleria_file_factory):
 # Gallery Output Factory Fixture
 # =============================================================================
 
+
 @pytest.fixture
-def gallery_output_factory(galleria_temp_filesystem, galleria_file_factory, galleria_image_factory):
+def gallery_output_factory(
+    galleria_temp_filesystem, galleria_file_factory, galleria_image_factory
+):
     """Factory for creating complete gallery output structures."""
+
     def _create_gallery_output(
         output_dir: str = "gallery_output",
         collection_name: str = "test_gallery",
         num_pages: int = 2,
         photos_per_page: int = 2,
         include_css: bool = True,
-        include_thumbnails: bool = True
+        include_thumbnails: bool = True,
     ) -> Path:
         """Create a complete gallery output directory structure.
 
@@ -255,7 +247,9 @@ def gallery_output_factory(galleria_temp_filesystem, galleria_file_factory, gall
 
             # Add photo entries for this page
             start_photo = (page_num - 1) * photos_per_page + 1
-            end_photo = min(start_photo + photos_per_page - 1, num_pages * photos_per_page)
+            end_photo = min(
+                start_photo + photos_per_page - 1, num_pages * photos_per_page
+            )
 
             for photo_num in range(start_photo, end_photo + 1):
                 page_content += f"""        <div class="photo">
@@ -274,13 +268,17 @@ def gallery_output_factory(galleria_temp_filesystem, galleria_file_factory, gall
                 if nav_page == page_num:
                     page_content += f'        <span class="current">{nav_page}</span>\n'
                 else:
-                    page_content += f'        <a href="page_{nav_page}.html">{nav_page}</a>\n'
+                    page_content += (
+                        f'        <a href="page_{nav_page}.html">{nav_page}</a>\n'
+                    )
 
             page_content += """    </nav>
 </body>
 </html>"""
 
-            galleria_file_factory(f"{output_dir}/page_{page_num}.html", content=page_content)
+            galleria_file_factory(
+                f"{output_dir}/page_{page_num}.html", content=page_content
+            )
 
         # Create CSS file if requested
         if include_css:
@@ -343,14 +341,21 @@ h1 {
             total_photos = num_pages * photos_per_page
             for photo_num in range(1, total_photos + 1):
                 # Create thumbnail with different colors for visual distinction
-                colors = ["#FF6B6B", "#4ECDC4", "#45B7D1", "#96CEB4", "#FECA57", "#FF9FF3"]
+                colors = [
+                    "#FF6B6B",
+                    "#4ECDC4",
+                    "#45B7D1",
+                    "#96CEB4",
+                    "#FECA57",
+                    "#FF9FF3",
+                ]
                 color = colors[(photo_num - 1) % len(colors)]
 
                 galleria_image_factory(
                     f"photo_{photo_num:03d}.webp",
                     directory=f"{output_dir}/thumbnails",
                     color=color,
-                    size=(200, 150)
+                    size=(200, 150),
                 )
 
         return output_path
@@ -362,12 +367,14 @@ h1 {
 # HTTP Server Test Fixtures
 # =============================================================================
 
+
 @pytest.fixture
 def free_port():
     """Get a free port number for testing HTTP servers."""
+
     def _get_free_port():
         with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
-            s.bind(('', 0))
+            s.bind(("", 0))
             s.listen(1)
             port = s.getsockname()[1]
         return port
@@ -378,6 +385,7 @@ def free_port():
 @pytest.fixture
 def mock_http_server():
     """Create a mock HTTP server for testing."""
+
     def _create_mock_server(port: int = 8000):
         """Create a mock HTTP server that tracks requests.
 
@@ -415,20 +423,22 @@ def mock_http_server():
 # Complete Serving Scenario Fixtures
 # =============================================================================
 
+
 @pytest.fixture
 def complete_serving_scenario(
     galleria_config_factory,
     manifest_factory,
     gallery_output_factory,
     galleria_image_factory,
-    free_port
+    free_port,
 ):
     """Create a complete serving scenario with all required components."""
+
     def _create_scenario(
         collection_name: str = "wedding_photos",
         num_photos: int = 6,
         photos_per_page: int = 3,
-        use_custom_port: bool = True
+        use_custom_port: bool = True,
     ) -> dict[str, Any]:
         """Create complete scenario for serve command testing.
 
@@ -451,27 +461,28 @@ def complete_serving_scenario(
                 f"IMG_{i:04d}.jpg",
                 directory="source_photos",
                 color=(255 - i * 30, i * 40, 100 + i * 20),
-                size=(1200, 800)
+                size=(1200, 800),
             )
-            source_photos.append({
-                "source_path": str(photo_path),
-                "dest_path": f"IMG_{i:04d}.jpg",
-                "hash": f"hash{i:03d}",
-                "size_bytes": 2048000 + i * 1000,
-                "mtime": 1234567890 + i
-            })
+            source_photos.append(
+                {
+                    "source_path": str(photo_path),
+                    "dest_path": f"IMG_{i:04d}.jpg",
+                    "hash": f"hash{i:03d}",
+                    "size_bytes": 2048000 + i * 1000,
+                    "mtime": 1234567890 + i,
+                }
+            )
 
         # Create manifest
         manifest_path = manifest_factory(
-            collection_name=collection_name,
-            photos=source_photos
+            collection_name=collection_name, photos=source_photos
         )
 
         # Create gallery output
         output_path = gallery_output_factory(
             collection_name=collection_name,
             num_pages=num_pages,
-            photos_per_page=photos_per_page
+            photos_per_page=photos_per_page,
         )
 
         # Create galleria config using flat format
@@ -480,7 +491,7 @@ def complete_serving_scenario(
             "output_dir": str(output_path),
             "thumbnail_size": 200,
             "page_size": photos_per_page,
-            "theme": "elegant"
+            "theme": "elegant",
         }
         config_path = galleria_config_factory(custom_content=config_content)
 
@@ -496,7 +507,7 @@ def complete_serving_scenario(
             "num_photos": num_photos,
             "num_pages": num_pages,
             "photos_per_page": photos_per_page,
-            "port": port
+            "port": port,
         }
 
     return _create_scenario
@@ -506,9 +517,11 @@ def complete_serving_scenario(
 # File Watcher Test Fixtures
 # =============================================================================
 
+
 @pytest.fixture
 def file_watcher_scenario(galleria_config_factory, manifest_factory):
     """Create a scenario for testing file watching functionality."""
+
     def _create_watcher_scenario() -> dict[str, Any]:
         """Create files that can be watched for changes.
 
@@ -522,12 +535,11 @@ def file_watcher_scenario(galleria_config_factory, manifest_factory):
                 "dest_path": "photo1.jpg",
                 "hash": "initial_hash",
                 "size_bytes": 1000000,
-                "mtime": 1234567890
+                "mtime": 1234567890,
             }
         ]
         manifest_path = manifest_factory(
-            collection_name="watch_test",
-            photos=initial_photos
+            collection_name="watch_test", photos=initial_photos
         )
 
         # Create output directory and get its absolute path
@@ -535,14 +547,16 @@ def file_watcher_scenario(galleria_config_factory, manifest_factory):
         output_dir.mkdir(parents=True, exist_ok=True)
 
         # Also create some initial gallery files so serve has something to serve
-        (output_dir / "page_1.html").write_text("<html><body>Test Gallery</body></html>")
+        (output_dir / "page_1.html").write_text(
+            "<html><body>Test Gallery</body></html>"
+        )
         (output_dir / "gallery.css").write_text("body { font-family: Arial; }")
 
         # Create initial config using flat format
         initial_config = {
             "manifest_path": str(manifest_path),
             "output_dir": str(output_dir),
-            "theme": "minimal"
+            "theme": "minimal",
         }
         config_path = galleria_config_factory(custom_content=initial_config)
 
@@ -550,8 +564,7 @@ def file_watcher_scenario(galleria_config_factory, manifest_factory):
             "config_path": config_path,
             "manifest_path": manifest_path,
             "initial_config": initial_config,
-            "initial_photos": initial_photos
+            "initial_photos": initial_photos,
         }
 
     return _create_watcher_scenario
-

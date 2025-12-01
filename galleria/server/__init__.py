@@ -11,22 +11,22 @@ class GalleriaRequestHandler(SimpleHTTPRequestHandler):
 
     def end_headers(self) -> None:
         """Add CORS headers before ending headers."""
-        self.send_header('Access-Control-Allow-Origin', '*')
-        self.send_header('Access-Control-Allow-Methods', 'GET, POST, OPTIONS')
-        self.send_header('Access-Control-Allow-Headers', 'Content-Type')
+        self.send_header("Access-Control-Allow-Origin", "*")
+        self.send_header("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
+        self.send_header("Access-Control-Allow-Headers", "Content-Type")
         super().end_headers()
 
     def do_GET(self) -> None:
         """Handle GET requests with root path redirect to page_1.html."""
         if self.path == "/" and Path("page_1.html").exists():
             self.send_response(302)
-            self.send_header('Location', '/page_1.html')
+            self.send_header("Location", "/page_1.html")
             self.end_headers()
             return
 
         super().do_GET()
 
-    def log_request(self, code: int = '-', size: int | str = '-') -> None:
+    def log_request(self, code: int = "-", size: int | str = "-") -> None:
         """Log requests with custom format for development server."""
         self.log_message(f"Galleria server: {code} {self.path}")
 
@@ -34,7 +34,9 @@ class GalleriaRequestHandler(SimpleHTTPRequestHandler):
 class GalleriaHTTPServer:
     """HTTP server for serving static gallery files during development."""
 
-    def __init__(self, output_directory: Path, host: str = "127.0.0.1", port: int = 8000):
+    def __init__(
+        self, output_directory: Path, host: str = "127.0.0.1", port: int = 8000
+    ):
         """Initialize the HTTP server.
 
         Args:

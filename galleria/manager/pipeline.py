@@ -32,7 +32,7 @@ class PipelineManager:
             return PluginResult(
                 success=False,
                 output_data={},
-                errors=[f"Plugin '{plugin_name}' not found in stage '{stage}'"]
+                errors=[f"Plugin '{plugin_name}' not found in stage '{stage}'"],
             )
 
         try:
@@ -42,7 +42,7 @@ class PipelineManager:
             return PluginResult(
                 success=False,
                 output_data={},
-                errors=[f"Plugin execution failed: {str(e)}"]
+                errors=[f"Plugin execution failed: {str(e)}"],
             )
 
     def execute_stages(self, stages, initial_context):
@@ -76,11 +76,12 @@ class PipelineManager:
 
             # Prepare context for next stage with this stage's output
             from ..plugins.base import PluginContext
+
             current_context = PluginContext(
                 input_data=result.output_data,
                 config=current_context.config,
                 output_dir=current_context.output_dir,
-                metadata={**current_context.metadata, **result.metadata}
+                metadata={**current_context.metadata, **result.metadata},
             )
 
         return result
@@ -99,7 +100,7 @@ class PipelineManager:
         workflows = {
             "manifest-to-thumbnails": [
                 {"stage": "provider", "plugin": "normpic-provider"},
-                {"stage": "processor", "plugin": "thumbnail-processor"}
+                {"stage": "processor", "plugin": "thumbnail-processor"},
             ]
         }
 
@@ -107,16 +108,19 @@ class PipelineManager:
             return PluginResult(
                 success=False,
                 output_data={},
-                errors=[f"Unknown workflow '{workflow_name}'. Available: {list(workflows.keys())}"]
+                errors=[
+                    f"Unknown workflow '{workflow_name}'. Available: {list(workflows.keys())}"
+                ],
             )
 
         # Create initial context from workflow parameters
         from ..plugins.base import PluginContext
+
         initial_context = PluginContext(
             input_data={"manifest_path": kwargs.get("manifest_path")},
             config={},
             output_dir=kwargs.get("output_dir"),
-            metadata={"workflow": workflow_name}
+            metadata={"workflow": workflow_name},
         )
 
         # Execute the workflow stages

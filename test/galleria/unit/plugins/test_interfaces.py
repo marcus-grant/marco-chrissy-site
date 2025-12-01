@@ -66,15 +66,12 @@ class TestProviderPluginInterface:
             def load_collection(self, context: PluginContext) -> PluginResult:
                 self.load_collection_called = True
                 return PluginResult(
-                    success=True,
-                    output_data={"photos": [], "collection_name": "test"}
+                    success=True, output_data={"photos": [], "collection_name": "test"}
                 )
 
         provider = TestProvider()
         context = PluginContext(
-            input_data={"manifest_path": "test.json"},
-            config={},
-            output_dir=tmp_path
+            input_data={"manifest_path": "test.json"}, config={}, output_dir=tmp_path
         )
 
         # execute should call load_collection
@@ -98,7 +95,10 @@ class TestProviderPluginInterface:
 
             def load_collection(self, context: PluginContext) -> PluginResult:
                 # Validate expected input format
-                assert "manifest_path" in context.input_data or "source_dir" in context.input_data
+                assert (
+                    "manifest_path" in context.input_data
+                    or "source_dir" in context.input_data
+                )
 
                 # Return expected output format
                 return PluginResult(
@@ -108,18 +108,16 @@ class TestProviderPluginInterface:
                             {
                                 "source_path": "/source/test.jpg",
                                 "dest_path": "test.jpg",
-                                "metadata": {}
+                                "metadata": {},
                             }
                         ],
-                        "collection_name": "test_collection"
-                    }
+                        "collection_name": "test_collection",
+                    },
                 )
 
         provider = ValidProvider()
         context = PluginContext(
-            input_data={"manifest_path": "test.json"},
-            config={},
-            output_dir=tmp_path
+            input_data={"manifest_path": "test.json"}, config={}, output_dir=tmp_path
         )
 
         result = provider.load_collection(context)
@@ -187,19 +185,21 @@ class TestProcessorPluginInterface:
                     success=True,
                     output_data={
                         "photos": photos,
-                        "collection_name": context.input_data.get("collection_name", "test"),
-                        "thumbnail_count": len(photos)
-                    }
+                        "collection_name": context.input_data.get(
+                            "collection_name", "test"
+                        ),
+                        "thumbnail_count": len(photos),
+                    },
                 )
 
         processor = TestProcessor()
         context = PluginContext(
             input_data={
                 "photos": [{"source_path": "test.jpg", "dest_path": "test.jpg"}],
-                "collection_name": "test"
+                "collection_name": "test",
             },
             config={},
-            output_dir=tmp_path
+            output_dir=tmp_path,
         )
 
         # execute should call process_thumbnails
@@ -235,19 +235,21 @@ class TestProcessorPluginInterface:
                     assert "dest_path" in photo
 
                     # Add processor data
-                    processed_photos.append({
-                        **photo,
-                        "thumbnail_path": f"thumbs/{photo['dest_path']}.webp",
-                        "thumbnail_size": (300, 200)
-                    })
+                    processed_photos.append(
+                        {
+                            **photo,
+                            "thumbnail_path": f"thumbs/{photo['dest_path']}.webp",
+                            "thumbnail_size": (300, 200),
+                        }
+                    )
 
                 return PluginResult(
                     success=True,
                     output_data={
                         "photos": processed_photos,
                         "collection_name": context.input_data["collection_name"],
-                        "thumbnail_count": len(processed_photos)
-                    }
+                        "thumbnail_count": len(processed_photos),
+                    },
                 )
 
         processor = ValidProcessor()
@@ -257,13 +259,13 @@ class TestProcessorPluginInterface:
                     {
                         "source_path": "/source/test.jpg",
                         "dest_path": "test.jpg",
-                        "metadata": {}
+                        "metadata": {},
                     }
                 ],
-                "collection_name": "test_collection"
+                "collection_name": "test_collection",
             },
             config={},
-            output_dir=tmp_path
+            output_dir=tmp_path,
         )
 
         result = processor.process_thumbnails(context)
@@ -305,11 +307,11 @@ class TestInterfaceIntegration:
                             {
                                 "source_path": "/source/img1.jpg",
                                 "dest_path": "gallery/img1.jpg",
-                                "metadata": {"size": 1024}
+                                "metadata": {"size": 1024},
                             }
                         ],
-                        "collection_name": "contract_test"
-                    }
+                        "collection_name": "contract_test",
+                    },
                 )
 
         class TestProcessor(ProcessorPlugin):
@@ -326,15 +328,18 @@ class TestInterfaceIntegration:
                 photos = context.input_data["photos"]
                 collection_name = context.input_data["collection_name"]
 
-                processed = [{**p, "thumbnail_path": f"thumbs/{p['dest_path']}.webp"} for p in photos]
+                processed = [
+                    {**p, "thumbnail_path": f"thumbs/{p['dest_path']}.webp"}
+                    for p in photos
+                ]
 
                 return PluginResult(
                     success=True,
                     output_data={
                         "photos": processed,
                         "collection_name": collection_name,
-                        "thumbnail_count": len(processed)
-                    }
+                        "thumbnail_count": len(processed),
+                    },
                 )
 
         # Test that Provider → Processor contract works
@@ -343,17 +348,13 @@ class TestInterfaceIntegration:
 
         # Provider stage
         provider_context = PluginContext(
-            input_data={"manifest_path": "test.json"},
-            config={},
-            output_dir=tmp_path
+            input_data={"manifest_path": "test.json"}, config={}, output_dir=tmp_path
         )
         provider_result = provider.load_collection(provider_context)
 
         # Processor stage (using Provider output)
         processor_context = PluginContext(
-            input_data=provider_result.output_data,
-            config={},
-            output_dir=tmp_path
+            input_data=provider_result.output_data, config={}, output_dir=tmp_path
         )
         processor_result = processor.process_thumbnails(processor_context)
 
@@ -362,7 +363,10 @@ class TestInterfaceIntegration:
         assert processor_result.success
         assert processor_result.output_data["collection_name"] == "contract_test"
         assert processor_result.output_data["thumbnail_count"] == 1
-        assert "thumbs/gallery/img1.jpg.webp" in processor_result.output_data["photos"][0]["thumbnail_path"]
+        assert (
+            "thumbs/gallery/img1.jpg.webp"
+            in processor_result.output_data["photos"][0]["thumbnail_path"]
+        )
 
 
 class TestTransformPluginInterface:
@@ -420,19 +424,21 @@ class TestTransformPluginInterface:
                     success=True,
                     output_data={
                         "photos": photos,
-                        "collection_name": context.input_data.get("collection_name", "test"),
-                        "transform_metadata": {"operation": "test"}
-                    }
+                        "collection_name": context.input_data.get(
+                            "collection_name", "test"
+                        ),
+                        "transform_metadata": {"operation": "test"},
+                    },
                 )
 
         transform = TestTransform()
         context = PluginContext(
             input_data={
                 "photos": [{"source_path": "test.jpg", "thumbnail_path": "thumb.webp"}],
-                "collection_name": "test"
+                "collection_name": "test",
             },
             config={},
-            output_dir=tmp_path
+            output_dir=tmp_path,
         )
 
         # execute should call transform_data
@@ -471,11 +477,13 @@ class TestTransformPluginInterface:
                 # Create pagination
                 pages = []
                 for i in range(0, len(photos), photos_per_page):
-                    pages.append({
-                        "page_number": len(pages) + 1,
-                        "photos": photos[i:i + photos_per_page],
-                        "photo_count": len(photos[i:i + photos_per_page])
-                    })
+                    pages.append(
+                        {
+                            "page_number": len(pages) + 1,
+                            "photos": photos[i : i + photos_per_page],
+                            "photo_count": len(photos[i : i + photos_per_page]),
+                        }
+                    )
 
                 return PluginResult(
                     success=True,
@@ -484,8 +492,11 @@ class TestTransformPluginInterface:
                         "collection_name": context.input_data["collection_name"],
                         "page_count": len(pages),
                         "total_photos": len(photos),
-                        "transform_metadata": {"type": "pagination", "photos_per_page": photos_per_page}
-                    }
+                        "transform_metadata": {
+                            "type": "pagination",
+                            "photos_per_page": photos_per_page,
+                        },
+                    },
                 )
 
         transform = ValidPaginationTransform()
@@ -496,26 +507,26 @@ class TestTransformPluginInterface:
                         "source_path": "/source/test1.jpg",
                         "dest_path": "test1.jpg",
                         "thumbnail_path": "thumbs/test1.webp",
-                        "thumbnail_size": (300, 200)
+                        "thumbnail_size": (300, 200),
                     },
                     {
                         "source_path": "/source/test2.jpg",
                         "dest_path": "test2.jpg",
                         "thumbnail_path": "thumbs/test2.webp",
-                        "thumbnail_size": (300, 200)
+                        "thumbnail_size": (300, 200),
                     },
                     {
                         "source_path": "/source/test3.jpg",
                         "dest_path": "test3.jpg",
                         "thumbnail_path": "thumbs/test3.webp",
-                        "thumbnail_size": (300, 200)
-                    }
+                        "thumbnail_size": (300, 200),
+                    },
                 ],
                 "collection_name": "test_collection",
-                "thumbnail_count": 3
+                "thumbnail_count": 3,
             },
             config={"photos_per_page": 2},
-            output_dir=tmp_path
+            output_dir=tmp_path,
         )
 
         result = transform.transform_data(context)
@@ -566,7 +577,9 @@ class TestTransformPluginInterface:
                 reverse = context.config.get("reverse", False)
 
                 # Sort photos
-                sorted_photos = sorted(photos, key=lambda p: p[sort_key], reverse=reverse)
+                sorted_photos = sorted(
+                    photos, key=lambda p: p[sort_key], reverse=reverse
+                )
 
                 return PluginResult(
                     success=True,
@@ -577,9 +590,9 @@ class TestTransformPluginInterface:
                         "transform_metadata": {
                             "type": "sorting",
                             "sort_key": sort_key,
-                            "reverse": reverse
-                        }
-                    }
+                            "reverse": reverse,
+                        },
+                    },
                 )
 
         transform = ValidSortTransform()
@@ -588,13 +601,13 @@ class TestTransformPluginInterface:
                 "photos": [
                     {"dest_path": "c.jpg", "thumbnail_path": "thumbs/c.webp"},
                     {"dest_path": "a.jpg", "thumbnail_path": "thumbs/a.webp"},
-                    {"dest_path": "b.jpg", "thumbnail_path": "thumbs/b.webp"}
+                    {"dest_path": "b.jpg", "thumbnail_path": "thumbs/b.webp"},
                 ],
                 "collection_name": "test_collection",
-                "thumbnail_count": 3
+                "thumbnail_count": 3,
             },
             config={"sort_by": "dest_path", "reverse": False},
-            output_dir=tmp_path
+            output_dir=tmp_path,
         )
 
         result = transform.transform_data(context)
@@ -636,19 +649,21 @@ class TestTransformIntegration:
                 processed_photos = []
 
                 for photo in photos:
-                    processed_photos.append({
-                        **photo,
-                        "thumbnail_path": f"thumbs/{photo['dest_path']}.webp",
-                        "thumbnail_size": (300, 200)
-                    })
+                    processed_photos.append(
+                        {
+                            **photo,
+                            "thumbnail_path": f"thumbs/{photo['dest_path']}.webp",
+                            "thumbnail_size": (300, 200),
+                        }
+                    )
 
                 return PluginResult(
                     success=True,
                     output_data={
                         "photos": processed_photos,
                         "collection_name": context.input_data["collection_name"],
-                        "thumbnail_count": len(processed_photos)
-                    }
+                        "thumbnail_count": len(processed_photos),
+                    },
                 )
 
         class TestTransform(TransformPlugin):
@@ -675,8 +690,8 @@ class TestTransformIntegration:
                         "pages": pages,
                         "collection_name": collection_name,
                         "page_count": 1,
-                        "original_thumbnail_count": thumbnail_count
-                    }
+                        "original_thumbnail_count": thumbnail_count,
+                    },
                 )
 
         # Test that Processor → Transform contract works
@@ -686,19 +701,19 @@ class TestTransformIntegration:
         # Processor stage (mock Provider output)
         processor_context = PluginContext(
             input_data={
-                "photos": [{"source_path": "/source/img1.jpg", "dest_path": "img1.jpg"}],
-                "collection_name": "contract_test"
+                "photos": [
+                    {"source_path": "/source/img1.jpg", "dest_path": "img1.jpg"}
+                ],
+                "collection_name": "contract_test",
             },
             config={},
-            output_dir=tmp_path
+            output_dir=tmp_path,
         )
         processor_result = processor.process_thumbnails(processor_context)
 
         # Transform stage (using Processor output)
         transform_context = PluginContext(
-            input_data=processor_result.output_data,
-            config={},
-            output_dir=tmp_path
+            input_data=processor_result.output_data, config={}, output_dir=tmp_path
         )
         transform_result = transform.transform_data(transform_context)
 
@@ -769,28 +784,32 @@ class TestTemplatePluginInterface:
                 html_files = []
 
                 for page in pages:
-                    html_files.append({
-                        "filename": f"page_{page.get('page_number', 1)}.html",
-                        "page_number": page.get("page_number", 1)
-                    })
+                    html_files.append(
+                        {
+                            "filename": f"page_{page.get('page_number', 1)}.html",
+                            "page_number": page.get("page_number", 1),
+                        }
+                    )
 
                 return PluginResult(
                     success=True,
                     output_data={
                         "html_files": html_files,
-                        "collection_name": context.input_data.get("collection_name", "test"),
-                        "file_count": len(html_files)
-                    }
+                        "collection_name": context.input_data.get(
+                            "collection_name", "test"
+                        ),
+                        "file_count": len(html_files),
+                    },
                 )
 
         template = TestTemplate()
         context = PluginContext(
             input_data={
                 "pages": [{"page_number": 1, "photos": []}],
-                "collection_name": "test"
+                "collection_name": "test",
             },
             config={},
-            output_dir=tmp_path
+            output_dir=tmp_path,
         )
 
         # execute should call generate_html
@@ -827,19 +846,21 @@ class TestTemplatePluginInterface:
                     assert "photos" in page
 
                     # Generate HTML file metadata
-                    html_files.append({
-                        "filename": f"page_{page['page_number']}.html",
-                        "content": f"<html><title>{collection_name}</title></html>",
-                        "page_number": page["page_number"]
-                    })
+                    html_files.append(
+                        {
+                            "filename": f"page_{page['page_number']}.html",
+                            "content": f"<html><title>{collection_name}</title></html>",
+                            "page_number": page["page_number"],
+                        }
+                    )
 
                 return PluginResult(
                     success=True,
                     output_data={
                         "html_files": html_files,
                         "collection_name": collection_name,
-                        "file_count": len(html_files)
-                    }
+                        "file_count": len(html_files),
+                    },
                 )
 
         template = ValidTemplate()
@@ -852,17 +873,17 @@ class TestTemplatePluginInterface:
                             {
                                 "dest_path": "test.jpg",
                                 "thumbnail_path": "thumbs/test.webp",
-                                "thumbnail_size": (300, 200)
+                                "thumbnail_size": (300, 200),
                             }
                         ],
-                        "photo_count": 1
+                        "photo_count": 1,
                     }
                 ],
                 "collection_name": "test_collection",
-                "page_count": 1
+                "page_count": 1,
             },
             config={"theme": "minimal"},
-            output_dir=tmp_path
+            output_dir=tmp_path,
         )
 
         result = template.generate_html(context)
@@ -935,7 +956,7 @@ class TestCSSPluginInterface:
                 html_files = context.input_data.get("html_files", [])
                 css_files = [
                     {"filename": "gallery.css", "type": "gallery"},
-                    {"filename": "theme.css", "type": "theme"}
+                    {"filename": "theme.css", "type": "theme"},
                 ]
 
                 return PluginResult(
@@ -943,19 +964,21 @@ class TestCSSPluginInterface:
                     output_data={
                         "css_files": css_files,
                         "html_files": html_files,  # Pass through
-                        "collection_name": context.input_data.get("collection_name", "test"),
-                        "css_count": len(css_files)
-                    }
+                        "collection_name": context.input_data.get(
+                            "collection_name", "test"
+                        ),
+                        "css_count": len(css_files),
+                    },
                 )
 
         css_plugin = TestCSS()
         context = PluginContext(
             input_data={
                 "html_files": [{"filename": "page_1.html", "page_number": 1}],
-                "collection_name": "test"
+                "collection_name": "test",
             },
             config={},
-            output_dir=tmp_path
+            output_dir=tmp_path,
         )
 
         # execute should call generate_css
@@ -993,19 +1016,23 @@ class TestCSSPluginInterface:
                     assert "page_number" in html_file
 
                 # Generate gallery CSS
-                css_files.append({
-                    "filename": "gallery.css",
-                    "content": f"/* Gallery styles for {collection_name} */\n.gallery {{ display: grid; }}",
-                    "type": "gallery"
-                })
+                css_files.append(
+                    {
+                        "filename": "gallery.css",
+                        "content": f"/* Gallery styles for {collection_name} */\n.gallery {{ display: grid; }}",
+                        "type": "gallery",
+                    }
+                )
 
                 # Generate theme CSS
                 if theme != "default":
-                    css_files.append({
-                        "filename": f"theme-{theme}.css",
-                        "content": f"/* Theme: {theme} */\nbody {{ font-family: Arial; }}",
-                        "type": "theme"
-                    })
+                    css_files.append(
+                        {
+                            "filename": f"theme-{theme}.css",
+                            "content": f"/* Theme: {theme} */\nbody {{ font-family: Arial; }}",
+                            "type": "theme",
+                        }
+                    )
 
                 return PluginResult(
                     success=True,
@@ -1013,8 +1040,8 @@ class TestCSSPluginInterface:
                         "css_files": css_files,
                         "html_files": html_files,  # Pass through
                         "collection_name": collection_name,
-                        "css_count": len(css_files)
-                    }
+                        "css_count": len(css_files),
+                    },
                 )
 
         css_plugin = ValidCSS()
@@ -1024,14 +1051,14 @@ class TestCSSPluginInterface:
                     {
                         "filename": "page_1.html",
                         "content": "<html>...</html>",
-                        "page_number": 1
+                        "page_number": 1,
                     }
                 ],
                 "collection_name": "test_collection",
-                "file_count": 1
+                "file_count": 1,
             },
             config={"theme": "minimal"},
-            output_dir=tmp_path
+            output_dir=tmp_path,
         )
 
         result = css_plugin.generate_css(context)
@@ -1078,19 +1105,21 @@ class TestTemplateCSSIntegration:
                 html_files = []
 
                 for page in pages:
-                    html_files.append({
-                        "filename": f"page_{page['page_number']}.html",
-                        "content": f"<html><title>{collection_name}</title></html>",
-                        "page_number": page["page_number"]
-                    })
+                    html_files.append(
+                        {
+                            "filename": f"page_{page['page_number']}.html",
+                            "content": f"<html><title>{collection_name}</title></html>",
+                            "page_number": page["page_number"],
+                        }
+                    )
 
                 return PluginResult(
                     success=True,
                     output_data={
                         "html_files": html_files,
                         "collection_name": collection_name,
-                        "file_count": len(html_files)
-                    }
+                        "file_count": len(html_files),
+                    },
                 )
 
         class TestCSS(CSSPlugin):
@@ -1117,8 +1146,8 @@ class TestTemplateCSSIntegration:
                         "html_files": html_files,
                         "collection_name": collection_name,
                         "css_count": 1,
-                        "original_file_count": file_count
-                    }
+                        "original_file_count": file_count,
+                    },
                 )
 
         # Test that Template → CSS contract works
@@ -1131,18 +1160,16 @@ class TestTemplateCSSIntegration:
                 "pages": [
                     {"page_number": 1, "photos": [{"thumbnail_path": "thumb1.webp"}]}
                 ],
-                "collection_name": "contract_test"
+                "collection_name": "contract_test",
             },
             config={},
-            output_dir=tmp_path
+            output_dir=tmp_path,
         )
         template_result = template.generate_html(template_context)
 
         # CSS stage (using Template output)
         css_context = PluginContext(
-            input_data=template_result.output_data,
-            config={},
-            output_dir=tmp_path
+            input_data=template_result.output_data, config={}, output_dir=tmp_path
         )
         css_result = css_plugin.generate_css(css_context)
 
@@ -1173,15 +1200,17 @@ class TestTemplateCSSIntegration:
 
             def transform_data(self, context: PluginContext) -> PluginResult:
                 photos = context.input_data["photos"]
-                pages = [{"page_number": 1, "photos": photos, "photo_count": len(photos)}]
+                pages = [
+                    {"page_number": 1, "photos": photos, "photo_count": len(photos)}
+                ]
 
                 return PluginResult(
                     success=True,
                     output_data={
                         "pages": pages,
                         "collection_name": context.input_data["collection_name"],
-                        "page_count": 1
-                    }
+                        "page_count": 1,
+                    },
                 )
 
         class TestTemplate(TemplatePlugin):
@@ -1201,8 +1230,8 @@ class TestTemplateCSSIntegration:
                     output_data={
                         "html_files": html_files,
                         "collection_name": context.input_data["collection_name"],
-                        "file_count": 1
-                    }
+                        "file_count": 1,
+                    },
                 )
 
         class TestCSS(CSSPlugin):
@@ -1223,8 +1252,8 @@ class TestTemplateCSSIntegration:
                         "css_files": css_files,
                         "html_files": context.input_data["html_files"],
                         "collection_name": context.input_data["collection_name"],
-                        "css_count": 1
-                    }
+                        "css_count": 1,
+                    },
                 )
 
         # Test that Transform → Template → CSS contract works end-to-end
@@ -1236,26 +1265,22 @@ class TestTemplateCSSIntegration:
         transform_context = PluginContext(
             input_data={
                 "photos": [{"thumbnail_path": "thumb1.webp"}],
-                "collection_name": "contract_test"
+                "collection_name": "contract_test",
             },
             config={},
-            output_dir=tmp_path
+            output_dir=tmp_path,
         )
         transform_result = transform.transform_data(transform_context)
 
         # Template stage
         template_context = PluginContext(
-            input_data=transform_result.output_data,
-            config={},
-            output_dir=tmp_path
+            input_data=transform_result.output_data, config={}, output_dir=tmp_path
         )
         template_result = template.generate_html(template_context)
 
         # CSS stage
         css_context = PluginContext(
-            input_data=template_result.output_data,
-            config={},
-            output_dir=tmp_path
+            input_data=template_result.output_data, config={}, output_dir=tmp_path
         )
         css_result = css_plugin.generate_css(css_context)
 

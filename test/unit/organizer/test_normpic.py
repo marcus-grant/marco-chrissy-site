@@ -22,14 +22,14 @@ class TestNormPicOrganizer:
         dest_dir.mkdir()
 
         organizer = NormPicOrganizer(
-            source_dir=source_dir,
-            dest_dir=dest_dir,
-            collection_name="test"
+            source_dir=source_dir, dest_dir=dest_dir, collection_name="test"
         )
         assert organizer is not None
 
-    @patch('organizer.normpic.organize_photos')
-    def test_organize_photos_returns_result(self, mock_organize_photos, temp_filesystem):
+    @patch("organizer.normpic.organize_photos")
+    def test_organize_photos_returns_result(
+        self, mock_organize_photos, temp_filesystem
+    ):
         """Test that organize_photos returns an OrganizeResult."""
         # Create test directories using temp_filesystem fixture
         source_dir = temp_filesystem / "source_photos"
@@ -48,13 +48,13 @@ class TestNormPicOrganizer:
             source_dir=source_dir,
             dest_dir=dest_dir,
             collection_name="test_wedding",
-            create_symlinks=True
+            create_symlinks=True,
         )
         result = organizer.organize_photos()
 
         assert isinstance(result, OrganizeResult)
-        assert hasattr(result, 'success')
-        assert hasattr(result, 'errors')
+        assert hasattr(result, "success")
+        assert hasattr(result, "errors")
         assert result.success is True
         assert result.pics_processed == 2
 
@@ -98,9 +98,9 @@ class TestNormPicOrganizer:
                     "source_path": str(source_file),
                     "dest_path": "wedding_123.jpg",
                     "hash": "abc123",
-                    "size_bytes": 1000
+                    "size_bytes": 1000,
                 }
-            ]
+            ],
         }
 
         manifest_path = dest_dir / "manifest.json"
@@ -116,10 +116,7 @@ class TestNormPicOrganizer:
         dest_dir.mkdir(parents=True, exist_ok=True)
 
         # Create manifest with different collection name
-        manifest_data = {
-            "collection_name": "vacation",
-            "pics": []
-        }
+        manifest_data = {"collection_name": "vacation", "pics": []}
 
         manifest_path = dest_dir / "manifest.json"
         with open(manifest_path, "w") as f:
@@ -128,7 +125,7 @@ class TestNormPicOrganizer:
         organizer = NormPicOrganizer(dest_dir=dest_dir, collection_name="wedding")
         assert not organizer.is_already_organized()
 
-    @patch('organizer.normpic.JsonConfigLoader')
+    @patch("organizer.normpic.JsonConfigLoader")
     def test_unified_config_loading_success(self, mock_loader_class, temp_filesystem):
         """Test NormPicOrganizer uses unified config system successfully."""
         # Mock the JsonConfigLoader and its behavior
@@ -140,7 +137,7 @@ class TestNormPicOrganizer:
             "source_dir": "~/Pictures/wedding/full",
             "dest_dir": "output/pics/full",
             "collection_name": "wedding",
-            "create_symlinks": True
+            "create_symlinks": True,
         }
         mock_loader_instance.load_config.return_value = mock_config_data
 
@@ -155,7 +152,7 @@ class TestNormPicOrganizer:
         # Verify config was loaded twice (schema + actual config)
         assert mock_loader_instance.load_config.call_count == 2
 
-    @patch('organizer.normpic.JsonConfigLoader')
+    @patch("organizer.normpic.JsonConfigLoader")
     def test_unified_config_loading_missing_file(self, mock_loader_class):
         """Test NormPicOrganizer handles missing config file gracefully."""
         mock_loader_instance = Mock()
@@ -163,15 +160,14 @@ class TestNormPicOrganizer:
 
         # Mock config file not found
         mock_loader_instance.load_config.side_effect = ConfigLoadError(
-            Path("config/normpic.json"),
-            "Configuration file not found"
+            Path("config/normpic.json"), "Configuration file not found"
         )
 
         # Should fall back to defaults without crashing
         organizer = NormPicOrganizer()
         assert organizer is not None
 
-    @patch('organizer.normpic.JsonConfigLoader')
+    @patch("organizer.normpic.JsonConfigLoader")
     def test_unified_config_validation_failure(self, mock_loader_class):
         """Test NormPicOrganizer handles schema validation failures."""
         from serializer.exceptions import ConfigValidationError
@@ -181,8 +177,7 @@ class TestNormPicOrganizer:
 
         # Mock schema validation failure
         mock_loader_instance.load_config.side_effect = ConfigValidationError(
-            Path("config/normpic.json"),
-            "Missing required field: source_dir"
+            Path("config/normpic.json"), "Missing required field: source_dir"
         )
 
         # Should raise the validation error to caller
@@ -199,12 +194,7 @@ class TestNormPicOrganizer:
         # Create manifest with symlink that doesn't exist
         manifest_data = {
             "collection_name": "wedding",
-            "pics": [
-                {
-                    "dest_path": "missing_symlink.jpg",
-                    "hash": "abc123"
-                }
-            ]
+            "pics": [{"dest_path": "missing_symlink.jpg", "hash": "abc123"}],
         }
 
         manifest_path = dest_dir / "manifest.json"

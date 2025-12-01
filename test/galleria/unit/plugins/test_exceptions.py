@@ -89,9 +89,7 @@ class TestPluginExecutionError:
         """PluginExecutionError can wrap an original exception."""
         original = ValueError("Original error")
         error = PluginExecutionError(
-            "Plugin failed",
-            plugin_name="processor",
-            original_error=original
+            "Plugin failed", plugin_name="processor", original_error=original
         )
 
         assert str(error) == "Plugin failed"
@@ -106,9 +104,7 @@ class TestPluginExecutionError:
             raise original
         except FileNotFoundError as e:
             execution_error = PluginExecutionError(
-                "Failed to process file",
-                plugin_name="file-processor",
-                original_error=e
+                "Failed to process file", plugin_name="file-processor", original_error=e
             )
 
         assert execution_error.original_error is original
@@ -136,7 +132,7 @@ class TestPluginDependencyError:
         error = PluginDependencyError(
             "Required dependencies not found",
             plugin_name="image-processor",
-            missing_deps=missing_deps
+            missing_deps=missing_deps,
         )
 
         assert str(error) == "Required dependencies not found"
@@ -159,7 +155,7 @@ class TestExceptionHierarchy:
         exceptions = [
             PluginValidationError,
             PluginExecutionError,
-            PluginDependencyError
+            PluginDependencyError,
         ]
 
         for exc_class in exceptions:
@@ -171,7 +167,7 @@ class TestExceptionHierarchy:
             PluginError,
             PluginValidationError,
             PluginExecutionError,
-            PluginDependencyError
+            PluginDependencyError,
         ]
 
         for exc_class in exceptions:
@@ -183,7 +179,7 @@ class TestExceptionHierarchy:
             PluginError,
             PluginValidationError,
             PluginExecutionError,
-            PluginDependencyError
+            PluginDependencyError,
         ]
 
         # Test that no exception class is the same as another
@@ -211,7 +207,7 @@ class TestExceptionHierarchy:
         exceptions_to_test = [
             PluginValidationError("validation"),
             PluginExecutionError("execution"),
-            PluginDependencyError("dependency")
+            PluginDependencyError("dependency"),
         ]
 
         for exception in exceptions_to_test:

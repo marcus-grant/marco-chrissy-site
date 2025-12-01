@@ -25,7 +25,7 @@ class PaginationPlugin(TransformPlugin):
         # Split photos into pages
         pages = []
         for i in range(0, len(photos), page_size):
-            pages.append(photos[i:i + page_size])
+            pages.append(photos[i : i + page_size])
 
         return PluginResult(
             success=True,
@@ -35,9 +35,9 @@ class PaginationPlugin(TransformPlugin):
                 "transform_metadata": {
                     "page_size": page_size,
                     "total_pages": len(pages),
-                    "total_photos": len(photos)
-                }
-            }
+                    "total_photos": len(photos),
+                },
+            },
         )
 
 
@@ -67,6 +67,7 @@ class TestPaginationPluginInterface:
             @property
             def version(self) -> str:
                 return "1.0.0"
+
             # Missing transform_data implementation
 
         # Should not be able to instantiate without transform_data
@@ -232,14 +233,14 @@ class TestPaginationPluginValidation:
                     return PluginResult(
                         success=False,
                         output_data={},
-                        errors=["INVALID_PAGE_SIZE: page_size must be positive"]
+                        errors=["INVALID_PAGE_SIZE: page_size must be positive"],
                     )
 
                 if page_size > 100:
                     return PluginResult(
                         success=False,
                         output_data={},
-                        errors=["INVALID_PAGE_SIZE: page_size must be <= 100"]
+                        errors=["INVALID_PAGE_SIZE: page_size must be <= 100"],
                     )
 
                 return PluginResult(
@@ -247,8 +248,8 @@ class TestPaginationPluginValidation:
                     output_data={
                         "pages": [],
                         "collection_name": "test",
-                        "transform_metadata": {"page_size": page_size}
-                    }
+                        "transform_metadata": {"page_size": page_size},
+                    },
                 )
 
         plugin = ValidatingPaginationPlugin()

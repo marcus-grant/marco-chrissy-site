@@ -15,7 +15,9 @@ class TestGalleriaConfig:
         """Test loading a valid configuration file."""
         # Arrange
         manifest_path = tmp_path / "manifest.json"
-        manifest_path.write_text('{"version": "0.1.0", "collection_name": "test", "pics": []}')
+        manifest_path.write_text(
+            '{"version": "0.1.0", "collection_name": "test", "pics": []}'
+        )
 
         config_data = {
             "manifest_path": str(manifest_path),
@@ -23,7 +25,7 @@ class TestGalleriaConfig:
             "thumbnail_size": 400,
             "page_size": 10,
             "theme": "minimal",
-            "quality": 85
+            "quality": 85,
         }
 
         config_path = tmp_path / "config.json"
@@ -45,11 +47,13 @@ class TestGalleriaConfig:
         """Test that CLI output override works correctly."""
         # Arrange
         manifest_path = tmp_path / "manifest.json"
-        manifest_path.write_text('{"version": "0.1.0", "collection_name": "test", "pics": []}')
+        manifest_path.write_text(
+            '{"version": "0.1.0", "collection_name": "test", "pics": []}'
+        )
 
         config_data = {
             "manifest_path": str(manifest_path),
-            "output_dir": str(tmp_path / "original_output")
+            "output_dir": str(tmp_path / "original_output"),
         }
 
         config_path = tmp_path / "config.json"
@@ -79,37 +83,34 @@ class TestGalleriaConfig:
 
     def test_load_config_missing_input_section(self, tmp_path):
         """Test error handling for missing input section."""
-        config_data = {
-            "output_dir": "/tmp/output"
-        }
+        config_data = {"output_dir": "/tmp/output"}
 
         config_path = tmp_path / "config.json"
         config_path.write_text(json.dumps(config_data))
 
-        with pytest.raises(click.ClickException, match="Missing required field: manifest_path"):
+        with pytest.raises(
+            click.ClickException, match="Missing required field: manifest_path"
+        ):
             GalleriaConfig.from_file(config_path)
 
     def test_load_config_missing_manifest_path(self, tmp_path):
         """Test error handling for missing manifest path."""
-        config_data = {
-            "output_dir": "/tmp/output"
-        }
+        config_data = {"output_dir": "/tmp/output"}
 
         config_path = tmp_path / "config.json"
         config_path.write_text(json.dumps(config_data))
 
-        with pytest.raises(click.ClickException, match="Missing required field: manifest_path"):
+        with pytest.raises(
+            click.ClickException, match="Missing required field: manifest_path"
+        ):
             GalleriaConfig.from_file(config_path)
 
     def test_load_config_missing_pipeline_stage(self, tmp_path):
         """Test error handling for missing pipeline stage."""
         manifest_path = tmp_path / "manifest.json"
-        manifest_path.write_text('{}')
+        manifest_path.write_text("{}")
 
-        config_data = {
-            "manifest_path": str(manifest_path),
-            "output_dir": "/tmp/output"
-        }
+        config_data = {"manifest_path": str(manifest_path), "output_dir": "/tmp/output"}
 
         config_path = tmp_path / "config.json"
         config_path.write_text(json.dumps(config_data))
@@ -122,12 +123,9 @@ class TestGalleriaConfig:
     def test_load_config_missing_plugin_name(self, tmp_path):
         """Test error handling for missing plugin name."""
         manifest_path = tmp_path / "manifest.json"
-        manifest_path.write_text('{}')
+        manifest_path.write_text("{}")
 
-        config_data = {
-            "manifest_path": str(manifest_path),
-            "output_dir": "/tmp/output"
-        }
+        config_data = {"manifest_path": str(manifest_path), "output_dir": "/tmp/output"}
 
         config_path = tmp_path / "config.json"
         config_path.write_text(json.dumps(config_data))
@@ -143,7 +141,7 @@ class TestGalleriaConfig:
 
         config_data = {
             "manifest_path": str(nonexistent_manifest),
-            "output_dir": str(tmp_path / "output")
+            "output_dir": str(tmp_path / "output"),
         }
 
         config_path = tmp_path / "config.json"
@@ -158,14 +156,14 @@ class TestGalleriaConfig:
         """Test conversion to pipeline manager format."""
         # Arrange
         manifest_path = tmp_path / "manifest.json"
-        manifest_path.write_text('{}')
+        manifest_path.write_text("{}")
 
         config_data = {
             "manifest_path": str(manifest_path),
             "output_dir": str(tmp_path / "output"),
             "thumbnail_size": 400,
             "page_size": 10,
-            "theme": "minimal"
+            "theme": "minimal",
         }
 
         config_path = tmp_path / "config.json"

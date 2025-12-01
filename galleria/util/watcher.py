@@ -68,7 +68,9 @@ class FileWatcher:
         for path in self.watched_paths:
             parent_dir = path.parent
             if parent_dir not in watched_dirs:
-                self._observer.schedule(self._event_handler, str(parent_dir), recursive=False)
+                self._observer.schedule(
+                    self._event_handler, str(parent_dir), recursive=False
+                )
                 watched_dirs.add(parent_dir)
 
         self._observer.start()
@@ -104,7 +106,9 @@ class FileWatcher:
             parent_dir = path.parent
             # Note: In a real implementation, we'd track which directories
             # are already being watched to avoid duplicate schedules
-            self._observer.schedule(self._event_handler, str(parent_dir), recursive=False)
+            self._observer.schedule(
+                self._event_handler, str(parent_dir), recursive=False
+            )
 
     def remove_path(self, path: Path) -> None:
         """Remove a path from watching.

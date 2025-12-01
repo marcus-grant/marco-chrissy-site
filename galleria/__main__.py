@@ -24,21 +24,19 @@ def cli():
 
 @cli.command()
 @click.option(
-    "--config", "-c",
+    "--config",
+    "-c",
     type=click.Path(exists=True, path_type=Path),
     required=True,
-    help="Path to galleria configuration file"
+    help="Path to galleria configuration file",
 )
 @click.option(
-    "--output", "-o",
+    "--output",
+    "-o",
     type=click.Path(path_type=Path),
-    help="Output directory for generated gallery (overrides config)"
+    help="Output directory for generated gallery (overrides config)",
 )
-@click.option(
-    "--verbose", "-v",
-    is_flag=True,
-    help="Enable verbose output"
-)
+@click.option("--verbose", "-v", is_flag=True, help="Enable verbose output")
 def generate(config: Path, output: Path | None, verbose: bool):
     """Generate static gallery from configuration file.
 
@@ -84,14 +82,14 @@ def generate(config: Path, output: Path | None, verbose: bool):
         ("processor", "thumbnail-processor"),
         ("transform", "basic-pagination"),
         ("template", "basic-template"),
-        ("css", "basic-css")
+        ("css", "basic-css"),
     ]
 
     # Create initial context
     initial_context = PluginContext(
         input_data={"manifest_path": str(galleria_config.input_manifest_path)},
         config=galleria_config.to_pipeline_config(),
-        output_dir=galleria_config.output_directory
+        output_dir=galleria_config.output_directory,
     )
 
     # Execute pipeline with progress reporting
@@ -129,24 +127,34 @@ def generate(config: Path, output: Path | None, verbose: bool):
                 try:
                     # Validate file structure before writing
                     if not isinstance(html_file, dict):
-                        raise click.ClickException(f"HTML file {i} is not a dictionary: {type(html_file)}")
+                        raise click.ClickException(
+                            f"HTML file {i} is not a dictionary: {type(html_file)}"
+                        )
 
                     if "filename" not in html_file:
-                        raise click.ClickException(f"HTML file {i} missing required 'filename' field")
+                        raise click.ClickException(
+                            f"HTML file {i} missing required 'filename' field"
+                        )
 
                     if "content" not in html_file:
-                        raise click.ClickException(f"HTML file {i} missing required 'content' field")
+                        raise click.ClickException(
+                            f"HTML file {i} missing required 'content' field"
+                        )
 
                     content = html_file["content"]
                     if content is None:
                         raise click.ClickException(f"HTML file {i} has None content")
 
                     if not isinstance(content, str):
-                        raise click.ClickException(f"HTML file {i} content is not a string: {type(content)}")
+                        raise click.ClickException(
+                            f"HTML file {i} content is not a string: {type(content)}"
+                        )
 
                     # Check content size to prevent massive files
                     if len(content) > 50_000_000:  # 50MB limit
-                        raise click.ClickException(f"HTML file {i} content too large: {len(content)} bytes")
+                        raise click.ClickException(
+                            f"HTML file {i} content too large: {len(content)} bytes"
+                        )
 
                     html_path = galleria_config.output_directory / html_file["filename"]
                     html_path.write_text(content, encoding="utf-8")
@@ -156,7 +164,9 @@ def generate(config: Path, output: Path | None, verbose: bool):
                 except Exception as e:
                     if isinstance(e, click.ClickException):
                         raise
-                    raise click.ClickException(f"Failed to write HTML file {i}: {e}") from e
+                    raise click.ClickException(
+                        f"Failed to write HTML file {i}: {e}"
+                    ) from e
 
             page_count = len(final_output["html_files"])
             click.echo(f"Generated {page_count} HTML pages for '{collection_name}'")
@@ -167,24 +177,34 @@ def generate(config: Path, output: Path | None, verbose: bool):
                 try:
                     # Validate file structure before writing
                     if not isinstance(css_file, dict):
-                        raise click.ClickException(f"CSS file {i} is not a dictionary: {type(css_file)}")
+                        raise click.ClickException(
+                            f"CSS file {i} is not a dictionary: {type(css_file)}"
+                        )
 
                     if "filename" not in css_file:
-                        raise click.ClickException(f"CSS file {i} missing required 'filename' field")
+                        raise click.ClickException(
+                            f"CSS file {i} missing required 'filename' field"
+                        )
 
                     if "content" not in css_file:
-                        raise click.ClickException(f"CSS file {i} missing required 'content' field")
+                        raise click.ClickException(
+                            f"CSS file {i} missing required 'content' field"
+                        )
 
                     content = css_file["content"]
                     if content is None:
                         raise click.ClickException(f"CSS file {i} has None content")
 
                     if not isinstance(content, str):
-                        raise click.ClickException(f"CSS file {i} content is not a string: {type(content)}")
+                        raise click.ClickException(
+                            f"CSS file {i} content is not a string: {type(content)}"
+                        )
 
                     # Check content size to prevent massive files
                     if len(content) > 10_000_000:  # 10MB limit for CSS
-                        raise click.ClickException(f"CSS file {i} content too large: {len(content)} bytes")
+                        raise click.ClickException(
+                            f"CSS file {i} content too large: {len(content)} bytes"
+                        )
 
                     css_path = galleria_config.output_directory / css_file["filename"]
                     css_path.write_text(content, encoding="utf-8")
@@ -194,7 +214,9 @@ def generate(config: Path, output: Path | None, verbose: bool):
                 except Exception as e:
                     if isinstance(e, click.ClickException):
                         raise
-                    raise click.ClickException(f"Failed to write CSS file {i}: {e}") from e
+                    raise click.ClickException(
+                        f"Failed to write CSS file {i}: {e}"
+                    ) from e
 
             css_count = len(final_output["css_files"])
             click.echo(f"Generated {css_count} CSS files")
@@ -203,7 +225,9 @@ def generate(config: Path, output: Path | None, verbose: bool):
             thumb_count = final_output["thumbnail_count"]
             click.echo(f"Processed {thumb_count} thumbnails")
 
-        click.echo(f"Gallery generated successfully in: {galleria_config.output_directory}")
+        click.echo(
+            f"Gallery generated successfully in: {galleria_config.output_directory}"
+        )
 
     except Exception as e:
         if isinstance(e, click.ClickException):
@@ -213,38 +237,31 @@ def generate(config: Path, output: Path | None, verbose: bool):
 
 @cli.command()
 @click.option(
-    "--config", "-c",
+    "--config",
+    "-c",
     type=click.Path(exists=True, path_type=Path),
     required=True,
-    help="Path to galleria configuration file"
+    help="Path to galleria configuration file",
 )
 @click.option(
-    "--host", "-h",
+    "--host",
+    "-h",
     default="127.0.0.1",
-    help="Host address to bind server (default: 127.0.0.1)"
+    help="Host address to bind server (default: 127.0.0.1)",
 )
 @click.option(
-    "--port", "-p",
+    "--port",
+    "-p",
     type=int,
     default=8000,
-    help="Port number for development server (default: 8000)"
+    help="Port number for development server (default: 8000)",
 )
-@click.option(
-    "--no-generate",
-    is_flag=True,
-    help="Skip gallery generation phase"
-)
-@click.option(
-    "--no-watch",
-    is_flag=True,
-    help="Disable file watching and hot reload"
-)
-@click.option(
-    "--verbose", "-v",
-    is_flag=True,
-    help="Enable verbose output"
-)
-def serve(config: Path, host: str, port: int, no_generate: bool, no_watch: bool, verbose: bool):
+@click.option("--no-generate", is_flag=True, help="Skip gallery generation phase")
+@click.option("--no-watch", is_flag=True, help="Disable file watching and hot reload")
+@click.option("--verbose", "-v", is_flag=True, help="Enable verbose output")
+def serve(
+    config: Path, host: str, port: int, no_generate: bool, no_watch: bool, verbose: bool
+):
     """Start development server for gallery with hot reload.
 
     This command starts an HTTP server to serve the generated gallery files
@@ -268,7 +285,7 @@ def serve(config: Path, host: str, port: int, no_generate: bool, no_watch: bool,
             port=port,
             no_generate=no_generate,
             no_watch=no_watch,
-            verbose=verbose
+            verbose=verbose,
         )
     except KeyboardInterrupt:
         if verbose:
@@ -278,8 +295,6 @@ def serve(config: Path, host: str, port: int, no_generate: bool, no_watch: bool,
         raise click.ClickException(f"Server error: {e}") from e
 
 
-
-
 def main():
     """Entry point for the galleria CLI."""
     cli()
@@ -287,4 +302,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-

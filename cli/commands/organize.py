@@ -40,6 +40,6 @@ def organize():
         click.echo("✗ NormPic organization failed:")
         for error in result.errors:
             click.echo(f"  - {error}")
-        return
+        ctx.exit(1)
 
     click.echo("Organization completed successfully!")

@@ -65,7 +65,7 @@ class NormPicProviderPlugin(ProviderPlugin):
                 return PluginResult(
                     success=False,
                     output_data=None,
-                    errors=["Missing required input: manifest_path"]
+                    errors=["Missing required input: manifest_path"],
                 )
 
             manifest_path = Path(context.input_data["manifest_path"])
@@ -78,13 +78,13 @@ class NormPicProviderPlugin(ProviderPlugin):
                 return PluginResult(
                     success=False,
                     output_data=None,
-                    errors=[f"Manifest file not found: {manifest_path}"]
+                    errors=[f"Manifest file not found: {manifest_path}"],
                 )
             except json.JSONDecodeError as e:
                 return PluginResult(
                     success=False,
                     output_data=None,
-                    errors=[f"Invalid JSON in manifest: {e}"]
+                    errors=[f"Invalid JSON in manifest: {e}"],
                 )
 
             # Validate required fields
@@ -92,7 +92,7 @@ class NormPicProviderPlugin(ProviderPlugin):
                 return PluginResult(
                     success=False,
                     output_data=None,
-                    errors=["Missing required field: collection_name"]
+                    errors=["Missing required field: collection_name"],
                 )
 
             # Convert NormPic pics to ProviderPlugin photo format
@@ -115,7 +115,7 @@ class NormPicProviderPlugin(ProviderPlugin):
                     photo = {
                         "source_path": source_path,
                         "dest_path": dest_path,
-                        "metadata": metadata
+                        "metadata": metadata,
                     }
                     photos.append(photo)
 
@@ -123,14 +123,11 @@ class NormPicProviderPlugin(ProviderPlugin):
                     return PluginResult(
                         success=False,
                         output_data=None,
-                        errors=[f"Missing required pic field: {e}"]
+                        errors=[f"Missing required pic field: {e}"],
                     )
 
             # Build output data following ProviderPlugin contract
-            output_data = {
-                "photos": photos,
-                "collection_name": data["collection_name"]
-            }
+            output_data = {"photos": photos, "collection_name": data["collection_name"]}
 
             # Add optional fields if present
             if "collection_description" in data:
@@ -138,15 +135,12 @@ class NormPicProviderPlugin(ProviderPlugin):
             if "manifest_version" in data:
                 output_data["manifest_version"] = data["manifest_version"]
 
-            return PluginResult(
-                success=True,
-                output_data=output_data
-            )
+            return PluginResult(success=True, output_data=output_data)
 
         except Exception as e:
             # Catch any unexpected errors
             return PluginResult(
                 success=False,
                 output_data=None,
-                errors=[f"Unexpected error loading NormPic manifest: {e}"]
+                errors=[f"Unexpected error loading NormPic manifest: {e}"],
             )

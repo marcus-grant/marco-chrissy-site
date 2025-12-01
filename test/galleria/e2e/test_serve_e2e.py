@@ -1,11 +1,10 @@
 """E2E tests for galleria serve functionality."""
 
-from pathlib import Path
-from threading import Thread
-from unittest.mock import patch
 import time
+from threading import Thread
 
 import requests
+
 from galleria.orchestrator.serve import ServeOrchestrator
 
 
@@ -24,9 +23,7 @@ class TestGalleriaServeE2E:
         """
         # Arrange: Use existing fixture with flat config
         scenario = complete_serving_scenario(
-            collection_name="e2e_test_photos",
-            num_photos=4,
-            photos_per_page=2
+            collection_name="e2e_test_photos", num_photos=4, photos_per_page=2
         )
 
         config_path = scenario["config_path"]
@@ -36,7 +33,7 @@ class TestGalleriaServeE2E:
         # Act: Use ServeOrchestrator directly instead of subprocess
         orchestrator = ServeOrchestrator()
         serve_thread = None
-        
+
         try:
             # Run serve in background thread
             def run_serve():
@@ -45,12 +42,12 @@ class TestGalleriaServeE2E:
                     host="127.0.0.1",
                     port=test_port,
                     no_watch=True,  # Disable file watching for test
-                    verbose=False
+                    verbose=False,
                 )
-            
+
             serve_thread = Thread(target=run_serve, daemon=True)
             serve_thread.start()
-            
+
             # Wait for server to start
             server_started = False
             for _ in range(10):  # 5 second timeout
@@ -72,11 +69,15 @@ class TestGalleriaServeE2E:
             # Test HTTP responses for generated files
             response = requests.get(f"http://localhost:{test_port}/page_1.html")
             assert response.status_code == 200, "Page 1 HTML not served"
-            assert "e2e_test_photos" in response.text, "Collection name not in served HTML"
+            assert "e2e_test_photos" in response.text, (
+                "Collection name not in served HTML"
+            )
 
             response = requests.get(f"http://localhost:{test_port}/gallery.css")
             assert response.status_code == 200, "Gallery CSS not served"
-            assert "text/css" in response.headers.get("content-type", ""), "CSS content-type not set"
+            assert "text/css" in response.headers.get("content-type", ""), (
+                "CSS content-type not set"
+            )
 
         finally:
             # Cleanup: ServeOrchestrator handles cleanup internally via _cleanup()
@@ -84,7 +85,9 @@ class TestGalleriaServeE2E:
                 # The thread will be cleaned up when test ends (daemon=True)
                 pass
 
-    def test_serve_file_watching_workflow(self, file_watcher_scenario, galleria_file_factory, free_port):
+    def test_serve_file_watching_workflow(
+        self, file_watcher_scenario, galleria_file_factory, free_port
+    ):
         """E2E: Test config changes trigger rebuilds using direct imports.
 
         Test hot reload functionality:
@@ -114,9 +117,9 @@ class TestGalleriaServeE2E:
                     host="127.0.0.1",
                     port=test_port,
                     no_watch=False,  # Enable file watching
-                    verbose=False
+                    verbose=False,
                 )
-            
+
             serve_thread = Thread(target=run_serve, daemon=True)
             serve_thread.start()
 
@@ -124,28 +127,33 @@ class TestGalleriaServeE2E:
             time.sleep(3)
 
             # Verify initial content
-            response = requests.get(f"http://localhost:{test_port}/page_1.html", timeout=2)
+            response = requests.get(
+                f"http://localhost:{test_port}/page_1.html", timeout=2
+            )
             assert response.status_code == 200, "Initial server not responding"
-            initial_content = response.text
 
             # Modify config to change theme (trigger hot reload) - use flat format
             modified_config = initial_config.copy()
             modified_config["theme"] = "elegant"  # Flat format update
             galleria_file_factory(
                 str(config_path.relative_to(config_path.parent.parent)),
-                json_content=modified_config
+                json_content=modified_config,
             )
 
             # Wait for hot reload to detect change and regenerate
             time.sleep(4)
 
             # Verify updated content is served
-            response = requests.get(f"http://localhost:{test_port}/page_1.html", timeout=2)
+            response = requests.get(
+                f"http://localhost:{test_port}/page_1.html", timeout=2
+            )
             assert response.status_code == 200, "Server not responding after hot reload"
             updated_content = response.text
 
             # Content should still be substantial after hot reload
-            assert len(updated_content) > 100, "Page content should still be substantial"
+            assert len(updated_content) > 100, (
+                "Page content should still be substantial"
+            )
 
         finally:
             # Cleanup: ServeOrchestrator handles cleanup internally
@@ -165,9 +173,7 @@ class TestGalleriaServeE2E:
         """
         # Arrange: Create comprehensive serving scenario
         scenario = complete_serving_scenario(
-            collection_name="serving_test",
-            num_photos=6,
-            photos_per_page=3
+            collection_name="serving_test", num_photos=6, photos_per_page=3
         )
 
         config_path = scenario["config_path"]
@@ -186,9 +192,9 @@ class TestGalleriaServeE2E:
                     host="127.0.0.1",
                     port=test_port,
                     no_watch=True,
-                    verbose=False
+                    verbose=False,
                 )
-            
+
             serve_thread = Thread(target=run_serve, daemon=True)
             serve_thread.start()
 
@@ -206,20 +212,30 @@ class TestGalleriaServeE2E:
             assert response.status_code == 200, "Root redirect failed"
 
             # Test HTML serving with correct content-type
-            response = requests.get(f"http://localhost:{test_port}/page_1.html", timeout=2)
+            response = requests.get(
+                f"http://localhost:{test_port}/page_1.html", timeout=2
+            )
             assert response.status_code == 200, "Page 1 not served"
             assert "serving_test" in response.text, "Collection name missing"
 
-            response = requests.get(f"http://localhost:{test_port}/page_2.html", timeout=2)
+            response = requests.get(
+                f"http://localhost:{test_port}/page_2.html", timeout=2
+            )
             assert response.status_code == 200, "Page 2 not served"
 
             # Test CSS serving with correct content-type
-            response = requests.get(f"http://localhost:{test_port}/gallery.css", timeout=2)
+            response = requests.get(
+                f"http://localhost:{test_port}/gallery.css", timeout=2
+            )
             assert response.status_code == 200, "CSS not served"
-            assert "text/css" in response.headers.get("content-type", ""), "CSS content type incorrect"
+            assert "text/css" in response.headers.get("content-type", ""), (
+                "CSS content type incorrect"
+            )
 
             # Test 404 handling
-            response = requests.get(f"http://localhost:{test_port}/nonexistent.html", timeout=2)
+            response = requests.get(
+                f"http://localhost:{test_port}/nonexistent.html", timeout=2
+            )
             assert response.status_code == 404, "Should return 404 for missing files"
 
         finally:

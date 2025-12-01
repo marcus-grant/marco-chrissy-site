@@ -1,6 +1,5 @@
 """Unit tests for JSON schema validation."""
 
-
 import pytest
 
 from serializer.json import JsonConfigLoader
@@ -15,7 +14,7 @@ class TestConfigSchemas:
             "source_dir": "~/Pictures/wedding/full",
             "dest_dir": "output/pics/full",
             "collection_name": "wedding",
-            "create_symlinks": True
+            "create_symlinks": True,
         }
         config_file = file_factory("config/normpic.json", json_content=config_data)
 
@@ -28,8 +27,8 @@ class TestConfigSchemas:
                 "source_dir": {"type": "string"},
                 "dest_dir": {"type": "string"},
                 "collection_name": {"type": "string"},
-                "create_symlinks": {"type": "boolean"}
-            }
+                "create_symlinks": {"type": "boolean"},
+            },
         }
 
         # Test validation with mock schema
@@ -54,8 +53,8 @@ class TestConfigSchemas:
                 "source_dir": {"type": "string"},
                 "dest_dir": {"type": "string"},
                 "collection_name": {"type": "string"},
-                "create_symlinks": {"type": "boolean"}
-            }
+                "create_symlinks": {"type": "boolean"},
+            },
         }
 
         loader_with_schema = JsonConfigLoader(schema=mock_schema)
@@ -71,8 +70,8 @@ class TestConfigSchemas:
             "output_dir": "output",
             "cdn": {
                 "photos": "https://photos.example.com",
-                "site": "https://site.example.com"
-            }
+                "site": "https://site.example.com",
+            },
         }
         config_file = file_factory("config/site.json", json_content=config_data)
 
@@ -88,10 +87,10 @@ class TestConfigSchemas:
                     "required": ["photos", "site"],
                     "properties": {
                         "photos": {"type": "string"},
-                        "site": {"type": "string"}
-                    }
-                }
-            }
+                        "site": {"type": "string"},
+                    },
+                },
+            },
         }
 
         loader_with_schema = JsonConfigLoader(schema=mock_schema)
@@ -104,7 +103,7 @@ class TestConfigSchemas:
             "theme": "minimal",
             "site_url": "https://example.com",
             "author": "Test Author",
-            "sitename": "Test Site"
+            "sitename": "Test Site",
         }
         config_file = file_factory("config/pelican.json", json_content=config_data)
 
@@ -117,8 +116,8 @@ class TestConfigSchemas:
                 "theme": {"type": "string"},
                 "site_url": {"type": "string"},
                 "author": {"type": "string"},
-                "sitename": {"type": "string"}
-            }
+                "sitename": {"type": "string"},
+            },
         }
 
         loader_with_schema = JsonConfigLoader(schema=mock_schema)
@@ -142,8 +141,8 @@ class TestConfigSchemas:
                 "theme": {"type": "string"},
                 "site_url": {"type": "string"},
                 "author": {"type": "string"},
-                "sitename": {"type": "string"}
-            }
+                "sitename": {"type": "string"},
+            },
         }
 
         loader_with_schema = JsonConfigLoader(schema=mock_schema)
@@ -161,7 +160,7 @@ class TestConfigSchemas:
             "thumbnail_size": 400,
             "photos_per_page": 60,
             "theme": "minimal",
-            "quality": 85
+            "quality": 85,
         }
         config_file = file_factory("config/galleria.json", json_content=config_data)
 
@@ -176,8 +175,8 @@ class TestConfigSchemas:
                 "thumbnail_size": {"type": "integer"},
                 "photos_per_page": {"type": "integer"},
                 "theme": {"type": "string"},
-                "quality": {"type": "integer"}
-            }
+                "quality": {"type": "integer"},
+            },
         }
 
         loader_with_schema = JsonConfigLoader(schema=mock_schema)
@@ -203,8 +202,8 @@ class TestConfigSchemas:
                 "thumbnail_size": {"type": "integer"},
                 "photos_per_page": {"type": "integer"},
                 "theme": {"type": "string"},
-                "quality": {"type": "integer"}
-            }
+                "quality": {"type": "integer"},
+            },
         }
 
         loader_with_schema = JsonConfigLoader(schema=mock_schema)

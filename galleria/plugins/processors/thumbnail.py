@@ -78,21 +78,21 @@ class ThumbnailProcessorPlugin(ProcessorPlugin):
                 return PluginResult(
                     success=False,
                     output_data=None,
-                    errors=["Input data must be a dictionary"]
+                    errors=["Input data must be a dictionary"],
                 )
 
             if "photos" not in context.input_data:
                 return PluginResult(
                     success=False,
                     output_data=None,
-                    errors=["Missing required field: photos"]
+                    errors=["Missing required field: photos"],
                 )
 
             if "collection_name" not in context.input_data:
                 return PluginResult(
                     success=False,
                     output_data=None,
-                    errors=["Missing required field: collection_name"]
+                    errors=["Missing required field: collection_name"],
                 )
 
             # Extract configuration options - support both nested and direct config patterns
@@ -140,7 +140,10 @@ class ThumbnailProcessorPlugin(ProcessorPlugin):
                         else:
                             # Use cached thumbnail
                             processed_photo["thumbnail_path"] = str(thumbnail_path)
-                            processed_photo["thumbnail_size"] = (thumbnail_size, thumbnail_size)
+                            processed_photo["thumbnail_size"] = (
+                                thumbnail_size,
+                                thumbnail_size,
+                            )
                             processed_photo["cached"] = True
                             thumbnail_count += 1
                             processed_photos.append(processed_photo)
@@ -153,24 +156,31 @@ class ThumbnailProcessorPlugin(ProcessorPlugin):
                             output_dir=thumbnails_dir,
                             size=thumbnail_size,
                             quality=quality,
-                            output_name=thumbnail_name
+                            output_name=thumbnail_name,
                         )
 
                         # Add processor data to photo
                         processed_photo["thumbnail_path"] = str(result_path)
-                        processed_photo["thumbnail_size"] = (thumbnail_size, thumbnail_size)
+                        processed_photo["thumbnail_size"] = (
+                            thumbnail_size,
+                            thumbnail_size,
+                        )
                         processed_photo["cached"] = False
                         thumbnail_count += 1
 
                     except ImageProcessingError as e:
                         # Individual photo processing failed
                         processed_photo["error"] = str(e)
-                        processing_errors.append(f"Failed to process {source_path}: {e}")
+                        processing_errors.append(
+                            f"Failed to process {source_path}: {e}"
+                        )
 
                     except Exception as e:
                         # Unexpected error
                         processed_photo["error"] = f"Unexpected error: {e}"
-                        processing_errors.append(f"Unexpected error processing {source_path}: {e}")
+                        processing_errors.append(
+                            f"Unexpected error processing {source_path}: {e}"
+                        )
 
                     processed_photos.append(processed_photo)
 
@@ -192,7 +202,7 @@ class ThumbnailProcessorPlugin(ProcessorPlugin):
             return PluginResult(
                 success=True,
                 output_data=output_data,
-                errors=processing_errors  # Non-fatal errors for individual photos
+                errors=processing_errors,  # Non-fatal errors for individual photos
             )
 
         except Exception as e:
@@ -200,5 +210,5 @@ class ThumbnailProcessorPlugin(ProcessorPlugin):
             return PluginResult(
                 success=False,
                 output_data=None,
-                errors=[f"Fatal error in thumbnail processing: {e}"]
+                errors=[f"Fatal error in thumbnail processing: {e}"],
             )

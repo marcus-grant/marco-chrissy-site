@@ -1,6 +1,5 @@
 """Unit tests for TemplatePlugin interface and contract validation."""
 
-
 import pytest
 
 from galleria.plugins.base import PluginContext, PluginResult
@@ -56,6 +55,7 @@ class TestTemplatePluginInterface:
             @property
             def version(self) -> str:
                 return "1.0.0"
+
             # Missing generate_html implementation
 
         # Should not be able to instantiate without generate_html
@@ -191,7 +191,7 @@ class TestTemplatePluginValidation:
                     return PluginResult(
                         success=False,
                         output_data={},
-                        errors=["MISSING_COLLECTION_NAME: collection_name required"]
+                        errors=["MISSING_COLLECTION_NAME: collection_name required"],
                     )
 
                 return PluginResult(success=True, output_data={"html_files": []})
@@ -229,7 +229,7 @@ class TestTemplatePluginValidation:
                     return PluginResult(
                         success=False,
                         output_data={},
-                        errors=[f"INVALID_THEME: Unknown theme: {theme}"]
+                        errors=[f"INVALID_THEME: Unknown theme: {theme}"],
                     )
 
                 return PluginResult(success=True, output_data={"html_files": []})
@@ -245,3 +245,47 @@ class TestTemplatePluginValidation:
         result = plugin.generate_html(context)
         assert not result.success
         assert "INVALID_THEME" in result.errors[0]
+
+
+class TestBasicTemplatePlugin:
+    """Test BasicTemplatePlugin specific functionality."""
+
+    def test_basic_template_plugin_generates_relative_thumbnail_paths(self, tmp_path):
+        """BasicTemplatePlugin should generate relative paths for thumbnails, not absolute filesystem paths."""
+        from galleria.plugins.template import BasicTemplatePlugin
+
+        plugin = BasicTemplatePlugin()
+
+        # Create mock data with absolute thumbnail paths (as would come from processor)
+        context = PluginContext(
+            input_data={
+                "pages": [
+                    [
+                        {
+                            "source_path": "/home/user/photos/img1.jpg",
+                            "thumbnail_path": "/absolute/path/to/output/galleries/wedding/thumbnails/img1.webp",
+                            "dest_path": "/absolute/path/to/output/pics/img1.jpg",
+                        }
+                    ]
+                ],
+                "collection_name": "wedding",
+                "total_photos": 1,
+            },
+            config={},
+            output_dir=tmp_path,
+        )
+
+        result = plugin.generate_html(context)
+
+        assert result.success
+        assert "html_files" in result.output_data
+
+        # Check that the generated HTML contains relative paths, not absolute
+        html_content = result.output_data["html_files"][0]["content"]
+        assert "thumbnails/img1.webp" in html_content
+        assert (
+            "/absolute/path/to/output/galleries/wedding/thumbnails/img1.webp"
+            not in html_content
+        )
+        assert "../pics/full/img1.jpg" in html_content
+        assert "/absolute/path/to/output/pics/img1.jpg" not in html_content

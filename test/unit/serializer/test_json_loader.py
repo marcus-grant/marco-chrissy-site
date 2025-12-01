@@ -15,7 +15,7 @@ class TestJsonConfigLoader:
             "source_dir": "~/Pictures/wedding/full",
             "dest_dir": "output/pics/full",
             "collection_name": "wedding",
-            "create_symlinks": True
+            "create_symlinks": True,
         }
         config_file = file_factory("config/normpic.json", json_content=config_data)
 
@@ -30,7 +30,7 @@ class TestJsonConfigLoader:
             "source_dir": "~/Pictures/wedding/full",
             "dest_dir": "output/pics/full",
             "collection_name": "wedding",
-            "create_symlinks": True
+            "create_symlinks": True,
         }
         config_file = file_factory("config/normpic.json", json_content=config_data)
 
@@ -41,9 +41,9 @@ class TestJsonConfigLoader:
                 "source_dir": {"type": "string"},
                 "dest_dir": {"type": "string"},
                 "collection_name": {"type": "string"},
-                "create_symlinks": {"type": "boolean"}
+                "create_symlinks": {"type": "boolean"},
             },
-            "required": ["source_dir", "dest_dir", "collection_name"]
+            "required": ["source_dir", "dest_dir", "collection_name"],
         }
 
         loader = JsonConfigLoader(schema=schema)
@@ -65,7 +65,9 @@ class TestJsonConfigLoader:
 
     def test_malformed_json_file(self, temp_filesystem, file_factory):
         """Test loading malformed JSON file raises appropriate error."""
-        config_file = file_factory("config/invalid.json", content="{ invalid json content")
+        config_file = file_factory(
+            "config/invalid.json", content="{ invalid json content"
+        )
 
         loader = JsonConfigLoader()
 
@@ -73,9 +75,14 @@ class TestJsonConfigLoader:
             loader.load_config(config_file)
 
         assert "json" in str(exc_info.value).lower()
-        assert "parse" in str(exc_info.value).lower() or "decode" in str(exc_info.value).lower()
+        assert (
+            "parse" in str(exc_info.value).lower()
+            or "decode" in str(exc_info.value).lower()
+        )
 
-    def test_schema_validation_failure_missing_required_field(self, temp_filesystem, file_factory):
+    def test_schema_validation_failure_missing_required_field(
+        self, temp_filesystem, file_factory
+    ):
         """Test schema validation fails with missing required fields."""
         config_data = {
             "collection_name": "wedding"
@@ -89,9 +96,9 @@ class TestJsonConfigLoader:
                 "source_dir": {"type": "string"},
                 "dest_dir": {"type": "string"},
                 "collection_name": {"type": "string"},
-                "create_symlinks": {"type": "boolean"}
+                "create_symlinks": {"type": "boolean"},
             },
-            "required": ["source_dir", "dest_dir", "collection_name"]
+            "required": ["source_dir", "dest_dir", "collection_name"],
         }
 
         loader = JsonConfigLoader(schema=schema)
@@ -109,7 +116,7 @@ class TestJsonConfigLoader:
             "source_dir": "~/Pictures/wedding/full",
             "dest_dir": "output/pics/full",
             "collection_name": "wedding",
-            "create_symlinks": "invalid_boolean"  # Should be boolean
+            "create_symlinks": "invalid_boolean",  # Should be boolean
         }
         config_file = file_factory("config/normpic.json", json_content=config_data)
 
@@ -119,9 +126,9 @@ class TestJsonConfigLoader:
                 "source_dir": {"type": "string"},
                 "dest_dir": {"type": "string"},
                 "collection_name": {"type": "string"},
-                "create_symlinks": {"type": "boolean"}
+                "create_symlinks": {"type": "boolean"},
             },
-            "required": ["source_dir", "dest_dir", "collection_name"]
+            "required": ["source_dir", "dest_dir", "collection_name"],
         }
 
         loader = JsonConfigLoader(schema=schema)
@@ -135,10 +142,7 @@ class TestJsonConfigLoader:
 
     def test_load_without_schema_validation(self, temp_filesystem, file_factory):
         """Test loading config without schema validation allows invalid data."""
-        config_data = {
-            "invalid_field": "value",
-            "create_symlinks": "invalid_boolean"
-        }
+        config_data = {"invalid_field": "value", "create_symlinks": "invalid_boolean"}
         config_file = file_factory("config/normpic.json", json_content=config_data)
 
         loader = JsonConfigLoader()  # No schema provided
@@ -146,13 +150,15 @@ class TestJsonConfigLoader:
 
         assert result == config_data
 
-    def test_schema_validation_provides_meaningful_error_messages(self, temp_filesystem, file_factory):
+    def test_schema_validation_provides_meaningful_error_messages(
+        self, temp_filesystem, file_factory
+    ):
         """Test that schema validation errors contain meaningful context."""
         config_data = {
             "source_dir": 123,  # Wrong type
             "dest_dir": "output/pics/full",
             # Missing collection_name
-            "create_symlinks": "not_a_boolean"  # Wrong type
+            "create_symlinks": "not_a_boolean",  # Wrong type
         }
         config_file = file_factory("config/normpic.json", json_content=config_data)
 
@@ -162,9 +168,9 @@ class TestJsonConfigLoader:
                 "source_dir": {"type": "string"},
                 "dest_dir": {"type": "string"},
                 "collection_name": {"type": "string"},
-                "create_symlinks": {"type": "boolean"}
+                "create_symlinks": {"type": "boolean"},
             },
-            "required": ["source_dir", "dest_dir", "collection_name"]
+            "required": ["source_dir", "dest_dir", "collection_name"],
         }
 
         loader = JsonConfigLoader(schema=schema)
@@ -197,4 +203,3 @@ class TestJsonConfigLoader:
         result = loader.load_config(config_file)
 
         assert result is None
-

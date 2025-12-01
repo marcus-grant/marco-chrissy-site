@@ -18,8 +18,15 @@ class ServeOrchestrator:
         self._file_watcher = None
         self._http_server = None
 
-    def execute(self, config_path: Path, host: str = "127.0.0.1", port: int = 8000,
-                no_generate: bool = False, no_watch: bool = False, verbose: bool = False) -> bool:
+    def execute(
+        self,
+        config_path: Path,
+        host: str = "127.0.0.1",
+        port: int = 8000,
+        no_generate: bool = False,
+        no_watch: bool = False,
+        verbose: bool = False,
+    ) -> bool:
         """Execute the complete serve process.
 
         Args:
@@ -50,7 +57,11 @@ class ServeOrchestrator:
                 builder_config = {
                     "manifest_path": raw_config["manifest_path"],
                     "output_dir": str(output_dir),
-                    **{k: v for k, v in raw_config.items() if k not in ["manifest_path", "output_dir"]}
+                    **{
+                        k: v
+                        for k, v in raw_config.items()
+                        if k not in ["manifest_path", "output_dir"]
+                    },
                 }
                 self.galleria_builder.build(builder_config, config_path.parent)
 
@@ -74,7 +85,9 @@ class ServeOrchestrator:
             self._cleanup()
             raise
 
-    def _setup_file_watcher(self, config_path: Path, manifest_path: Path, raw_config: dict) -> None:
+    def _setup_file_watcher(
+        self, config_path: Path, manifest_path: Path, raw_config: dict
+    ) -> None:
         """Setup file watcher for hot reload functionality.
 
         Args:
@@ -90,7 +103,9 @@ class ServeOrchestrator:
             """Callback to regenerate gallery when files change."""
             try:
                 # Reload config in case it changed using ConfigManager
-                updated_raw_config = self.config_manager.load_galleria_config(config_path)
+                updated_raw_config = self.config_manager.load_galleria_config(
+                    config_path
+                )
 
                 # Extract updated output directory
                 updated_output_dir = Path(updated_raw_config["output_dir"])
@@ -99,7 +114,11 @@ class ServeOrchestrator:
                 updated_builder_config = {
                     "manifest_path": updated_raw_config["manifest_path"],
                     "output_dir": str(updated_output_dir),
-                    **{k: v for k, v in updated_raw_config.items() if k not in ["manifest_path", "output_dir"]}
+                    **{
+                        k: v
+                        for k, v in updated_raw_config.items()
+                        if k not in ["manifest_path", "output_dir"]
+                    },
                 }
                 self.galleria_builder.build(updated_builder_config, config_path.parent)
             except Exception:

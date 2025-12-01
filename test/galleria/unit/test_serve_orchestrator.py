@@ -16,18 +16,20 @@ class TestServeOrchestrator:
         orchestrator = ServeOrchestrator()
         assert orchestrator is not None
 
-    @patch('galleria.orchestrator.serve.ConfigManager')
-    @patch('galleria.orchestrator.serve.GalleriaBuilder')
-    @patch('galleria.orchestrator.serve.GalleriaHTTPServer')
-    @patch('galleria.orchestrator.serve.FileWatcher')
-    def test_execute_loads_configuration_and_validates(self, mock_watcher, mock_server, mock_builder, mock_config):
+    @patch("galleria.orchestrator.serve.ConfigManager")
+    @patch("galleria.orchestrator.serve.GalleriaBuilder")
+    @patch("galleria.orchestrator.serve.GalleriaHTTPServer")
+    @patch("galleria.orchestrator.serve.FileWatcher")
+    def test_execute_loads_configuration_and_validates(
+        self, mock_watcher, mock_server, mock_builder, mock_config
+    ):
         """execute() loads and validates configuration file."""
         # Arrange
         config_path = Path("/test/config/galleria.json")
         mock_config_manager = mock_config.return_value
         mock_galleria_config = {
             "output_dir": "/test/output",
-            "manifest_path": "/test/manifest.json"
+            "manifest_path": "/test/manifest.json",
         }
         mock_config_manager.load_galleria_config.return_value = mock_galleria_config
 
@@ -41,18 +43,20 @@ class TestServeOrchestrator:
         mock_config.assert_called_once()
         mock_config_manager.load_galleria_config.assert_called_once_with(config_path)
 
-    @patch('galleria.orchestrator.serve.ConfigManager')
-    @patch('galleria.orchestrator.serve.GalleriaBuilder')
-    @patch('galleria.orchestrator.serve.GalleriaHTTPServer')
-    @patch('galleria.orchestrator.serve.FileWatcher')
-    def test_execute_generates_gallery_by_default(self, mock_watcher, mock_server, mock_builder, mock_config):
+    @patch("galleria.orchestrator.serve.ConfigManager")
+    @patch("galleria.orchestrator.serve.GalleriaBuilder")
+    @patch("galleria.orchestrator.serve.GalleriaHTTPServer")
+    @patch("galleria.orchestrator.serve.FileWatcher")
+    def test_execute_generates_gallery_by_default(
+        self, mock_watcher, mock_server, mock_builder, mock_config
+    ):
         """execute() generates gallery by default (no_generate=False)."""
         # Arrange
         config_path = Path("/test/config/galleria.json")
         mock_config_manager = mock_config.return_value
         mock_galleria_config = {
             "output_dir": "/test/output",
-            "manifest_path": "/test/manifest.json"
+            "manifest_path": "/test/manifest.json",
         }
         mock_config_manager.load_galleria_config.return_value = mock_galleria_config
         mock_galleria_builder = mock_builder.return_value
@@ -65,22 +69,26 @@ class TestServeOrchestrator:
         # Assert
         expected_builder_config = {
             "manifest_path": "/test/manifest.json",
-            "output_dir": "/test/output"
+            "output_dir": "/test/output",
         }
-        mock_galleria_builder.build.assert_called_once_with(expected_builder_config, config_path.parent)
+        mock_galleria_builder.build.assert_called_once_with(
+            expected_builder_config, config_path.parent
+        )
 
-    @patch('galleria.orchestrator.serve.ConfigManager')
-    @patch('galleria.orchestrator.serve.GalleriaBuilder')
-    @patch('galleria.orchestrator.serve.GalleriaHTTPServer')
-    @patch('galleria.orchestrator.serve.FileWatcher')
-    def test_execute_skips_generation_when_no_generate_true(self, mock_watcher, mock_server, mock_builder, mock_config):
+    @patch("galleria.orchestrator.serve.ConfigManager")
+    @patch("galleria.orchestrator.serve.GalleriaBuilder")
+    @patch("galleria.orchestrator.serve.GalleriaHTTPServer")
+    @patch("galleria.orchestrator.serve.FileWatcher")
+    def test_execute_skips_generation_when_no_generate_true(
+        self, mock_watcher, mock_server, mock_builder, mock_config
+    ):
         """execute() skips gallery generation when no_generate=True."""
         # Arrange
         config_path = Path("/test/config/galleria.json")
         mock_config_manager = mock_config.return_value
         mock_galleria_config = {
             "output_dir": "/test/output",
-            "manifest_path": "/test/manifest.json"
+            "manifest_path": "/test/manifest.json",
         }
         mock_config_manager.load_galleria_config.return_value = mock_galleria_config
         mock_galleria_builder = mock_builder.return_value
@@ -93,11 +101,13 @@ class TestServeOrchestrator:
         # Assert
         mock_galleria_builder.build.assert_not_called()
 
-    @patch('galleria.orchestrator.serve.ConfigManager')
-    @patch('galleria.orchestrator.serve.GalleriaBuilder')
-    @patch('galleria.orchestrator.serve.GalleriaHTTPServer')
-    @patch('galleria.orchestrator.serve.FileWatcher')
-    def test_execute_starts_http_server_with_output_directory(self, mock_watcher, mock_server, mock_builder, mock_config):
+    @patch("galleria.orchestrator.serve.ConfigManager")
+    @patch("galleria.orchestrator.serve.GalleriaBuilder")
+    @patch("galleria.orchestrator.serve.GalleriaHTTPServer")
+    @patch("galleria.orchestrator.serve.FileWatcher")
+    def test_execute_starts_http_server_with_output_directory(
+        self, mock_watcher, mock_server, mock_builder, mock_config
+    ):
         """execute() starts HTTP server pointing to gallery output directory."""
         # Arrange
         config_path = Path("/test/config/galleria.json")
@@ -105,7 +115,7 @@ class TestServeOrchestrator:
         mock_config_manager = mock_config.return_value
         mock_galleria_config = {
             "output_dir": str(output_dir),
-            "manifest_path": "/test/manifest.json"
+            "manifest_path": "/test/manifest.json",
         }
         mock_config_manager.load_galleria_config.return_value = mock_galleria_config
         mock_http_server = mock_server.return_value
@@ -119,18 +129,20 @@ class TestServeOrchestrator:
         mock_server.assert_called_once_with(output_dir, "localhost", 8080)
         mock_http_server.start.assert_called_once_with(verbose=False)
 
-    @patch('galleria.orchestrator.serve.ConfigManager')
-    @patch('galleria.orchestrator.serve.GalleriaBuilder')
-    @patch('galleria.orchestrator.serve.GalleriaHTTPServer')
-    @patch('galleria.orchestrator.serve.FileWatcher')
-    def test_execute_passes_verbose_flag_to_server(self, mock_watcher, mock_server, mock_builder, mock_config):
+    @patch("galleria.orchestrator.serve.ConfigManager")
+    @patch("galleria.orchestrator.serve.GalleriaBuilder")
+    @patch("galleria.orchestrator.serve.GalleriaHTTPServer")
+    @patch("galleria.orchestrator.serve.FileWatcher")
+    def test_execute_passes_verbose_flag_to_server(
+        self, mock_watcher, mock_server, mock_builder, mock_config
+    ):
         """execute() passes verbose flag to HTTP server."""
         # Arrange
         config_path = Path("/test/config/galleria.json")
         mock_config_manager = mock_config.return_value
         mock_galleria_config = {
             "output_dir": "/test/output",
-            "manifest_path": "/test/manifest.json"
+            "manifest_path": "/test/manifest.json",
         }
         mock_config_manager.load_galleria_config.return_value = mock_galleria_config
         mock_http_server = mock_server.return_value
@@ -143,11 +155,13 @@ class TestServeOrchestrator:
         # Assert
         mock_http_server.start.assert_called_once_with(verbose=True)
 
-    @patch('galleria.orchestrator.serve.ConfigManager')
-    @patch('galleria.orchestrator.serve.GalleriaBuilder')
-    @patch('galleria.orchestrator.serve.GalleriaHTTPServer')
-    @patch('galleria.orchestrator.serve.FileWatcher')
-    def test_execute_sets_up_file_watcher_by_default(self, mock_watcher, mock_server, mock_builder, mock_config):
+    @patch("galleria.orchestrator.serve.ConfigManager")
+    @patch("galleria.orchestrator.serve.GalleriaBuilder")
+    @patch("galleria.orchestrator.serve.GalleriaHTTPServer")
+    @patch("galleria.orchestrator.serve.FileWatcher")
+    def test_execute_sets_up_file_watcher_by_default(
+        self, mock_watcher, mock_server, mock_builder, mock_config
+    ):
         """execute() sets up file watcher by default (no_watch=False)."""
         # Arrange
         config_path = Path("/test/config/galleria.json")
@@ -155,7 +169,7 @@ class TestServeOrchestrator:
         mock_config_manager = mock_config.return_value
         mock_galleria_config = {
             "manifest_path": str(manifest_path),
-            "output_dir": "/test/output"
+            "output_dir": "/test/output",
         }
         mock_config_manager.load_galleria_config.return_value = mock_galleria_config
         mock_file_watcher = mock_watcher.return_value
@@ -178,18 +192,20 @@ class TestServeOrchestrator:
         assert callable(call_args[0][1])  # callback function
         mock_file_watcher.start.assert_called_once()
 
-    @patch('galleria.orchestrator.serve.ConfigManager')
-    @patch('galleria.orchestrator.serve.GalleriaBuilder')
-    @patch('galleria.orchestrator.serve.GalleriaHTTPServer')
-    @patch('galleria.orchestrator.serve.FileWatcher')
-    def test_execute_skips_file_watching_when_no_watch_true(self, mock_watcher, mock_server, mock_builder, mock_config):
+    @patch("galleria.orchestrator.serve.ConfigManager")
+    @patch("galleria.orchestrator.serve.GalleriaBuilder")
+    @patch("galleria.orchestrator.serve.GalleriaHTTPServer")
+    @patch("galleria.orchestrator.serve.FileWatcher")
+    def test_execute_skips_file_watching_when_no_watch_true(
+        self, mock_watcher, mock_server, mock_builder, mock_config
+    ):
         """execute() skips file watcher setup when no_watch=True."""
         # Arrange
         config_path = Path("/test/config/galleria.json")
         mock_config_manager = mock_config.return_value
         mock_galleria_config = {
             "output_dir": "/test/output",
-            "manifest_path": "/test/manifest.json"
+            "manifest_path": "/test/manifest.json",
         }
         mock_config_manager.load_galleria_config.return_value = mock_galleria_config
 
@@ -201,11 +217,13 @@ class TestServeOrchestrator:
         # Assert
         mock_watcher.assert_not_called()
 
-    @patch('galleria.orchestrator.serve.ConfigManager')
-    @patch('galleria.orchestrator.serve.GalleriaBuilder')
-    @patch('galleria.orchestrator.serve.GalleriaHTTPServer')
-    @patch('galleria.orchestrator.serve.FileWatcher')
-    def test_execute_rebuild_callback_regenerates_gallery_on_file_change(self, mock_watcher, mock_server, mock_builder, mock_config):
+    @patch("galleria.orchestrator.serve.ConfigManager")
+    @patch("galleria.orchestrator.serve.GalleriaBuilder")
+    @patch("galleria.orchestrator.serve.GalleriaHTTPServer")
+    @patch("galleria.orchestrator.serve.FileWatcher")
+    def test_execute_rebuild_callback_regenerates_gallery_on_file_change(
+        self, mock_watcher, mock_server, mock_builder, mock_config
+    ):
         """execute() file watcher callback regenerates gallery when files change."""
         # Arrange
         config_path = Path("/test/config/galleria.json")
@@ -213,7 +231,7 @@ class TestServeOrchestrator:
         mock_config_manager = mock_config.return_value
         mock_galleria_config = {
             "manifest_path": str(manifest_path),
-            "output_dir": "/test/output"
+            "output_dir": "/test/output",
         }
         mock_config_manager.load_galleria_config.return_value = mock_galleria_config
         mock_galleria_builder = mock_builder.return_value
@@ -233,23 +251,27 @@ class TestServeOrchestrator:
         # Both calls should use the same transformed config
         expected_builder_config = {
             "manifest_path": str(manifest_path),
-            "output_dir": "/test/output"
+            "output_dir": "/test/output",
         }
         expected_calls = [
             call(expected_builder_config, config_path.parent),
-            call(expected_builder_config, config_path.parent)
+            call(expected_builder_config, config_path.parent),
         ]
         mock_galleria_builder.build.assert_has_calls(expected_calls)
 
-    @patch('galleria.orchestrator.serve.ConfigManager')
-    @patch('galleria.orchestrator.serve.GalleriaBuilder')
-    @patch('galleria.orchestrator.serve.GalleriaHTTPServer')
-    def test_execute_handles_configuration_errors_gracefully(self, mock_server, mock_builder, mock_config):
+    @patch("galleria.orchestrator.serve.ConfigManager")
+    @patch("galleria.orchestrator.serve.GalleriaBuilder")
+    @patch("galleria.orchestrator.serve.GalleriaHTTPServer")
+    def test_execute_handles_configuration_errors_gracefully(
+        self, mock_server, mock_builder, mock_config
+    ):
         """execute() raises ServeError when configuration loading fails."""
         # Arrange
         config_path = Path("/test/config/galleria.json")
         mock_config_manager = mock_config.return_value
-        mock_config_manager.load_galleria_config.side_effect = Exception("Config not found")
+        mock_config_manager.load_galleria_config.side_effect = Exception(
+            "Config not found"
+        )
 
         orchestrator = ServeOrchestrator()
 
@@ -257,11 +279,13 @@ class TestServeOrchestrator:
         with pytest.raises(Exception, match="Config not found"):
             orchestrator.execute(config_path)
 
-    @patch('galleria.orchestrator.serve.ConfigManager')
-    @patch('galleria.orchestrator.serve.GalleriaBuilder')
-    @patch('galleria.orchestrator.serve.GalleriaHTTPServer')
-    @patch('galleria.orchestrator.serve.FileWatcher')
-    def test_execute_extracts_output_directory_from_config(self, mock_watcher, mock_server, mock_builder, mock_config):
+    @patch("galleria.orchestrator.serve.ConfigManager")
+    @patch("galleria.orchestrator.serve.GalleriaBuilder")
+    @patch("galleria.orchestrator.serve.GalleriaHTTPServer")
+    @patch("galleria.orchestrator.serve.FileWatcher")
+    def test_execute_extracts_output_directory_from_config(
+        self, mock_watcher, mock_server, mock_builder, mock_config
+    ):
         """execute() extracts output directory from galleria config for server."""
         # Arrange
         config_path = Path("/test/config/galleria.json")
@@ -269,7 +293,7 @@ class TestServeOrchestrator:
         mock_config_manager = mock_config.return_value
         mock_galleria_config = {
             "output_dir": str(expected_output_dir),
-            "manifest_path": "/test/manifest.json"
+            "manifest_path": "/test/manifest.json",
         }
         mock_config_manager.load_galleria_config.return_value = mock_galleria_config
 
@@ -281,11 +305,13 @@ class TestServeOrchestrator:
         # Assert
         mock_server.assert_called_once_with(expected_output_dir, "127.0.0.1", 8000)
 
-    @patch('galleria.orchestrator.serve.ConfigManager')
-    @patch('galleria.orchestrator.serve.GalleriaBuilder')
-    @patch('galleria.orchestrator.serve.GalleriaHTTPServer')
-    @patch('galleria.orchestrator.serve.FileWatcher')
-    def test_execute_extracts_manifest_path_from_config_for_watching(self, mock_watcher, mock_server, mock_builder, mock_config):
+    @patch("galleria.orchestrator.serve.ConfigManager")
+    @patch("galleria.orchestrator.serve.GalleriaBuilder")
+    @patch("galleria.orchestrator.serve.GalleriaHTTPServer")
+    @patch("galleria.orchestrator.serve.FileWatcher")
+    def test_execute_extracts_manifest_path_from_config_for_watching(
+        self, mock_watcher, mock_server, mock_builder, mock_config
+    ):
         """execute() extracts manifest path from config to add to file watcher."""
         # Arrange
         config_path = Path("/test/config/galleria.json")
@@ -293,7 +319,7 @@ class TestServeOrchestrator:
         mock_config_manager = mock_config.return_value
         mock_galleria_config = {
             "manifest_path": str(expected_manifest_path),
-            "output_dir": "/test/output"
+            "output_dir": "/test/output",
         }
         mock_config_manager.load_galleria_config.return_value = mock_galleria_config
 
@@ -307,18 +333,20 @@ class TestServeOrchestrator:
         call_args = mock_watcher.call_args
         assert call_args[0][0] == expected_watched_paths
 
-    @patch('galleria.orchestrator.serve.ConfigManager')
-    @patch('galleria.orchestrator.serve.GalleriaBuilder')
-    @patch('galleria.orchestrator.serve.GalleriaHTTPServer')
-    @patch('galleria.orchestrator.serve.FileWatcher')
-    def test_execute_graceful_shutdown_stops_watcher_and_server(self, mock_watcher, mock_server, mock_builder, mock_config):
+    @patch("galleria.orchestrator.serve.ConfigManager")
+    @patch("galleria.orchestrator.serve.GalleriaBuilder")
+    @patch("galleria.orchestrator.serve.GalleriaHTTPServer")
+    @patch("galleria.orchestrator.serve.FileWatcher")
+    def test_execute_graceful_shutdown_stops_watcher_and_server(
+        self, mock_watcher, mock_server, mock_builder, mock_config
+    ):
         """execute() stops file watcher and HTTP server on shutdown."""
         # Arrange
         config_path = Path("/test/config/galleria.json")
         mock_config_manager = mock_config.return_value
         mock_galleria_config = {
             "output_dir": "/test/output",
-            "manifest_path": "/test/manifest.json"
+            "manifest_path": "/test/manifest.json",
         }
         mock_config_manager.load_galleria_config.return_value = mock_galleria_config
         mock_file_watcher = mock_watcher.return_value

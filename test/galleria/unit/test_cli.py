@@ -17,11 +17,13 @@ class TestGalleriaCLI:
         # Arrange
         runner = CliRunner()
         manifest_path = tmp_path / "manifest.json"
-        manifest_path.write_text('{"version": "0.1.0", "collection_name": "test", "pics": []}')
+        manifest_path.write_text(
+            '{"version": "0.1.0", "collection_name": "test", "pics": []}'
+        )
 
         config_data = {
             "manifest_path": str(manifest_path),
-            "output_dir": str(tmp_path / "output")
+            "output_dir": str(tmp_path / "output"),
         }
 
         config_path = tmp_path / "config.json"
@@ -34,26 +36,26 @@ class TestGalleriaCLI:
                 "collection_name": "test",
                 "html_files": [
                     {"filename": "page_1.html", "content": "<html>Page 1</html>"},
-                    {"filename": "page_2.html", "content": "<html>Page 2</html>"}
+                    {"filename": "page_2.html", "content": "<html>Page 2</html>"},
                 ],
                 "css_files": [
                     {"filename": "gallery.css", "content": ".gallery {}"},
-                    {"filename": "theme.css", "content": ".theme {}"}
+                    {"filename": "theme.css", "content": ".theme {}"},
                 ],
-                "thumbnail_count": 5
+                "thumbnail_count": 5,
             },
             errors=[],
-            metadata={}
+            metadata={},
         )
 
-        with patch('galleria.__main__.PipelineManager') as mock_pipeline_class:
+        with patch("galleria.__main__.PipelineManager") as mock_pipeline_class:
             mock_pipeline = Mock()
             mock_pipeline_class.return_value = mock_pipeline
             mock_pipeline.execute_stages.return_value = mock_result
             mock_pipeline.registry.register = Mock()
 
             # Act
-            result = runner.invoke(cli, ['generate', '--config', str(config_path)])
+            result = runner.invoke(cli, ["generate", "--config", str(config_path)])
 
             # Assert
             assert result.exit_code == 0
@@ -63,7 +65,9 @@ class TestGalleriaCLI:
             assert "Processed 5 thumbnails" in result.output
 
             # Verify pipeline was configured correctly
-            mock_pipeline.registry.register.assert_any_call(mock_pipeline.registry.register.call_args_list[0][0][0], "provider")
+            mock_pipeline.registry.register.assert_any_call(
+                mock_pipeline.registry.register.call_args_list[0][0][0], "provider"
+            )
             mock_pipeline.execute_stages.assert_called_once()
 
     def test_generate_command_pipeline_failure(self, tmp_path):
@@ -71,11 +75,13 @@ class TestGalleriaCLI:
         # Arrange
         runner = CliRunner()
         manifest_path = tmp_path / "manifest.json"
-        manifest_path.write_text('{"version": "0.1.0", "collection_name": "test", "pics": []}')
+        manifest_path.write_text(
+            '{"version": "0.1.0", "collection_name": "test", "pics": []}'
+        )
 
         config_data = {
             "manifest_path": str(manifest_path),
-            "output_dir": str(tmp_path / "output")
+            "output_dir": str(tmp_path / "output"),
         }
 
         config_path = tmp_path / "config.json"
@@ -86,17 +92,17 @@ class TestGalleriaCLI:
             success=False,
             output_data={},
             errors=["Provider plugin failed", "Invalid manifest format"],
-            metadata={}
+            metadata={},
         )
 
-        with patch('galleria.__main__.PipelineManager') as mock_pipeline_class:
+        with patch("galleria.__main__.PipelineManager") as mock_pipeline_class:
             mock_pipeline = Mock()
             mock_pipeline_class.return_value = mock_pipeline
             mock_pipeline.execute_stages.return_value = mock_result
             mock_pipeline.registry.register = Mock()
 
             # Act
-            result = runner.invoke(cli, ['generate', '--config', str(config_path)])
+            result = runner.invoke(cli, ["generate", "--config", str(config_path)])
 
             # Assert
             assert result.exit_code == 1
@@ -109,11 +115,13 @@ class TestGalleriaCLI:
         # Arrange
         runner = CliRunner()
         manifest_path = tmp_path / "manifest.json"
-        manifest_path.write_text('{"version": "0.1.0", "collection_name": "test", "pics": []}')
+        manifest_path.write_text(
+            '{"version": "0.1.0", "collection_name": "test", "pics": []}'
+        )
 
         config_data = {
             "manifest_path": str(manifest_path),
-            "output_dir": str(tmp_path / "output")
+            "output_dir": str(tmp_path / "output"),
         }
 
         config_path = tmp_path / "config.json"
@@ -123,17 +131,19 @@ class TestGalleriaCLI:
             success=True,
             output_data={"collection_name": "test"},
             errors=[],
-            metadata={}
+            metadata={},
         )
 
-        with patch('galleria.__main__.PipelineManager') as mock_pipeline_class:
+        with patch("galleria.__main__.PipelineManager") as mock_pipeline_class:
             mock_pipeline = Mock()
             mock_pipeline_class.return_value = mock_pipeline
             mock_pipeline.execute_stages.return_value = mock_result
             mock_pipeline.registry.register = Mock()
 
             # Act
-            result = runner.invoke(cli, ['generate', '--config', str(config_path), '--verbose'])
+            result = runner.invoke(
+                cli, ["generate", "--config", str(config_path), "--verbose"]
+            )
 
             # Assert
             assert result.exit_code == 0
@@ -150,11 +160,13 @@ class TestGalleriaCLI:
         # Arrange
         runner = CliRunner()
         manifest_path = tmp_path / "manifest.json"
-        manifest_path.write_text('{"version": "0.1.0", "collection_name": "test", "pics": []}')
+        manifest_path.write_text(
+            '{"version": "0.1.0", "collection_name": "test", "pics": []}'
+        )
 
         config_data = {
             "manifest_path": str(manifest_path),
-            "output_dir": str(tmp_path / "original_output")
+            "output_dir": str(tmp_path / "original_output"),
         }
 
         config_path = tmp_path / "config.json"
@@ -165,22 +177,27 @@ class TestGalleriaCLI:
             success=True,
             output_data={"collection_name": "test"},
             errors=[],
-            metadata={}
+            metadata={},
         )
 
-        with patch('galleria.__main__.PipelineManager') as mock_pipeline_class:
+        with patch("galleria.__main__.PipelineManager") as mock_pipeline_class:
             mock_pipeline = Mock()
             mock_pipeline_class.return_value = mock_pipeline
             mock_pipeline.execute_stages.return_value = mock_result
             mock_pipeline.registry.register = Mock()
 
             # Act
-            result = runner.invoke(cli, [
-                'generate',
-                '--config', str(config_path),
-                '--output', str(override_output),
-                '--verbose'
-            ])
+            result = runner.invoke(
+                cli,
+                [
+                    "generate",
+                    "--config",
+                    str(config_path),
+                    "--output",
+                    str(override_output),
+                    "--verbose",
+                ],
+            )
 
             # Assert
             assert result.exit_code == 0
@@ -206,7 +223,7 @@ class TestGalleriaCLI:
         config_path.write_text(json.dumps(config_data))
 
         # Act
-        result = runner.invoke(cli, ['generate', '--config', str(config_path)])
+        result = runner.invoke(cli, ["generate", "--config", str(config_path)])
 
         # Assert
         assert result.exit_code == 1
@@ -218,14 +235,14 @@ class TestGalleriaCLI:
 
         config_data = {
             "manifest_path": str(tmp_path / "missing_manifest.json"),
-            "output_dir": str(tmp_path / "output")
+            "output_dir": str(tmp_path / "output"),
         }
 
         config_path = tmp_path / "config.json"
         config_path.write_text(json.dumps(config_data))
 
         # Act
-        result = runner.invoke(cli, ['generate', '--config', str(config_path)])
+        result = runner.invoke(cli, ["generate", "--config", str(config_path)])
 
         # Assert
         assert result.exit_code == 1
@@ -236,25 +253,31 @@ class TestGalleriaCLI:
         # Arrange
         runner = CliRunner()
         manifest_path = tmp_path / "manifest.json"
-        manifest_path.write_text('{"version": "0.1.0", "collection_name": "test", "pics": []}')
+        manifest_path.write_text(
+            '{"version": "0.1.0", "collection_name": "test", "pics": []}'
+        )
 
         config_data = {
             "manifest_path": str(manifest_path),
-            "output_dir": str(tmp_path / "output")
+            "output_dir": str(tmp_path / "output"),
         }
 
         config_path = tmp_path / "config.json"
         config_path.write_text(json.dumps(config_data))
 
-        with patch('galleria.__main__.PipelineManager') as mock_pipeline_class:
+        with patch("galleria.__main__.PipelineManager") as mock_pipeline_class:
             mock_pipeline = Mock()
             mock_pipeline_class.return_value = mock_pipeline
-            mock_pipeline.execute_stages.side_effect = Exception("Unexpected pipeline error")
+            mock_pipeline.execute_stages.side_effect = Exception(
+                "Unexpected pipeline error"
+            )
             mock_pipeline.registry.register = Mock()
 
             # Act
-            result = runner.invoke(cli, ['generate', '--config', str(config_path)])
+            result = runner.invoke(cli, ["generate", "--config", str(config_path)])
 
             # Assert
             assert result.exit_code == 1
-            assert "Pipeline execution error: Unexpected pipeline error" in result.output
+            assert (
+                "Pipeline execution error: Unexpected pipeline error" in result.output
+            )

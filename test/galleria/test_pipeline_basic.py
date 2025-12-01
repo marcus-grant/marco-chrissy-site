@@ -1,7 +1,6 @@
 """Basic unit tests for PipelineManager - just initialization."""
 
 
-
 class TestPipelineManagerBasic:
     """Basic tests for PipelineManager initialization."""
 
@@ -33,7 +32,7 @@ class TestPipelineManagerBasic:
                 return PluginResult(
                     success=True,
                     output_data={"processed": True},
-                    metadata={"stage": "provider"}
+                    metadata={"stage": "provider"},
                 )
 
         # Setup registry with mock plugin
@@ -44,10 +43,7 @@ class TestPipelineManagerBasic:
         # Setup manager and context
         manager = PipelineManager(registry=registry)
         context = PluginContext(
-            input_data={},
-            config={},
-            output_dir=Path("/tmp/test"),
-            metadata={}
+            input_data={}, config={}, output_dir=Path("/tmp/test"), metadata={}
         )
 
         # This should execute the plugin
@@ -69,10 +65,7 @@ class TestPipelineManagerBasic:
         manager = PipelineManager(registry=registry)
 
         context = PluginContext(
-            input_data={},
-            config={},
-            output_dir=Path("/tmp/test"),
-            metadata={}
+            input_data={}, config={}, output_dir=Path("/tmp/test"), metadata={}
         )
 
         # This should handle missing plugin gracefully
@@ -102,7 +95,7 @@ class TestPipelineManagerBasic:
                 return PluginResult(
                     success=True,
                     output_data={"photos": ["photo1.jpg", "photo2.jpg"]},
-                    metadata={"stage": "provider"}
+                    metadata={"stage": "provider"},
                 )
 
         class ProcessorPlugin(BasePlugin):
@@ -119,7 +112,7 @@ class TestPipelineManagerBasic:
                 return PluginResult(
                     success=True,
                     output_data={"thumbnails": [f"{p}.webp" for p in photos]},
-                    metadata={"stage": "processor"}
+                    metadata={"stage": "processor"},
                 )
 
         # Setup registry with plugins
@@ -133,14 +126,11 @@ class TestPipelineManagerBasic:
         manager = PipelineManager(registry=registry)
         stages = [
             {"stage": "provider", "plugin": "provider"},
-            {"stage": "processor", "plugin": "processor"}
+            {"stage": "processor", "plugin": "processor"},
         ]
 
         initial_context = PluginContext(
-            input_data={},
-            config={},
-            output_dir=Path("/tmp/test"),
-            metadata={}
+            input_data={}, config={}, output_dir=Path("/tmp/test"), metadata={}
         )
 
         # This should execute Provider → Processor pipeline
@@ -169,9 +159,7 @@ class TestPipelineManagerBasic:
 
             def execute(self, context):
                 return PluginResult(
-                    success=False,
-                    output_data={},
-                    errors=["Simulated failure"]
+                    success=False, output_data={}, errors=["Simulated failure"]
                 )
 
         # Setup registry
@@ -183,10 +171,7 @@ class TestPipelineManagerBasic:
         stages = [{"stage": "provider", "plugin": "failing"}]
 
         initial_context = PluginContext(
-            input_data={},
-            config={},
-            output_dir=Path("/tmp/test"),
-            metadata={}
+            input_data={}, config={}, output_dir=Path("/tmp/test"), metadata={}
         )
 
         # This should handle failure gracefully
@@ -215,8 +200,11 @@ class TestPipelineManagerBasic:
             def execute(self, context):
                 return PluginResult(
                     success=True,
-                    output_data={"collection_name": "test", "photos": [{"filename": "test.jpg"}]},
-                    metadata={"stage": "provider"}
+                    output_data={
+                        "collection_name": "test",
+                        "photos": [{"filename": "test.jpg"}],
+                    },
+                    metadata={"stage": "provider"},
                 )
 
         class MockProcessorPlugin(BasePlugin):
@@ -232,8 +220,11 @@ class TestPipelineManagerBasic:
                 photos = context.input_data.get("photos", [])
                 return PluginResult(
                     success=True,
-                    output_data={"collection_name": context.input_data["collection_name"], "photos": photos},
-                    metadata={"stage": "processor"}
+                    output_data={
+                        "collection_name": context.input_data["collection_name"],
+                        "photos": photos,
+                    },
+                    metadata={"stage": "processor"},
                 )
 
         # Setup registry with plugins
@@ -247,9 +238,11 @@ class TestPipelineManagerBasic:
         manager = PipelineManager(registry=registry)
 
         # This should execute complete manifest-to-thumbnails workflow
-        result = manager.execute_workflow("manifest-to-thumbnails",
-                                        manifest_path=Path("/tmp/manifest.json"),
-                                        output_dir=Path("/tmp/output"))
+        result = manager.execute_workflow(
+            "manifest-to-thumbnails",
+            manifest_path=Path("/tmp/manifest.json"),
+            output_dir=Path("/tmp/output"),
+        )
 
         assert result.success is True
         assert "collection_name" in result.output_data
@@ -266,9 +259,11 @@ class TestPipelineManagerBasic:
         manager = PipelineManager(registry=registry)
 
         # This should handle unknown workflow gracefully
-        result = manager.execute_workflow("unknown-workflow",
-                                        manifest_path=Path("/tmp/test.json"),
-                                        output_dir=Path("/tmp/output"))
+        result = manager.execute_workflow(
+            "unknown-workflow",
+            manifest_path=Path("/tmp/test.json"),
+            output_dir=Path("/tmp/output"),
+        )
 
         assert result.success is False
         assert "Unknown workflow" in str(result.errors)

@@ -107,4 +107,3 @@ class TestPhotoCollectionIntegration:
 
         with pytest.raises(ManifestNotFoundError):
             load_photo_collection(str(missing_path))
-

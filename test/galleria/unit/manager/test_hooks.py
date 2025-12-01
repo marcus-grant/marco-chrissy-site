@@ -43,11 +43,7 @@ class TestPluginHookManager:
         assert "test_hook" in manager.list_hooks()
 
         # Execute and verify both callbacks run
-        context = PluginContext(
-            input_data="test",
-            config={},
-            output_dir=Path("/tmp")
-        )
+        context = PluginContext(input_data="test", config={}, output_dir=Path("/tmp"))
         results = manager.execute_hook("test_hook", context)
 
         assert len(results) == 2
@@ -58,11 +54,7 @@ class TestPluginHookManager:
         """execute_hook returns empty list for unregistered hook."""
         manager = PluginHookManager()
 
-        context = PluginContext(
-            input_data="test",
-            config={},
-            output_dir=Path("/tmp")
-        )
+        context = PluginContext(input_data="test", config={}, output_dir=Path("/tmp"))
         results = manager.execute_hook("nonexistent_hook", context)
 
         assert results == []
@@ -82,7 +74,7 @@ class TestPluginHookManager:
         test_context = PluginContext(
             input_data={"key": "value"},
             config={"setting": "test"},
-            output_dir=Path("/test/path")
+            output_dir=Path("/test/path"),
         )
 
         manager.execute_hook("test_hook", test_context)
@@ -98,18 +90,12 @@ class TestPluginHookManager:
 
         def test_callback(context: PluginContext) -> PluginResult:
             return PluginResult(
-                success=True,
-                output_data="processed",
-                metadata={"hook": "executed"}
+                success=True, output_data="processed", metadata={"hook": "executed"}
             )
 
         manager.register_hook("test_hook", test_callback)
 
-        context = PluginContext(
-            input_data="input",
-            config={},
-            output_dir=Path("/tmp")
-        )
+        context = PluginContext(input_data="input", config={}, output_dir=Path("/tmp"))
         results = manager.execute_hook("test_hook", context)
 
         assert len(results) == 1
@@ -139,11 +125,7 @@ class TestPluginHookManager:
         manager.register_hook("ordered_hook", callback2)
         manager.register_hook("ordered_hook", callback3)
 
-        context = PluginContext(
-            input_data="test",
-            config={},
-            output_dir=Path("/tmp")
-        )
+        context = PluginContext(input_data="test", config={}, output_dir=Path("/tmp"))
         results = manager.execute_hook("ordered_hook", context)
 
         # Verify execution order
@@ -181,11 +163,7 @@ class TestPluginHookManager:
         manager.register_hook("test_hook", failing_callback)
         manager.register_hook("test_hook", working_callback)
 
-        context = PluginContext(
-            input_data="test",
-            config={},
-            output_dir=Path("/tmp")
-        )
+        context = PluginContext(input_data="test", config={}, output_dir=Path("/tmp"))
 
         # This test documents current behavior - we may want to improve error handling later
         try:
@@ -205,11 +183,16 @@ class TestPluginHookManager:
 
         # Register all standard hooks
         standard_hooks = [
-            "before_provider", "after_provider",
-            "before_processor", "after_processor",
-            "before_transform", "after_transform",
-            "before_template", "after_template",
-            "before_css", "after_css"
+            "before_provider",
+            "after_provider",
+            "before_processor",
+            "after_processor",
+            "before_transform",
+            "after_transform",
+            "before_template",
+            "after_template",
+            "before_css",
+            "after_css",
         ]
 
         for hook_name in standard_hooks:
@@ -220,11 +203,7 @@ class TestPluginHookManager:
         assert registered_hooks == set(standard_hooks)
 
         # Verify each hook can be executed
-        context = PluginContext(
-            input_data="test",
-            config={},
-            output_dir=Path("/tmp")
-        )
+        context = PluginContext(input_data="test", config={}, output_dir=Path("/tmp"))
 
         for hook_name in standard_hooks:
             results = manager.execute_hook(hook_name, context)

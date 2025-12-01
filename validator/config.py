@@ -10,6 +10,7 @@ from serializer.json import JsonConfigLoader
 @dataclass
 class ValidationResult:
     """Result of validation operation."""
+
     success: bool
     errors: list[str]
 
@@ -24,7 +25,7 @@ class ConfigValidator:
             "config/site.json": "config/schema/site.json",
             "config/normpic.json": "config/schema/normpic.json",
             "config/pelican.json": "config/schema/pelican.json",
-            "config/galleria.json": "config/schema/galleria.json"
+            "config/galleria.json": "config/schema/galleria.json",
         }
 
     def validate_config_files(self) -> ValidationResult:
@@ -60,7 +61,4 @@ class ConfigValidator:
             except Exception as e:
                 errors.append(f"Unexpected error validating {config_file}: {e}")
 
-        return ValidationResult(
-            success=len(errors) == 0,
-            errors=errors
-        )
+        return ValidationResult(success=len(errors) == 0, errors=errors)

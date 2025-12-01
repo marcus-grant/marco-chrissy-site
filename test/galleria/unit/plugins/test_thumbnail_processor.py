@@ -10,7 +10,9 @@ from galleria.plugins import PluginContext
 class TestThumbnailProcessorPlugin:
     """Unit tests for ThumbnailProcessorPlugin.process_thumbnails() method."""
 
-    def test_process_thumbnails_returns_success_with_valid_provider_data(self, tmp_path):
+    def test_process_thumbnails_returns_success_with_valid_provider_data(
+        self, tmp_path
+    ):
         """Test that process_thumbnails returns PluginResult with success=True for valid input."""
         # This import will FAIL initially - expected for TDD red phase
         from galleria.plugins.processors.thumbnail import ThumbnailProcessorPlugin
@@ -19,8 +21,8 @@ class TestThumbnailProcessorPlugin:
         source_dir = tmp_path / "source"
         source_dir.mkdir()
         img_path = source_dir / "IMG_001.jpg"
-        img = Image.new('RGB', (800, 600), color='red')
-        img.save(img_path, 'JPEG')
+        img = Image.new("RGB", (800, 600), color="red")
+        img.save(img_path, "JPEG")
 
         # Arrange: Valid provider plugin output format
         provider_data = {
@@ -31,17 +33,17 @@ class TestThumbnailProcessorPlugin:
                     "metadata": {
                         "hash": "abc123",
                         "size_bytes": 1000000,
-                        "mtime": 1635789012.34
-                    }
+                        "mtime": 1635789012.34,
+                    },
                 }
             ],
-            "collection_name": "test_collection"
+            "collection_name": "test_collection",
         }
 
         context = PluginContext(
             input_data=provider_data,
             config={"thumbnail_size": 300, "quality": 80},
-            output_dir=tmp_path / "output"
+            output_dir=tmp_path / "output",
         )
 
         # Act
@@ -52,7 +54,9 @@ class TestThumbnailProcessorPlugin:
         assert result.success is True
         assert result.errors == []
 
-    def test_process_thumbnails_returns_required_processor_contract_fields(self, tmp_path):
+    def test_process_thumbnails_returns_required_processor_contract_fields(
+        self, tmp_path
+    ):
         """Test that process_thumbnails returns all required ProcessorPlugin contract fields."""
         from galleria.plugins.processors.thumbnail import ThumbnailProcessorPlugin
 
@@ -60,8 +64,8 @@ class TestThumbnailProcessorPlugin:
         source_dir = tmp_path / "source"
         source_dir.mkdir()
         img_path = source_dir / "IMG_001.jpg"
-        img = Image.new('RGB', (1200, 800), color='blue')
-        img.save(img_path, 'JPEG')
+        img = Image.new("RGB", (1200, 800), color="blue")
+        img.save(img_path, "JPEG")
 
         provider_data = {
             "photos": [
@@ -72,18 +76,18 @@ class TestThumbnailProcessorPlugin:
                         "hash": "hash123",
                         "size_bytes": 2000000,
                         "mtime": 1635789015.67,
-                        "camera": "Canon EOS R5"
-                    }
+                        "camera": "Canon EOS R5",
+                    },
                 }
             ],
             "collection_name": "wedding_photos",
-            "collection_description": "Wedding photos"
+            "collection_description": "Wedding photos",
         }
 
         context = PluginContext(
             input_data=provider_data,
             config={"thumbnail_size": 400},
-            output_dir=tmp_path / "output"
+            output_dir=tmp_path / "output",
         )
 
         # Act
@@ -106,8 +110,8 @@ class TestThumbnailProcessorPlugin:
         source_dir = tmp_path / "source"
         source_dir.mkdir()
         img_path = source_dir / "IMG_001.jpg"
-        img = Image.new('RGB', (1000, 1000), color='green')
-        img.save(img_path, 'JPEG')
+        img = Image.new("RGB", (1000, 1000), color="green")
+        img.save(img_path, "JPEG")
 
         provider_data = {
             "photos": [
@@ -118,17 +122,17 @@ class TestThumbnailProcessorPlugin:
                         "hash": "abc123def456",
                         "size_bytes": 25000000,
                         "mtime": 1635789012.34,
-                        "camera": "Sony A7R IV"
-                    }
+                        "camera": "Sony A7R IV",
+                    },
                 }
             ],
-            "collection_name": "test"
+            "collection_name": "test",
         }
 
         context = PluginContext(
             input_data=provider_data,
             config={"thumbnail_size": 350, "quality": 75},
-            output_dir=tmp_path / "output"
+            output_dir=tmp_path / "output",
         )
 
         # Act
@@ -163,16 +167,16 @@ class TestThumbnailProcessorPlugin:
                 {
                     "source_path": "/nonexistent/IMG_001.jpg",
                     "dest_path": "test/IMG_001.jpg",
-                    "metadata": {"hash": "abc123"}
+                    "metadata": {"hash": "abc123"},
                 }
             ],
-            "collection_name": "test"
+            "collection_name": "test",
         }
 
         context = PluginContext(
             input_data=provider_data,
             config={"thumbnail_size": 300},
-            output_dir=tmp_path / "output"
+            output_dir=tmp_path / "output",
         )
 
         # Act
@@ -180,7 +184,9 @@ class TestThumbnailProcessorPlugin:
         result = plugin.process_thumbnails(context)
 
         # Assert: Should continue processing with error info
-        assert result.success is True  # Plugin continues despite individual photo errors
+        assert (
+            result.success is True
+        )  # Plugin continues despite individual photo errors
         photo = result.output_data["photos"][0]
 
         # Original data preserved
@@ -202,9 +208,7 @@ class TestThumbnailProcessorPlugin:
         }
 
         context = PluginContext(
-            input_data=invalid_data,
-            config={},
-            output_dir=tmp_path / "output"
+            input_data=invalid_data, config={}, output_dir=tmp_path / "output"
         )
 
         # Act
@@ -226,16 +230,14 @@ class TestThumbnailProcessorPlugin:
                 {
                     "source_path": "/test/IMG_001.jpg",
                     "dest_path": "test/IMG_001.jpg",
-                    "metadata": {"hash": "abc123"}
+                    "metadata": {"hash": "abc123"},
                 }
             ]
             # Missing collection_name
         }
 
         context = PluginContext(
-            input_data=invalid_data,
-            config={},
-            output_dir=tmp_path / "output"
+            input_data=invalid_data, config={}, output_dir=tmp_path / "output"
         )
 
         # Act
@@ -254,29 +256,25 @@ class TestThumbnailProcessorPlugin:
         source_dir = tmp_path / "source"
         source_dir.mkdir()
         img_path = source_dir / "IMG_001.jpg"
-        img = Image.new('RGB', (1600, 1200), color='yellow')
-        img.save(img_path, 'JPEG')
+        img = Image.new("RGB", (1600, 1200), color="yellow")
+        img.save(img_path, "JPEG")
 
         provider_data = {
             "photos": [
                 {
                     "source_path": str(img_path),
                     "dest_path": "test/IMG_001.jpg",
-                    "metadata": {"hash": "config123"}
+                    "metadata": {"hash": "config123"},
                 }
             ],
-            "collection_name": "config_test"
+            "collection_name": "config_test",
         }
 
         # Test custom configuration
         context = PluginContext(
             input_data=provider_data,
-            config={
-                "thumbnail_size": 500,
-                "quality": 95,
-                "output_format": "webp"
-            },
-            output_dir=tmp_path / "output"
+            config={"thumbnail_size": 500, "quality": 95, "output_format": "webp"},
+            output_dir=tmp_path / "output",
         )
 
         # Act
@@ -305,29 +303,29 @@ class TestThumbnailProcessorPlugin:
         thumbnails_dir.mkdir(parents=True)
 
         img_path = source_dir / "IMG_001.jpg"
-        img = Image.new('RGB', (800, 600), color='purple')
-        img.save(img_path, 'JPEG')
+        img = Image.new("RGB", (800, 600), color="purple")
+        img.save(img_path, "JPEG")
 
         # Create existing thumbnail (simulate previous processing)
         existing_thumb = thumbnails_dir / "IMG_001.webp"
-        thumb = Image.new('RGB', (300, 300), color='purple')
-        thumb.save(existing_thumb, 'WEBP')
+        thumb = Image.new("RGB", (300, 300), color="purple")
+        thumb.save(existing_thumb, "WEBP")
 
         provider_data = {
             "photos": [
                 {
                     "source_path": str(img_path),
                     "dest_path": "test/IMG_001.jpg",
-                    "metadata": {"hash": "cache123"}
+                    "metadata": {"hash": "cache123"},
                 }
             ],
-            "collection_name": "cache_test"
+            "collection_name": "cache_test",
         }
 
         context = PluginContext(
             input_data=provider_data,
             config={"thumbnail_size": 300, "use_cache": True},
-            output_dir=output_dir
+            output_dir=output_dir,
         )
 
         # Act
@@ -356,16 +354,16 @@ class TestThumbnailProcessorPlugin:
                 {
                     "source_path": str(corrupted_img),
                     "dest_path": "test/corrupted.jpg",
-                    "metadata": {"hash": "corrupted123"}
+                    "metadata": {"hash": "corrupted123"},
                 }
             ],
-            "collection_name": "corruption_test"
+            "collection_name": "corruption_test",
         }
 
         context = PluginContext(
             input_data=provider_data,
             config={"thumbnail_size": 300},
-            output_dir=tmp_path / "output"
+            output_dir=tmp_path / "output",
         )
 
         # Act
@@ -386,8 +384,8 @@ class TestThumbnailProcessorPlugin:
         plugin = ThumbnailProcessorPlugin()
 
         # Assert: BasePlugin interface requirements
-        assert hasattr(plugin, 'name')
-        assert hasattr(plugin, 'version')
+        assert hasattr(plugin, "name")
+        assert hasattr(plugin, "version")
         assert isinstance(plugin.name, str)
         assert isinstance(plugin.version, str)
         assert len(plugin.name) > 0
@@ -401,8 +399,8 @@ class TestThumbnailProcessorPlugin:
         source_dir = tmp_path / "source"
         source_dir.mkdir()
         img_path = source_dir / "IMG_001.jpg"
-        img = Image.new('RGB', (1200, 900), color='orange')
-        img.save(img_path, 'JPEG')
+        img = Image.new("RGB", (1200, 900), color="orange")
+        img.save(img_path, "JPEG")
 
         # Provider data with all optional fields
         provider_data = {
@@ -416,19 +414,19 @@ class TestThumbnailProcessorPlugin:
                         "mtime": 1635789012.34,
                         "camera": "Nikon D850",
                         "gps": {"lat": 37.7749, "lon": -122.4194},
-                        "custom_field": "custom_value"
-                    }
+                        "custom_field": "custom_value",
+                    },
                 }
             ],
             "collection_name": "preservation_test",
             "collection_description": "Test preserving data",
-            "manifest_version": "0.1.0"
+            "manifest_version": "0.1.0",
         }
 
         context = PluginContext(
             input_data=provider_data,
             config={"thumbnail_size": 250},
-            output_dir=tmp_path / "output"
+            output_dir=tmp_path / "output",
         )
 
         # Act

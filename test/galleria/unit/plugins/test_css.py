@@ -22,7 +22,9 @@ class ConcreteCSSPlugin(CSSPlugin):
         return PluginResult(
             success=True,
             output_data={
-                "css_files": [{"filename": "gallery.css", "content": "body { margin: 0; }"}],
+                "css_files": [
+                    {"filename": "gallery.css", "content": "body { margin: 0; }"}
+                ],
                 "html_files": context.input_data.get("html_files", []),
                 "collection_name": context.input_data.get("collection_name", "test"),
                 "css_count": 1,
@@ -56,6 +58,7 @@ class TestCSSPluginInterface:
             @property
             def version(self) -> str:
                 return "1.0.0"
+
             # Missing generate_css implementation
 
         # Should not be able to instantiate without generate_css
@@ -91,8 +94,16 @@ class TestCSSPluginInterface:
         template_context = PluginContext(
             input_data={
                 "html_files": [
-                    {"filename": "page_1.html", "content": "<html></html>", "page_number": 1},
-                    {"filename": "page_2.html", "content": "<html></html>", "page_number": 2},
+                    {
+                        "filename": "page_1.html",
+                        "content": "<html></html>",
+                        "page_number": 1,
+                    },
+                    {
+                        "filename": "page_2.html",
+                        "content": "<html></html>",
+                        "page_number": 2,
+                    },
                 ],
                 "collection_name": "wedding",
                 "file_count": 2,
@@ -203,22 +214,25 @@ class TestCSSPluginValidation:
                     return PluginResult(
                         success=False,
                         output_data={},
-                        errors=["MISSING_COLLECTION_NAME: collection_name required"]
+                        errors=["MISSING_COLLECTION_NAME: collection_name required"],
                     )
 
                 if "html_files" not in context.input_data:
                     return PluginResult(
                         success=False,
                         output_data={},
-                        errors=["MISSING_HTML_FILES: html_files required"]
+                        errors=["MISSING_HTML_FILES: html_files required"],
                     )
 
-                return PluginResult(success=True, output_data={
-                    "css_files": [],
-                    "html_files": context.input_data["html_files"],
-                    "collection_name": context.input_data["collection_name"],
-                    "css_count": 0,
-                })
+                return PluginResult(
+                    success=True,
+                    output_data={
+                        "css_files": [],
+                        "html_files": context.input_data["html_files"],
+                        "collection_name": context.input_data["collection_name"],
+                        "css_count": 0,
+                    },
+                )
 
         plugin = ValidatingCSSPlugin()
 
@@ -265,15 +279,18 @@ class TestCSSPluginValidation:
                     return PluginResult(
                         success=False,
                         output_data={},
-                        errors=[f"INVALID_THEME: Unknown theme: {theme}"]
+                        errors=[f"INVALID_THEME: Unknown theme: {theme}"],
                     )
 
-                return PluginResult(success=True, output_data={
-                    "css_files": [],
-                    "html_files": [],
-                    "collection_name": "test",
-                    "css_count": 0,
-                })
+                return PluginResult(
+                    success=True,
+                    output_data={
+                        "css_files": [],
+                        "html_files": [],
+                        "collection_name": "test",
+                        "css_count": 0,
+                    },
+                )
 
         plugin = ConfigValidatingCSSPlugin()
 
@@ -302,12 +319,19 @@ class TestCSSPluginValidation:
             def generate_css(self, context: PluginContext) -> PluginResult:
                 # Generate very large CSS content (1MB)
                 large_css_content = "body { margin: 0; }\n" * 50000
-                return PluginResult(success=True, output_data={
-                    "css_files": [{"filename": "large.css", "content": large_css_content}],
-                    "html_files": context.input_data.get("html_files", []),
-                    "collection_name": context.input_data.get("collection_name", "test"),
-                    "css_count": 1,
-                })
+                return PluginResult(
+                    success=True,
+                    output_data={
+                        "css_files": [
+                            {"filename": "large.css", "content": large_css_content}
+                        ],
+                        "html_files": context.input_data.get("html_files", []),
+                        "collection_name": context.input_data.get(
+                            "collection_name", "test"
+                        ),
+                        "css_count": 1,
+                    },
+                )
 
         plugin = LargeContentCSSPlugin()
         context = PluginContext(
@@ -326,7 +350,9 @@ class TestCSSPluginValidation:
         # Content should be large but finite
         assert len(result.output_data["css_files"][0]["content"]) > 100000
 
-    def test_generate_css_with_malformed_content_structure(self, galleria_temp_filesystem):
+    def test_generate_css_with_malformed_content_structure(
+        self, galleria_temp_filesystem
+    ):
         """generate_css should handle malformed content structure gracefully."""
 
         class MalformedContentCSSPlugin(CSSPlugin):
@@ -340,16 +366,22 @@ class TestCSSPluginValidation:
 
             def generate_css(self, context: PluginContext) -> PluginResult:
                 # Test with various malformed content types
-                return PluginResult(success=True, output_data={
-                    "css_files": [
-                        {"filename": "test.css", "content": None},  # None content
-                        {"filename": "test2.css"},  # Missing content key
-                        {"filename": "test3.css", "content": 123},  # Non-string content
-                    ],
-                    "html_files": [],
-                    "collection_name": "malformed",
-                    "css_count": 3,
-                })
+                return PluginResult(
+                    success=True,
+                    output_data={
+                        "css_files": [
+                            {"filename": "test.css", "content": None},  # None content
+                            {"filename": "test2.css"},  # Missing content key
+                            {
+                                "filename": "test3.css",
+                                "content": 123,
+                            },  # Non-string content
+                        ],
+                        "html_files": [],
+                        "collection_name": "malformed",
+                        "css_count": 3,
+                    },
+                )
 
         plugin = MalformedContentCSSPlugin()
         context = PluginContext(

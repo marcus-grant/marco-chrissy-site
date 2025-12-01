@@ -23,14 +23,14 @@ class BasicCSSPlugin(CSSPlugin):
                 return PluginResult(
                     success=False,
                     output_data={},
-                    errors=["MISSING_COLLECTION_NAME: collection_name required"]
+                    errors=["MISSING_COLLECTION_NAME: collection_name required"],
                 )
 
             if "html_files" not in context.input_data:
                 return PluginResult(
                     success=False,
                     output_data={},
-                    errors=["MISSING_HTML_FILES: html_files required"]
+                    errors=["MISSING_HTML_FILES: html_files required"],
                 )
 
             # Get CSS and template configurations - support both nested and direct patterns
@@ -51,7 +51,7 @@ class BasicCSSPlugin(CSSPlugin):
                 return PluginResult(
                     success=False,
                     output_data={},
-                    errors=[f"INVALID_THEME: Unknown theme: {theme}"]
+                    errors=[f"INVALID_THEME: Unknown theme: {theme}"],
                 )
 
             collection_name = context.input_data["collection_name"]
@@ -62,29 +62,31 @@ class BasicCSSPlugin(CSSPlugin):
 
             # Main gallery CSS (needs layout from template config)
             gallery_css = self._generate_gallery_css(template_config)
-            css_files.append({
-                "filename": "gallery.css",
-                "content": gallery_css,
-                "type": "gallery"
-            })
+            css_files.append(
+                {"filename": "gallery.css", "content": gallery_css, "type": "gallery"}
+            )
 
             # Theme-specific CSS if theme is specified
             if theme:
                 theme_css = self._generate_theme_css(theme, context.config)
-                css_files.append({
-                    "filename": f"theme-{theme}.css",
-                    "content": theme_css,
-                    "type": "theme"
-                })
+                css_files.append(
+                    {
+                        "filename": f"theme-{theme}.css",
+                        "content": theme_css,
+                        "type": "theme",
+                    }
+                )
 
             # Responsive CSS if enabled
             if css_config.get("responsive", True):
                 responsive_css = self._generate_responsive_css(css_config)
-                css_files.append({
-                    "filename": "responsive.css",
-                    "content": responsive_css,
-                    "type": "responsive"
-                })
+                css_files.append(
+                    {
+                        "filename": "responsive.css",
+                        "content": responsive_css,
+                        "type": "responsive",
+                    }
+                )
 
             return PluginResult(
                 success=True,
@@ -92,15 +94,13 @@ class BasicCSSPlugin(CSSPlugin):
                     "css_files": css_files,
                     "html_files": html_files,  # Pass through from input
                     "collection_name": collection_name,
-                    "css_count": len(css_files)
-                }
+                    "css_count": len(css_files),
+                },
             )
 
         except Exception as e:
             return PluginResult(
-                success=False,
-                output_data={},
-                errors=[f"CSS_ERROR: {str(e)}"]
+                success=False, output_data={}, errors=[f"CSS_ERROR: {str(e)}"]
             )
 
     def _generate_gallery_css(self, config: dict) -> str:
@@ -284,7 +284,6 @@ footer {
     font-style: italic;
     padding: 3rem 0;
 }"""
-
 
     def _generate_theme_css(self, theme: str, config: dict) -> str:
         """Generate theme-specific CSS styles."""

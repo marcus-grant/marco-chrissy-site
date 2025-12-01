@@ -23,33 +23,45 @@ class TestConfigIntegration:
         shutil.copy("config/schema/galleria.json", schema_dir / "galleria.json")
 
         # Create valid config files that match our schemas
-        file_factory("config/site.json", json_content={
-            "output_dir": "output",
-            "cdn": {"photos": "photos.example.com", "site": "site.example.com"}
-        })
+        file_factory(
+            "config/site.json",
+            json_content={
+                "output_dir": "output",
+                "cdn": {"photos": "photos.example.com", "site": "site.example.com"},
+            },
+        )
 
-        file_factory("config/normpic.json", json_content={
-            "source_dir": "~/Pictures/wedding/full",
-            "dest_dir": "output/pics/full",
-            "collection_name": "wedding",
-            "create_symlinks": True
-        })
+        file_factory(
+            "config/normpic.json",
+            json_content={
+                "source_dir": "~/Pictures/wedding/full",
+                "dest_dir": "output/pics/full",
+                "collection_name": "wedding",
+                "create_symlinks": True,
+            },
+        )
 
-        file_factory("config/pelican.json", json_content={
-            "theme": "minimal",
-            "site_url": "https://example.com",
-            "author": "Test Author",
-            "sitename": "Test Site"
-        })
+        file_factory(
+            "config/pelican.json",
+            json_content={
+                "theme": "minimal",
+                "site_url": "https://example.com",
+                "author": "Test Author",
+                "sitename": "Test Site",
+            },
+        )
 
-        file_factory("config/galleria.json", json_content={
-            "manifest_path": "output/pics/full/manifest.json",
-            "output_dir": "output/galleries",
-            "thumbnail_size": 400,
-            "photos_per_page": 60,
-            "theme": "minimal",
-            "quality": 85
-        })
+        file_factory(
+            "config/galleria.json",
+            json_content={
+                "manifest_path": "output/pics/full/manifest.json",
+                "output_dir": "output/galleries",
+                "thumbnail_size": 400,
+                "photos_per_page": 60,
+                "theme": "minimal",
+                "quality": 85,
+            },
+        )
 
         # Change to temp directory for tests
         original_cwd = Path.cwd()
@@ -85,9 +97,12 @@ class TestConfigIntegration:
         shutil.copy("config/schema/galleria.json", schema_dir / "galleria.json")
 
         # Create invalid normpic config (missing required fields)
-        file_factory("config/normpic.json", json_content={
-            "invalid_field": "value"  # Missing source_dir, dest_dir, etc.
-        })
+        file_factory(
+            "config/normpic.json",
+            json_content={
+                "invalid_field": "value"  # Missing source_dir, dest_dir, etc.
+            },
+        )
 
         original_cwd = Path.cwd()
         try:
@@ -111,6 +126,7 @@ class TestConfigIntegration:
         original_cwd = Path.cwd()
         try:
             import os
+
             os.chdir(temp_filesystem)
 
             validator = ConfigValidator()
@@ -123,7 +139,9 @@ class TestConfigIntegration:
         finally:
             os.chdir(original_cwd)
 
-    def test_config_file_corruption_and_json_parsing_errors(self, temp_filesystem, file_factory):
+    def test_config_file_corruption_and_json_parsing_errors(
+        self, temp_filesystem, file_factory
+    ):
         """Test config file corruption and JSON parsing errors."""
         # Create corrupted JSON file
         file_factory("config/normpic.json", content="{ invalid json content")
@@ -131,6 +149,7 @@ class TestConfigIntegration:
         original_cwd = Path.cwd()
         try:
             import os
+
             os.chdir(temp_filesystem)
 
             validator = ConfigValidator()
@@ -141,4 +160,3 @@ class TestConfigIntegration:
 
         finally:
             os.chdir(original_cwd)
-

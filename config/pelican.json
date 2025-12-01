@@ -4,7 +4,7 @@
   "site_url": "https://marco-chrissy.com",
   "content_path": "content",
   "output_path": "output",
-  "theme": "pelican/theme/simple",
+  "theme": "simple",
   "timezone": "Europe/Stockholm",
   "default_lang": "en",
   "delete_output_directory": false,

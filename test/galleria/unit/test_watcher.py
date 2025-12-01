@@ -26,7 +26,7 @@ class TestFileWatcher:
         callback = MagicMock()
         watcher = FileWatcher(watched_paths, callback)
 
-        with patch('galleria.util.watcher.Observer') as mock_observer_class:
+        with patch("galleria.util.watcher.Observer") as mock_observer_class:
             mock_observer = MagicMock()
             mock_observer_class.return_value = mock_observer
 
@@ -43,7 +43,7 @@ class TestFileWatcher:
         callback = MagicMock()
         watcher = FileWatcher(watched_paths, callback)
 
-        with patch('galleria.util.watcher.Observer') as mock_observer_class:
+        with patch("galleria.util.watcher.Observer") as mock_observer_class:
             mock_observer = MagicMock()
             mock_observer_class.return_value = mock_observer
 
@@ -61,8 +61,10 @@ class TestFileWatcher:
         callback = MagicMock()
         watcher = FileWatcher(watched_paths, callback)
 
-        with patch('galleria.util.watcher.Observer') as mock_observer_class:
-            with patch('galleria.util.watcher.FileSystemEventHandler') as mock_handler_class:
+        with patch("galleria.util.watcher.Observer") as mock_observer_class:
+            with patch(
+                "galleria.util.watcher.FileSystemEventHandler"
+            ) as mock_handler_class:
                 mock_observer = MagicMock()
                 mock_handler = MagicMock()
                 mock_observer_class.return_value = mock_observer
@@ -72,6 +74,7 @@ class TestFileWatcher:
 
                 # Simulate file change event
                 from watchdog.events import FileModifiedEvent
+
                 mock_event = FileModifiedEvent("/test/config.json")
 
                 # Get the event handler that was registered
@@ -90,12 +93,12 @@ class TestFileWatcher:
         watched_paths = {
             Path("/test/config.json"),
             Path("/test/manifest.json"),
-            Path("/test/template.html")
+            Path("/test/template.html"),
         }
         callback = MagicMock()
         watcher = FileWatcher(watched_paths, callback)
 
-        with patch('galleria.util.watcher.Observer') as mock_observer_class:
+        with patch("galleria.util.watcher.Observer") as mock_observer_class:
             mock_observer = MagicMock()
             mock_observer_class.return_value = mock_observer
 
@@ -142,7 +145,7 @@ class TestFileWatcher:
         callback = MagicMock()
         watcher = FileWatcher(watched_paths, callback)
 
-        with patch('galleria.util.watcher.Observer') as mock_observer_class:
+        with patch("galleria.util.watcher.Observer") as mock_observer_class:
             mock_observer = MagicMock()
             mock_observer_class.return_value = mock_observer
 
@@ -156,7 +159,7 @@ class TestFileWatcher:
         callback = MagicMock()
         watcher = FileWatcher(watched_paths, callback)
 
-        with patch('galleria.util.watcher.Observer') as mock_observer_class:
+        with patch("galleria.util.watcher.Observer") as mock_observer_class:
             mock_observer = MagicMock()
             mock_observer_class.return_value = mock_observer
 
@@ -167,6 +170,7 @@ class TestFileWatcher:
 
             # Simulate change to unwatched file
             from watchdog.events import FileModifiedEvent
+
             unwatched_event = FileModifiedEvent("/test/unwatched.json")
             event_handler.on_modified(unwatched_event)
 
@@ -179,7 +183,7 @@ class TestFileWatcher:
         callback = MagicMock(side_effect=Exception("Callback error"))
         watcher = FileWatcher(watched_paths, callback)
 
-        with patch('galleria.util.watcher.Observer') as mock_observer_class:
+        with patch("galleria.util.watcher.Observer") as mock_observer_class:
             mock_observer = MagicMock()
             mock_observer_class.return_value = mock_observer
 
@@ -190,6 +194,7 @@ class TestFileWatcher:
 
             # Simulate file change - should not crash watcher
             from watchdog.events import FileModifiedEvent
+
             mock_event = FileModifiedEvent("/test/config.json")
 
             # Should not raise exception even though callback does

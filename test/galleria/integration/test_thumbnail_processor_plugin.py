@@ -41,10 +41,10 @@ class TestThumbnailProcessorPlugin:
         img2_path = source_dir / "IMG_002.jpg"
 
         # Create test JPEG images
-        img1 = Image.new('RGB', (800, 600), color='red')
-        img1.save(img1_path, 'JPEG')
-        img2 = Image.new('RGB', (1200, 800), color='blue')
-        img2.save(img2_path, 'JPEG')
+        img1 = Image.new("RGB", (800, 600), color="red")
+        img1.save(img1_path, "JPEG")
+        img2 = Image.new("RGB", (1200, 800), color="blue")
+        img2.save(img2_path, "JPEG")
 
         # Arrange: Create ProviderPlugin output format as input
         provider_output = {
@@ -56,8 +56,8 @@ class TestThumbnailProcessorPlugin:
                         "hash": "abc123def456",
                         "size_bytes": 25000000,
                         "mtime": 1635789012.34,
-                        "camera": "Canon EOS R5"
-                    }
+                        "camera": "Canon EOS R5",
+                    },
                 },
                 {
                     "source_path": str(img2_path),
@@ -66,23 +66,19 @@ class TestThumbnailProcessorPlugin:
                         "hash": "def456ghi789",
                         "size_bytes": 26500000,
                         "mtime": 1635789015.67,
-                        "camera": "Canon EOS R5"
-                    }
-                }
+                        "camera": "Canon EOS R5",
+                    },
+                },
             ],
             "collection_name": "wedding_photos",
-            "collection_description": "Wedding photos"
+            "collection_description": "Wedding photos",
         }
 
         # Arrange: Create plugin context
         context = PluginContext(
             input_data=provider_output,
-            config={
-                "thumbnail_size": 300,
-                "quality": 80,
-                "output_format": "webp"
-            },
-            output_dir=output_dir
+            config={"thumbnail_size": 300, "quality": 80, "output_format": "webp"},
+            output_dir=output_dir,
         )
 
         # Act: Process thumbnails through plugin interface
@@ -136,16 +132,16 @@ class TestThumbnailProcessorPlugin:
                 {
                     "source_path": "/nonexistent/IMG_001.jpg",
                     "dest_path": "wedding/IMG_001.jpg",
-                    "metadata": {"hash": "abc123"}
+                    "metadata": {"hash": "abc123"},
                 }
             ],
-            "collection_name": "test_collection"
+            "collection_name": "test_collection",
         }
 
         context = PluginContext(
             input_data=provider_output,
             config={"thumbnail_size": 300},
-            output_dir=tmp_path / "output"
+            output_dir=tmp_path / "output",
         )
 
         # Act: Process thumbnails with missing files
@@ -160,7 +156,11 @@ class TestThumbnailProcessorPlugin:
         # Photo should have error information but preserve original data
         assert "error" in photo1
         assert "source_path" in photo1  # Original data preserved
-        assert "does not exist" in photo1["error"].lower() or "missing" in photo1["error"].lower() or "not found" in photo1["error"].lower()
+        assert (
+            "does not exist" in photo1["error"].lower()
+            or "missing" in photo1["error"].lower()
+            or "not found" in photo1["error"].lower()
+        )
 
     def test_thumbnail_processor_handles_corrupted_images(self, tmp_path):
         """ThumbnailProcessorPlugin should handle corrupted image files gracefully."""
@@ -178,16 +178,16 @@ class TestThumbnailProcessorPlugin:
                 {
                     "source_path": str(corrupted_img),
                     "dest_path": "test/corrupted.jpg",
-                    "metadata": {"hash": "corrupted123"}
+                    "metadata": {"hash": "corrupted123"},
                 }
             ],
-            "collection_name": "test_collection"
+            "collection_name": "test_collection",
         }
 
         context = PluginContext(
             input_data=provider_output,
             config={"thumbnail_size": 300},
-            output_dir=tmp_path / "output"
+            output_dir=tmp_path / "output",
         )
 
         # Act: Process corrupted image
@@ -213,29 +213,29 @@ class TestThumbnailProcessorPlugin:
         thumbnails_dir.mkdir(parents=True)
 
         img_path = source_dir / "IMG_001.jpg"
-        img = Image.new('RGB', (800, 600), color='green')
-        img.save(img_path, 'JPEG')
+        img = Image.new("RGB", (800, 600), color="green")
+        img.save(img_path, "JPEG")
 
         # Create existing thumbnail file (simulate previous processing)
         existing_thumb = thumbnails_dir / "IMG_001.webp"
-        thumb = Image.new('RGB', (300, 300), color='green')
-        thumb.save(existing_thumb, 'WEBP')
+        thumb = Image.new("RGB", (300, 300), color="green")
+        thumb.save(existing_thumb, "WEBP")
 
         provider_output = {
             "photos": [
                 {
                     "source_path": str(img_path),
                     "dest_path": "test/IMG_001.jpg",
-                    "metadata": {"hash": "cache123"}
+                    "metadata": {"hash": "cache123"},
                 }
             ],
-            "collection_name": "test_collection"
+            "collection_name": "test_collection",
         }
 
         context = PluginContext(
             input_data=provider_output,
             config={"thumbnail_size": 300, "use_cache": True},
-            output_dir=output_dir
+            output_dir=output_dir,
         )
 
         # Act: Process with existing thumbnail
@@ -266,10 +266,10 @@ class TestThumbnailProcessorPlugin:
         # Create test images
         img1_path = source_dir / "IMG_001.jpg"
         img2_path = source_dir / "IMG_002.jpg"
-        img1 = Image.new('RGB', (1000, 750), color='purple')
-        img1.save(img1_path, 'JPEG')
-        img2 = Image.new('RGB', (800, 1200), color='orange')
-        img2.save(img2_path, 'JPEG')
+        img1 = Image.new("RGB", (1000, 750), color="purple")
+        img1.save(img1_path, "JPEG")
+        img2 = Image.new("RGB", (800, 1200), color="orange")
+        img2.save(img2_path, "JPEG")
 
         # Create NormPic manifest
         manifest_data = {
@@ -280,16 +280,16 @@ class TestThumbnailProcessorPlugin:
                     "dest_path": "test/IMG_001.jpg",
                     "hash": "integration123",
                     "size_bytes": 1000000,
-                    "mtime": 1635789012.34
+                    "mtime": 1635789012.34,
                 },
                 {
                     "source_path": str(img2_path),
                     "dest_path": "test/IMG_002.jpg",
                     "hash": "integration456",
                     "size_bytes": 1200000,
-                    "mtime": 1635789015.67
-                }
-            ]
+                    "mtime": 1635789015.67,
+                },
+            ],
         }
 
         manifest_path = tmp_path / "manifest.json"
@@ -301,7 +301,7 @@ class TestThumbnailProcessorPlugin:
         provider_context = PluginContext(
             input_data={"manifest_path": str(manifest_path)},
             config={},
-            output_dir=output_dir
+            output_dir=output_dir,
         )
         provider_result = provider.load_collection(provider_context)
 
@@ -310,7 +310,7 @@ class TestThumbnailProcessorPlugin:
         processor_context = PluginContext(
             input_data=provider_result.output_data,
             config={"thumbnail_size": 400, "quality": 90},
-            output_dir=output_dir
+            output_dir=output_dir,
         )
         processor_result = processor.process_thumbnails(processor_context)
 

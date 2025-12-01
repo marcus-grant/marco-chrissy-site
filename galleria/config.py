@@ -11,6 +11,7 @@ import click
 @dataclass
 class PipelineStageConfig:
     """Configuration for a single pipeline stage."""
+
     plugin: str
     config: dict[str, Any]
 
@@ -18,6 +19,7 @@ class PipelineStageConfig:
 @dataclass
 class PipelineConfig:
     """Configuration for the entire plugin pipeline."""
+
     provider: PipelineStageConfig
     processor: PipelineStageConfig
     transform: PipelineStageConfig
@@ -28,12 +30,15 @@ class PipelineConfig:
 @dataclass
 class GalleriaConfig:
     """Complete Galleria configuration."""
+
     input_manifest_path: Path
     output_directory: Path
     pipeline: PipelineConfig
 
     @classmethod
-    def from_file(cls, config_path: Path, output_override: Path | None = None) -> 'GalleriaConfig':
+    def from_file(
+        cls, config_path: Path, output_override: Path | None = None
+    ) -> "GalleriaConfig":
         """Load and validate configuration from JSON file."""
         if not config_path.exists():
             raise click.FileError(str(config_path), hint="Configuration file not found")
@@ -42,77 +47,74 @@ class GalleriaConfig:
             with open(config_path) as f:
                 data = json.load(f)
         except json.JSONDecodeError as e:
-            raise click.ClickException(f"Invalid JSON in configuration file: {e}") from e
+            raise click.ClickException(
+                f"Invalid JSON in configuration file: {e}"
+            ) from e
 
-        # Validate required top-level structure
+        # Parse flat config format
         try:
-            input_config = data["input"]
-            output_config = data["output"]
-            pipeline_config = data["pipeline"]
+            manifest_path = Path(data["manifest_path"])
         except KeyError as e:
-            raise click.ClickException(f"Missing required configuration section: {e}") from e
-
-        # Parse input configuration
-        try:
-            manifest_path = Path(input_config["manifest_path"])
-        except KeyError as e:
-            raise click.ClickException("Missing required field: input.manifest_path") from e
+            raise click.ClickException("Missing required field: manifest_path") from e
 
         # Parse output configuration (allow CLI override)
         if output_override:
             output_dir = output_override
         else:
             try:
-                output_dir = Path(output_config["directory"])
+                output_dir = Path(data["output_dir"])
             except KeyError as e:
-                raise click.ClickException("Missing required field: output.directory") from e
+                raise click.ClickException("Missing required field: output_dir") from e
 
-        # Parse pipeline configuration
-        try:
-            pipeline_stages = {}
-            required_stages = ["provider", "processor", "transform", "template", "css"]
+        # Create default pipeline configuration with settings from flat config
+        pipeline_stages = {
+            "provider": PipelineStageConfig(plugin="normpic-provider", config={}),
+            "processor": PipelineStageConfig(
+                plugin="thumbnail-processor",
+                config={
+                    "thumbnail_size": data.get("thumbnail_size", 400),
+                    "quality": data.get("quality", 90),
+                },
+            ),
+            "transform": PipelineStageConfig(
+                plugin="basic-pagination",
+                config={"page_size": data.get("page_size", 20)},
+            ),
+            "template": PipelineStageConfig(
+                plugin="basic-template",
+                config={
+                    "theme": data.get("theme", "minimal"),
+                    "layout": data.get("layout", "grid"),
+                },
+            ),
+            "css": PipelineStageConfig(
+                plugin="basic-css",
+                config={
+                    "theme": "light"  # CSS plugin only accepts "light", "dark", "auto"
+                },
+            ),
+        }
 
-            for stage in required_stages:
-                if stage not in pipeline_config:
-                    raise click.ClickException(f"Missing required pipeline stage: {stage}")
-
-                stage_config = pipeline_config[stage]
-
-                # Validate stage structure
-                if "plugin" not in stage_config:
-                    raise click.ClickException(f"Missing plugin name for stage: {stage}")
-
-                plugin_name = stage_config["plugin"]
-                stage_specific_config = stage_config.get("config", {})
-
-                pipeline_stages[stage] = PipelineStageConfig(
-                    plugin=plugin_name,
-                    config=stage_specific_config
-                )
-
-            pipeline = PipelineConfig(
-                provider=pipeline_stages["provider"],
-                processor=pipeline_stages["processor"],
-                transform=pipeline_stages["transform"],
-                template=pipeline_stages["template"],
-                css=pipeline_stages["css"]
-            )
-
-        except Exception as e:
-            if isinstance(e, click.ClickException):
-                raise
-            raise click.ClickException(f"Invalid pipeline configuration: {e}") from e
+        pipeline = PipelineConfig(
+            provider=pipeline_stages["provider"],
+            processor=pipeline_stages["processor"],
+            transform=pipeline_stages["transform"],
+            template=pipeline_stages["template"],
+            css=pipeline_stages["css"],
+        )
 
         return cls(
             input_manifest_path=manifest_path,
             output_directory=output_dir,
-            pipeline=pipeline
+            pipeline=pipeline,
         )
 
     def validate_paths(self) -> None:
         """Validate that required paths exist."""
         if not self.input_manifest_path.exists():
-            raise click.ClickException(f"Manifest file not found: {self.input_manifest_path}")
+            raise click.ClickException(
+                f"Manifest file not found: {self.input_manifest_path}"
+            )
 
         # Output directory doesn't need to exist (will be created)
 
@@ -123,5 +125,5 @@ class GalleriaConfig:
             "processor": self.pipeline.processor.config,
             "transform": self.pipeline.transform.config,
             "template": self.pipeline.template.config,
-            "css": self.pipeline.css.config
+            "css": self.pipeline.css.config,
         }

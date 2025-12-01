@@ -40,7 +40,7 @@ class TestNormPicProviderPlugin:
                     "size_bytes": 25000000,
                     "mtime": 1635789012.34,
                     "camera": "Canon EOS R5",
-                    "gps": {"lat": 40.7128, "lon": -74.0060}
+                    "gps": {"lat": 40.7128, "lon": -74.0060},
                 },
                 {
                     "source_path": "/photos/wedding/IMG_002.CR3",
@@ -49,9 +49,9 @@ class TestNormPicProviderPlugin:
                     "size_bytes": 26500000,
                     "mtime": 1635789015.67,
                     "camera": "Canon EOS R5",
-                    "gps": {"lat": 40.7130, "lon": -74.0058}
-                }
-            ]
+                    "gps": {"lat": 40.7130, "lon": -74.0058},
+                },
+            ],
         }
 
         manifest_path = tmp_path / "manifest.json"
@@ -61,7 +61,7 @@ class TestNormPicProviderPlugin:
         context = PluginContext(
             input_data={"manifest_path": str(manifest_path)},
             config={"validate_files": False},  # Skip file validation for test
-            output_dir=tmp_path / "output"
+            output_dir=tmp_path / "output",
         )
 
         # Act: Load collection through plugin interface
@@ -107,7 +107,7 @@ class TestNormPicProviderPlugin:
         context = PluginContext(
             input_data={"manifest_path": str(manifest_path)},
             config={},
-            output_dir=tmp_path / "output"
+            output_dir=tmp_path / "output",
         )
 
         # Act & Assert: Should raise PluginExecutionError
@@ -115,7 +115,9 @@ class TestNormPicProviderPlugin:
         result = plugin.load_collection(context)
 
         assert result.success is False
-        assert any("manifest file not found" in error.lower() for error in result.errors)
+        assert any(
+            "manifest file not found" in error.lower() for error in result.errors
+        )
 
     def test_normpic_provider_handles_invalid_manifest_json(self, tmp_path):
         """NormPicProviderPlugin should handle invalid JSON gracefully."""
@@ -129,7 +131,7 @@ class TestNormPicProviderPlugin:
         context = PluginContext(
             input_data={"manifest_path": str(manifest_path)},
             config={},
-            output_dir=tmp_path / "output"
+            output_dir=tmp_path / "output",
         )
 
         # Act & Assert: Should handle invalid JSON
@@ -137,7 +139,10 @@ class TestNormPicProviderPlugin:
         result = plugin.load_collection(context)
 
         assert result.success is False
-        assert any("invalid json" in error.lower() or "json" in error.lower() for error in result.errors)
+        assert any(
+            "invalid json" in error.lower() or "json" in error.lower()
+            for error in result.errors
+        )
 
     def test_normpic_provider_handles_missing_required_fields(self, tmp_path):
         """NormPicProviderPlugin should validate required manifest fields."""
@@ -152,7 +157,7 @@ class TestNormPicProviderPlugin:
                     "dest_path": "wedding/IMG_001.jpg",
                     "hash": "abc123def456",
                     "size_bytes": 25000000,
-                    "mtime": 1635789012.34
+                    "mtime": 1635789012.34,
                 }
             ]
         }
@@ -163,7 +168,7 @@ class TestNormPicProviderPlugin:
         context = PluginContext(
             input_data={"manifest_path": str(manifest_path)},
             config={},
-            output_dir=tmp_path / "output"
+            output_dir=tmp_path / "output",
         )
 
         # Act & Assert: Should validate required fields
@@ -196,9 +201,9 @@ class TestNormPicProviderPlugin:
                     "hash": "test123",
                     "size_bytes": 1000000,
                     "mtime": 1635789012.34,
-                    "camera": "Test Camera"
+                    "camera": "Test Camera",
                 }
-            ]
+            ],
         }
 
         manifest_path = tmp_path / "test_manifest.json"
@@ -212,7 +217,7 @@ class TestNormPicProviderPlugin:
         context = PluginContext(
             input_data={"manifest_path": str(manifest_path)},
             config={},
-            output_dir=tmp_path / "output"
+            output_dir=tmp_path / "output",
         )
         plugin = NormPicProviderPlugin()
         result = plugin.load_collection(context)

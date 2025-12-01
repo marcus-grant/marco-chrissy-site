@@ -6,6 +6,7 @@ from typing import Any
 
 try:
     import jsonschema
+
     JSONSCHEMA_AVAILABLE = True
 except ImportError:
     JSONSCHEMA_AVAILABLE = False
@@ -45,35 +46,23 @@ class JsonConfigLoader:
         """
         # Check if file exists
         if not config_path.exists():
-            raise ConfigLoadError(
-                config_path,
-                "Configuration file not found"
-            )
+            raise ConfigLoadError(config_path, "Configuration file not found")
 
         # Load JSON content
         try:
-            with open(config_path, encoding='utf-8') as f:
+            with open(config_path, encoding="utf-8") as f:
                 content = f.read().strip()
 
             # Handle empty files
             if not content:
-                raise ConfigLoadError(
-                    config_path,
-                    "Configuration file is empty"
-                )
+                raise ConfigLoadError(config_path, "Configuration file is empty")
 
             config_data = json.loads(content)
 
         except json.JSONDecodeError as e:
-            raise ConfigLoadError(
-                config_path,
-                f"Failed to parse JSON: {e}"
-            ) from e
+            raise ConfigLoadError(config_path, f"Failed to parse JSON: {e}") from e
         except OSError as e:
-            raise ConfigLoadError(
-                config_path,
-                f"Failed to read file: {e}"
-            ) from e
+            raise ConfigLoadError(config_path, f"Failed to read file: {e}") from e
 
         # Validate against schema if provided
         if self.schema:
@@ -101,13 +90,10 @@ class JsonConfigLoader:
                 error_msg = f"Field '{field_path}': {error_msg}"
 
             raise ConfigValidationError(
-                config_path,
-                f"Schema validation failed - {error_msg}"
+                config_path, f"Schema validation failed - {error_msg}"
             ) from e
         except jsonschema.SchemaError as e:
             # This shouldn't happen in production, indicates bug in schema definition
             raise ConfigValidationError(
-                config_path,
-                f"Invalid schema definition: {e.message}"
+                config_path, f"Invalid schema definition: {e.message}"
             ) from e
-

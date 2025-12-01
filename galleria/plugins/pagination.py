@@ -34,14 +34,14 @@ class BasicPaginationPlugin(TransformPlugin):
                 return PluginResult(
                     success=False,
                     output_data={},
-                    errors=["INVALID_PAGE_SIZE: page_size must be positive"]
+                    errors=["INVALID_PAGE_SIZE: page_size must be positive"],
                 )
 
             if page_size > 100:
                 return PluginResult(
                     success=False,
                     output_data={},
-                    errors=["INVALID_PAGE_SIZE: page_size must be <= 100"]
+                    errors=["INVALID_PAGE_SIZE: page_size must be <= 100"],
                 )
 
             # Get input data
@@ -50,7 +50,9 @@ class BasicPaginationPlugin(TransformPlugin):
 
             # Calculate number of pages needed
             total_photos = len(photos)
-            total_pages = (total_photos + page_size - 1) // page_size if total_photos > 0 else 1
+            total_pages = (
+                (total_photos + page_size - 1) // page_size if total_photos > 0 else 1
+            )
 
             # Split photos into pages
             pages = []
@@ -59,13 +61,13 @@ class BasicPaginationPlugin(TransformPlugin):
                 pages.append([])
             else:
                 for i in range(0, len(photos), page_size):
-                    page_photos = photos[i:i + page_size]
+                    page_photos = photos[i : i + page_size]
                     pages.append(page_photos)
 
             transform_metadata = {
                 "page_size": page_size,
                 "total_pages": total_pages,
-                "total_photos": total_photos
+                "total_photos": total_photos,
             }
 
             # Add page numbers to metadata if there are multiple pages
@@ -76,7 +78,7 @@ class BasicPaginationPlugin(TransformPlugin):
                         "page_number": i + 1,
                         "photo_count": len(pages[i]),
                         "start_index": i * page_size,
-                        "end_index": min((i + 1) * page_size - 1, total_photos - 1)
+                        "end_index": min((i + 1) * page_size - 1, total_photos - 1),
                     }
                     for i in range(total_pages)
                 ]
@@ -90,16 +92,17 @@ class BasicPaginationPlugin(TransformPlugin):
                     "collection_name": collection_name,
                     "transform_metadata": transform_metadata,
                     # Pass through other processor data
-                    **{k: v for k, v in context.input_data.items()
-                       if k not in ["photos", "collection_name"]}
-                }
+                    **{
+                        k: v
+                        for k, v in context.input_data.items()
+                        if k not in ["photos", "collection_name"]
+                    },
+                },
             )
 
         except Exception as e:
             return PluginResult(
-                success=False,
-                output_data={},
-                errors=[f"PAGINATION_ERROR: {str(e)}"]
+                success=False, output_data={}, errors=[f"PAGINATION_ERROR: {str(e)}"]
             )
 
 
@@ -127,8 +130,12 @@ class SmartPaginationPlugin(TransformPlugin):
                 transform_config = config
 
             target_page_size = transform_config.get("page_size", 20)
-            max_page_size = transform_config.get("max_page_size", target_page_size * 1.5)
-            min_page_size = transform_config.get("min_page_size", max(1, target_page_size // 2))
+            max_page_size = transform_config.get(
+                "max_page_size", target_page_size * 1.5
+            )
+            min_page_size = transform_config.get(
+                "min_page_size", max(1, target_page_size // 2)
+            )
             balance_pages = transform_config.get("balance_pages", True)
 
             # Validate configuration
@@ -136,7 +143,7 @@ class SmartPaginationPlugin(TransformPlugin):
                 return PluginResult(
                     success=False,
                     output_data={},
-                    errors=["INVALID_PAGE_SIZE: page_size must be positive"]
+                    errors=["INVALID_PAGE_SIZE: page_size must be positive"],
                 )
 
             photos = context.input_data.get("photos", [])
@@ -155,9 +162,9 @@ class SmartPaginationPlugin(TransformPlugin):
                             "total_pages": 0,
                             "total_photos": 0,
                             "pagination_enabled": False,
-                            "pagination_strategy": "empty"
-                        }
-                    }
+                            "pagination_strategy": "empty",
+                        },
+                    },
                 )
 
             # Calculate optimal pagination
@@ -168,10 +175,14 @@ class SmartPaginationPlugin(TransformPlugin):
                 strategy = "balanced"
             else:
                 # Simple pagination - calculate pages needed first
-                total_pages = (total_photos + target_page_size - 1) // target_page_size if total_photos > 0 else 1
+                total_pages = (
+                    (total_photos + target_page_size - 1) // target_page_size
+                    if total_photos > 0
+                    else 1
+                )
                 pages = []
                 for i in range(0, total_photos, target_page_size):
-                    pages.append(photos[i:i + target_page_size])
+                    pages.append(photos[i : i + target_page_size])
                 strategy = "simple"
 
             # For balanced pagination, total_pages is calculated by the balancing algorithm
@@ -186,7 +197,9 @@ class SmartPaginationPlugin(TransformPlugin):
                 "pagination_enabled": total_pages > 1,
                 "pagination_strategy": strategy,
                 "actual_page_sizes": actual_page_sizes,
-                "avg_page_size": sum(actual_page_sizes) / len(actual_page_sizes) if actual_page_sizes else 0
+                "avg_page_size": sum(actual_page_sizes) / len(actual_page_sizes)
+                if actual_page_sizes
+                else 0,
             }
 
             return PluginResult(
@@ -196,24 +209,23 @@ class SmartPaginationPlugin(TransformPlugin):
                     "collection_name": collection_name,
                     "transform_metadata": transform_metadata,
                     # Pass through other processor data
-                    **{k: v for k, v in context.input_data.items()
-                       if k not in ["photos", "collection_name"]}
-                }
+                    **{
+                        k: v
+                        for k, v in context.input_data.items()
+                        if k not in ["photos", "collection_name"]
+                    },
+                },
             )
 
         except Exception as e:
             return PluginResult(
                 success=False,
                 output_data={},
-                errors=[f"SMART_PAGINATION_ERROR: {str(e)}"]
+                errors=[f"SMART_PAGINATION_ERROR: {str(e)}"],
             )
 
     def _balance_pagination(
-        self,
-        photos: list,
-        target_size: int,
-        min_size: int,
-        max_size: int
+        self, photos: list, target_size: int, min_size: int, max_size: int
     ) -> list[list]:
         """Balance photos across pages to avoid small last pages."""
         total_photos = len(photos)
@@ -237,7 +249,7 @@ class SmartPaginationPlugin(TransformPlugin):
                 # Ensure page size is within bounds
                 page_size = max(min_size, min(page_size, max_size))
 
-                pages.append(photos[current_index:current_index + page_size])
+                pages.append(photos[current_index : current_index + page_size])
                 current_index += page_size
 
                 if current_index >= total_photos:
@@ -248,5 +260,5 @@ class SmartPaginationPlugin(TransformPlugin):
             # Simple chunking is fine
             pages = []
             for i in range(0, total_photos, target_size):
-                pages.append(photos[i:i + target_size])
+                pages.append(photos[i : i + target_size])
             return pages

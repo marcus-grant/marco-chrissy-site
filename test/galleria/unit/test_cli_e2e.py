@@ -31,20 +31,17 @@ class TestGalleriaCLIE2E:
 
                 # Create a simple colored image
                 color = (255 - i * 50, i * 50, 100 + i * 30)  # Different RGB for each
-                test_img = Image.new('RGB', (100, 100), color)
+                test_img = Image.new("RGB", (100, 100), color)
 
                 # Save to bytes buffer
                 img_buffer = io.BytesIO()
-                test_img.save(img_buffer, format='JPEG')
+                test_img.save(img_buffer, format="JPEG")
                 img_bytes = img_buffer.getvalue()
 
                 # Create fake file with real JPEG data
                 fs.create_file(photo_path, contents=img_bytes)
 
-                photo_data.append({
-                    "path": photo_path,
-                    "size": len(img_bytes)
-                })
+                photo_data.append({"path": photo_path, "size": len(img_bytes)})
 
             # Create NormPic manifest
             manifest = {
@@ -56,23 +53,23 @@ class TestGalleriaCLIE2E:
                         "dest_path": "wedding_001.jpg",
                         "hash": "hash001",
                         "size_bytes": photo_data[0]["size"],
-                        "mtime": 1234567890
+                        "mtime": 1234567890,
                     },
                     {
                         "source_path": photo_data[1]["path"],
                         "dest_path": "wedding_002.jpg",
                         "hash": "hash002",
                         "size_bytes": photo_data[1]["size"],
-                        "mtime": 1234567891
+                        "mtime": 1234567891,
                     },
                     {
                         "source_path": photo_data[2]["path"],
                         "dest_path": "wedding_003.jpg",
                         "hash": "hash003",
                         "size_bytes": photo_data[2]["size"],
-                        "mtime": 1234567892
-                    }
-                ]
+                        "mtime": 1234567892,
+                    },
+                ],
             }
 
             manifest_path = "/fake/manifest.json"
@@ -85,7 +82,7 @@ class TestGalleriaCLIE2E:
                 "thumbnail_size": 400,
                 "quality": 90,
                 "page_size": 2,
-                "theme": "minimal"
+                "theme": "minimal",
             }
 
             config_path = "/fake/galleria_config.json"
@@ -93,11 +90,9 @@ class TestGalleriaCLIE2E:
 
             # Act: Execute CLI command
             runner = CliRunner()
-            result = runner.invoke(cli, [
-                'generate',
-                '--config', config_path,
-                '--verbose'
-            ])
+            result = runner.invoke(
+                cli, ["generate", "--config", config_path, "--verbose"]
+            )
 
             # Assert: Command execution
             assert result.exit_code == 0, f"Command failed: {result.output}"
@@ -112,7 +107,9 @@ class TestGalleriaCLIE2E:
 
             # Check for thumbnail files (may be WebP or other format)
             thumbnail_files = list(thumbnails_dir.glob("*"))
-            assert len(thumbnail_files) >= 0, "Expected thumbnail files"  # May be 0 if processing fails
+            assert len(thumbnail_files) >= 0, (
+                "Expected thumbnail files"
+            )  # May be 0 if processing fails
 
             # Assert: HTML pages
             html_files = list(output_dir.glob("*.html"))
@@ -126,7 +123,9 @@ class TestGalleriaCLIE2E:
                     content = page_path.read_text()
                     assert "wedding_photos" in content, f"Collection name not in {page}"
                     # Basic HTML structure checks
-                    assert "<html" in content or "<!DOCTYPE" in content, f"Invalid HTML in {page}"
+                    assert "<html" in content or "<!DOCTYPE" in content, (
+                        f"Invalid HTML in {page}"
+                    )
 
             # Assert: CSS files
             css_files = list(output_dir.glob("*.css"))
@@ -145,18 +144,20 @@ class TestGalleriaCLIE2E:
             # Create minimal test setup
             fs.create_dir("/fake/photos")
             photo_path = "/fake/photos/test.jpg"
-            fs.create_file(photo_path, contents=b"\xFF\xD8\xFF\xE0" + b"\x00" * 512)
+            fs.create_file(photo_path, contents=b"\xff\xd8\xff\xe0" + b"\x00" * 512)
 
             manifest = {
                 "version": "0.1.0",
                 "collection_name": "test_photos",
-                "pics": [{
-                    "source_path": photo_path,
-                    "dest_path": "test.jpg",
-                    "hash": "testhash",
-                    "size_bytes": 516,
-                    "mtime": 1234567890
-                }]
+                "pics": [
+                    {
+                        "source_path": photo_path,
+                        "dest_path": "test.jpg",
+                        "hash": "testhash",
+                        "size_bytes": 516,
+                        "mtime": 1234567890,
+                    }
+                ],
             }
 
             manifest_path = "/fake/manifest.json"
@@ -164,7 +165,7 @@ class TestGalleriaCLIE2E:
 
             config = {
                 "manifest_path": manifest_path,
-                "output_dir": "/fake/original_output"  # Will be overridden
+                "output_dir": "/fake/original_output",  # Will be overridden
             }
 
             config_path = "/fake/config.json"
@@ -174,12 +175,17 @@ class TestGalleriaCLIE2E:
 
             # Act
             runner = CliRunner()
-            result = runner.invoke(cli, [
-                'generate',
-                '--config', config_path,
-                '--output', override_output,
-                '--verbose'
-            ])
+            result = runner.invoke(
+                cli,
+                [
+                    "generate",
+                    "--config",
+                    config_path,
+                    "--output",
+                    override_output,
+                    "--verbose",
+                ],
+            )
 
             # Assert
             assert result.exit_code == 0
@@ -190,7 +196,9 @@ class TestGalleriaCLIE2E:
             original_dir = Path("/fake/original_output")
 
             assert override_dir.exists(), "Override output directory not created"
-            assert not original_dir.exists(), "Original output directory should not be created"
+            assert not original_dir.exists(), (
+                "Original output directory should not be created"
+            )
 
     def test_cli_generate_error_handling_fake_fs(self):
         """Test CLI error handling with fake filesystem."""
@@ -200,7 +208,7 @@ class TestGalleriaCLIE2E:
             # Create config pointing to non-existent manifest
             config = {
                 "manifest_path": "/fake/nonexistent_manifest.json",
-                "output_dir": "/fake/output"
+                "output_dir": "/fake/output",
             }
 
             config_path = "/fake/config.json"
@@ -208,7 +216,7 @@ class TestGalleriaCLIE2E:
 
             # Act
             runner = CliRunner()
-            result = runner.invoke(cli, ['generate', '--config', config_path])
+            result = runner.invoke(cli, ["generate", "--config", config_path])
 
             # Assert
             assert result.exit_code == 1
@@ -223,29 +231,28 @@ class TestGalleriaCLIE2E:
             manifest = {
                 "version": "0.1.0",
                 "collection_name": "test_photos",
-                "pics": [{
-                    "source_path": "/fake/nonexistent_photo.jpg",
-                    "dest_path": "test.jpg",
-                    "hash": "testhash",
-                    "size_bytes": 1024,
-                    "mtime": 1234567890
-                }]
+                "pics": [
+                    {
+                        "source_path": "/fake/nonexistent_photo.jpg",
+                        "dest_path": "test.jpg",
+                        "hash": "testhash",
+                        "size_bytes": 1024,
+                        "mtime": 1234567890,
+                    }
+                ],
             }
 
             manifest_path = "/fake/manifest.json"
             fs.create_file(manifest_path, contents=json.dumps(manifest))
 
-            config = {
-                "manifest_path": manifest_path,
-                "output_dir": "/fake/output"
-            }
+            config = {"manifest_path": manifest_path, "output_dir": "/fake/output"}
 
             config_path = "/fake/config.json"
             fs.create_file(config_path, contents=json.dumps(config))
 
             # Act
             runner = CliRunner()
-            result = runner.invoke(cli, ['generate', '--config', config_path])
+            result = runner.invoke(cli, ["generate", "--config", config_path])
 
             # Assert: Should complete but may have errors in pipeline
             # The pipeline should handle missing files gracefully
@@ -256,4 +263,7 @@ class TestGalleriaCLIE2E:
                 assert output_dir.exists(), "Output directory should be created"
             else:
                 # Pipeline failed completely
-                assert "error" in result.output.lower() or "failed" in result.output.lower()
+                assert (
+                    "error" in result.output.lower()
+                    or "failed" in result.output.lower()
+                )

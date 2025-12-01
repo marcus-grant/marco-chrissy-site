@@ -28,13 +28,15 @@ class TestImageProcessorIntegration:
         img1.save(photo1_path, "JPEG")
         mtime1 = photo1_path.stat().st_mtime
 
-        photos_metadata.append({
-            "source_path": str(photo1_path),
-            "dest_path": "wedding-001.jpg",
-            "hash": "abc123",
-            "size_bytes": photo1_path.stat().st_size,
-            "mtime": mtime1,
-        })
+        photos_metadata.append(
+            {
+                "source_path": str(photo1_path),
+                "dest_path": "wedding-001.jpg",
+                "hash": "abc123",
+                "size_bytes": photo1_path.stat().st_size,
+                "mtime": mtime1,
+            }
+        )
 
         # Photo 2: Portrait PNG (600x800)
         photo2_path = source_dir / "wedding-002.png"
@@ -42,13 +44,15 @@ class TestImageProcessorIntegration:
         img2.save(photo2_path, "PNG")
         mtime2 = photo2_path.stat().st_mtime
 
-        photos_metadata.append({
-            "source_path": str(photo2_path),
-            "dest_path": "wedding-002.jpg",
-            "hash": "def456",
-            "size_bytes": photo2_path.stat().st_size,
-            "mtime": mtime2,
-        })
+        photos_metadata.append(
+            {
+                "source_path": str(photo2_path),
+                "dest_path": "wedding-002.jpg",
+                "hash": "def456",
+                "size_bytes": photo2_path.stat().st_size,
+                "mtime": mtime2,
+            }
+        )
 
         # Photo 3: Square JPEG (1000x1000)
         photo3_path = source_dir / "wedding-003.jpg"
@@ -56,13 +60,15 @@ class TestImageProcessorIntegration:
         img3.save(photo3_path, "JPEG")
         mtime3 = photo3_path.stat().st_mtime
 
-        photos_metadata.append({
-            "source_path": str(photo3_path),
-            "dest_path": "wedding-003.jpg",
-            "hash": "ghi789",
-            "size_bytes": photo3_path.stat().st_size,
-            "mtime": mtime3,
-        })
+        photos_metadata.append(
+            {
+                "source_path": str(photo3_path),
+                "dest_path": "wedding-003.jpg",
+                "hash": "ghi789",
+                "size_bytes": photo3_path.stat().st_size,
+                "mtime": mtime3,
+            }
+        )
 
         # Create PhotoCollection using serializer models
         from galleria.serializer.models import Photo, PhotoCollection
@@ -97,8 +103,12 @@ class TestImageProcessorIntegration:
 
             # Verify thumbnail is 400x400
             thumb_img = Image.open(thumb_path)
-            assert thumb_img.size == (400, 400), f"Expected 400x400, got {thumb_img.size}"
-            assert thumb_img.format == "WEBP", f"Expected WEBP format, got {thumb_img.format}"
+            assert thumb_img.size == (400, 400), (
+                f"Expected 400x400, got {thumb_img.size}"
+            )
+            assert thumb_img.format == "WEBP", (
+                f"Expected WEBP format, got {thumb_img.format}"
+            )
 
             # Verify result includes path
             assert results[i]["thumbnail_path"] == str(thumb_path)
@@ -255,13 +265,17 @@ class TestImageProcessorIntegration:
         progress_reports = []
 
         def progress_callback(current, total, photo_path):
-            progress_reports.append({"current": current, "total": total, "path": photo_path})
+            progress_reports.append(
+                {"current": current, "total": total, "path": photo_path}
+            )
 
         # Act: Process with progress callback
         from galleria.processor.image import ImageProcessor
 
         processor = ImageProcessor()
-        processor.process_collection(collection, output_dir, progress_callback=progress_callback)
+        processor.process_collection(
+            collection, output_dir, progress_callback=progress_callback
+        )
 
         # Assert: Progress reported for each photo
         assert len(progress_reports) == 5

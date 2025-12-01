@@ -1,7 +1,6 @@
 """Basic unit tests for PluginRegistry - just initialization."""
 
 
-
 class TestPluginRegistryBasic:
     """Basic tests for PluginRegistry initialization."""
 
@@ -178,7 +177,9 @@ class TestPluginRegistryBasic:
                 # Should be able to instantiate (concrete, not abstract)
                 try:
                     instance = plugin_cls()
-                    assert hasattr(instance, 'name')
-                    assert hasattr(instance, 'version')
+                    assert hasattr(instance, "name")
+                    assert hasattr(instance, "version")
                 except TypeError as e:
-                    raise AssertionError(f"{plugin_cls} should be concrete, not abstract") from e
+                    raise AssertionError(
+                        f"{plugin_cls} should be concrete, not abstract"
+                    ) from e
