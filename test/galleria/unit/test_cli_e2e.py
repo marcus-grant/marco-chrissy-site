@@ -80,27 +80,12 @@ class TestGalleriaCLIE2E:
 
             # Create galleria configuration
             config = {
-                "input": {"manifest_path": manifest_path},
-                "output": {"directory": "/fake/gallery_output"},
-                "pipeline": {
-                    "provider": {"plugin": "normpic-provider", "config": {}},
-                    "processor": {
-                        "plugin": "thumbnail-processor",
-                        "config": {"thumbnail_size": 400, "quality": 90}
-                    },
-                    "transform": {
-                        "plugin": "basic-pagination",
-                        "config": {"page_size": 2}
-                    },
-                    "template": {
-                        "plugin": "basic-template",
-                        "config": {"theme": "minimal", "layout": "grid"}
-                    },
-                    "css": {
-                        "plugin": "basic-css",
-                        "config": {"theme": "light", "responsive": True}
-                    }
-                }
+                "manifest_path": manifest_path,
+                "output_dir": "/fake/gallery_output",
+                "thumbnail_size": 400,
+                "quality": 90,
+                "page_size": 2,
+                "theme": "minimal"
             }
 
             config_path = "/fake/galleria_config.json"
@@ -178,15 +163,8 @@ class TestGalleriaCLIE2E:
             fs.create_file(manifest_path, contents=json.dumps(manifest))
 
             config = {
-                "input": {"manifest_path": manifest_path},
-                "output": {"directory": "/fake/original_output"},  # Will be overridden
-                "pipeline": {
-                    "provider": {"plugin": "normpic-provider", "config": {}},
-                    "processor": {"plugin": "thumbnail-processor", "config": {}},
-                    "transform": {"plugin": "basic-pagination", "config": {}},
-                    "template": {"plugin": "basic-template", "config": {}},
-                    "css": {"plugin": "basic-css", "config": {}}
-                }
+                "manifest_path": manifest_path,
+                "output_dir": "/fake/original_output"  # Will be overridden
             }
 
             config_path = "/fake/config.json"
@@ -221,15 +199,8 @@ class TestGalleriaCLIE2E:
 
             # Create config pointing to non-existent manifest
             config = {
-                "input": {"manifest_path": "/fake/nonexistent_manifest.json"},
-                "output": {"directory": "/fake/output"},
-                "pipeline": {
-                    "provider": {"plugin": "normpic-provider", "config": {}},
-                    "processor": {"plugin": "thumbnail-processor", "config": {}},
-                    "transform": {"plugin": "basic-pagination", "config": {}},
-                    "template": {"plugin": "basic-template", "config": {}},
-                    "css": {"plugin": "basic-css", "config": {}}
-                }
+                "manifest_path": "/fake/nonexistent_manifest.json",
+                "output_dir": "/fake/output"
             }
 
             config_path = "/fake/config.json"
@@ -265,15 +236,8 @@ class TestGalleriaCLIE2E:
             fs.create_file(manifest_path, contents=json.dumps(manifest))
 
             config = {
-                "input": {"manifest_path": manifest_path},
-                "output": {"directory": "/fake/output"},
-                "pipeline": {
-                    "provider": {"plugin": "normpic-provider", "config": {}},
-                    "processor": {"plugin": "thumbnail-processor", "config": {}},
-                    "transform": {"plugin": "basic-pagination", "config": {}},
-                    "template": {"plugin": "basic-template", "config": {}},
-                    "css": {"plugin": "basic-css", "config": {}}
-                }
+                "manifest_path": manifest_path,
+                "output_dir": "/fake/output"
             }
 
             config_path = "/fake/config.json"

@@ -20,15 +20,8 @@ class TestGalleriaCLI:
         manifest_path.write_text('{"version": "0.1.0", "collection_name": "test", "pics": []}')
 
         config_data = {
-            "input": {"manifest_path": str(manifest_path)},
-            "output": {"directory": str(tmp_path / "output")},
-            "pipeline": {
-                "provider": {"plugin": "normpic-provider", "config": {}},
-                "processor": {"plugin": "thumbnail-processor", "config": {}},
-                "transform": {"plugin": "basic-pagination", "config": {}},
-                "template": {"plugin": "basic-template", "config": {}},
-                "css": {"plugin": "basic-css", "config": {}}
-            }
+            "manifest_path": str(manifest_path),
+            "output_dir": str(tmp_path / "output")
         }
 
         config_path = tmp_path / "config.json"
@@ -81,15 +74,8 @@ class TestGalleriaCLI:
         manifest_path.write_text('{"version": "0.1.0", "collection_name": "test", "pics": []}')
 
         config_data = {
-            "input": {"manifest_path": str(manifest_path)},
-            "output": {"directory": str(tmp_path / "output")},
-            "pipeline": {
-                "provider": {"plugin": "normpic-provider", "config": {}},
-                "processor": {"plugin": "thumbnail-processor", "config": {}},
-                "transform": {"plugin": "basic-pagination", "config": {}},
-                "template": {"plugin": "basic-template", "config": {}},
-                "css": {"plugin": "basic-css", "config": {}}
-            }
+            "manifest_path": str(manifest_path),
+            "output_dir": str(tmp_path / "output")
         }
 
         config_path = tmp_path / "config.json"
@@ -126,15 +112,8 @@ class TestGalleriaCLI:
         manifest_path.write_text('{"version": "0.1.0", "collection_name": "test", "pics": []}')
 
         config_data = {
-            "input": {"manifest_path": str(manifest_path)},
-            "output": {"directory": str(tmp_path / "output")},
-            "pipeline": {
-                "provider": {"plugin": "normpic-provider", "config": {}},
-                "processor": {"plugin": "thumbnail-processor", "config": {}},
-                "transform": {"plugin": "basic-pagination", "config": {}},
-                "template": {"plugin": "basic-template", "config": {}},
-                "css": {"plugin": "basic-css", "config": {}}
-            }
+            "manifest_path": str(manifest_path),
+            "output_dir": str(tmp_path / "output")
         }
 
         config_path = tmp_path / "config.json"
@@ -174,15 +153,8 @@ class TestGalleriaCLI:
         manifest_path.write_text('{"version": "0.1.0", "collection_name": "test", "pics": []}')
 
         config_data = {
-            "input": {"manifest_path": str(manifest_path)},
-            "output": {"directory": str(tmp_path / "original_output")},
-            "pipeline": {
-                "provider": {"plugin": "normpic-provider", "config": {}},
-                "processor": {"plugin": "thumbnail-processor", "config": {}},
-                "transform": {"plugin": "basic-pagination", "config": {}},
-                "template": {"plugin": "basic-template", "config": {}},
-                "css": {"plugin": "basic-css", "config": {}}
-            }
+            "manifest_path": str(manifest_path),
+            "output_dir": str(tmp_path / "original_output")
         }
 
         config_path = tmp_path / "config.json"
@@ -226,9 +198,8 @@ class TestGalleriaCLI:
 
         # Create config with missing required fields
         config_data = {
-            "input": {},  # Missing manifest_path
-            "output": {"directory": str(tmp_path / "output")},
-            "pipeline": {}
+            "output_dir": str(tmp_path / "output")
+            # Missing manifest_path
         }
 
         config_path = tmp_path / "config.json"
@@ -239,22 +210,15 @@ class TestGalleriaCLI:
 
         # Assert
         assert result.exit_code == 1
-        assert "input.manifest_path" in result.output
+        assert "Missing required field: manifest_path" in result.output
 
     def test_generate_command_missing_manifest_file(self, tmp_path):
         """Test error handling for missing manifest file."""
         runner = CliRunner()
 
         config_data = {
-            "input": {"manifest_path": str(tmp_path / "missing_manifest.json")},
-            "output": {"directory": str(tmp_path / "output")},
-            "pipeline": {
-                "provider": {"plugin": "normpic-provider", "config": {}},
-                "processor": {"plugin": "thumbnail-processor", "config": {}},
-                "transform": {"plugin": "basic-pagination", "config": {}},
-                "template": {"plugin": "basic-template", "config": {}},
-                "css": {"plugin": "basic-css", "config": {}}
-            }
+            "manifest_path": str(tmp_path / "missing_manifest.json"),
+            "output_dir": str(tmp_path / "output")
         }
 
         config_path = tmp_path / "config.json"
@@ -275,15 +239,8 @@ class TestGalleriaCLI:
         manifest_path.write_text('{"version": "0.1.0", "collection_name": "test", "pics": []}')
 
         config_data = {
-            "input": {"manifest_path": str(manifest_path)},
-            "output": {"directory": str(tmp_path / "output")},
-            "pipeline": {
-                "provider": {"plugin": "normpic-provider", "config": {}},
-                "processor": {"plugin": "thumbnail-processor", "config": {}},
-                "transform": {"plugin": "basic-pagination", "config": {}},
-                "template": {"plugin": "basic-template", "config": {}},
-                "css": {"plugin": "basic-css", "config": {}}
-            }
+            "manifest_path": str(manifest_path),
+            "output_dir": str(tmp_path / "output")
         }
 
         config_path = tmp_path / "config.json"
