@@ -18,14 +18,14 @@
   - [x] Clean up any other test artifacts (none found)
   - [x] Commit: `Ref: Clean up test galleries and artifacts` (no cleanup needed)
 
-- [ ] **Create site serve E2E tests**
-  - [ ] Create `test/e2e/test_site_serve.py` with tests:
-    - [ ] `@pytest.mark.skip` test_site_serve_proxy_coordination - Test site serve starts both Galleria and Pelican servers
-    - [ ] `@pytest.mark.skip` test_site_serve_routing - Test proxy routes /galleries/, /pics/, other requests correctly
-  - [ ] `uv run ruff check --fix --unsafe-fixes`
-  - [ ] `uv run pytest`
-  - [ ] Update doc/CHANGELOG.md and doc/TODO.md
-  - [ ] Commit: `Tst: Add site serve E2E tests (skipped)`
+- [x] **Create site serve E2E tests**
+  - [x] Create `test/e2e/test_site_serve.py` with tests:
+    - [x] `@pytest.mark.skip` test_site_serve_proxy_coordination - Test site serve starts both Galleria and Pelican servers
+    - [x] `@pytest.mark.skip` test_site_serve_routing - Test proxy routes /galleries/, /pics/, other requests correctly
+  - [x] `uv run ruff check --fix --unsafe-fixes`
+  - [x] `uv run pytest`
+  - [x] Update doc/CHANGELOG.md and doc/TODO.md
+  - [x] Commit: `Tst: Add site serve E2E tests (skipped)`
 
 - [ ] **Implement site serve proxy (TDD cycle)**
   - [ ] Create `test/unit/test_site_serve.py` with unit tests for proxy logic

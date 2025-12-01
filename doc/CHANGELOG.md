@@ -2,6 +2,15 @@
 
 ## 2025-12-01
 
+### Site Serve Development
+
+* **COMPLETED: Site serve E2E test framework created**
+  - Created test/e2e/test_site_serve.py with comprehensive test structure
+  - Added test_site_serve_proxy_coordination for testing server coordination
+  - Added test_site_serve_routing for testing proxy routing functionality
+  - Tests marked with @pytest.mark.skip pending implementation
+  - All tests pass (skipped) - ready for TDD implementation cycle
+
 ### Test Infrastructure Improvements
 
 * **COMPLETED: Config format unification unit test fixes**
