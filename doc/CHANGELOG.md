@@ -4,6 +4,15 @@
 
 ### Site Serve Development
 
+* **COMPLETED: Site serve proxy implementation using TDD**
+  - Created test/unit/test_site_serve.py with comprehensive unit test coverage
+  - Implemented SiteServeProxy class with routing logic for galleries, pics, and pelican
+  - Added route testing for /galleries/* → Galleria (8001), /pics/* → static, other → Pelican (8002)  
+  - Implemented subprocess management for starting Galleria and Pelican servers
+  - Added cleanup functionality for graceful server termination
+  - Registered serve command in CLI with proper Click interface
+  - All 371 tests pass - TDD cycle completed successfully
+
 * **COMPLETED: Site serve E2E test framework created**
   - Created test/e2e/test_site_serve.py with comprehensive test structure
   - Added test_site_serve_proxy_coordination for testing server coordination

@@ -27,18 +27,18 @@
   - [x] Update doc/CHANGELOG.md and doc/TODO.md
   - [x] Commit: `Tst: Add site serve E2E tests (skipped)`
 
-- [ ] **Implement site serve proxy (TDD cycle)**
-  - [ ] Create `test/unit/test_site_serve.py` with unit tests for proxy logic
-  - [ ] `uv run pytest` (tests should fail - RED)
-  - [ ] Implement `cli/commands/serve.py` with proxy that routes:
-    - [ ] `/galleries/*` → Galleria serve (port 8001)
-    - [ ] `/pics/*` → Static file server for output/pics/
-    - [ ] Everything else → Pelican --listen (port 8002)
-  - [ ] `uv run pytest` (tests should pass - GREEN)
-  - [ ] `uv run ruff check --fix --unsafe-fixes`
-  - [ ] `uv run pytest`
-  - [ ] Update doc/CHANGELOG.md and doc/TODO.md
-  - [ ] Commit: `Ft: Implement site serve proxy command`
+- [x] **Implement site serve proxy (TDD cycle)**
+  - [x] Create `test/unit/test_site_serve.py` with unit tests for proxy logic
+  - [x] `uv run pytest` (tests should fail - RED)
+  - [x] Implement `cli/commands/serve.py` with proxy that routes:
+    - [x] `/galleries/*` → Galleria serve (port 8001)
+    - [x] `/pics/*` → Static file server for output/pics/
+    - [x] Everything else → Pelican --listen (port 8002)
+  - [x] `uv run pytest` (tests should pass - GREEN)
+  - [x] `uv run ruff check --fix --unsafe-fixes`
+  - [x] `uv run pytest`
+  - [x] Update doc/CHANGELOG.md and doc/TODO.md
+  - [x] Commit: `Ft: Implement site serve proxy command`
 
 - [ ] **Enable site serve E2E tests**
   - [ ] Remove `@pytest.mark.skip` decorators from `test/e2e/test_site_serve.py`
