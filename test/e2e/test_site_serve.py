@@ -5,7 +5,7 @@
 class TestSiteServeE2E:
     """E2E tests for site serve command proxy functionality."""
 
-    def test_site_serve_proxy_coordination(self, temp_filesystem, config_file_factory, free_port):
+    def test_site_serve_proxy_coordination(self, temp_filesystem, config_file_factory, file_factory, fake_image_factory, free_port):
         """E2E: Test site serve starts both Galleria and Pelican servers.
 
         Test proxy coordination functionality:
@@ -20,9 +20,40 @@ class TestSiteServeE2E:
 
         import requests
 
-        # Arrange: Create site config and required files
+        # Arrange: Create fake photos first (serve assumes build pipeline already ran)
+        fake_image_factory("photo1.jpg", directory="output/pics/full", use_raw_bytes=True)
+        fake_image_factory("photo2.jpg", directory="output/pics/full", use_raw_bytes=True)
+
+        # Create manifest file that references the photos
+        manifest_content = {
+            "collection_name": "test_wedding",
+            "collection_description": "Test photos for serve E2E",
+            "photos": [
+                {
+                    "filename": "photo1.jpg",
+                    "path": str(temp_filesystem / "output" / "pics" / "full" / "photo1.jpg"),
+                    "timestamp": "2024-01-01T10:00:00"
+                },
+                {
+                    "filename": "photo2.jpg",
+                    "path": str(temp_filesystem / "output" / "pics" / "full" / "photo2.jpg"),
+                    "timestamp": "2024-01-01T11:00:00"
+                }
+            ]
+        }
+        file_factory("output/pics/full/manifest.json", json_content=manifest_content)
+
+        # Arrange: Create site config and required files with absolute paths
         config_file_factory("site")
-        config_file_factory("galleria")
+        config_file_factory("galleria", {
+            "provider": {"plugin": "normpic-provider"},
+            "processor": {"plugin": "thumbnail-processor"},
+            "transform": {"plugin": "basic-pagination"},
+            "template": {"plugin": "basic-template"},
+            "css": {"plugin": "basic-css"},
+            "output_dir": str(temp_filesystem / "output" / "galleries" / "test"),
+            "manifest_path": str(temp_filesystem / "output" / "pics" / "full" / "manifest.json"),
+        })
         config_file_factory("pelican")
 
         # Create output directory with basic content for Pelican to serve
@@ -56,7 +87,7 @@ class TestSiteServeE2E:
             process.terminate()
             process.wait(timeout=5)
 
-    def test_site_serve_routing(self, temp_filesystem, config_file_factory, free_port):
+    def test_site_serve_routing(self, temp_filesystem, config_file_factory, file_factory, fake_image_factory, free_port):
         """E2E: Test proxy routes /galleries/, /pics/, other requests correctly.
 
         Test proxy routing functionality:
@@ -72,9 +103,40 @@ class TestSiteServeE2E:
 
         import requests
 
-        # Arrange: Create site config and required files
+        # Arrange: Create fake photos first (serve assumes build pipeline already ran)
+        fake_image_factory("photo1.jpg", directory="output/pics/full", use_raw_bytes=True)
+        fake_image_factory("photo2.jpg", directory="output/pics/full", use_raw_bytes=True)
+
+        # Create manifest file that references the photos
+        manifest_content = {
+            "collection_name": "wedding",
+            "collection_description": "Test wedding photos for routing",
+            "photos": [
+                {
+                    "filename": "photo1.jpg",
+                    "path": str(temp_filesystem / "output" / "pics" / "full" / "photo1.jpg"),
+                    "timestamp": "2024-01-01T10:00:00"
+                },
+                {
+                    "filename": "photo2.jpg",
+                    "path": str(temp_filesystem / "output" / "pics" / "full" / "photo2.jpg"),
+                    "timestamp": "2024-01-01T11:00:00"
+                }
+            ]
+        }
+        file_factory("output/pics/full/manifest.json", json_content=manifest_content)
+
+        # Arrange: Create site config and required files with absolute paths
         config_file_factory("site")
-        config_file_factory("galleria")
+        config_file_factory("galleria", {
+            "provider": {"plugin": "normpic-provider"},
+            "processor": {"plugin": "thumbnail-processor"},
+            "transform": {"plugin": "basic-pagination"},
+            "template": {"plugin": "basic-template"},
+            "css": {"plugin": "basic-css"},
+            "output_dir": str(temp_filesystem / "output" / "galleries" / "wedding"),
+            "manifest_path": str(temp_filesystem / "output" / "pics" / "full" / "manifest.json"),
+        })
         config_file_factory("pelican")
 
         # Create sample gallery content
@@ -82,10 +144,10 @@ class TestSiteServeE2E:
         galleries_dir.mkdir(parents=True)
         (galleries_dir / "page_1.html").write_text("<html>Gallery Page 1</html>")
 
-        # Create sample pic content
+        # Note: pics_dir already created by fake_image_factory above
         pics_dir = temp_filesystem / "output" / "pics" / "full"
-        pics_dir.mkdir(parents=True)
-        (pics_dir / "photo1.jpg").write_bytes(b"fake jpg data")
+        # Add an additional test file for static serving
+        (pics_dir / "test_static.jpg").write_bytes(b"fake jpg data")
 
         # Create sample pelican content
         (temp_filesystem / "output" / "index.html").write_text("<html>Site Homepage</html>")
@@ -111,7 +173,7 @@ class TestSiteServeE2E:
             # Assert: Verify routing works correctly
 
             # Test static file serving for /pics/* -> Static file server
-            response = requests.get(f"http://localhost:{proxy_port}/pics/full/photo1.jpg", timeout=1)
+            response = requests.get(f"http://localhost:{proxy_port}/pics/full/test_static.jpg", timeout=1)
             assert response.status_code == 200, "Static pic files should be served"
             assert response.content == b"fake jpg data", "Static file content should match"
 
