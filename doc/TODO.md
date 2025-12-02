@@ -27,7 +27,7 @@
 
 - [x] **Document/Plan findings from manual testing of 'serve'**
   **Manual Testing Results:**
-  - ✅ Site command pipeline works: validate → organize → build → serve 
+  - ✅ Site command pipeline works: validate → organize → build → serve
   - ✅ Pelican routing works: `/` and `/about/` serve correctly
   - ✅ Static file serving works (tested in E2E but not manually)
   - ❌ Galleria routes fail: 502 errors on `/galleries/*` paths
@@ -40,20 +40,21 @@
   **Additional Issues for Later:**
   - [ ] Pelican generating bad routing and site naming (Is it a weird navbar?)
   - [ ] Ongoing issue with galleria's photo links not going to full sized photos
-  - [ ] Need configurable base URL for prod vs serve (http://127.0.0.1:portnum)
+  - [ ] Need configurable base URL for prod vs serve (<http://127.0.0.1:portnum>)
 
-- [ ] **Fix Galleria manifest path bug (BLOCKING)**
-  - [ ] **Investigate Galleria code** - Find where "config/" prefix is hardcoded
-  - [ ] **Fix manifest path resolution** - Remove hardcoded "config/" prefix
+- [ ] **Fix Galleria manifest path bug (BLOCKING)** *(Research complete, implementation blocked by test complexity)*
+  - [x] **Investigate Galleria code** - Issue likely in relative path resolution when config passed as "config/galleria.json"
+  - [x] **Identified solution** - Use absolute path for config file to prevent relative path resolution issues
+  - [ ] **Implement absolute path fix** - Modify serve.py to use absolute config path with proper test mocking
   - [ ] **Clean up workaround** - Remove config/output/pics/full/ directory and manifest copy
   - [ ] **Test manifest path fix** - Verify Galleria reads from correct output/pics/full/ location
   - [ ] **Run full serve test** - Ensure galleries route works without 502 errors
   - [ ] Commit: `Fix: Remove hardcoded config prefix from Galleria manifest paths`
 
-- [ ] **Add --no-generate flag to site serve command**
-  - [ ] **Update serve.py** - Pass --no-generate flag to Galleria subprocess call
-  - [ ] **Add CLI option** - Add --no-generate flag to site serve command options
-  - [ ] **Update unit tests** - Test --no-generate flag functionality
+- [ ] **Add --no-generate flag to site serve command** *(Partially implemented, blocked by test environment)*
+  - [x] **Research --no-generate flag** - Confirmed flag exists in galleria serve command
+  - [x] **Design implementation** - Add CLI option and pass through to galleria subprocess
+  - [ ] **Complete TDD implementation** - Write failing test, implement feature, ensure all tests pass
   - [ ] **Test large photo sets** - Verify serve works quickly with 645+ photos
   - [ ] Commit: `Ft: Add --no-generate flag to site serve for development`
 
@@ -250,6 +251,7 @@
   - [ ] Ensure no parent project dependencies
   - [ ] Verify self-contained module structure
   - [ ] Create standalone pyproject.toml for Galleria
+  - [ ] Make sure the "Made with galleria" line is a link to the repo
   - [ ] Document Galleria-only installation process
 - [ ] Galleria technical debt cleanup
   - [ ] Add comprehensive type hints
