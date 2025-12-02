@@ -4,29 +4,6 @@
 
 ### Phase 3: Integration Testing & Serve Command
 
-- [x] **CRITICAL: Fix test dependency on production configs**
-  - [x] **BLOCKING ISSUE**: Tests load real config files causing failures
-  - [x] Fixed serve E2E tests to use direct imports instead of subprocess
-  - [x] Updated test fixtures to use flat config format consistently
-  - [x] Eliminated real filesystem dependencies in serve tests
-  - [x] Fix remaining unit tests expecting old config format (19 failing)
-  - [x] Add this pattern to testing guidelines to prevent recurrence
-
-- [x] **Cleanup test galleries and artifacts**
-  - [x] Remove `test_config/` and `test_output/` directories (already removed)
-  - [x] Ensure `.gitignore` covers all output directories (already covered by output/)
-  - [x] Clean up any other test artifacts (none found)
-  - [x] Commit: `Ref: Clean up test galleries and artifacts` (no cleanup needed)
-
-- [x] **Create site serve E2E tests**
-  - [x] Create `test/e2e/test_site_serve.py` with tests:
-    - [x] `@pytest.mark.skip` test_site_serve_proxy_coordination - Test site serve starts both Galleria and Pelican servers
-    - [x] `@pytest.mark.skip` test_site_serve_routing - Test proxy routes /galleries/, /pics/, other requests correctly
-  - [x] `uv run ruff check --fix --unsafe-fixes`
-  - [x] `uv run pytest`
-  - [x] Update doc/CHANGELOG.md and doc/TODO.md
-  - [x] Commit: `Tst: Add site serve E2E tests (skipped)`
-
 - [x] **Implement site serve proxy (TDD cycle)**
   - [x] Create `test/unit/test_site_serve.py` with unit tests for proxy logic
   - [x] `uv run pytest` (tests should fail - RED)

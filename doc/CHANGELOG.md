@@ -1,5 +1,19 @@
 # Changelog
 
+## 2025-12-02
+
+### HTTP Server Integration Complete
+
+* **COMPLETED: HTTP server startup implementation in serve command**
+  - Added actual HTTP server creation and startup to serve() function
+  - Implemented automatic backend server startup for Galleria and Pelican
+  - Added graceful shutdown handling with Ctrl+C support
+  - Fixed Galleria command to use --config flag instead of positional argument
+  - Enhanced E2E test with basic output directory setup for Pelican
+  - Added comprehensive unit test for server integration workflow
+  - All 380 tests pass including new server integration test
+  - Serve command now fully functional for development workflow
+
 ## 2025-12-01
 
 ### Site Serve Development

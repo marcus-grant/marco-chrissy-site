@@ -95,15 +95,37 @@ The proxy handles errors gracefully:
 ### Core Components
 
 - **SiteServeProxy**: Routing logic and subprocess management
+  - Creates and manages Galleria and Pelican server subprocesses
+  - Handles graceful cleanup on shutdown
+  - Routes requests based on URL patterns
+
 - **ProxyHTTPHandler**: HTTP request handling and forwarding
-- **Static File Server**: Direct filesystem serving for photos
+  - Forwards `/galleries/*` requests to Galleria server
+  - Serves `/pics/*` requests directly from filesystem
+  - Forwards all other requests to Pelican server
+  - Handles connection errors with 502/404 responses
+
+- **HTTP Server Integration**: Actual server startup and coordination
+  - Creates `http.server.HTTPServer` instance
+  - Links proxy handler to server
+  - Starts backend servers automatically
+  - Handles Ctrl+C graceful shutdown
+
+### Backend Server Management
+
+The serve command automatically starts required backend servers:
+
+1. **Galleria Server**: Started with `galleria serve --config config/galleria.toml --port <galleria-port>`
+2. **Pelican Server**: Started with `pelican --listen --port <pelican-port> --bind 127.0.0.1 output`
+
+Both servers are terminated cleanly when the proxy server shuts down.
 
 ### Testing
 
 The serve command has comprehensive test coverage:
 
-- **15 unit tests** covering all proxy functionality
-- **E2E tests** for server coordination and routing
-- **Error handling tests** for connection failures
+- **16 unit tests** covering all proxy functionality and server integration
+- **E2E tests** for complete server coordination workflow
+- **Error handling tests** for connection failures and missing backends
 
-See `test/unit/test_site_serve.py` for detailed test examples.
+See `test/unit/test_site_serve.py` and `test/e2e/test_site_serve.py` for detailed test examples.

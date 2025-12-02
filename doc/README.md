@@ -5,7 +5,7 @@
 This is the main documentation index for our personal website project.
 The site orchestrates multiple tools to generate static content deployed to Bunny CDN.
 
-**Current Status:** Galleria (gallery generator) is at MVP. Phase 2 focuses on building the site orchestration system with a 4-stage idempotent pipeline and plugin-based Pelican integration. See [Architecture](architecture.md) for detailed system design.
+**Current Status:** Galleria (gallery generator) is at MVP. Site serve command is complete with HTTP proxy integration. Current focus: Phase 3 integration testing and completing the 4-stage idempotent pipeline (validate→organize→build→deploy). See [Architecture](architecture.md) for detailed system design.
 
 ## Documentation Structure
 
