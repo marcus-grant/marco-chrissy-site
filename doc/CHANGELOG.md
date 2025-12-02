@@ -2,7 +2,15 @@
 
 ## 2025-12-02
 
-### HTTP Server Integration Complete
+### Site Serve Command Complete
+
+* **COMPLETED: Site serve E2E test enablement and fixes**
+  - Enabled all skipped E2E tests for serve command functionality
+  - Fixed config file format mismatch (.toml → .json) in serve implementation
+  - Enhanced galleria test fixtures with required output_dir and manifest_path
+  - Both E2E serve tests now pass consistently in ~4 seconds
+  - Complete TDD workflow: enable test → identify issues → fix → verify
+  - All 380 tests pass with comprehensive serve command coverage
 
 * **COMPLETED: HTTP server startup implementation in serve command**
   - Added actual HTTP server creation and startup to serve() function
@@ -11,7 +19,6 @@
   - Fixed Galleria command to use --config flag instead of positional argument
   - Enhanced E2E test with basic output directory setup for Pelican
   - Added comprehensive unit test for server integration workflow
-  - All 380 tests pass including new server integration test
   - Serve command now fully functional for development workflow
 
 ## 2025-12-01

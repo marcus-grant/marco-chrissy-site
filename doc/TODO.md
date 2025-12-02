@@ -17,19 +17,23 @@
   - [x] Update doc/CHANGELOG.md and doc/TODO.md
   - [x] Commit: `Ft: Implement site serve proxy command`
 
-- [ ] **Enable site serve E2E tests**
-  - [ ] Remove `@pytest.mark.skip` decorators from `test/e2e/test_site_serve.py`
-  - [ ] `uv run pytest` (fix any integration issues until tests pass)
-  - [ ] `uv run ruff check --fix --unsafe-fixes`
-  - [ ] `uv run pytest`
-  - [ ] Update doc/CHANGELOG.md and doc/TODO.md
-  - [ ] Commit: `Tst: Enable and fix site serve E2E tests`
+- [x] **Enable site serve E2E tests**
+  - [x] Remove `@pytest.mark.skip` decorators from `test/e2e/test_site_serve.py`
+  - [x] `uv run pytest` (fix any integration issues until tests pass)
+  - [x] `uv run ruff check --fix --unsafe-fixes`
+  - [x] `uv run pytest`
+  - [x] Update doc/CHANGELOG.md and doc/TODO.md
+  - [x] Commit: `Tst: Enable and fix site serve E2E tests`
 
 - [ ] **Manual testing guide with real photo set**
   - [ ] Guide through testing serve command with real photos
   - [ ] Test hot reload, file watching, skip generation modes
   - [ ] Verify full E2E workflow works correctly
   - [ ] Document any issues found and solutions
+
+- [ ] Document/Plan findings from manual testing of 'serve'
+  - [ ] Setup plans if needed for improvements that aren't already listed later here
+  - [ ] Ensure a workflow walkthrough of tasks are planned for those improvements
 
 - [ ] **Document serve command usage**
   - [ ] Create `doc/commands/serve.md` with usage examples and URL pattern explanations
