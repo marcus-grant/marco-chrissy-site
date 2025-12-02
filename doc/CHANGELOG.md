@@ -4,19 +4,11 @@
 
 ### Fix: Proxy Routing Bug in Serve Command  
 
-* **COMPLETED: Fixed /galleries/* proxy routing to Galleria server**
-  - Root cause: Proxy forwarded full path `/galleries/wedding/page_1.html` but Galleria expects `/page_1.html`
-  - Solution: Strip `/galleries/` prefix before forwarding requests to Galleria
-  - Test coverage: Added missing E2E test for gallery routing, updated unit test expectations
-  - Verification: All serve tests pass, `/galleries/*` URLs now route correctly through proxy
+* **Fixed proxy routing for /galleries/* URLs** - now routes correctly to Galleria server
 
 ### Fix: Galleria Manifest Path Bug in Serve E2E Tests
 
-* **COMPLETED: Fixed serve command Galleria manifest path resolution**
-  - Root cause: E2E tests used relative manifest paths, galleria subprocess couldn't find manifest files
-  - Solution: Updated serve E2E tests to use absolute paths and create pre-existing manifest+photos
-  - Pattern established: Serve tests simulate post-build state, organize/build tests create manifests during execution
-  - Verification: All serve E2E tests now pass, full test suite remains at 380 passing tests
+* **Fixed serve E2E tests** - use absolute paths and create pre-existing manifest files
 
 ### Serve Command Issues Identified
 

@@ -1,5 +1,19 @@
 # Marco & Chrissy's Website - TODO
 
+## Current Status: Serve Command Basic Functionality Complete
+
+**COMPLETED**:
+- ✅ Manifest path bug fixed - Galleria can start and run 
+- ✅ Proxy routing fixed - `/galleries/wedding/page_1.html` routes correctly
+- ✅ All E2E and unit tests pass (380 tests)
+
+**REMAINING ISSUES**:
+- [ ] --no-generate flag missing (needed for large photo sets)
+- [ ] Galleria CPU hang with 645+ photos  
+- [ ] Additional routing and photo link issues
+
+**NEXT STEPS**: Complete --no-generate flag implementation, then resume full manual testing.
+
 ## MVP Roadmap
 
 ### Phase 3: Integration Testing & Serve Command
@@ -55,10 +69,11 @@
   - [ ] **Test large photo sets** - Verify serve works quickly with 645+ photos
   - [ ] Commit: `Ft: Add --no-generate flag to site serve for development`
 
-- [ ] **Manual testing guide with real photo set** *(BLOCKED until fixes above)*
+- [ ] **Manual testing guide with real photo set** *(READY TO RESUME)*
   - [x] ~~Guide through testing serve command with real photos~~
-  - [x] **COMPLETED**: Identified blocking Galleria manifest and performance issues  
-  - [ ] **RESUME AFTER FIXES**: Complete full serve testing with working galleries
+  - [x] **COMPLETED**: Identified and fixed blocking Galleria manifest and proxy routing issues  
+  - [x] **COMPLETED**: Fixed proxy routing - /galleries/wedding/page_1.html now routes correctly to Galleria
+  - [ ] **RESUME**: Complete full serve testing with working galleries (basic routing now works)
   - [ ] Test hot reload, file watching, skip generation modes
   - [ ] Verify full E2E workflow works correctly
 
@@ -97,6 +112,8 @@
   - [ ] Update theme loading system to work with file-based templates and CSS
   - [ ] Preserve existing theme switching functionality but with proper separation of concerns
   - [ ] This addresses the fundamental violation: mixing Python logic with presentation layer
+  - [ ] Galleria should generate a gallery index page
+  - [ ] Optional pre-MVP - plan how galleria should handle multiple galleries
 
 ### Phase 5: Performance Baseline
 
