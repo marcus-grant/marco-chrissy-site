@@ -30,7 +30,6 @@
   **Additional Issues for Later:**
 
 - [ ] Pelican generating bad routing and site naming (Is it a weird navbar?)
-- [ ] Ongoing issue with galleria's photo links not going to full sized photos
 - [ ] Need configurable base URL for prod vs serve (<http://127.0.0.1:portnum>)
 
 - [x] **Fix Galleria manifest path bug (BLOCKING)** *(COMPLETED)*
@@ -82,6 +81,9 @@
   - [ ] Consider lazy loading or pagination for massive galleries
 
 - [ ] **Refactor template and CSS plugins to use file-based theme system**
+  - [ ] Ongoing issue with galleria's photo links not going to full sized photos
+    - Clicking a thumbnail in 'serve' leads to:
+      - `http://127.0.0.1:8000/galleries/pics/full/wedding-{timestamp}-r5a.JPG`
   - [ ] CRITICAL: Current template and CSS plugins hardcode HTML/CSS as Python strings (poor architecture)
   - [ ] Move HTML to Jinja2 template files in galleria/themes/*/templates/ directory
   - [ ] Move CSS to static files in galleria/themes/*/static/ directory  
