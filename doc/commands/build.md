@@ -42,8 +42,24 @@ output/
 │       ├── gallery.css
 │       └── thumbnails/
 ├── about/          # Site pages (from pelican)
-└── index.html      # Site root (from pelican)
+└── index.html      # Site root (from pelican or custom content)
 ```
+
+### Index Page Handling
+
+The build system automatically handles conflicts between Pelican's default blog index and custom content:
+
+**Scenario 1: Custom Index Page**
+- If `content/index.md` exists with `slug: index`
+- System disables Pelican's default blog index
+- Custom page becomes `/index.html`
+
+**Scenario 2: Default Blog Index**
+- If no conflicting content exists
+- Pelican generates standard blog index at `/index.html`
+- Lists all articles/posts
+
+**Automatic Resolution**: No user configuration required. System detects conflicts and adapts automatically.
 
 ## Idempotent Behavior
 

@@ -11,19 +11,21 @@
 When adding complex features, update doc/TODO.md with concrete, actionable tasks that spell out the entire workflow:
 
 ### Task Structure
+
 Each task must specify exactly:
-- **What to implement/test** (specific files, classes, methods)
-- **Pre-commit workflow**: `uv run ruff check --fix --unsafe-fixes`, `uv run pytest`, update docs
-- **Commit message format**: `Prefix: Description`
-- **Expected outcome** (tests pass/fail, what functionality works)
+* **What to implement/test** (specific files, classes, methods)
+* **Pre-commit workflow**: `uv run ruff check --fix --unsafe-fixes`, `uv run pytest`, update docs
+* **Commit message format**: `Prefix: Description`
+* **Expected outcome** (tests pass/fail, what functionality works)
 
 ### Task Organization
-- **E2E/Integration tests first** - Mark with `@pytest.mark.skip`, own commit
-- **Unit test cycles** - RED → GREEN → refactor → commit (200-300 LOC max)
-- **Implementation follows TDD** - Write failing tests, implement to pass
-- **Documentation tasks last** - Batch doc updates after functionality complete
+* **E2E/Integration tests first** - Mark with `@pytest.mark.skip`, own commit
+* **Unit test cycles** - RED → GREEN → refactor → commit (200-300 LOC max)
+* **Implementation follows TDD** - Write failing tests, implement to pass
+* **Documentation tasks last** - Batch doc updates after functionality complete
 
-### Example Task Format:
+### Example Task Format
+
 ```
 - [ ] **Create galleria serve E2E tests (skipped)**
   - [ ] Create `galleria/test/test_serve_e2e.py` with tests:
@@ -35,10 +37,10 @@ Each task must specify exactly:
 ```
 
 ### Key Principles
-- **No workflow explanation in tasks** - Tasks ARE the workflow, step by step
-- **Concrete file paths** - Specify exact files to create/modify
-- **Self-contained** - Each task can be completed independently across context breaks
-- **Pre-commit checks mandatory** - Every commit includes ruff + pytest + doc updates
+* **No workflow explanation in tasks** - Tasks ARE the workflow, step by step
+* **Concrete file paths** - Specify exact files to create/modify
+* **Self-contained** - Each task can be completed independently across context breaks
+* **Pre-commit checks mandatory** - Every commit includes ruff + pytest + doc updates
 
 ## Testing Requirements
 
@@ -77,6 +79,9 @@ Each task must specify exactly:
   * **Real filesystem tests** - Use fixtures with actual files, not mocks
   * **Small, focused commits** - Each unit test cycle produces complete, testable change
   * **Clear handoff points** - E2E tests show exactly what needs implementing
+  * If a problem is discovered outside automated testing...
+    * That means the tests are bad, not the implementation
+    * That means tests need updating first, not the implementation
 * Task management:
   * Every test should usually only cover one TODO task
   * Some tasks require multiple tests
@@ -106,15 +111,15 @@ Each task must specify exactly:
 **CRITICAL: Always follow this exact sequence before every commit:**
 
 1. **Write/modify code** - Implement your changes
-2. **Run ruff with fixes** - `uv run ruff check --fix --unsafe-fixes` 
+2. **Run ruff with fixes** - `uv run ruff check --fix --unsafe-fixes`
 3. **Run relevant tests** - Verify formatting didn't break logic
 4. **Run full test suite** - `uv run pytest` (before every commit)
 5. **Commit** - Only if all tests pass
 
 **Why this order matters:**
-- Ruff auto-fixes can change code logic (rare but possible)
-- Style changes can break tests in unexpected ways  
-- Catching issues early prevents context pollution from easy-to-fix errors
+* Ruff auto-fixes can change code logic (rare but possible)
+* Style changes can break tests in unexpected ways  
+* Catching issues early prevents context pollution from easy-to-fix errors
 
 **Never skip step 3** - always test after ruff formatting.
 

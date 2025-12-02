@@ -281,6 +281,34 @@ Each tool has its own configuration format:
 - Pelican: Site generation configuration
 - Orchestrator: Build workflow settings
 
+### Index Page Conflict Resolution
+
+**Critical Architecture Decision**: The build system automatically resolves conflicts between Pelican's default blog index and custom page content.
+
+**Problem**: Pelican's default behavior generates a blog index at `/index.html`. If content contains a page with `slug: index`, both attempt to create the same file, triggering Pelican's "File to be overwritten" error.
+
+**Solution**: Smart conflict detection and conditional configuration:
+
+```python
+# PelicanBuilder automatically detects conflicting content
+has_index_content = any('slug: index' in file.read_text() 
+                       for file in content_dir.glob('**/*.md'))
+
+# Conditionally disable default blog index
+pelican_config['INDEX_SAVE_AS'] = '' if has_index_content else 'index.html'
+```
+
+**Architecture Benefits**:
+- **Zero Configuration**: Users don't need to know about this conflict
+- **Automatic Detection**: System scans content directory for conflicts
+- **Graceful Degradation**: Works whether custom index exists or not
+- **Preserve Intent**: Custom index pages take precedence over default blog index
+
+**Integration Points**:
+- Content authoring: Users can freely create `content/index.md` with `slug: index`
+- Build process: Automatic conflict resolution during PelicanBuilder.build()
+- Testing: Comprehensive coverage for both conflict scenarios
+
 ## Future Extensibility
 
 ### Django/FastAPI Integration

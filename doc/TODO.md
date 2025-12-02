@@ -3,11 +3,13 @@
 ## Current Status: Serve Command Basic Functionality Complete
 
 **COMPLETED**:
-- ✅ Manifest path bug fixed - Galleria can start and run 
+
+- ✅ Manifest path bug fixed - Galleria can start and run
 - ✅ Proxy routing fixed - `/galleries/wedding/page_1.html` routes correctly
 - ✅ All E2E and unit tests pass (380 tests)
 
 **REMAINING ISSUES**:
+
 - [ ] --no-generate flag missing (needed for large photo sets)
 - [ ] Galleria CPU hang with 645+ photos  
 - [ ] Additional routing and photo link issues
@@ -18,46 +20,22 @@
 
 ### Phase 3: Integration Testing & Serve Command
 
-- [x] **Implement site serve proxy (TDD cycle)**
-  - [x] Create `test/unit/test_site_serve.py` with unit tests for proxy logic
-  - [x] `uv run pytest` (tests should fail - RED)
-  - [x] Implement `cli/commands/serve.py` with proxy that routes:
-    - [x] `/galleries/*` → Galleria serve (port 8001)
-    - [x] `/pics/*` → Static file server for output/pics/
-    - [x] Everything else → Pelican --listen (port 8002)
-  - [x] `uv run pytest` (tests should pass - GREEN)
-  - [x] `uv run ruff check --fix --unsafe-fixes`
-  - [x] `uv run pytest`
-  - [x] Update doc/CHANGELOG.md and doc/TODO.md
-  - [x] Commit: `Ft: Implement site serve proxy command`
-
-- [x] **Enable site serve E2E tests**
-  - [x] Remove `@pytest.mark.skip` decorators from `test/e2e/test_site_serve.py`
-  - [x] `uv run pytest` (fix any integration issues until tests pass)
-  - [x] `uv run ruff check --fix --unsafe-fixes`
-  - [x] `uv run pytest`
-  - [x] Update doc/CHANGELOG.md and doc/TODO.md
-  - [x] Commit: `Tst: Enable and fix site serve E2E tests`
-
-- [x] **Document/Plan findings from manual testing of 'serve'**
-  **Manual Testing Results:**
-  - ✅ Site command pipeline works: validate → organize → build → serve
-  - ✅ Pelican routing works: `/` and `/about/` serve correctly
-  - ✅ Static file serving works (tested in E2E but not manually)
-  - ❌ Galleria routes fail: 502 errors on `/galleries/*` paths
-  
   **Critical Issues Found:**
-  - **BLOCKING: Galleria hardcoded manifest path bug** - Prepends "config/" to manifest paths
-  - **BLOCKING: Galleria hangs processing 645 photos** - Uses 99.9% CPU, never completes
-  - **Enhancement: Missing --no-generate flag** in site serve command
+
+- **BLOCKING: Galleria hardcoded manifest path bug**
+  - Prepends "config/" to manifest paths
+- **BLOCKING: Galleria hangs processing 645 photos** - Uses 99.9% CPU, never completes
+- **Enhancement: Missing --no-generate flag** in site serve command
   
   **Additional Issues for Later:**
-  - [ ] Pelican generating bad routing and site naming (Is it a weird navbar?)
-  - [ ] Ongoing issue with galleria's photo links not going to full sized photos
-  - [ ] Need configurable base URL for prod vs serve (<http://127.0.0.1:portnum>)
+
+- [ ] Pelican generating bad routing and site naming (Is it a weird navbar?)
+- [ ] Ongoing issue with galleria's photo links not going to full sized photos
+- [ ] Need configurable base URL for prod vs serve (<http://127.0.0.1:portnum>)
 
 - [x] **Fix Galleria manifest path bug (BLOCKING)** *(COMPLETED)*
-  - [x] **Root cause identified** - E2E tests used relative manifest paths, galleria subprocess couldn't find manifest
+  - [x] **Root cause identified**
+    - E2E tests used relative manifest paths, galleria subprocess couldn't find manifest
   - [x] **Solution implemented** - Updated serve E2E tests to use absolute paths and create pre-existing manifest+photos
   - [x] **Fix verified** - Serve E2E tests now pass, full test suite passes (380 tests)
   - [x] **Pattern documented** - Serve tests simulate post-build state with existing manifest, other tests create manifests
@@ -118,6 +96,8 @@
 ### Phase 5: Performance Baseline
 
 - [ ] Measure initial performance metrics
+  - [ ] Pipeline timing: validate, organize (16s), build (6m4s), deploy step durations
+  - [ ] Thumbnail generation: time per photo, batch processing efficiency  
   - [ ] Page weight (HTML + CSS + thumbnails)
   - [ ] Core Web Vitals (FCP, LCP, TTI, CLS, TBT)
   - [ ] Lighthouse scores
@@ -151,6 +131,18 @@
 
 - [ ] Plan rest of this step, needs much more detail
 - [ ] Set up dual CDN deployment strategy (photos vs site content)
+- [ ] **DESIGN ISSUE: Serve command doesn't cascade to build** 
+  - Manual testing revealed serve fails when output/ doesn't exist
+  - Manual testing confirmed serve doesn't detect content changes and auto-rebuild
+  - Expected behavior: serve should auto-call build → organize → validate
+  - Current behavior: serve assumes build has already been run
+  - This violates the cascading pipeline pattern described in CONTRIBUTE.md
+  - Non-breaking issue: workaround is manual `site build` before `site serve`
+- [x] **PELICAN INTEGRATION ISSUE: File overwrite conflicts** *(RESOLVED)*
+  - **Root cause identified**: Pelican's default blog index and custom page with `slug: index` both try to generate `index.html`
+  - **Solution implemented**: Smart detection of conflicting content and conditional INDEX_SAVE_AS configuration
+  - **Verification complete**: Both test scenarios pass - with and without conflicting index content
+  - Manual testing can now proceed without requiring `rm output/index.html && site build` workaround
 
 ## Post-MVP Enhancements
 

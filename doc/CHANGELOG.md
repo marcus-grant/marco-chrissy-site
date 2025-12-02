@@ -2,6 +2,18 @@
 
 ## 2025-12-02
 
+### Fix: Pelican Index Page Conflict Resolution
+
+* **RESOLVED: Build system automatically handles index page conflicts**
+  - Fixed "File to be overwritten" errors when content contains pages with `slug: index`
+  - Added smart detection of conflicting content during build process
+  - Conditionally disables Pelican's default blog index when custom index pages exist
+  - Zero configuration required - system automatically adapts to content structure
+  - Both scenarios now work seamlessly: custom index pages and default blog index
+  - Manual workaround (`rm output/index.html && site build`) no longer needed
+  - Added comprehensive test coverage for both conflict scenarios
+  - Updated documentation across configuration, architecture, and build command guides
+
 ### Fix: Proxy Routing Bug in Serve Command  
 
 * **Fixed proxy routing for /galleries/* URLs** - now routes correctly to Galleria server
