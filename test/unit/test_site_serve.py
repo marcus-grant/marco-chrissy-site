@@ -2,7 +2,7 @@
 
 from unittest.mock import Mock, patch
 
-from cli.commands.serve import SiteServeProxy
+from cli.commands.serve import ProxyHTTPHandler, SiteServeProxy, serve
 
 
 class TestSiteServeProxy:
@@ -96,18 +96,71 @@ class TestSiteServeProxy:
 class TestSiteServeCommand:
     """Unit tests for site serve CLI command."""
 
+    @patch('cli.commands.serve.http.server.HTTPServer')
+    @patch('cli.commands.serve.SiteServeProxy')
     @patch('cli.commands.serve.click.echo')
-    def test_serve_command_prints_complete_url(self, mock_echo):
+    def test_serve_command_prints_complete_url(self, mock_echo, mock_proxy_class, mock_http_server):
         """Test serve command prints complete HTTP URL for proxy server."""
         from click.testing import CliRunner
 
-        from cli.commands.serve import serve
+        # Arrange: Mock proxy and server to prevent hanging
+        mock_proxy = Mock()
+        mock_proxy_class.return_value = mock_proxy
+        mock_server_instance = Mock()
+        mock_http_server.return_value = mock_server_instance
 
         runner = CliRunner()
         result = runner.invoke(serve, ['--host', '127.0.0.1', '--port', '8000'])
 
         assert result.exit_code == 0
         mock_echo.assert_any_call("Starting site serve proxy at http://127.0.0.1:8000")
+
+    @patch('cli.commands.serve.http.server.HTTPServer')
+    @patch('cli.commands.serve.SiteServeProxy')
+    def test_serve_function_starts_http_server(self, mock_proxy_class, mock_http_server):
+        """Test serve function creates and starts HTTP server with proxy handler."""
+        from click.testing import CliRunner
+
+        # Arrange: Mock proxy instance and server
+        mock_proxy = Mock()
+        mock_proxy_class.return_value = mock_proxy
+        mock_server_instance = Mock()
+        mock_http_server.return_value = mock_server_instance
+
+        # Act: Call serve command via Click runner
+        runner = CliRunner()
+        result = runner.invoke(serve, [
+            '--host', '127.0.0.1',
+            '--port', '8000',
+            '--galleria-port', '8001',
+            '--pelican-port', '8002'
+        ])
+
+        # Assert: Command completed successfully
+        assert result.exit_code == 0
+
+        # Assert: Proxy created with correct ports
+        mock_proxy_class.assert_called_once_with(
+            galleria_port=8001,
+            pelican_port=8002,
+            static_pics_dir="output/pics"
+        )
+
+        # Assert: Backend servers started
+        mock_proxy.start_galleria_server.assert_called_once_with("config/galleria.toml")
+        mock_proxy.start_pelican_server.assert_called_once_with("output")
+
+        # Assert: HTTP server created with correct parameters
+        mock_http_server.assert_called_once_with(("127.0.0.1", 8000), ProxyHTTPHandler)
+
+        # Assert: Handler linked to proxy
+        server_args = mock_http_server.call_args[0]
+        handler_class = server_args[1]
+        assert hasattr(handler_class, 'proxy')
+        assert handler_class.proxy == mock_proxy
+
+        # Assert: Server starts listening
+        mock_server_instance.serve_forever.assert_called_once()
 
 
 class TestProxyHTTPHandler:

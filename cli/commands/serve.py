@@ -53,7 +53,7 @@ class SiteServeProxy:
         """
         cmd = [
             "uv", "run", "python", "-m", "galleria",
-            "serve", config_path,
+            "serve", "--config", config_path,
             "--port", str(self.galleria_port)
         ]
         self.galleria_process = subprocess.Popen(cmd)
@@ -152,7 +152,30 @@ def serve(host: str, port: int, galleria_port: int, pelican_port: int) -> None:
     - /pics/* → Static file server
     - Everything else → Pelican server
     """
-    # This is a placeholder - full implementation will be added in next iteration
     click.echo(f"Starting site serve proxy at http://{host}:{port}")
     click.echo(f"Galleria server will run on port {galleria_port}")
     click.echo(f"Pelican server will run on port {pelican_port}")
+
+    # Create proxy instance
+    proxy = SiteServeProxy(
+        galleria_port=galleria_port,
+        pelican_port=pelican_port,
+        static_pics_dir="output/pics"
+    )
+
+    # Start backend servers
+    proxy.start_galleria_server("config/galleria.toml")
+    proxy.start_pelican_server("output")
+
+    # Link proxy to handler class
+    ProxyHTTPHandler.proxy = proxy
+
+    # Create and start HTTP server
+    server = http.server.HTTPServer((host, port), ProxyHTTPHandler)
+
+    try:
+        server.serve_forever()
+    except KeyboardInterrupt:
+        click.echo("\nShutting down server...")
+        proxy.cleanup()
+        server.shutdown()

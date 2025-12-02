@@ -6,8 +6,7 @@ import pytest
 class TestSiteServeE2E:
     """E2E tests for site serve command proxy functionality."""
 
-    @pytest.mark.skip(reason="Serve proxy implementation not yet complete")
-    def test_site_serve_proxy_coordination(self, temp_filesystem, config_file_factory):
+    def test_site_serve_proxy_coordination(self, temp_filesystem, config_file_factory, free_port):
         """E2E: Test site serve starts both Galleria and Pelican servers.
 
         Test proxy coordination functionality:
@@ -17,19 +16,46 @@ class TestSiteServeE2E:
         4. Verify graceful shutdown of all servers
         5. Verify error handling if either server fails to start
         """
+        import subprocess
+        import time
+
+        import requests
+
         # Arrange: Create site config and required files
         config_file_factory("site")
         config_file_factory("galleria")
         config_file_factory("pelican")
 
-        # Act: Start site serve command with proxy
-        # Will test that all three servers start correctly
+        # Create output directory with basic content for Pelican to serve
+        output_dir = temp_filesystem / "output"
+        output_dir.mkdir(exist_ok=True)
+        (output_dir / "index.html").write_text("<html><body>Test Site</body></html>")
 
-        # Assert: Verify all servers are running
-        # - Galleria server on port 8001
-        # - Pelican server on port 8002
-        # - Proxy server on specified port
-        pass
+        # Get free ports for testing
+        proxy_port = free_port()
+        galleria_port = free_port()
+        pelican_port = free_port()
+
+        # Act: Start site serve command with proxy
+        process = subprocess.Popen([
+            "uv", "run", "site", "serve",
+            "--port", str(proxy_port),
+            "--galleria-port", str(galleria_port),
+            "--pelican-port", str(pelican_port)
+        ], cwd=temp_filesystem)
+
+        try:
+            # Wait a bit for servers to start
+            time.sleep(2)
+
+            # Assert: Verify proxy server is running
+            response = requests.get(f"http://localhost:{proxy_port}/", timeout=1)
+            assert response.status_code in [200, 404], "Proxy server should be responding"
+
+        finally:
+            # Cleanup
+            process.terminate()
+            process.wait(timeout=5)
 
     @pytest.mark.skip(reason="Serve proxy implementation not yet complete")
     def test_site_serve_routing(self, temp_filesystem, config_file_factory):
