@@ -25,15 +25,44 @@
   - [x] Update doc/CHANGELOG.md and doc/TODO.md
   - [x] Commit: `Tst: Enable and fix site serve E2E tests`
 
-- [ ] **Manual testing guide with real photo set**
-  - [ ] Guide through testing serve command with real photos
+- [x] **Document/Plan findings from manual testing of 'serve'**
+  **Manual Testing Results:**
+  - ✅ Site command pipeline works: validate → organize → build → serve 
+  - ✅ Pelican routing works: `/` and `/about/` serve correctly
+  - ✅ Static file serving works (tested in E2E but not manually)
+  - ❌ Galleria routes fail: 502 errors on `/galleries/*` paths
+  
+  **Critical Issues Found:**
+  - **BLOCKING: Galleria hardcoded manifest path bug** - Prepends "config/" to manifest paths
+  - **BLOCKING: Galleria hangs processing 645 photos** - Uses 99.9% CPU, never completes
+  - **Enhancement: Missing --no-generate flag** in site serve command
+  
+  **Additional Issues for Later:**
+  - [ ] Pelican generating bad routing and site naming (Is it a weird navbar?)
+  - [ ] Ongoing issue with galleria's photo links not going to full sized photos
+  - [ ] Need configurable base URL for prod vs serve (http://127.0.0.1:portnum)
+
+- [ ] **Fix Galleria manifest path bug (BLOCKING)**
+  - [ ] **Investigate Galleria code** - Find where "config/" prefix is hardcoded
+  - [ ] **Fix manifest path resolution** - Remove hardcoded "config/" prefix
+  - [ ] **Clean up workaround** - Remove config/output/pics/full/ directory and manifest copy
+  - [ ] **Test manifest path fix** - Verify Galleria reads from correct output/pics/full/ location
+  - [ ] **Run full serve test** - Ensure galleries route works without 502 errors
+  - [ ] Commit: `Fix: Remove hardcoded config prefix from Galleria manifest paths`
+
+- [ ] **Add --no-generate flag to site serve command**
+  - [ ] **Update serve.py** - Pass --no-generate flag to Galleria subprocess call
+  - [ ] **Add CLI option** - Add --no-generate flag to site serve command options
+  - [ ] **Update unit tests** - Test --no-generate flag functionality
+  - [ ] **Test large photo sets** - Verify serve works quickly with 645+ photos
+  - [ ] Commit: `Ft: Add --no-generate flag to site serve for development`
+
+- [ ] **Manual testing guide with real photo set** *(BLOCKED until fixes above)*
+  - [x] ~~Guide through testing serve command with real photos~~
+  - [x] **COMPLETED**: Identified blocking Galleria manifest and performance issues  
+  - [ ] **RESUME AFTER FIXES**: Complete full serve testing with working galleries
   - [ ] Test hot reload, file watching, skip generation modes
   - [ ] Verify full E2E workflow works correctly
-  - [ ] Document any issues found and solutions
-
-- [ ] Document/Plan findings from manual testing of 'serve'
-  - [ ] Setup plans if needed for improvements that aren't already listed later here
-  - [ ] Ensure a workflow walkthrough of tasks are planned for those improvements
 
 - [ ] **Document serve command usage**
   - [ ] Create `doc/commands/serve.md` with usage examples and URL pattern explanations
@@ -44,6 +73,7 @@
   - [ ] Commit: `Doc: Add serve command usage documentation`
 
 - [ ] **Document serve architecture**
+  - [ ] Also, update the testing doc with the 'serve' e2e changes
   - [ ] Create `doc/modules/galleria/serve.md` documenting ServeOrchestrator, server, watcher modules
   - [ ] Update `doc/architecture.md` with serve command integration
   - [ ] Update `doc/workflow.md` with development workflow using serve
@@ -53,6 +83,12 @@
   - [ ] Commit: `Doc: Document serve command architecture and workflow`
 
 ### Phase 4: Template & CSS Architecture Fix (Pre-MVP Critical)
+
+- [ ] **Optimize Galleria photo processing performance** (Post-MVP if --no-generate works)
+  - [ ] Investigate why 645 photos cause 99.9% CPU hang in Galleria
+  - [ ] Implement batched or streaming photo processing  
+  - [ ] Add progress indicators for large photo collections
+  - [ ] Consider lazy loading or pagination for massive galleries
 
 - [ ] **Refactor template and CSS plugins to use file-based theme system**
   - [ ] CRITICAL: Current template and CSS plugins hardcode HTML/CSS as Python strings (poor architecture)
@@ -175,9 +211,7 @@
 - [ ] Investigate dead code or re-implemented code
   - [ ] Old non-plugin based manifest serializer module based on normpic's code
   - [ ] Old thumbnail processor that didn't use the plugin interfaces
-  - [ ] Anything else
-- [ ] Add Christmas gallery
-- [ ] Add vacation gallery
+- [ ] Move pelican stuff into a root 'pelican' directory instead of 'content'
 
 ### Medium-term Features
 
@@ -200,6 +234,8 @@
   - [ ] Open Graph meta tags
 - [ ] Blog/updates section
 - [ ] Christmas card pages
+- [ ] Add Christmas gallery
+- [ ] Add vacation gallery
 
 ### Infrastructure Improvements
 
