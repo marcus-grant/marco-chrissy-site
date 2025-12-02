@@ -80,26 +80,110 @@
   - [ ] Add progress indicators for large photo collections
   - [ ] Consider lazy loading or pagination for massive galleries
 
-- [ ] **Refactor template and CSS plugins to use file-based theme system**
-  - [ ] Ongoing issue with galleria's photo links not going to full sized photos
-    - Clicking a thumbnail in 'serve' leads to:
-      - `http://127.0.0.1:8000/galleries/pics/full/wedding-{timestamp}-r5a.JPG`
-  - [ ] CRITICAL: Current template and CSS plugins hardcode HTML/CSS as Python strings (poor architecture)
-  - [ ] Move HTML to Jinja2 template files in galleria/themes/*/templates/ directory
-  - [ ] Move CSS to static files in galleria/themes/*/static/ directory  
-  - [ ] Refactor BasicTemplatePlugin to load and render actual template files
-  - [ ] Refactor BasicCSSPlugin to copy/process static CSS files instead of generating strings
-  - [ ] Update theme loading system to work with file-based templates and CSS
-  - [ ] Preserve existing theme switching functionality but with proper separation of concerns
-  - [ ] This addresses the fundamental violation: mixing Python logic with presentation layer
-  - [ ] Galleria should generate a gallery index page
-  - [ ] Galleria should generate an individual gallery's index page
-    - [ ] With no-JS mode we use page_X.html, could we redirect to that?
-      - Is it better to have page_1 just be called index?
-      - Keep in mind the goal is to eventually have JS take over index/page_1...
-        - ... then lazy load by scrolling, ignoring the other pages.
-      - For MVP we should be able to link to both /galleries & /galleries/wedding
-  - [ ] Optional pre-MVP - plan how galleria should handle multiple galleries
+- [ ] `git checkout -b fix/url`
+- [ ] Modify `test/e2e/test_site_serve.py` - add test case that verifies serve command generates localhost URLs in HTML output
+- [ ] Add `@pytest.mark.skip("URL override not implemented")` to new test
+- [ ] `uv run ruff check --fix --unsafe-fixes`
+- [ ] `uv run pytest` (test should be skipped)
+- [ ] Update TODO.md and CHANGELOG.md
+- [ ] Commit: `Tst: Add E2E test for serve URL override (skipped)`
+
+- [ ] Create `build/context.py` with `BuildContext` class having `production: bool` property
+- [ ] Write unit test for BuildContext that fails
+- [ ] Implement BuildContext class to pass test
+- [ ] `uv run ruff check --fix --unsafe-fixes && uv run pytest`
+- [ ] Update TODO.md and CHANGELOG.md  
+- [ ] Commit: `Ft: Add BuildContext with production flag`
+
+- [ ] Modify `PelicanBuilder.build()` to accept `override_site_url` parameter
+- [ ] Write unit test that fails for URL override functionality
+- [ ] Implement URL override logic: `'SITEURL': override_site_url or pelican_config.get('site_url', '')`
+- [ ] `uv run ruff check --fix --unsafe-fixes && uv run pytest`
+- [ ] Update TODO.md and CHANGELOG.md
+- [ ] Commit: `Ft: Add site URL override to PelicanBuilder`
+
+- [ ] Modify `cli/commands/serve.py` to pass localhost URL to PelicanBuilder
+- [ ] Write unit test that fails for serve URL passing
+- [ ] Implement serve command URL override: pass `http://127.0.0.1:8000` to build
+- [ ] Remove `@pytest.mark.skip` from E2E test
+- [ ] `uv run ruff check --fix --unsafe-fixes && uv run pytest`
+- [ ] Update TODO.md and CHANGELOG.md
+- [ ] Commit: `Ft: Serve command overrides site URL for localhost`
+
+- [ ] Create template filters in new `galleria/template/filters.py`
+- [ ] Write unit test for `full_url` filter that fails
+- [ ] Implement Jinja2 filter that uses BuildContext for URL generation
+- [ ] Modify `galleria/plugins/template.py` to use filters instead of `_make_relative_path()`
+- [ ] `uv run ruff check --fix --unsafe-fixes && uv run pytest`
+- [ ] Update TODO.md and CHANGELOG.md
+- [ ] Commit: `Ft: Add template URL filters with context awareness`
+
+- [ ] `gh pr create --title "Fix: Configurable base URLs for serve vs build" --body "Implements URL override system for development vs production"`
+
+#### Task 2: Serve Command Cascade (Branch: fix/serve)
+
+- [ ] `git checkout -b fix/serve`
+- [ ] Modify `test/e2e/test_site_serve.py` - add test case for serve with missing output/ directory
+- [ ] Add `@pytest.mark.skip("Cascade not implemented")` to new test
+- [ ] `uv run ruff check --fix --unsafe-fixes && uv run pytest`
+- [ ] Update TODO.md and CHANGELOG.md
+- [ ] Commit: `Tst: Add E2E test for serve cascade behavior (skipped)`
+
+- [ ] Write unit test for serve output directory checking that fails
+- [ ] Implement output directory check in `cli/commands/serve.py`
+- [ ] `uv run ruff check --fix --unsafe-fixes && uv run pytest`
+- [ ] Update TODO.md and CHANGELOG.md
+- [ ] Commit: `Ft: Add output directory existence check to serve`
+
+- [ ] Write unit test for serve auto-calling build command that fails
+- [ ] Implement build command invocation when output/ missing
+- [ ] Remove `@pytest.mark.skip` from E2E test
+- [ ] `uv run ruff check --fix --unsafe-fixes && uv run pytest`
+- [ ] Update TODO.md and CHANGELOG.md
+- [ ] Commit: `Ft: Serve auto-calls build when output missing`
+
+- [ ] `gh pr create --title "Fix: Serve command cascade to build" --body "Auto-calls build pipeline when output directory missing"`
+
+#### Task 3: Template & CSS Architecture (Branch: ft/theme)
+
+- [ ] `git checkout -b ft/theme`
+- [ ] Create `test/e2e/test_theme_system.py` with file-based theme loading test
+- [ ] Add `@pytest.mark.skip("Theme system not implemented")`
+- [ ] `uv run ruff check --fix --unsafe-fixes && uv run pytest`
+- [ ] Update TODO.md and CHANGELOG.md
+- [ ] Commit: `Tst: Add E2E test for file-based theme system (skipped)`
+
+- [ ] Create `themes/basic/theme.json` with theme metadata schema
+- [ ] Create `themes/basic/templates/gallery.html.j2` - move HTML from template.py
+- [ ] Create `themes/basic/templates/empty.html.j2` - move empty gallery HTML
+- [ ] Create `themes/basic/static/css/gallery.css` - move CSS from css.py
+- [ ] `uv run ruff check --fix --unsafe-fixes && uv run pytest`
+- [ ] Update TODO.md and CHANGELOG.md
+- [ ] Commit: `Ft: Create basic theme with file-based templates and CSS`
+
+- [ ] Write unit test for theme validation that fails
+- [ ] Create `galleria/theme/validator.py` with theme.json schema validation
+- [ ] Implement theme directory and file existence checks
+- [ ] `uv run ruff check --fix --unsafe-fixes && uv run pytest`
+- [ ] Update TODO.md and CHANGELOG.md
+- [ ] Commit: `Ft: Add theme validation system`
+
+- [ ] Write unit test for template plugin refactor that fails
+- [ ] Modify `BasicTemplatePlugin` to load Jinja2 templates from theme directory
+- [ ] Remove hardcoded HTML strings from template.py
+- [ ] `uv run ruff check --fix --unsafe-fixes && uv run pytest`
+- [ ] Update TODO.md and CHANGELOG.md
+- [ ] Commit: `Ref: Template plugin uses file-based Jinja2 templates`
+
+- [ ] Write unit test for CSS plugin refactor that fails
+- [ ] Modify `BasicCSSPlugin` to copy static files from theme directory
+- [ ] Remove hardcoded CSS strings from css.py
+- [ ] Remove `@pytest.mark.skip` from E2E test
+- [ ] `uv run ruff check --fix --unsafe-fixes && uv run pytest`
+- [ ] Update TODO.md and CHANGELOG.md
+- [ ] Commit: `Ref: CSS plugin copies files from theme directory`
+
+- [ ] `gh pr create --title "Feat: File-based theme system" --body "Replaces hardcoded templates/CSS with configurable theme files"`
 
 ### Phase 5: Performance Baseline
 
@@ -155,6 +239,25 @@
 ## Post-MVP Enhancements
 
 ### Near-term Optimizations
+
+#### Task 4: Galleria Performance (Branch: perf/galleria)
+
+- [ ] `git checkout -b perf/galleria`
+- [ ] Create `test/performance/test_large_collections.py` with 645 photo test
+- [ ] Add `@pytest.mark.skip("Performance optimization not implemented")`
+- [ ] `uv run ruff check --fix --unsafe-fixes && uv run pytest`
+- [ ] Update TODO.md and CHANGELOG.md
+- [ ] Commit: `Tst: Add performance test for large photo collections (skipped)`
+
+- [ ] Write unit test for batched photo processing that fails
+- [ ] Implement batch processing in photo processor plugins
+- [ ] Add progress indicators for large collections
+- [ ] Remove `@pytest.mark.skip` from performance test
+- [ ] `uv run ruff check --fix --unsafe-fixes && uv run pytest`
+- [ ] Update TODO.md and CHANGELOG.md
+- [ ] Commit: `Perf: Implement batched photo processing for large collections`
+
+- [ ] `gh pr create --title "Perf: Optimize large photo collection processing" --body "Fixes CPU hang with 645+ photos via batched processing"`
 
 - [ ] **PRIORITY HIGH: Eliminate stateful operations and hardcoded paths**
   - [ ] **Context**: Test infrastructure revealed hardcoded paths and stateful operations throughout codebase
