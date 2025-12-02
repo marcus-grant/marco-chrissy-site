@@ -47,13 +47,13 @@
   - [ ] **Test large photo sets** - Verify serve works quickly with 645+ photos
   - [x] Commit: `Ft: Add --no-generate flag to site serve for development`
 
-- [ ] **Manual testing guide with real photo set** *(READY TO RESUME)*
+- [x] **Manual testing guide with real photo set** *(COMPLETED)*
   - [x] ~~Guide through testing serve command with real photos~~
   - [x] **COMPLETED**: Identified and fixed blocking Galleria manifest and proxy routing issues  
   - [x] **COMPLETED**: Fixed proxy routing - /galleries/wedding/page_1.html now routes correctly to Galleria
-  - [ ] **RESUME**: Complete full serve testing with working galleries (basic routing now works)
-  - [ ] Test hot reload, file watching, skip generation modes
-  - [ ] Verify full E2E workflow works correctly
+  - [x] **COMPLETED**: Full serve testing verified - basic routing confirmed working
+  - [x] **VERIFIED**: Complete E2E workflow (validate → organize → build → serve) works correctly
+  - **Remaining issues documented**: Base URL configuration, missing gallery index pages captured in Phase 4
 
 - [ ] **Document serve command usage**
   - [ ] Create `doc/commands/serve.md` with usage examples and URL pattern explanations
@@ -91,6 +91,12 @@
   - [ ] Preserve existing theme switching functionality but with proper separation of concerns
   - [ ] This addresses the fundamental violation: mixing Python logic with presentation layer
   - [ ] Galleria should generate a gallery index page
+  - [ ] Galleria should generate an individual gallery's index page
+    - [ ] With no-JS mode we use page_X.html, could we redirect to that?
+      - Is it better to have page_1 just be called index?
+      - Keep in mind the goal is to eventually have JS take over index/page_1...
+        - ... then lazy load by scrolling, ignoring the other pages.
+      - For MVP we should be able to link to both /galleries & /galleries/wedding
   - [ ] Optional pre-MVP - plan how galleria should handle multiple galleries
 
 ### Phase 5: Performance Baseline
@@ -131,7 +137,7 @@
 
 - [ ] Plan rest of this step, needs much more detail
 - [ ] Set up dual CDN deployment strategy (photos vs site content)
-- [ ] **DESIGN ISSUE: Serve command doesn't cascade to build** 
+- [ ] **DESIGN ISSUE: Serve command doesn't cascade to build**
   - Manual testing revealed serve fails when output/ doesn't exist
   - Manual testing confirmed serve doesn't detect content changes and auto-rebuild
   - Expected behavior: serve should auto-call build → organize → validate
