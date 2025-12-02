@@ -2,6 +2,14 @@
 
 ## 2025-12-02
 
+### Fix: Proxy Routing Bug in Serve Command  
+
+* **COMPLETED: Fixed /galleries/* proxy routing to Galleria server**
+  - Root cause: Proxy forwarded full path `/galleries/wedding/page_1.html` but Galleria expects `/page_1.html`
+  - Solution: Strip `/galleries/` prefix before forwarding requests to Galleria
+  - Test coverage: Added missing E2E test for gallery routing, updated unit test expectations
+  - Verification: All serve tests pass, `/galleries/*` URLs now route correctly through proxy
+
 ### Fix: Galleria Manifest Path Bug in Serve E2E Tests
 
 * **COMPLETED: Fixed serve command Galleria manifest path resolution**

@@ -172,6 +172,10 @@ class TestSiteServeE2E:
 
             # Assert: Verify routing works correctly
 
+            # Test galleria routing for /galleries/* -> Galleria server (port 8001)
+            response = requests.get(f"http://localhost:{proxy_port}/galleries/wedding/page_1.html", timeout=1)
+            assert response.status_code == 200, "Galleries should route to Galleria"
+
             # Test static file serving for /pics/* -> Static file server
             response = requests.get(f"http://localhost:{proxy_port}/pics/full/test_static.jpg", timeout=1)
             assert response.status_code == 200, "Static pic files should be served"

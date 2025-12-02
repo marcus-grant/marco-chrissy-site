@@ -88,7 +88,14 @@ class ProxyHTTPHandler(http.server.BaseHTTPRequestHandler):
         target_type, target_location = self.proxy.get_target_for_path(self.path)
 
         if target_type == "galleria":
-            self.forward_to_server("127.0.0.1", target_location, self.path)
+            # Strip /galleries/collection/ prefix for Galleria server
+            if self.path.startswith("/galleries/"):
+                # Remove /galleries/collection/ keeping just the filename part
+                path_parts = self.path.split("/", 3)  # ['', 'galleries', 'collection', 'filename']
+                galleria_path = "/" + path_parts[3] if len(path_parts) > 3 else "/"
+            else:
+                galleria_path = self.path
+            self.forward_to_server("127.0.0.1", target_location, galleria_path)
         elif target_type == "static":
             self.serve_static_file(target_location, self.path)
         elif target_type == "pelican":

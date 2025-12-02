@@ -183,8 +183,8 @@ class TestProxyHTTPHandler:
         # Act: Handle GET request
         handler.do_GET()
 
-        # Assert: Request forwarded to Galleria server
-        handler.forward_to_server.assert_called_once_with("127.0.0.1", 8001, "/galleries/wedding/page_1.html")
+        # Assert: Request forwarded to Galleria server with /galleries/collection/ prefix stripped
+        handler.forward_to_server.assert_called_once_with("127.0.0.1", 8001, "/page_1.html")
 
     def test_handler_forwards_pics_to_static_files(self):
         """Test handler serves /pics/* requests from static files."""
