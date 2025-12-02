@@ -147,3 +147,74 @@ class TestSiteBuild:
         assert (
             "Build completed successfully" in result1.output or "✓" in result1.output
         ), "Should show success"
+
+    def test_build_handles_pelican_file_conflicts_gracefully(
+        self, temp_filesystem, full_config_setup, fake_image_factory
+    ):
+        """Test build doesn't fail when Pelican tries to overwrite existing index.html."""
+
+        # Setup: Create source directory with test photos
+        fake_image_factory("IMG_001.jpg", directory="source_photos", use_raw_bytes=True)
+
+        # Setup: Create content with index page that will create index.html
+        content_dir = temp_filesystem / "content"
+        content_dir.mkdir(exist_ok=True)
+        (content_dir / "index.md").write_text("""---
+title: Test Site
+date: 2025-12-02
+status: published
+slug: index
+---
+
+# Test Site Index
+This is the main site page.
+""")
+
+        # Setup: Configure complete pipeline
+        full_config_setup(
+            {
+                "normpic": {
+                    "source_dir": str(temp_filesystem / "source_photos"),
+                    "dest_dir": str(temp_filesystem / "output" / "pics" / "full"),
+                    "collection_name": "wedding",
+                    "collection_description": "Test wedding photos",
+                    "create_symlinks": True,
+                },
+                "galleria": {
+                    "manifest_path": str(
+                        temp_filesystem / "output" / "pics" / "full" / "manifest.json"
+                    ),
+                    "output_dir": str(
+                        temp_filesystem / "output" / "galleries" / "wedding"
+                    ),
+                    "thumbnail_size": 400,
+                    "photos_per_page": 12,
+                    "theme": "minimal",
+                    "quality": 85,
+                },
+                "pelican": {
+                    "theme": "notmyidea",
+                    "site_url": "https://example.com",
+                    "author": "Test Author",
+                    "sitename": "Test Site",
+                },
+            }
+        )
+
+        # Act: Run build (should not fail due to file conflicts)
+        original_cwd = os.getcwd()
+        try:
+            os.chdir(str(temp_filesystem))
+            runner = CliRunner()
+            result = runner.invoke(build)
+        finally:
+            os.chdir(original_cwd)
+
+        # Assert: Build completes successfully without file overwrite errors
+        assert result.exit_code == 0, f"Build failed with conflict: {result.output}"
+        assert "is to be overwritten" not in result.output, "Should not have overwrite conflicts"
+        assert "build completed successfully" in result.output.lower(), "Should complete successfully"
+
+        # Assert: Final index.html contains Pelican content, not conflicting content
+        index_html = (temp_filesystem / "output" / "index.html").read_text()
+        assert "Test Site Index" in index_html, "Should contain Pelican-generated content"
