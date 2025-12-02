@@ -66,6 +66,22 @@ class TestSiteServeProxy:
         assert "8001" in call_args
 
     @patch('cli.commands.serve.subprocess')
+    def test_start_galleria_server_with_no_generate_flag(self, mock_subprocess):
+        """Test starting Galleria server subprocess with --no-generate flag."""
+        proxy = SiteServeProxy(8001, 8002, "/pics")
+
+        proxy.start_galleria_server("/config/galleria.json", no_generate=True)
+
+        mock_subprocess.Popen.assert_called_once()
+        call_args = mock_subprocess.Popen.call_args[0][0]
+        assert "uv" in call_args
+        assert "galleria" in call_args
+        assert "serve" in call_args
+        assert "--port" in call_args
+        assert "8001" in call_args
+        assert "--no-generate" in call_args
+
+    @patch('cli.commands.serve.subprocess')
     def test_start_pelican_server(self, mock_subprocess):
         """Test starting Pelican server subprocess."""
         proxy = SiteServeProxy(8001, 8002, "/pics")
@@ -147,7 +163,7 @@ class TestSiteServeCommand:
         )
 
         # Assert: Backend servers started
-        mock_proxy.start_galleria_server.assert_called_once_with("config/galleria.json")
+        mock_proxy.start_galleria_server.assert_called_once_with("config/galleria.json", no_generate=False)
         mock_proxy.start_pelican_server.assert_called_once_with("output")
 
         # Assert: HTTP server created with correct parameters
@@ -161,6 +177,34 @@ class TestSiteServeCommand:
 
         # Assert: Server starts listening
         mock_server_instance.serve_forever.assert_called_once()
+
+    @patch('cli.commands.serve.http.server.HTTPServer')
+    @patch('cli.commands.serve.SiteServeProxy')
+    def test_serve_function_with_no_generate_flag(self, mock_proxy_class, mock_http_server):
+        """Test serve function passes --no-generate flag to galleria server."""
+        from click.testing import CliRunner
+
+        # Arrange: Mock proxy instance and server
+        mock_proxy = Mock()
+        mock_proxy_class.return_value = mock_proxy
+        mock_server_instance = Mock()
+        mock_http_server.return_value = mock_server_instance
+
+        # Act: Call serve command with --no-generate flag
+        runner = CliRunner()
+        result = runner.invoke(serve, [
+            '--host', '127.0.0.1',
+            '--port', '8000',
+            '--galleria-port', '8001',
+            '--pelican-port', '8002',
+            '--no-generate'
+        ])
+
+        # Assert: Command completed successfully
+        assert result.exit_code == 0
+
+        # Assert: Galleria server started with --no-generate flag
+        mock_proxy.start_galleria_server.assert_called_once_with("config/galleria.json", no_generate=True)
 
 
 class TestProxyHTTPHandler:

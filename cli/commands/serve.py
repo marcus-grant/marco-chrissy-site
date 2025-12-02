@@ -45,17 +45,20 @@ class SiteServeProxy:
         else:
             return ("pelican", self.pelican_port)
 
-    def start_galleria_server(self, config_path: str) -> None:
+    def start_galleria_server(self, config_path: str, no_generate: bool = False) -> None:
         """Start Galleria server subprocess.
 
         Args:
             config_path: Path to galleria config file
+            no_generate: If True, pass --no-generate flag to galleria serve
         """
         cmd = [
             "uv", "run", "python", "-m", "galleria",
             "serve", "--config", config_path,
             "--port", str(self.galleria_port)
         ]
+        if no_generate:
+            cmd.append("--no-generate")
         self.galleria_process = subprocess.Popen(cmd)
 
     def start_pelican_server(self, output_dir: str) -> None:
@@ -151,7 +154,8 @@ class ProxyHTTPHandler(http.server.BaseHTTPRequestHandler):
 @click.option("--port", default=8000, help="Port for proxy server")
 @click.option("--galleria-port", default=8001, help="Port for Galleria server")
 @click.option("--pelican-port", default=8002, help="Port for Pelican server")
-def serve(host: str, port: int, galleria_port: int, pelican_port: int) -> None:
+@click.option("--no-generate", is_flag=True, help="Skip gallery generation, serve existing galleries only")
+def serve(host: str, port: int, galleria_port: int, pelican_port: int, no_generate: bool) -> None:
     """Start site serve proxy that coordinates Galleria and Pelican servers.
 
     Routes requests:
@@ -171,7 +175,7 @@ def serve(host: str, port: int, galleria_port: int, pelican_port: int) -> None:
     )
 
     # Start backend servers
-    proxy.start_galleria_server("config/galleria.json")
+    proxy.start_galleria_server("config/galleria.json", no_generate=no_generate)
     proxy.start_pelican_server("output")
 
     # Link proxy to handler class
