@@ -147,7 +147,7 @@ class TestSiteServeCommand:
         )
 
         # Assert: Backend servers started
-        mock_proxy.start_galleria_server.assert_called_once_with("config/galleria.toml")
+        mock_proxy.start_galleria_server.assert_called_once_with("config/galleria.json")
         mock_proxy.start_pelican_server.assert_called_once_with("output")
 
         # Assert: HTTP server created with correct parameters

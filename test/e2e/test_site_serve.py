@@ -1,6 +1,5 @@
 """E2E tests for site serve proxy functionality."""
 
-import pytest
 
 
 class TestSiteServeE2E:
@@ -57,8 +56,7 @@ class TestSiteServeE2E:
             process.terminate()
             process.wait(timeout=5)
 
-    @pytest.mark.skip(reason="Serve proxy implementation not yet complete")
-    def test_site_serve_routing(self, temp_filesystem, config_file_factory):
+    def test_site_serve_routing(self, temp_filesystem, config_file_factory, free_port):
         """E2E: Test proxy routes /galleries/, /pics/, other requests correctly.
 
         Test proxy routing functionality:
@@ -69,8 +67,15 @@ class TestSiteServeE2E:
         5. Verify correct content-type headers for different file types
         6. Verify proxy handles concurrent requests correctly
         """
-        # Arrange: Create site structure with galleries and pics
+        import subprocess
+        import time
+
+        import requests
+
+        # Arrange: Create site config and required files
         config_file_factory("site")
+        config_file_factory("galleria")
+        config_file_factory("pelican")
 
         # Create sample gallery content
         galleries_dir = temp_filesystem / "output" / "galleries" / "wedding"
@@ -86,12 +91,41 @@ class TestSiteServeE2E:
         (temp_filesystem / "output" / "index.html").write_text("<html>Site Homepage</html>")
         (temp_filesystem / "output" / "about.html").write_text("<html>About Page</html>")
 
-        # Act: Start site serve and test routing
-        # Will test that proxy routes requests to correct servers
+        # Get free ports for testing
+        proxy_port = free_port()
+        galleria_port = free_port()
+        pelican_port = free_port()
 
-        # Assert: Verify routing works correctly
-        # - GET /galleries/wedding/page_1.html -> Galleria server
-        # - GET /pics/full/photo1.jpg -> Static file server
-        # - GET / -> Pelican server
-        # - GET /about.html -> Pelican server
-        pass
+        # Act: Start site serve command
+        process = subprocess.Popen([
+            "uv", "run", "site", "serve",
+            "--port", str(proxy_port),
+            "--galleria-port", str(galleria_port),
+            "--pelican-port", str(pelican_port)
+        ], cwd=temp_filesystem)
+
+        try:
+            # Wait for servers to start
+            time.sleep(2)
+
+            # Assert: Verify routing works correctly
+
+            # Test static file serving for /pics/* -> Static file server
+            response = requests.get(f"http://localhost:{proxy_port}/pics/full/photo1.jpg", timeout=1)
+            assert response.status_code == 200, "Static pic files should be served"
+            assert response.content == b"fake jpg data", "Static file content should match"
+
+            # Test pelican routing for / -> Pelican server
+            response = requests.get(f"http://localhost:{proxy_port}/", timeout=1)
+            assert response.status_code == 200, "Root should route to Pelican"
+            assert b"Site Homepage" in response.content, "Should serve Pelican content"
+
+            # Test pelican routing for /about.html -> Pelican server
+            response = requests.get(f"http://localhost:{proxy_port}/about.html", timeout=1)
+            assert response.status_code == 200, "About page should route to Pelican"
+            assert b"About Page" in response.content, "Should serve Pelican about content"
+
+        finally:
+            # Cleanup
+            process.terminate()
+            process.wait(timeout=5)

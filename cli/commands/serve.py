@@ -164,7 +164,7 @@ def serve(host: str, port: int, galleria_port: int, pelican_port: int) -> None:
     )
 
     # Start backend servers
-    proxy.start_galleria_server("config/galleria.toml")
+    proxy.start_galleria_server("config/galleria.json")
     proxy.start_pelican_server("output")
 
     # Link proxy to handler class

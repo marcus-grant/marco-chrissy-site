@@ -114,6 +114,8 @@ def config_file_factory(file_factory):
                 "transform": {"plugin": "basic-pagination"},
                 "template": {"plugin": "basic-template"},
                 "css": {"plugin": "basic-css"},
+                "output_dir": "output/galleries/test",
+                "manifest_path": "output/pics/full/manifest.json",
             },
         }
 
