@@ -17,9 +17,7 @@ class PluginHookManager:
         self._hooks: dict[str, list[Callable[[PluginContext], PluginResult]]] = {}
 
     def register_hook(
-        self,
-        name: str,
-        callback: Callable[[PluginContext], PluginResult]
+        self, name: str, callback: Callable[[PluginContext], PluginResult]
     ) -> None:
         """Register a callback function for a specific hook.
 

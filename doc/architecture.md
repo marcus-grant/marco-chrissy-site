@@ -88,7 +88,7 @@ marco-chrissy-site/
 ```
 marco-chrissy-site/
 ├── cli/              # Command-line interface (site command)
-├── validator/        # Pre-flight checks module
+├── validator/        # Pre-flight checks module (supports configurable base_path)
 ├── build/           # ✅ Build orchestration modules
 │   ├── orchestrator.py     # Main coordination class
 │   ├── config_manager.py   # Unified config loading
@@ -199,6 +199,44 @@ The CLI orchestrates the complete plugin pipeline:
 
 **Status**: Fully implemented and tested with end-to-end validation.
 
+## Path Management Architecture
+
+### Current Challenge: Hardcoded Paths
+
+**Issue Discovered**: Hardcoded paths scattered throughout codebase create testing and deployment brittleness:
+- `ConfigValidator`: Hardcoded `"config/schema/normpic.json"` paths
+- Test code: Direct filesystem access patterns (`glob()`, `shutil.copy()`, `os.chdir()`)
+- Inflexible for different deployment scenarios (Docker, different environments)
+
+### Temporary Solution: Dependency Injection
+
+**Implemented**: `base_path` parameter pattern for configurable path resolution:
+```python
+# Production: uses current working directory  
+validator = ConfigValidator()
+
+# Testing: isolated temporary directory
+validator = ConfigValidator(base_path=temp_filesystem)
+
+# Deployment: custom base directory
+validator = ConfigValidator(base_path="/app/config")
+```
+
+### Future Architecture: Centralized PathConfig
+
+**Post-MVP Priority**: Centralized path configuration system:
+```python
+# Centralized path management
+path_config = PathConfig.from_config("config/site.json")
+validator = ConfigValidator(path_config=path_config)
+```
+
+**Benefits**:
+- Docker volume mounting flexibility
+- Development vs production path differences  
+- CDN integration path configuration
+- Deployment environment customization
+
 ## Phase 2 Integration Strategy
 
 ### Plugin-Based Pelican Integration
@@ -242,6 +280,34 @@ Each tool has its own configuration format:
 - Galleria: Gallery generation settings
 - Pelican: Site generation configuration
 - Orchestrator: Build workflow settings
+
+### Index Page Conflict Resolution
+
+**Critical Architecture Decision**: The build system automatically resolves conflicts between Pelican's default blog index and custom page content.
+
+**Problem**: Pelican's default behavior generates a blog index at `/index.html`. If content contains a page with `slug: index`, both attempt to create the same file, triggering Pelican's "File to be overwritten" error.
+
+**Solution**: Smart conflict detection and conditional configuration:
+
+```python
+# PelicanBuilder automatically detects conflicting content
+has_index_content = any('slug: index' in file.read_text() 
+                       for file in content_dir.glob('**/*.md'))
+
+# Conditionally disable default blog index
+pelican_config['INDEX_SAVE_AS'] = '' if has_index_content else 'index.html'
+```
+
+**Architecture Benefits**:
+- **Zero Configuration**: Users don't need to know about this conflict
+- **Automatic Detection**: System scans content directory for conflicts
+- **Graceful Degradation**: Works whether custom index exists or not
+- **Preserve Intent**: Custom index pages take precedence over default blog index
+
+**Integration Points**:
+- Content authoring: Users can freely create `content/index.md` with `slug: index`
+- Build process: Automatic conflict resolution during PelicanBuilder.build()
+- Testing: Comprehensive coverage for both conflict scenarios
 
 ## Future Extensibility
 

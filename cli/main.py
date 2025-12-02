@@ -5,6 +5,7 @@ import click
 from .commands.build import build
 from .commands.deploy import deploy
 from .commands.organize import organize
+from .commands.serve import serve
 from .commands.validate import validate
 
 
@@ -18,6 +19,7 @@ def main():
 main.add_command(validate)
 main.add_command(organize)
 main.add_command(build)
+main.add_command(serve)
 main.add_command(deploy)
 
 

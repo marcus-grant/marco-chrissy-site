@@ -22,9 +22,9 @@ class TestNormPicProviderPlugin:
                     "dest_path": "test/IMG_001.jpg",
                     "hash": "abc123",
                     "size_bytes": 1000000,
-                    "mtime": 1635789012.34
+                    "mtime": 1635789012.34,
                 }
-            ]
+            ],
         }
 
         manifest_path = tmp_path / "manifest.json"
@@ -33,7 +33,7 @@ class TestNormPicProviderPlugin:
         context = PluginContext(
             input_data={"manifest_path": str(manifest_path)},
             config={},
-            output_dir=tmp_path / "output"
+            output_dir=tmp_path / "output",
         )
 
         # Act
@@ -58,9 +58,9 @@ class TestNormPicProviderPlugin:
                     "dest_path": "wedding/IMG_001.jpg",
                     "hash": "hash123",
                     "size_bytes": 2000000,
-                    "mtime": 1635789015.67
+                    "mtime": 1635789015.67,
                 }
-            ]
+            ],
         }
 
         manifest_path = tmp_path / "manifest.json"
@@ -69,7 +69,7 @@ class TestNormPicProviderPlugin:
         context = PluginContext(
             input_data={"manifest_path": str(manifest_path)},
             config={},
-            output_dir=tmp_path / "output"
+            output_dir=tmp_path / "output",
         )
 
         # Act
@@ -97,9 +97,9 @@ class TestNormPicProviderPlugin:
                     "size_bytes": 25000000,
                     "mtime": 1635789012.34,
                     "camera": "Canon EOS R5",
-                    "gps": {"lat": 40.7128, "lon": -74.0060}
+                    "gps": {"lat": 40.7128, "lon": -74.0060},
                 }
-            ]
+            ],
         }
 
         manifest_path = tmp_path / "manifest.json"
@@ -108,7 +108,7 @@ class TestNormPicProviderPlugin:
         context = PluginContext(
             input_data={"manifest_path": str(manifest_path)},
             config={},
-            output_dir=tmp_path / "output"
+            output_dir=tmp_path / "output",
         )
 
         # Act
@@ -141,7 +141,7 @@ class TestNormPicProviderPlugin:
         context = PluginContext(
             input_data={"manifest_path": str(nonexistent_path)},
             config={},
-            output_dir=tmp_path / "output"
+            output_dir=tmp_path / "output",
         )
 
         # Act
@@ -151,7 +151,10 @@ class TestNormPicProviderPlugin:
         # Assert
         assert result.success is False
         assert len(result.errors) > 0
-        assert any("manifest file not found" in error.lower() or "not found" in error.lower() for error in result.errors)
+        assert any(
+            "manifest file not found" in error.lower() or "not found" in error.lower()
+            for error in result.errors
+        )
 
     def test_load_collection_handles_invalid_json(self, tmp_path):
         """Test that invalid JSON returns failure result."""
@@ -164,7 +167,7 @@ class TestNormPicProviderPlugin:
         context = PluginContext(
             input_data={"manifest_path": str(manifest_path)},
             config={},
-            output_dir=tmp_path / "output"
+            output_dir=tmp_path / "output",
         )
 
         # Act
@@ -187,7 +190,7 @@ class TestNormPicProviderPlugin:
                     "dest_path": "test/IMG_001.jpg",
                     "hash": "abc123",
                     "size_bytes": 1000000,
-                    "mtime": 1635789012.34
+                    "mtime": 1635789012.34,
                 }
             ]
         }
@@ -198,7 +201,7 @@ class TestNormPicProviderPlugin:
         context = PluginContext(
             input_data={"manifest_path": str(manifest_path)},
             config={},
-            output_dir=tmp_path / "output"
+            output_dir=tmp_path / "output",
         )
 
         # Act
@@ -225,7 +228,7 @@ class TestNormPicProviderPlugin:
         context = PluginContext(
             input_data={"manifest_path": str(manifest_path)},
             config={},
-            output_dir=tmp_path / "output"
+            output_dir=tmp_path / "output",
         )
 
         # Act
@@ -249,7 +252,7 @@ class TestNormPicProviderPlugin:
                     "source_path": "/test/IMG_001.jpg"
                     # Missing dest_path, hash, size_bytes, mtime
                 }
-            ]
+            ],
         }
 
         manifest_path = tmp_path / "malformed.json"
@@ -258,7 +261,7 @@ class TestNormPicProviderPlugin:
         context = PluginContext(
             input_data={"manifest_path": str(manifest_path)},
             config={},
-            output_dir=tmp_path / "output"
+            output_dir=tmp_path / "output",
         )
 
         # Act
@@ -277,8 +280,8 @@ class TestNormPicProviderPlugin:
         plugin = NormPicProviderPlugin()
 
         # Assert: BasePlugin interface requirements
-        assert hasattr(plugin, 'name')
-        assert hasattr(plugin, 'version')
+        assert hasattr(plugin, "name")
+        assert hasattr(plugin, "version")
         assert isinstance(plugin.name, str)
         assert isinstance(plugin.version, str)
         assert len(plugin.name) > 0
@@ -300,9 +303,9 @@ class TestNormPicProviderPlugin:
                     "mtime": 1635789012.34,
                     "camera": "Sony A7R IV",
                     "gps": {"lat": 34.0522, "lon": -118.2437},
-                    "custom_field": "custom_value"  # Test custom fields
+                    "custom_field": "custom_value",  # Test custom fields
                 }
-            ]
+            ],
         }
 
         manifest_path = tmp_path / "metadata.json"
@@ -311,7 +314,7 @@ class TestNormPicProviderPlugin:
         context = PluginContext(
             input_data={"manifest_path": str(manifest_path)},
             config={},
-            output_dir=tmp_path / "output"
+            output_dir=tmp_path / "output",
         )
 
         # Act

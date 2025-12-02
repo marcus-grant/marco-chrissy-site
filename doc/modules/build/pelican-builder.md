@@ -32,6 +32,12 @@ class PelicanBuilder:
 - Handles output directory creation and management
 - Coordinates with gallery output for unified site structure
 
+### Index Page Conflict Resolution
+- Automatically detects content with `slug: index` that conflicts with default blog index
+- Conditionally disables Pelican's default blog index (`INDEX_SAVE_AS = ''`) when conflicts exist
+- Preserves custom index pages while maintaining default behavior when no conflicts occur
+- Prevents "File to be overwritten" errors through intelligent configuration
+
 ## API Reference
 
 ### `build(site_config: dict, pelican_config: dict, base_dir: Path = Path.cwd()) -> bool`
@@ -149,8 +155,27 @@ content/
 ├── pages/
 │   └── about.md       # About page content
 ├── articles/          # Blog posts (if any)
+├── index.md          # Custom index page (optional)
 └── static/           # Static assets
 ```
+
+### Index Page Handling
+
+**Custom Index Page** (`content/index.md`):
+```markdown
+---
+title: Welcome
+slug: index
+status: published
+---
+
+# Welcome to our site
+Custom homepage content.
+```
+
+**Result**: System detects `slug: index` and disables default blog index. Custom page becomes `/index.html`.
+
+**No Custom Index**: System generates default Pelican blog index at `/index.html`.
 
 ## Output Integration
 

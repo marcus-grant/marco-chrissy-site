@@ -1,6 +1,5 @@
 """Integration tests for Template and CSS plugin interfaces."""
 
-
 from galleria.plugins import PluginContext, PluginResult
 
 
@@ -51,7 +50,7 @@ class TestTemplateCSSIntegration:
 
                     for photo in page["photos"]:
                         html_content += f"""        <div class="photo-item">
-            <img src="{photo['thumbnail_path']}" alt="Photo">
+            <img src="{photo["thumbnail_path"]}" alt="Photo">
         </div>
 """
 
@@ -59,19 +58,21 @@ class TestTemplateCSSIntegration:
 </body>
 </html>"""
 
-                    html_files.append({
-                        "filename": html_filename,
-                        "content": html_content,
-                        "page_number": page_num
-                    })
+                    html_files.append(
+                        {
+                            "filename": html_filename,
+                            "content": html_content,
+                            "page_number": page_num,
+                        }
+                    )
 
                 return PluginResult(
                     success=True,
                     output_data={
                         "html_files": html_files,
                         "collection_name": collection_name,
-                        "file_count": len(html_files)
-                    }
+                        "file_count": len(html_files),
+                    },
                 )
 
         # Create template and test it with Transform output data
@@ -87,16 +88,16 @@ class TestTemplateCSSIntegration:
                             "source_path": "/source/photos/IMG_001.jpg",
                             "dest_path": "wedding/IMG_001.jpg",
                             "thumbnail_path": "thumbnails/IMG_001_thumb.webp",
-                            "thumbnail_size": (300, 200)
+                            "thumbnail_size": (300, 200),
                         },
                         {
                             "source_path": "/source/photos/IMG_002.jpg",
                             "dest_path": "wedding/IMG_002.jpg",
                             "thumbnail_path": "thumbnails/IMG_002_thumb.webp",
-                            "thumbnail_size": (300, 200)
-                        }
+                            "thumbnail_size": (300, 200),
+                        },
                     ],
-                    "photo_count": 2
+                    "photo_count": 2,
                 },
                 {
                     "page_number": 2,
@@ -105,21 +106,21 @@ class TestTemplateCSSIntegration:
                             "source_path": "/source/photos/IMG_003.jpg",
                             "dest_path": "wedding/IMG_003.jpg",
                             "thumbnail_path": "thumbnails/IMG_003_thumb.webp",
-                            "thumbnail_size": (300, 200)
+                            "thumbnail_size": (300, 200),
                         }
                     ],
-                    "photo_count": 1
-                }
+                    "photo_count": 1,
+                },
             ],
             "collection_name": "wedding_photos",
             "page_count": 2,
-            "total_photos": 3
+            "total_photos": 3,
         }
 
         context = PluginContext(
             input_data=transform_output,
             config={"theme": "minimal"},
-            output_dir=tmp_path / "output"
+            output_dir=tmp_path / "output",
         )
 
         # Act: Execute template
@@ -176,7 +177,10 @@ class TestTemplateCSSIntegration:
                 css_files = []
 
                 # Generate main gallery CSS
-                gallery_css = """/* Gallery styles for """ + collection_name + """ */
+                gallery_css = (
+                    """/* Gallery styles for """
+                    + collection_name
+                    + """ */
 .gallery-container {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
@@ -209,12 +213,15 @@ class TestTemplateCSSIntegration:
     }
 }
 """
+                )
 
-                css_files.append({
-                    "filename": "gallery.css",
-                    "content": gallery_css,
-                    "type": "gallery"
-                })
+                css_files.append(
+                    {
+                        "filename": "gallery.css",
+                        "content": gallery_css,
+                        "type": "gallery",
+                    }
+                )
 
                 # Generate theme CSS if specified
                 if theme != "default":
@@ -232,11 +239,13 @@ h1 {{
     margin-bottom: 2rem;
 }}
 """
-                    css_files.append({
-                        "filename": f"theme-{theme}.css",
-                        "content": theme_css,
-                        "type": "theme"
-                    })
+                    css_files.append(
+                        {
+                            "filename": f"theme-{theme}.css",
+                            "content": theme_css,
+                            "type": "theme",
+                        }
+                    )
 
                 return PluginResult(
                     success=True,
@@ -244,8 +253,8 @@ h1 {{
                         "css_files": css_files,
                         "html_files": html_files,  # Pass through for next stage
                         "collection_name": collection_name,
-                        "css_count": len(css_files)
-                    }
+                        "css_count": len(css_files),
+                    },
                 )
 
         # Create CSS plugin with Template output data
@@ -257,22 +266,22 @@ h1 {{
                 {
                     "filename": "page_1.html",
                     "content": "<html>...</html>",
-                    "page_number": 1
+                    "page_number": 1,
                 },
                 {
                     "filename": "page_2.html",
                     "content": "<html>...</html>",
-                    "page_number": 2
-                }
+                    "page_number": 2,
+                },
             ],
             "collection_name": "wedding_photos",
-            "file_count": 2
+            "file_count": 2,
         }
 
         context = PluginContext(
             input_data=template_output,
             config={"theme": "minimal"},
-            output_dir=tmp_path / "output"
+            output_dir=tmp_path / "output",
         )
 
         # Act: Execute CSS plugin
@@ -332,18 +341,17 @@ h1 {{
                 photos = context.input_data["photos"]
                 pages = []
                 for i in range(0, len(photos), 2):
-                    pages.append({
-                        "page_number": len(pages) + 1,
-                        "photos": photos[i:i + 2]
-                    })
+                    pages.append(
+                        {"page_number": len(pages) + 1, "photos": photos[i : i + 2]}
+                    )
 
                 return PluginResult(
                     success=True,
                     output_data={
                         "pages": pages,
                         "collection_name": context.input_data["collection_name"],
-                        "page_count": len(pages)
-                    }
+                        "page_count": len(pages),
+                    },
                 )
 
         class TestGalleryTemplate(TemplatePlugin):
@@ -360,17 +368,19 @@ h1 {{
                 html_files = []
 
                 for page in pages:
-                    html_files.append({
-                        "filename": f"page_{page['page_number']}.html",
-                        "page_number": page["page_number"]
-                    })
+                    html_files.append(
+                        {
+                            "filename": f"page_{page['page_number']}.html",
+                            "page_number": page["page_number"],
+                        }
+                    )
 
                 return PluginResult(
                     success=True,
                     output_data={
                         "html_files": html_files,
-                        "collection_name": context.input_data["collection_name"]
-                    }
+                        "collection_name": context.input_data["collection_name"],
+                    },
                 )
 
         class TestResponsiveCSS(CSSPlugin):
@@ -385,7 +395,7 @@ h1 {{
             def generate_css(self, context: PluginContext) -> PluginResult:
                 css_files = [
                     {"filename": "gallery.css", "type": "gallery"},
-                    {"filename": "responsive.css", "type": "responsive"}
+                    {"filename": "responsive.css", "type": "responsive"},
                 ]
 
                 return PluginResult(
@@ -393,8 +403,8 @@ h1 {{
                     output_data={
                         "css_files": css_files,
                         "html_files": context.input_data["html_files"],
-                        "collection_name": context.input_data["collection_name"]
-                    }
+                        "collection_name": context.input_data["collection_name"],
+                    },
                 )
 
         # Arrange: Create output directory
@@ -412,12 +422,12 @@ h1 {{
                 "photos": [
                     {"thumbnail_path": "thumbnails/IMG_001.webp"},
                     {"thumbnail_path": "thumbnails/IMG_002.webp"},
-                    {"thumbnail_path": "thumbnails/IMG_003.webp"}
+                    {"thumbnail_path": "thumbnails/IMG_003.webp"},
                 ],
-                "collection_name": "test_photos"
+                "collection_name": "test_photos",
             },
             config={"photos_per_page": 2},
-            output_dir=output_dir
+            output_dir=output_dir,
         )
         transform_result = transform.transform_data(transform_context)
 
@@ -425,7 +435,7 @@ h1 {{
         template_context = PluginContext(
             input_data=transform_result.output_data,
             config={"theme": "minimal"},
-            output_dir=output_dir
+            output_dir=output_dir,
         )
         template_result = template.generate_html(template_context)
 
@@ -433,7 +443,7 @@ h1 {{
         css_context = PluginContext(
             input_data=template_result.output_data,
             config={"theme": "minimal"},
-            output_dir=output_dir
+            output_dir=output_dir,
         )
         css_result = css_plugin.generate_css(css_context)
 
@@ -452,7 +462,7 @@ h1 {{
         assert "html_files" in final_output
         assert "css_files" in final_output
         assert len(final_output["html_files"]) == 2  # 3 photos / 2 per page = 2 pages
-        assert len(final_output["css_files"]) == 2   # gallery.css + responsive.css
+        assert len(final_output["css_files"]) == 2  # gallery.css + responsive.css
 
         # Verify template operations
         html_files = final_output["html_files"]

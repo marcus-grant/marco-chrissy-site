@@ -17,10 +17,10 @@ class TestBasicPaginationPlugin:
         context = PluginContext(
             input_data={
                 "photos": [{"id": i} for i in range(6)],
-                "collection_name": "test"
+                "collection_name": "test",
             },
             config={"page_size": 3},
-            output_dir=Path("/tmp")
+            output_dir=Path("/tmp"),
         )
 
         result = plugin.transform_data(context)
@@ -41,10 +41,10 @@ class TestBasicPaginationPlugin:
         context = PluginContext(
             input_data={
                 "photos": [{"id": i} for i in range(7)],
-                "collection_name": "test"
+                "collection_name": "test",
             },
             config={"page_size": 3},
-            output_dir=Path("/tmp")
+            output_dir=Path("/tmp"),
         )
 
         result = plugin.transform_data(context)
@@ -65,10 +65,10 @@ class TestBasicPaginationPlugin:
         context = PluginContext(
             input_data={
                 "photos": [{"id": i} for i in range(2)],
-                "collection_name": "test"
+                "collection_name": "test",
             },
             config={"page_size": 5},
-            output_dir=Path("/tmp")
+            output_dir=Path("/tmp"),
         )
 
         result = plugin.transform_data(context)
@@ -85,12 +85,9 @@ class TestBasicPaginationPlugin:
 
         # 0 photos → should create 1 empty page
         context = PluginContext(
-            input_data={
-                "photos": [],
-                "collection_name": "empty"
-            },
+            input_data={"photos": [], "collection_name": "empty"},
             config={"page_size": 3},
-            output_dir=Path("/tmp")
+            output_dir=Path("/tmp"),
         )
 
         result = plugin.transform_data(context)
@@ -109,10 +106,10 @@ class TestBasicPaginationPlugin:
         context = PluginContext(
             input_data={
                 "photos": [{"id": i} for i in range(3)],
-                "collection_name": "test"
+                "collection_name": "test",
             },
             config={"page_size": 10},
-            output_dir=Path("/tmp")
+            output_dir=Path("/tmp"),
         )
 
         result = plugin.transform_data(context)
@@ -131,10 +128,10 @@ class TestBasicPaginationPlugin:
         context = PluginContext(
             input_data={
                 "photos": [{"id": i} for i in range(4)],
-                "collection_name": "test"
+                "collection_name": "test",
             },
             config={"page_size": 1},
-            output_dir=Path("/tmp")
+            output_dir=Path("/tmp"),
         )
 
         result = plugin.transform_data(context)
@@ -154,23 +151,24 @@ class TestBasicPaginationPlugin:
         test_cases = [
             (10, 3, 4),  # 10 photos, page_size 3 → 4 pages (3+3+3+1)
             (10, 5, 2),  # 10 photos, page_size 5 → 2 pages (5+5)
-            (1, 1, 1),   # 1 photo, page_size 1 → 1 page
+            (1, 1, 1),  # 1 photo, page_size 1 → 1 page
             (15, 4, 4),  # 15 photos, page_size 4 → 4 pages (4+4+4+3)
-            (100, 7, 15) # 100 photos, page_size 7 → 15 pages (14×7 + 1×2)
+            (100, 7, 15),  # 100 photos, page_size 7 → 15 pages (14×7 + 1×2)
         ]
 
         for total_photos, page_size, expected_pages in test_cases:
             context = PluginContext(
                 input_data={
                     "photos": [{"id": i} for i in range(total_photos)],
-                    "collection_name": "formula_test"
+                    "collection_name": "formula_test",
                 },
                 config={"page_size": page_size},
-                output_dir=Path("/tmp")
+                output_dir=Path("/tmp"),
             )
 
             result = plugin.transform_data(context)
             actual_pages = result.output_data["transform_metadata"]["total_pages"]
 
-            assert actual_pages == expected_pages, \
+            assert actual_pages == expected_pages, (
                 f"Photos: {total_photos}, Page size: {page_size}, Expected: {expected_pages}, Got: {actual_pages}"
+            )

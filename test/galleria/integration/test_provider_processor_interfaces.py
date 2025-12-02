@@ -35,21 +35,21 @@ class TestProviderProcessorIntegration:
                     {
                         "source_path": "/source/photos/IMG_001.jpg",
                         "dest_path": "wedding/IMG_001.jpg",
-                        "metadata": {"camera": "Canon EOS R5"}
+                        "metadata": {"camera": "Canon EOS R5"},
                     },
                     {
                         "source_path": "/source/photos/IMG_002.jpg",
                         "dest_path": "wedding/IMG_002.jpg",
-                        "metadata": {"camera": "Canon EOS R5"}
-                    }
+                        "metadata": {"camera": "Canon EOS R5"},
+                    },
                 ]
                 return PluginResult(
                     success=True,
                     output_data={
                         "photos": photos,
                         "collection_name": "wedding_photos",
-                        "manifest_version": "0.1.0"
-                    }
+                        "manifest_version": "0.1.0",
+                    },
                 )
 
         # Create provider and test it produces expected output
@@ -59,7 +59,7 @@ class TestProviderProcessorIntegration:
         context = PluginContext(
             input_data={"manifest_path": str(manifest_path)},
             config={"output_format": "webp"},
-            output_dir=tmp_path / "output"
+            output_dir=tmp_path / "output",
         )
 
         # Act: Execute provider
@@ -108,19 +108,21 @@ class TestProviderProcessorIntegration:
                     thumb_name = Path(photo["dest_path"]).stem + "_thumb.webp"
                     thumb_path = f"thumbnails/{thumb_name}"
 
-                    processed_photos.append({
-                        **photo,
-                        "thumbnail_path": thumb_path,
-                        "thumbnail_size": (300, 200)
-                    })
+                    processed_photos.append(
+                        {
+                            **photo,
+                            "thumbnail_path": thumb_path,
+                            "thumbnail_size": (300, 200),
+                        }
+                    )
 
                 return PluginResult(
                     success=True,
                     output_data={
                         "photos": processed_photos,
                         "collection_name": context.input_data["collection_name"],
-                        "thumbnail_count": len(processed_photos)
-                    }
+                        "thumbnail_count": len(processed_photos),
+                    },
                 )
 
         # Create processor with Provider output data
@@ -132,22 +134,22 @@ class TestProviderProcessorIntegration:
                 {
                     "source_path": "/source/photos/IMG_001.jpg",
                     "dest_path": "wedding/IMG_001.jpg",
-                    "metadata": {"camera": "Canon EOS R5"}
+                    "metadata": {"camera": "Canon EOS R5"},
                 },
                 {
                     "source_path": "/source/photos/IMG_002.jpg",
                     "dest_path": "wedding/IMG_002.jpg",
-                    "metadata": {"camera": "Canon EOS R5"}
-                }
+                    "metadata": {"camera": "Canon EOS R5"},
+                },
             ],
             "collection_name": "wedding_photos",
-            "manifest_version": "0.1.0"
+            "manifest_version": "0.1.0",
         }
 
         context = PluginContext(
             input_data=provider_output,
             config={"thumbnail_size": (300, 200), "format": "webp"},
-            output_dir=tmp_path / "output"
+            output_dir=tmp_path / "output",
         )
 
         # Act: Execute processor
@@ -196,15 +198,12 @@ class TestProviderProcessorIntegration:
                     {
                         "source_path": "/source/photos/IMG_001.jpg",
                         "dest_path": "wedding/IMG_001.jpg",
-                        "metadata": {"camera": "Canon EOS R5"}
+                        "metadata": {"camera": "Canon EOS R5"},
                     }
                 ]
                 return PluginResult(
                     success=True,
-                    output_data={
-                        "photos": photos,
-                        "collection_name": "wedding_photos"
-                    }
+                    output_data={"photos": photos, "collection_name": "wedding_photos"},
                 )
 
         class TestThumbnailProcessor(ProcessorPlugin):
@@ -222,17 +221,16 @@ class TestProviderProcessorIntegration:
 
                 for photo in photos:
                     thumb_name = Path(photo["dest_path"]).stem + "_thumb.webp"
-                    processed_photos.append({
-                        **photo,
-                        "thumbnail_path": f"thumbnails/{thumb_name}"
-                    })
+                    processed_photos.append(
+                        {**photo, "thumbnail_path": f"thumbnails/{thumb_name}"}
+                    )
 
                 return PluginResult(
                     success=True,
                     output_data={
                         "photos": processed_photos,
-                        "collection_name": context.input_data["collection_name"]
-                    }
+                        "collection_name": context.input_data["collection_name"],
+                    },
                 )
 
         # Arrange: Create output directory
@@ -247,7 +245,7 @@ class TestProviderProcessorIntegration:
         provider_context = PluginContext(
             input_data={"manifest_path": str(tmp_path / "manifest.json")},
             config={},
-            output_dir=output_dir
+            output_dir=output_dir,
         )
         provider_result = provider.load_collection(provider_context)
 
@@ -255,7 +253,7 @@ class TestProviderProcessorIntegration:
         processor_context = PluginContext(
             input_data=provider_result.output_data,
             config={"thumbnail_size": (300, 200)},
-            output_dir=output_dir
+            output_dir=output_dir,
         )
         processor_result = processor.process_thumbnails(processor_context)
 

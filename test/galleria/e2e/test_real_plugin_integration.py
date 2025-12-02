@@ -31,7 +31,7 @@ class TestRealPluginIntegration:
         photo_paths = []
         for i in range(3):
             photo_path = test_photos_dir / f"photo_{i}.jpg"
-            photo_path.write_bytes(b"\xFF\xD8\xFF\xE0")  # Minimal JPEG header
+            photo_path.write_bytes(b"\xff\xd8\xff\xe0")  # Minimal JPEG header
             photo_paths.append(str(photo_path))
 
         # Create NormPic manifest
@@ -44,23 +44,23 @@ class TestRealPluginIntegration:
                     "dest_path": "photo_0.jpg",
                     "hash": "abc123",
                     "size_bytes": 1024,
-                    "mtime": 1234567890
+                    "mtime": 1234567890,
                 },
                 {
                     "source_path": str(photo_paths[1]),
                     "dest_path": "photo_1.jpg",
                     "hash": "def456",
                     "size_bytes": 2048,
-                    "mtime": 1234567891
+                    "mtime": 1234567891,
                 },
                 {
                     "source_path": str(photo_paths[2]),
                     "dest_path": "photo_2.jpg",
                     "hash": "ghi789",
                     "size_bytes": 3072,
-                    "mtime": 1234567892
-                }
-            ]
+                    "mtime": 1234567892,
+                },
+            ],
         }
 
         manifest_path = tmp_path / "manifest.json"
@@ -85,7 +85,7 @@ class TestRealPluginIntegration:
             ("processor", "thumbnail-processor"),
             ("transform", "basic-pagination"),
             ("template", "basic-template"),
-            ("css", "basic-css")
+            ("css", "basic-css"),
         ]
 
         # Create initial context
@@ -96,9 +96,9 @@ class TestRealPluginIntegration:
                 "processor": {"thumbnail_size": 200, "quality": 85},
                 "transform": {"page_size": 2},
                 "template": {"theme": "minimal", "layout": "grid"},
-                "css": {"theme": "light", "responsive": True}
+                "css": {"theme": "light", "responsive": True},
             },
-            output_dir=output_dir
+            output_dir=output_dir,
         )
 
         # Act: Execute complete pipeline
@@ -142,9 +142,9 @@ class TestRealPluginIntegration:
                     "dest_path": "photo.jpg",
                     "hash": "invalid",
                     "size_bytes": 0,
-                    "mtime": 0
+                    "mtime": 0,
                 }
-            ]
+            ],
         }
 
         manifest_path = tmp_path / "invalid_manifest.json"
@@ -160,13 +160,13 @@ class TestRealPluginIntegration:
 
         stages = [
             ("provider", "normpic-provider"),
-            ("processor", "thumbnail-processor")  # This should fail on invalid photo
+            ("processor", "thumbnail-processor"),  # This should fail on invalid photo
         ]
 
         initial_context = PluginContext(
             input_data={"manifest_path": str(manifest_path)},
             config={"provider": {}, "processor": {}},
-            output_dir=output_dir
+            output_dir=output_dir,
         )
 
         # Act: Execute pipeline (should handle errors gracefully)
@@ -175,8 +175,11 @@ class TestRealPluginIntegration:
         # Assert: Pipeline should succeed but log errors for individual photos
         # This is the correct behavior - graceful error handling rather than complete failure
         assert result.success  # Pipeline succeeds overall
-        assert result.errors   # But individual photos have errors logged
-        assert any("error" in error.lower() or "fail" in error.lower() for error in result.errors)
+        assert result.errors  # But individual photos have errors logged
+        assert any(
+            "error" in error.lower() or "fail" in error.lower()
+            for error in result.errors
+        )
 
         # Verify that the collection data is still present despite photo errors
         assert "collection_name" in result.output_data

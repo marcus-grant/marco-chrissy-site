@@ -8,7 +8,9 @@ import pytest
 class TestSiteValidate:
     """Test the site validate command functionality."""
 
-    def test_validate_checks_config_files_exist(self, temp_filesystem, full_config_setup):
+    def test_validate_checks_config_files_exist(
+        self, temp_filesystem, full_config_setup
+    ):
         """Test that validate command checks for required config files."""
         # Set up all required config files
         full_config_setup()
@@ -18,7 +20,7 @@ class TestSiteValidate:
             ["uv", "run", "site", "validate"],
             capture_output=True,
             text=True,
-            cwd=str(temp_filesystem)
+            cwd=str(temp_filesystem),
         )
 
         assert result.returncode == 0
@@ -28,9 +30,7 @@ class TestSiteValidate:
     def test_validate_checks_dependencies(self):
         """Test that validate command checks for required dependencies."""
         result = subprocess.run(
-            ["uv", "run", "site", "validate"],
-            capture_output=True,
-            text=True
+            ["uv", "run", "site", "validate"], capture_output=True, text=True
         )
         assert result.returncode == 0
         assert "dependencies" in result.stdout.lower()
@@ -39,9 +39,7 @@ class TestSiteValidate:
     def test_validate_checks_output_permissions(self):
         """Test that validate command checks output directory permissions."""
         result = subprocess.run(
-            ["uv", "run", "site", "validate"],
-            capture_output=True,
-            text=True
+            ["uv", "run", "site", "validate"], capture_output=True, text=True
         )
         assert result.returncode == 0
         assert "permissions" in result.stdout.lower()

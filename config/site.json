@@ -1,0 +1,7 @@
+{
+  "output_dir": "output",
+  "cdn": {
+    "photos": "https://photo-cdn.bunnycdn.com",
+    "site": "https://site-cdn.bunnycdn.com"
+  }
+}

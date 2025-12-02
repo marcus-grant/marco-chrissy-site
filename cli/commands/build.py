@@ -20,7 +20,7 @@ def build():
     ctx = click.get_current_context()
     result = ctx.invoke(organize)
 
-    if result and hasattr(result, 'exit_code') and result.exit_code != 0:
+    if result and hasattr(result, "exit_code") and result.exit_code != 0:
         click.echo("✗ Organize failed - stopping build")
         ctx.exit(1)
 
@@ -39,9 +39,7 @@ def build():
 def _is_already_built(output_dir="output"):
     """Check if site is already built and up to date."""
     # Simple check for key output files existence
-    output_paths = [
-        f"{output_dir}/galleries",
-        f"{output_dir}/index.html"
-    ]
+    # Note: Don't check for index.html as Pelican manages that file
+    output_paths = [f"{output_dir}/galleries"]
 
     return all(os.path.exists(path) for path in output_paths)

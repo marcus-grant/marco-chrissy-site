@@ -86,30 +86,53 @@ Configures Pelican static site generator:
 }
 ```
 
-**⚠️ CURRENT SCHEMA INCOMPLETE - NEEDS UPDATE**
-
-**Known required fields (discovered during implementation):**
+**Required fields:**
 - `theme`: Theme name for site generation (must be valid theme path or name)
 - `site_url`: Base URL for the site
 - `author`: Site author name
 - `sitename`: Site title/name
 
-**Additional required fields discovered during debugging:**
-- `THEME`: Pelican requires this in ALL_CAPS format
-- `IGNORE_FILES`: List of file patterns to ignore during generation
-- `DELETE_OUTPUT_DIRECTORY`: Boolean for output directory management
-- Many other settings required by `pelican.settings.configure_settings()`
+**Optional fields:**
+- `content_path`: Content directory path (default: "content")
+- `default_pagination`: Enable pagination (default: false)
+- `timezone`: Site timezone (default: "UTC")
+- `default_lang`: Default language (default: "en")
 
-**Issues with current implementation:**
-- Current schema only covers basic fields, not complete Pelican requirements
-- Build command manually constructs settings dict instead of using Pelican's configuration system
-- Missing integration with Pelican's theme validation and content directory requirements
-- Pelican API is more complex than initially documented
+## Content Configuration
 
-**Next developer should:**
-1. Research complete Pelican settings requirements from official documentation
-2. Update pelican.json schema to include all required fields
-3. Use `pelican.settings.configure_settings()` for proper defaults and validation
+### Index Page Handling
+
+**IMPORTANT**: The build system automatically handles conflicts between Pelican's default blog index and custom page content:
+
+- If you create `content/index.md` with `slug: index`, the system disables Pelican's default blog index
+- If no conflicting content exists, Pelican generates a standard blog index page
+- This prevents "File to be overwritten" errors during build
+
+**Example conflicting content** (`content/index.md`):
+```markdown
+---
+title: Welcome
+slug: index
+status: published
+---
+
+# Welcome to our site
+Custom homepage content.
+```
+
+**Result**: The custom page becomes `/index.html`, Pelican's blog index is disabled.
+
+**Example non-conflicting setup** (no `index.md` or different slug):
+```markdown
+---
+title: About
+slug: about
+---
+
+# About Us
+```
+
+**Result**: Pelican generates default blog index at `/index.html`, custom page at `/about.html`.
 
 ## Schema Validation
 

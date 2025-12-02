@@ -23,14 +23,14 @@ class BasicCSSPlugin(CSSPlugin):
                 return PluginResult(
                     success=False,
                     output_data={},
-                    errors=["MISSING_COLLECTION_NAME: collection_name required"]
+                    errors=["MISSING_COLLECTION_NAME: collection_name required"],
                 )
 
             if "html_files" not in context.input_data:
                 return PluginResult(
                     success=False,
                     output_data={},
-                    errors=["MISSING_HTML_FILES: html_files required"]
+                    errors=["MISSING_HTML_FILES: html_files required"],
                 )
 
             # Get CSS and template configurations - support both nested and direct patterns
@@ -51,7 +51,7 @@ class BasicCSSPlugin(CSSPlugin):
                 return PluginResult(
                     success=False,
                     output_data={},
-                    errors=[f"INVALID_THEME: Unknown theme: {theme}"]
+                    errors=[f"INVALID_THEME: Unknown theme: {theme}"],
                 )
 
             collection_name = context.input_data["collection_name"]
@@ -62,29 +62,31 @@ class BasicCSSPlugin(CSSPlugin):
 
             # Main gallery CSS (needs layout from template config)
             gallery_css = self._generate_gallery_css(template_config)
-            css_files.append({
-                "filename": "gallery.css",
-                "content": gallery_css,
-                "type": "gallery"
-            })
+            css_files.append(
+                {"filename": "gallery.css", "content": gallery_css, "type": "gallery"}
+            )
 
             # Theme-specific CSS if theme is specified
             if theme:
                 theme_css = self._generate_theme_css(theme, context.config)
-                css_files.append({
-                    "filename": f"theme-{theme}.css",
-                    "content": theme_css,
-                    "type": "theme"
-                })
+                css_files.append(
+                    {
+                        "filename": f"theme-{theme}.css",
+                        "content": theme_css,
+                        "type": "theme",
+                    }
+                )
 
             # Responsive CSS if enabled
             if css_config.get("responsive", True):
                 responsive_css = self._generate_responsive_css(css_config)
-                css_files.append({
-                    "filename": "responsive.css",
-                    "content": responsive_css,
-                    "type": "responsive"
-                })
+                css_files.append(
+                    {
+                        "filename": "responsive.css",
+                        "content": responsive_css,
+                        "type": "responsive",
+                    }
+                )
 
             return PluginResult(
                 success=True,
@@ -92,15 +94,13 @@ class BasicCSSPlugin(CSSPlugin):
                     "css_files": css_files,
                     "html_files": html_files,  # Pass through from input
                     "collection_name": collection_name,
-                    "css_count": len(css_files)
-                }
+                    "css_count": len(css_files),
+                },
             )
 
         except Exception as e:
             return PluginResult(
-                success=False,
-                output_data={},
-                errors=[f"CSS_ERROR: {str(e)}"]
+                success=False, output_data={}, errors=[f"CSS_ERROR: {str(e)}"]
             )
 
     def _generate_gallery_css(self, config: dict) -> str:
@@ -108,130 +108,182 @@ class BasicCSSPlugin(CSSPlugin):
         layout = config.get("layout", "grid")
 
         if layout == "grid":
-            gallery_layout_css = """
+            return """/* Grid Layout Gallery Styles */
 .gallery.layout-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
     gap: 1rem;
     padding: 1rem;
+    max-width: 1200px;
+    margin: 0 auto;
 }
 
 .gallery.layout-grid .photo-item {
-    aspect-ratio: 1;
+    position: relative;
     overflow: hidden;
-    border-radius: 0.5rem;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.gallery.layout-grid .photo-item:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+}
+
+.gallery.layout-grid .photo-item img {
+    width: 100%;
+    height: auto;
+    display: block;
+}
+
+/* Base Gallery Styles */
+header {
+    text-align: center;
+    padding: 2rem 0;
+    border-bottom: 1px solid #eee;
+    margin-bottom: 2rem;
+}
+
+header h1 {
+    margin: 0;
+    font-size: 2.5rem;
+    color: #333;
+    font-weight: 300;
+}
+
+.pagination {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 1rem;
+    padding: 2rem 0;
+    border-top: 1px solid #eee;
+    margin-top: 2rem;
+}
+
+.pagination a {
+    text-decoration: none;
+    padding: 0.5rem 1rem;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    color: #007bff;
+    background: #fff;
+    transition: background-color 0.2s ease;
+}
+
+.pagination a:hover {
+    background-color: #f8f9fa;
+}
+
+.pagination span {
+    font-weight: 500;
+    color: #666;
+}
+
+footer {
+    text-align: center;
+    padding: 2rem 0;
+    color: #666;
+    font-size: 0.875rem;
+}
+
+.empty-message {
+    text-align: center;
+    color: #666;
+    font-style: italic;
+    padding: 3rem 0;
 }"""
         else:
             # Default to flexbox layout
-            gallery_layout_css = """
+            return """/* Flexbox Layout Gallery Styles */
 .gallery {
     display: flex;
     flex-wrap: wrap;
     gap: 1rem;
     padding: 1rem;
+    max-width: 1200px;
+    margin: 0 auto;
 }
 
 .gallery .photo-item {
     flex: 1 1 200px;
     max-width: 300px;
-}"""
+    position: relative;
+    overflow: hidden;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
 
-        return f"""/* Galleria Base Styles */
+.gallery .photo-item:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+}
 
-/* Reset and base styles */
-* {{
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-}}
+.gallery .photo-item img {
+    width: 100%;
+    height: auto;
+    display: block;
+}
 
-body {{
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto,
-                 Oxygen, Ubuntu, Cantarell, sans-serif;
-    line-height: 1.6;
-    color: #333;
-    background: #fff;
-}}
-
-/* Header styles */
-header {{
-    padding: 2rem 1rem;
+/* Base Gallery Styles */
+header {
     text-align: center;
+    padding: 2rem 0;
     border-bottom: 1px solid #eee;
-}}
+    margin-bottom: 2rem;
+}
 
-header h1 {{
+header h1 {
+    margin: 0;
     font-size: 2.5rem;
+    color: #333;
     font-weight: 300;
-    letter-spacing: -0.5px;
-}}
+}
 
-/* Gallery layout */
-{gallery_layout_css}
-
-.photo-item {{
-    transition: transform 0.2s ease;
-}}
-
-.photo-item:hover {{
-    transform: scale(1.02);
-}}
-
-.photo-item a {{
-    display: block;
-    width: 100%;
-    height: 100%;
-}}
-
-.photo-item img {{
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    display: block;
-}}
-
-/* Pagination navigation */
-.pagination {{
-    text-align: center;
-    padding: 2rem 1rem;
+.pagination {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 1rem;
+    padding: 2rem 0;
     border-top: 1px solid #eee;
-}}
+    margin-top: 2rem;
+}
 
-.pagination a {{
-    display: inline-block;
-    padding: 0.5rem 1rem;
-    margin: 0 0.5rem;
+.pagination a {
     text-decoration: none;
-    color: #0066cc;
+    padding: 0.5rem 1rem;
     border: 1px solid #ddd;
-    border-radius: 0.25rem;
+    border-radius: 4px;
+    color: #007bff;
+    background: #fff;
     transition: background-color 0.2s ease;
-}}
+}
 
-.pagination a:hover {{
-    background-color: #f5f5f5;
-}}
+.pagination a:hover {
+    background-color: #f8f9fa;
+}
 
-.pagination span {{
-    margin: 0 1rem;
+.pagination span {
+    font-weight: 500;
     color: #666;
-}}
+}
 
-/* Footer */
-footer {{
+footer {
     text-align: center;
-    padding: 2rem 1rem;
+    padding: 2rem 0;
     color: #666;
     font-size: 0.875rem;
-}}
+}
 
-/* Empty gallery state */
-.empty-message {{
+.empty-message {
     text-align: center;
-    padding: 4rem 1rem;
     color: #666;
     font-style: italic;
-}}"""
+    padding: 3rem 0;
+}"""
 
     def _generate_theme_css(self, theme: str, config: dict) -> str:
         """Generate theme-specific CSS styles."""
@@ -318,7 +370,8 @@ body.theme-light {
 
     def _generate_responsive_css(self, config: dict) -> str:
         """Generate responsive CSS for mobile and tablet devices."""
-        return """/* Responsive Design */
+        # Add content size check to prevent infinite content generation
+        css_content = """/* Responsive Design */
 
 @media (max-width: 768px) {
     header h1 {
@@ -374,3 +427,9 @@ body.theme-light {
         font-size: 0.875rem;
     }
 }"""
+
+        # Validate content size before returning
+        if len(css_content) > 1_000_000:  # 1MB limit
+            raise ValueError(f"CSS content too large: {len(css_content)} bytes")
+
+        return css_content

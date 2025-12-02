@@ -282,6 +282,46 @@ cp -r output/* /var/www/html/wedding-gallery/
 rsync -av output/ user@server:/var/www/html/wedding-gallery/
 ```
 
+### Site Development Server
+
+For full-site development including both galleries and site content, use the site serve command:
+
+```bash
+# Start complete development environment
+uv run site serve
+
+# Server starts at http://127.0.0.1:8000
+# - Galleria server on port 8001 for galleries
+# - Pelican server on port 8002 for site content  
+# - Proxy routes requests intelligently
+```
+
+**Site Serve Features:**
+- **Smart Proxy**: Routes `/galleries/*` to Galleria, `/pics/*` to static files, others to Pelican
+- **Backend Management**: Automatically starts and manages Galleria and Pelican servers
+- **Graceful Shutdown**: Ctrl+C cleanly terminates all servers
+- **Custom Ports**: Configure ports for all servers as needed
+
+**Development Workflow:**
+1. Start site server: `uv run site serve`
+2. Open http://127.0.0.1:8000 in browser  
+3. Edit gallery configs or Pelican content
+4. Changes reflected automatically via backend hot reload
+5. Test complete site integration
+
+**Site Serve Options:**
+```bash
+# Custom ports
+uv run site serve --port 3000 --galleria-port 3001 --pelican-port 3002
+
+# Custom host (for network access)  
+uv run site serve --host 0.0.0.0
+
+# Full site development workflow
+uv run site build    # Generate all content first
+uv run site serve    # Start development server
+```
+
 ## E2E Testing Approach
 
 Galleria uses comprehensive E2E testing to ensure the complete workflow functions correctly.

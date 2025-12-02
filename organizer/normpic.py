@@ -9,6 +9,7 @@ from serializer.json import JsonConfigLoader
 
 try:
     from normpic import Config, Manifest, Pic, organize_photos
+
     NORMPIC_AVAILABLE = True
 except ImportError as e:
     organize_photos = None
@@ -22,6 +23,7 @@ except ImportError as e:
 @dataclass
 class OrganizeResult:
     """Result of photo organization operation."""
+
     success: bool
     errors: list[str]
     manifest_path: str | None = None
@@ -31,12 +33,14 @@ class OrganizeResult:
 class NormPicOrganizer:
     """Organizes photos using NormPic tool."""
 
-    def __init__(self,
-                 config_dir: Path = None,
-                 source_dir: Path = None,
-                 dest_dir: Path = None,
-                 collection_name: str = None,
-                 create_symlinks: bool = None):
+    def __init__(
+        self,
+        config_dir: Path = None,
+        source_dir: Path = None,
+        dest_dir: Path = None,
+        collection_name: str = None,
+        create_symlinks: bool = None,
+    ):
         """Initialize NormPic organizer.
 
         Args:
@@ -55,10 +59,19 @@ class NormPicOrganizer:
         config = self._load_config()
 
         # Use provided values or fall back to config, then defaults
-        self.source_dir = source_dir or Path(config.get("source_dir", "~/Pictures/wedding/full")).expanduser()
+        self.source_dir = (
+            source_dir
+            or Path(config.get("source_dir", "~/Pictures/wedding/full")).expanduser()
+        )
         self.dest_dir = dest_dir or Path(config.get("dest_dir", "output/pics/full"))
-        self.collection_name = collection_name or config.get("collection_name", "wedding")
-        self.create_symlinks = create_symlinks if create_symlinks is not None else config.get("create_symlinks", True)
+        self.collection_name = collection_name or config.get(
+            "collection_name", "wedding"
+        )
+        self.create_symlinks = (
+            create_symlinks
+            if create_symlinks is not None
+            else config.get("create_symlinks", True)
+        )
 
     def is_already_organized(self) -> bool:
         """Check if photos are already organized for current configuration.
@@ -109,7 +122,7 @@ class NormPicOrganizer:
             if not self.source_dir.exists():
                 return OrganizeResult(
                     success=False,
-                    errors=[f"Source directory does not exist: {self.source_dir}"]
+                    errors=[f"Source directory does not exist: {self.source_dir}"],
                 )
 
             # Create destination directory if it doesn't exist
@@ -121,7 +134,7 @@ class NormPicOrganizer:
                 source_dir=self.source_dir,
                 dest_dir=self.dest_dir,
                 collection_name=self.collection_name,
-                collection_description=f"Photo collection: {self.collection_name}"
+                collection_description=f"Photo collection: {self.collection_name}",
             )
 
             # Determine manifest path
@@ -129,14 +142,16 @@ class NormPicOrganizer:
 
             # Check for errors in manifest
             errors = []
-            if hasattr(manifest, 'errors') and manifest.errors:
-                errors.extend([error.get('message', str(error)) for error in manifest.errors])
+            if hasattr(manifest, "errors") and manifest.errors:
+                errors.extend(
+                    [error.get("message", str(error)) for error in manifest.errors]
+                )
 
             # Check processing status
             success = True
-            if hasattr(manifest, 'processing_status'):
-                status = manifest.processing_status.get('status', 'unknown')
-                if status == 'failed':
+            if hasattr(manifest, "processing_status"):
+                status = manifest.processing_status.get("status", "unknown")
+                if status == "failed":
                     success = False
                     errors.append(f"Photo organization failed with status: {status}")
 
@@ -144,13 +159,12 @@ class NormPicOrganizer:
                 success=success,
                 errors=errors,
                 manifest_path=str(manifest_path),
-                pics_processed=len(manifest.pics) if hasattr(manifest, 'pics') else 0
+                pics_processed=len(manifest.pics) if hasattr(manifest, "pics") else 0,
             )
 
         except Exception as e:
             return OrganizeResult(
-                success=False,
-                errors=[f"Photo organization failed: {e}"]
+                success=False, errors=[f"Photo organization failed: {e}"]
             )
 
     def _load_config(self) -> dict:

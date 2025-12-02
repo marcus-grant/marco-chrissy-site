@@ -38,12 +38,14 @@ class TestProcessorTransformIntegration:
                 pages = []
 
                 for i in range(0, len(photos), photos_per_page):
-                    page_photos = photos[i:i + photos_per_page]
-                    pages.append({
-                        "page_number": len(pages) + 1,
-                        "photos": page_photos,
-                        "photo_count": len(page_photos)
-                    })
+                    page_photos = photos[i : i + photos_per_page]
+                    pages.append(
+                        {
+                            "page_number": len(pages) + 1,
+                            "photos": page_photos,
+                            "photo_count": len(page_photos),
+                        }
+                    )
 
                 return PluginResult(
                     success=True,
@@ -51,8 +53,8 @@ class TestProcessorTransformIntegration:
                         "pages": pages,
                         "collection_name": collection_name,
                         "page_count": len(pages),
-                        "total_photos": len(photos)
-                    }
+                        "total_photos": len(photos),
+                    },
                 )
 
         # Create transform and test it with Processor output data
@@ -66,31 +68,31 @@ class TestProcessorTransformIntegration:
                     "dest_path": "wedding/IMG_001.jpg",
                     "thumbnail_path": "thumbnails/IMG_001_thumb.webp",
                     "thumbnail_size": (300, 200),
-                    "metadata": {"camera": "Canon EOS R5"}
+                    "metadata": {"camera": "Canon EOS R5"},
                 },
                 {
                     "source_path": "/source/photos/IMG_002.jpg",
                     "dest_path": "wedding/IMG_002.jpg",
                     "thumbnail_path": "thumbnails/IMG_002_thumb.webp",
                     "thumbnail_size": (300, 200),
-                    "metadata": {"camera": "Canon EOS R5"}
+                    "metadata": {"camera": "Canon EOS R5"},
                 },
                 {
                     "source_path": "/source/photos/IMG_003.jpg",
                     "dest_path": "wedding/IMG_003.jpg",
                     "thumbnail_path": "thumbnails/IMG_003_thumb.webp",
                     "thumbnail_size": (300, 200),
-                    "metadata": {"camera": "Canon EOS R5"}
-                }
+                    "metadata": {"camera": "Canon EOS R5"},
+                },
             ],
             "collection_name": "wedding_photos",
-            "thumbnail_count": 3
+            "thumbnail_count": 3,
         }
 
         context = PluginContext(
             input_data=processor_output,
             config={"photos_per_page": 2},
-            output_dir=tmp_path / "output"
+            output_dir=tmp_path / "output",
         )
 
         # Act: Execute transform
@@ -146,7 +148,9 @@ class TestProcessorTransformIntegration:
                 sort_key = context.config.get("sort_by", "dest_path")
                 reverse = context.config.get("reverse", False)
 
-                sorted_photos = sorted(photos, key=lambda p: p[sort_key], reverse=reverse)
+                sorted_photos = sorted(
+                    photos, key=lambda p: p[sort_key], reverse=reverse
+                )
 
                 return PluginResult(
                     success=True,
@@ -154,8 +158,8 @@ class TestProcessorTransformIntegration:
                         "photos": sorted_photos,
                         "collection_name": collection_name,
                         "sort_criteria": {"key": sort_key, "reverse": reverse},
-                        "photo_count": len(sorted_photos)
-                    }
+                        "photo_count": len(sorted_photos),
+                    },
                 )
 
         # Mock Processor output with unsorted photos
@@ -164,28 +168,28 @@ class TestProcessorTransformIntegration:
                 {
                     "source_path": "/source/photos/IMG_003.jpg",
                     "dest_path": "wedding/IMG_003.jpg",
-                    "thumbnail_path": "thumbnails/IMG_003_thumb.webp"
+                    "thumbnail_path": "thumbnails/IMG_003_thumb.webp",
                 },
                 {
                     "source_path": "/source/photos/IMG_001.jpg",
                     "dest_path": "wedding/IMG_001.jpg",
-                    "thumbnail_path": "thumbnails/IMG_001_thumb.webp"
+                    "thumbnail_path": "thumbnails/IMG_001_thumb.webp",
                 },
                 {
                     "source_path": "/source/photos/IMG_002.jpg",
                     "dest_path": "wedding/IMG_002.jpg",
-                    "thumbnail_path": "thumbnails/IMG_002_thumb.webp"
-                }
+                    "thumbnail_path": "thumbnails/IMG_002_thumb.webp",
+                },
             ],
             "collection_name": "wedding_photos",
-            "thumbnail_count": 3
+            "thumbnail_count": 3,
         }
 
         transform = TestSortTransform()
         context = PluginContext(
             input_data=processor_output,
             config={"sort_by": "dest_path", "reverse": False},
-            output_dir=tmp_path / "output"
+            output_dir=tmp_path / "output",
         )
 
         # Act: Execute sorting transform
@@ -232,19 +236,21 @@ class TestProcessorTransformIntegration:
 
                 for photo in photos:
                     thumb_name = Path(photo["dest_path"]).stem + "_thumb.webp"
-                    processed_photos.append({
-                        **photo,
-                        "thumbnail_path": f"thumbnails/{thumb_name}",
-                        "thumbnail_size": (300, 200)
-                    })
+                    processed_photos.append(
+                        {
+                            **photo,
+                            "thumbnail_path": f"thumbnails/{thumb_name}",
+                            "thumbnail_size": (300, 200),
+                        }
+                    )
 
                 return PluginResult(
                     success=True,
                     output_data={
                         "photos": processed_photos,
                         "collection_name": context.input_data["collection_name"],
-                        "thumbnail_count": len(processed_photos)
-                    }
+                        "thumbnail_count": len(processed_photos),
+                    },
                 )
 
         class TestPaginationTransform(TransformPlugin):
@@ -262,18 +268,17 @@ class TestProcessorTransformIntegration:
                 # Simple pagination - 2 photos per page
                 pages = []
                 for i in range(0, len(photos), 2):
-                    pages.append({
-                        "page_number": len(pages) + 1,
-                        "photos": photos[i:i + 2]
-                    })
+                    pages.append(
+                        {"page_number": len(pages) + 1, "photos": photos[i : i + 2]}
+                    )
 
                 return PluginResult(
                     success=True,
                     output_data={
                         "pages": pages,
                         "collection_name": context.input_data["collection_name"],
-                        "page_count": len(pages)
-                    }
+                        "page_count": len(pages),
+                    },
                 )
 
         # Arrange: Create output directory
@@ -290,12 +295,12 @@ class TestProcessorTransformIntegration:
                 "photos": [
                     {"source_path": "/source/IMG_001.jpg", "dest_path": "IMG_001.jpg"},
                     {"source_path": "/source/IMG_002.jpg", "dest_path": "IMG_002.jpg"},
-                    {"source_path": "/source/IMG_003.jpg", "dest_path": "IMG_003.jpg"}
+                    {"source_path": "/source/IMG_003.jpg", "dest_path": "IMG_003.jpg"},
                 ],
-                "collection_name": "test_photos"
+                "collection_name": "test_photos",
             },
             config={},
-            output_dir=output_dir
+            output_dir=output_dir,
         )
         processor_result = processor.process_thumbnails(processor_context)
 
@@ -303,7 +308,7 @@ class TestProcessorTransformIntegration:
         transform_context = PluginContext(
             input_data=processor_result.output_data,
             config={"photos_per_page": 2},
-            output_dir=output_dir
+            output_dir=output_dir,
         )
         transform_result = transform.transform_data(transform_context)
 

@@ -22,10 +22,11 @@ class TestLoadPhotoCollection:
 
         # Act
         from galleria.serializer.loader import load_photo_collection
+
         collection = load_photo_collection(str(manifest_path))
 
         # Assert
-        assert hasattr(collection, 'name')
+        assert hasattr(collection, "name")
         assert collection.name == "test-collection"
 
     def test_load_photo_collection_handles_missing_file(self, tmp_path):
@@ -53,6 +54,7 @@ class TestLoadPhotoCollection:
 
         # Act
         from galleria.serializer.loader import load_photo_collection
+
         collection = load_photo_collection(str(manifest_path))
 
         # Assert
@@ -80,10 +82,11 @@ class TestLoadPhotoCollection:
 
         # Act
         from galleria.serializer.loader import load_photo_collection
+
         collection = load_photo_collection(str(manifest_path))
 
         # Assert
-        assert hasattr(collection, 'photos')
+        assert hasattr(collection, "photos")
         assert len(collection.photos) == 1
 
     def test_photo_includes_camera_information(self, tmp_path):
@@ -109,6 +112,7 @@ class TestLoadPhotoCollection:
 
         # Act
         from galleria.serializer.loader import load_photo_collection
+
         collection = load_photo_collection(str(manifest_path))
 
         # Assert
@@ -160,6 +164,7 @@ class TestLoadPhotoCollection:
 
         # Act
         from galleria.serializer.loader import load_photo_collection
+
         collection = load_photo_collection(str(manifest_path))
 
         # Assert

@@ -67,7 +67,9 @@ class ImageProcessor:
             return output_path
 
         except OSError as e:
-            raise ImageProcessingError(f"Failed to process image {source_path}: {e}") from e
+            raise ImageProcessingError(
+                f"Failed to process image {source_path}: {e}"
+            ) from e
 
     def _center_crop_to_square(self, img):
         """Crop image to square using center crop strategy.
@@ -168,7 +170,11 @@ class ImageProcessor:
             # Process image
             try:
                 result_path = self.process_image(
-                    source_path, output_dir, size=size, quality=quality, output_name=dest_name
+                    source_path,
+                    output_dir,
+                    size=size,
+                    quality=quality,
+                    output_name=dest_name,
                 )
                 results.append(
                     {

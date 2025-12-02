@@ -1,5 +1,7 @@
 """PelicanBuilder for extracting pelican generation logic."""
 
+import subprocess
+import tempfile
 from pathlib import Path
 
 import pelican
@@ -33,6 +35,15 @@ class PelicanBuilder:
             content_path = pelican_config.get('content_path', 'content')
             content_dir = base_dir / content_path
             content_dir.mkdir(parents=True, exist_ok=True)
+            
+            # Check if there's content with slug 'index' that would conflict with default index
+            has_index_content = False
+            if content_dir.exists():
+                for content_file in content_dir.glob('**/*.md'):
+                    content_text = content_file.read_text()
+                    if 'slug: index' in content_text:
+                        has_index_content = True
+                        break
 
             # Start with Pelican's full default configuration
             pelican_settings_dict = DEFAULT_CONFIG.copy()
@@ -47,8 +58,10 @@ class PelicanBuilder:
                 'OUTPUT_PATH': str(base_dir / site_config.get('output_dir', 'output')),
                 'THEME': pelican_config.get('theme', 'notmyidea'),
 
-                # File handling settings
-                'DELETE_OUTPUT_DIRECTORY': pelican_config.get('delete_output_directory', False),
+                # File handling settings - allow overwriting existing files  
+                'DELETE_OUTPUT_DIRECTORY': False,
+                'OUTPUT_RETENTION': ['galleries'],  # Keep existing gallery files
+                'CACHE_CONTENT': False,  # Disable caching to avoid conflicts
                 'IGNORE_FILES': pelican_config.get('ignore_files', ['.#*', '__pycache__', '*~', '*.pyc']),
                 'STATIC_PATHS': pelican_config.get('static_paths', ['images']),
 
@@ -62,7 +75,25 @@ class PelicanBuilder:
 
                 # Pagination
                 'DEFAULT_PAGINATION': pelican_config.get('default_pagination', False),
+                
+                # Index page configuration - avoid slug conflicts
+                'DIRECT_TEMPLATES': ['index', 'archives', 'tags', 'categories'],
+                'INDEX_SAVE_AS': '' if has_index_content else 'index.html',
             })
+
+            # Remove any existing index.html that would conflict with Pelican
+            output_path = base_dir / site_config.get('output_dir', 'output')
+            index_path = output_path / 'index.html'
+            if index_path.exists():
+                index_path.unlink()
+                
+            # Also clean up any feed files that might cause conflicts
+            for feed_file in output_path.glob('feeds/*.xml'):
+                if feed_file.exists():
+                    feed_file.unlink()
+            feeds_dir = output_path / 'feeds'
+            if feeds_dir.exists() and not any(feeds_dir.iterdir()):
+                feeds_dir.rmdir()
 
             # Use Pelican's configure_settings to finalize configuration
             pelican_settings = configure_settings(pelican_settings_dict)

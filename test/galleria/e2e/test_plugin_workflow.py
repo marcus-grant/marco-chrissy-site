@@ -23,6 +23,7 @@ class TestGalleriaPluginWorkflow:
         3. Execute after_<stage> hooks
         4. Pass PluginResult to next stage as PluginContext
         """
+
         # Arrange: Create mock plugins for each stage
         class MockProviderPlugin(BasePlugin):
             @property
@@ -41,7 +42,7 @@ class TestGalleriaPluginWorkflow:
                 ]
                 return PluginResult(
                     success=True,
-                    output_data={"photos": photos, "collection_name": "test"}
+                    output_data={"photos": photos, "collection_name": "test"},
                 )
 
         class MockProcessorPlugin(BasePlugin):
@@ -58,16 +59,18 @@ class TestGalleriaPluginWorkflow:
                 photos = context.input_data["photos"]
                 processed_photos = []
                 for photo in photos:
-                    processed_photos.append({
-                        **photo,
-                        "thumbnail_path": f"thumbs/{Path(photo['dest_path']).stem}.webp"
-                    })
+                    processed_photos.append(
+                        {
+                            **photo,
+                            "thumbnail_path": f"thumbs/{Path(photo['dest_path']).stem}.webp",
+                        }
+                    )
                 return PluginResult(
                     success=True,
                     output_data={
                         "photos": processed_photos,
-                        "collection_name": context.input_data["collection_name"]
-                    }
+                        "collection_name": context.input_data["collection_name"],
+                    },
                 )
 
         class MockTransformPlugin(BasePlugin):
@@ -87,8 +90,8 @@ class TestGalleriaPluginWorkflow:
                     success=True,
                     output_data={
                         "pages": pages,
-                        "collection_name": context.input_data["collection_name"]
-                    }
+                        "collection_name": context.input_data["collection_name"],
+                    },
                 )
 
         class MockTemplatePlugin(BasePlugin):
@@ -110,8 +113,8 @@ class TestGalleriaPluginWorkflow:
                     success=True,
                     output_data={
                         "html_files": html_files,
-                        "collection_name": context.input_data["collection_name"]
-                    }
+                        "collection_name": context.input_data["collection_name"],
+                    },
                 )
 
         class MockCSSPlugin(BasePlugin):
@@ -130,8 +133,8 @@ class TestGalleriaPluginWorkflow:
                     output_data={
                         "css_files": ["gallery.css", "theme.css"],
                         "html_files": context.input_data["html_files"],
-                        "collection_name": context.input_data["collection_name"]
-                    }
+                        "collection_name": context.input_data["collection_name"],
+                    },
                 )
 
         # Setup hook manager and track hook execution
@@ -142,14 +145,19 @@ class TestGalleriaPluginWorkflow:
             def hook_fn(context: PluginContext) -> PluginResult:
                 hook_execution_log.append(f"{timing}_{stage}")
                 return PluginResult(success=True, output_data=context.input_data)
+
             return hook_fn
 
         # Register hooks for each stage
         hook_manager.register_hook("before_provider", track_hook("provider", "before"))
         hook_manager.register_hook("after_provider", track_hook("provider", "after"))
-        hook_manager.register_hook("before_processor", track_hook("processor", "before"))
+        hook_manager.register_hook(
+            "before_processor", track_hook("processor", "before")
+        )
         hook_manager.register_hook("after_processor", track_hook("processor", "after"))
-        hook_manager.register_hook("before_transform", track_hook("transform", "before"))
+        hook_manager.register_hook(
+            "before_transform", track_hook("transform", "before")
+        )
         hook_manager.register_hook("after_transform", track_hook("transform", "after"))
         hook_manager.register_hook("before_template", track_hook("template", "before"))
         hook_manager.register_hook("after_template", track_hook("template", "after"))
@@ -169,99 +177,125 @@ class TestGalleriaPluginWorkflow:
 
         # Act: Execute complete pipeline with hooks
         # Stage 1: Provider
-        hook_manager.execute_hook("before_provider", PluginContext(
-            input_data={"manifest_path": "test.json"},
-            config={},
-            output_dir=output_dir
-        ))
+        hook_manager.execute_hook(
+            "before_provider",
+            PluginContext(
+                input_data={"manifest_path": "test.json"},
+                config={},
+                output_dir=output_dir,
+            ),
+        )
 
-        provider_result = provider.execute(PluginContext(
-            input_data={"manifest_path": "test.json"},
-            config={},
-            output_dir=output_dir
-        ))
+        provider_result = provider.execute(
+            PluginContext(
+                input_data={"manifest_path": "test.json"},
+                config={},
+                output_dir=output_dir,
+            )
+        )
 
-        hook_manager.execute_hook("after_provider", PluginContext(
-            input_data=provider_result.output_data,
-            config={},
-            output_dir=output_dir
-        ))
+        hook_manager.execute_hook(
+            "after_provider",
+            PluginContext(
+                input_data=provider_result.output_data, config={}, output_dir=output_dir
+            ),
+        )
 
         # Stage 2: Processor
-        hook_manager.execute_hook("before_processor", PluginContext(
-            input_data=provider_result.output_data,
-            config={},
-            output_dir=output_dir
-        ))
+        hook_manager.execute_hook(
+            "before_processor",
+            PluginContext(
+                input_data=provider_result.output_data, config={}, output_dir=output_dir
+            ),
+        )
 
-        processor_result = processor.execute(PluginContext(
-            input_data=provider_result.output_data,
-            config={},
-            output_dir=output_dir
-        ))
+        processor_result = processor.execute(
+            PluginContext(
+                input_data=provider_result.output_data, config={}, output_dir=output_dir
+            )
+        )
 
-        hook_manager.execute_hook("after_processor", PluginContext(
-            input_data=processor_result.output_data,
-            config={},
-            output_dir=output_dir
-        ))
+        hook_manager.execute_hook(
+            "after_processor",
+            PluginContext(
+                input_data=processor_result.output_data,
+                config={},
+                output_dir=output_dir,
+            ),
+        )
 
         # Stage 3: Transform
-        hook_manager.execute_hook("before_transform", PluginContext(
-            input_data=processor_result.output_data,
-            config={},
-            output_dir=output_dir
-        ))
+        hook_manager.execute_hook(
+            "before_transform",
+            PluginContext(
+                input_data=processor_result.output_data,
+                config={},
+                output_dir=output_dir,
+            ),
+        )
 
-        transform_result = transform.execute(PluginContext(
-            input_data=processor_result.output_data,
-            config={},
-            output_dir=output_dir
-        ))
+        transform_result = transform.execute(
+            PluginContext(
+                input_data=processor_result.output_data,
+                config={},
+                output_dir=output_dir,
+            )
+        )
 
-        hook_manager.execute_hook("after_transform", PluginContext(
-            input_data=transform_result.output_data,
-            config={},
-            output_dir=output_dir
-        ))
+        hook_manager.execute_hook(
+            "after_transform",
+            PluginContext(
+                input_data=transform_result.output_data,
+                config={},
+                output_dir=output_dir,
+            ),
+        )
 
         # Stage 4: Template
-        hook_manager.execute_hook("before_template", PluginContext(
-            input_data=transform_result.output_data,
-            config={},
-            output_dir=output_dir
-        ))
+        hook_manager.execute_hook(
+            "before_template",
+            PluginContext(
+                input_data=transform_result.output_data,
+                config={},
+                output_dir=output_dir,
+            ),
+        )
 
-        template_result = template.execute(PluginContext(
-            input_data=transform_result.output_data,
-            config={},
-            output_dir=output_dir
-        ))
+        template_result = template.execute(
+            PluginContext(
+                input_data=transform_result.output_data,
+                config={},
+                output_dir=output_dir,
+            )
+        )
 
-        hook_manager.execute_hook("after_template", PluginContext(
-            input_data=template_result.output_data,
-            config={},
-            output_dir=output_dir
-        ))
+        hook_manager.execute_hook(
+            "after_template",
+            PluginContext(
+                input_data=template_result.output_data, config={}, output_dir=output_dir
+            ),
+        )
 
         # Stage 5: CSS
-        hook_manager.execute_hook("before_css", PluginContext(
-            input_data=template_result.output_data,
-            config={},
-            output_dir=output_dir
-        ))
+        hook_manager.execute_hook(
+            "before_css",
+            PluginContext(
+                input_data=template_result.output_data, config={}, output_dir=output_dir
+            ),
+        )
 
-        css_result = css.execute(PluginContext(
-            input_data=template_result.output_data,
-            config={},
-            output_dir=output_dir
-        ))
+        css_result = css.execute(
+            PluginContext(
+                input_data=template_result.output_data, config={}, output_dir=output_dir
+            )
+        )
 
-        hook_manager.execute_hook("after_css", PluginContext(
-            input_data=css_result.output_data,
-            config={},
-            output_dir=output_dir
-        ))
+        hook_manager.execute_hook(
+            "after_css",
+            PluginContext(
+                input_data=css_result.output_data, config={}, output_dir=output_dir
+            ),
+        )
 
         # Assert: Verify complete pipeline execution
         assert provider_result.success
@@ -279,11 +313,16 @@ class TestGalleriaPluginWorkflow:
 
         # Verify hooks executed in correct order
         expected_hook_order = [
-            "before_provider", "after_provider",
-            "before_processor", "after_processor",
-            "before_transform", "after_transform",
-            "before_template", "after_template",
-            "before_css", "after_css"
+            "before_provider",
+            "after_provider",
+            "before_processor",
+            "after_processor",
+            "before_transform",
+            "after_transform",
+            "before_template",
+            "after_template",
+            "before_css",
+            "after_css",
         ]
         assert hook_execution_log == expected_hook_order
 
@@ -291,4 +330,4 @@ class TestGalleriaPluginWorkflow:
         final_output = css_result.output_data
         assert final_output["collection_name"] == "test"
         assert len(final_output["html_files"]) == 2  # 2 pages from pagination
-        assert len(final_output["css_files"]) == 2   # gallery.css + theme.css
+        assert len(final_output["css_files"]) == 2  # gallery.css + theme.css

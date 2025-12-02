@@ -117,49 +117,17 @@ python -m galleria serve --config config/wedding.json --verbose
 
 ## Configuration File Format
 
-The configuration file should contain:
+The configuration file uses a flat format for simplicity:
 
 ```json
 {
-  "input": {
-    "manifest_path": "path/to/normpic/manifest.json"
-  },
-  "output": {
-    "directory": "path/to/output"
-  },
-  "pipeline": {
-    "provider": {
-      "plugin": "normpic-provider",
-      "config": {}
-    },
-    "processor": {
-      "plugin": "thumbnail-processor",
-      "config": {
-        "thumbnail_size": 400,
-        "quality": 90
-      }
-    },
-    "transform": {
-      "plugin": "basic-pagination",
-      "config": {
-        "page_size": 2
-      }
-    },
-    "template": {
-      "plugin": "basic-template",
-      "config": {
-        "theme": "minimal",
-        "layout": "grid"
-      }
-    },
-    "css": {
-      "plugin": "basic-css",
-      "config": {
-        "theme": "light",
-        "responsive": true
-      }
-    }
-  }
+  "manifest_path": "path/to/normpic/manifest.json",
+  "output_dir": "path/to/output",
+  "thumbnail_size": 400,
+  "quality": 90,
+  "page_size": 20,
+  "theme": "minimal",
+  "layout": "grid"
 }
 ```
 

@@ -12,7 +12,9 @@ from cli.commands.organize import organize
 class TestSiteOrganize:
     """Test the site organize command functionality."""
 
-    def test_organize_complete_workflow(self, temp_filesystem, full_config_setup, fake_image_factory):
+    def test_organize_complete_workflow(
+        self, temp_filesystem, full_config_setup, fake_image_factory
+    ):
         """Test complete organize workflow: validation, organization, manifest, and idempotency."""
 
         # Setup: Create source directory with test photos using fixture
@@ -21,15 +23,17 @@ class TestSiteOrganize:
         fake_image_factory("IMG_002.jpg", directory="source_photos", use_raw_bytes=True)
 
         # Setup: Configure normpic with temp paths
-        full_config_setup({
-            "normpic": {
-                "source_dir": str(source_dir),
-                "dest_dir": str(temp_filesystem / "output" / "pics" / "full"),
-                "collection_name": "wedding",
-                "collection_description": "Test wedding photos",
-                "create_symlinks": True
+        full_config_setup(
+            {
+                "normpic": {
+                    "source_dir": str(source_dir),
+                    "dest_dir": str(temp_filesystem / "output" / "pics" / "full"),
+                    "collection_name": "wedding",
+                    "collection_description": "Test wedding photos",
+                    "create_symlinks": True,
+                }
             }
-        })
+        )
 
         # First Run: Initial organization
         original_cwd = os.getcwd()
@@ -60,7 +64,9 @@ class TestSiteOrganize:
 
         assert manifest_data["collection_name"] == "wedding"
         assert "pics" in manifest_data
-        assert len(manifest_data["pics"]) == 2, f"Expected 2 pics, got {len(manifest_data['pics'])}"
+        assert len(manifest_data["pics"]) == 2, (
+            f"Expected 2 pics, got {len(manifest_data['pics'])}"
+        )
 
         # Assert: Each photo has correct metadata and symlinks
         for pic in manifest_data["pics"]:
@@ -83,12 +89,16 @@ class TestSiteOrganize:
 
             # NormPic naming pattern
             dest_filename = pic["dest_path"]
-            assert "wedding" in dest_filename.lower(), f"Missing collection name: {dest_filename}"
+            assert "wedding" in dest_filename.lower(), (
+                f"Missing collection name: {dest_filename}"
+            )
             assert dest_filename.endswith(".jpg"), f"Wrong extension: {dest_filename}"
 
         # Assert: All expected symlinks created
         symlinks_created = list(photos_dir.glob("*.jpg"))
-        assert len(symlinks_created) == 2, f"Expected 2 symlinks, found {len(symlinks_created)}"
+        assert len(symlinks_created) == 2, (
+            f"Expected 2 symlinks, found {len(symlinks_created)}"
+        )
 
         # Second Run: Test idempotency
         try:
@@ -101,8 +111,12 @@ class TestSiteOrganize:
         # Assert: Second run skips work (idempotent)
         assert result2.exit_code == 0, f"Idempotent run failed: {result2.output}"
         assert "validation" in result2.output.lower(), "Should still run validation"
-        assert ("already organized" in result2.output.lower() or
-                "skipping" in result2.output.lower()), "Should skip organization work"
+        assert (
+            "already organized" in result2.output.lower()
+            or "skipping" in result2.output.lower()
+        ), "Should skip organization work"
 
         # Assert: Manifest unchanged after idempotent run
-        assert manifest_path.exists(), "Manifest should still exist after idempotent run"
+        assert manifest_path.exists(), (
+            "Manifest should still exist after idempotent run"
+        )

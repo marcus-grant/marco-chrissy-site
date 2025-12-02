@@ -111,7 +111,7 @@ class TestPluginContext:
         context = PluginContext(
             input_data={"photos": []},
             config={"size": 400},
-            output_dir=Path("/tmp/output")
+            output_dir=Path("/tmp/output"),
         )
 
         assert context.input_data == {"photos": []}
@@ -126,18 +126,14 @@ class TestPluginContext:
             input_data="test_data",
             config={},
             output_dir=Path("/tmp"),
-            metadata=metadata
+            metadata=metadata,
         )
 
         assert context.metadata == metadata
 
     def test_plugin_context_metadata_defaults_to_empty_dict(self):
         """PluginContext metadata defaults to empty dict if not provided."""
-        context = PluginContext(
-            input_data=None,
-            config={},
-            output_dir=Path("/tmp")
-        )
+        context = PluginContext(input_data=None, config={}, output_dir=Path("/tmp"))
 
         assert context.metadata == {}
         assert isinstance(context.metadata, dict)
@@ -147,20 +143,14 @@ class TestPluginContext:
         # Test with different data types
         for input_data in [None, "string", 123, [], {}, Path("/test")]:
             context = PluginContext(
-                input_data=input_data,
-                config={},
-                output_dir=Path("/tmp")
+                input_data=input_data, config={}, output_dir=Path("/tmp")
             )
             assert context.input_data == input_data
 
     def test_plugin_context_output_dir_is_path_object(self):
         """PluginContext output_dir should be a Path object."""
         output_dir = Path("/some/output/path")
-        context = PluginContext(
-            input_data=None,
-            config={},
-            output_dir=output_dir
-        )
+        context = PluginContext(input_data=None, config={}, output_dir=output_dir)
 
         assert isinstance(context.output_dir, Path)
         assert context.output_dir == output_dir
@@ -172,8 +162,7 @@ class TestPluginResult:
     def test_plugin_result_creation_with_required_fields(self):
         """PluginResult can be created with all required fields."""
         result = PluginResult(
-            success=True,
-            output_data=["thumbnail1.webp", "thumbnail2.webp"]
+            success=True, output_data=["thumbnail1.webp", "thumbnail2.webp"]
         )
 
         assert result.success is True
@@ -184,11 +173,7 @@ class TestPluginResult:
     def test_plugin_result_failure_with_errors(self):
         """PluginResult can represent failure with error messages."""
         errors = ["File not found", "Permission denied"]
-        result = PluginResult(
-            success=False,
-            output_data=None,
-            errors=errors
-        )
+        result = PluginResult(success=False, output_data=None, errors=errors)
 
         assert result.success is False
         assert result.output_data is None
@@ -197,20 +182,13 @@ class TestPluginResult:
     def test_plugin_result_with_metadata(self):
         """PluginResult can include execution metadata."""
         metadata = {"duration": 2.5, "files_processed": 10}
-        result = PluginResult(
-            success=True,
-            output_data="completed",
-            metadata=metadata
-        )
+        result = PluginResult(success=True, output_data="completed", metadata=metadata)
 
         assert result.metadata == metadata
 
     def test_plugin_result_defaults_empty_collections(self):
         """PluginResult errors and metadata default to empty collections."""
-        result = PluginResult(
-            success=True,
-            output_data="test"
-        )
+        result = PluginResult(success=True, output_data="test")
 
         assert result.errors == []
         assert result.metadata == {}
@@ -221,19 +199,13 @@ class TestPluginResult:
         """PluginResult accepts various output data types."""
         # Test with different data types
         for output_data in [None, "string", 123, [], {}, Path("/test")]:
-            result = PluginResult(
-                success=True,
-                output_data=output_data
-            )
+            result = PluginResult(success=True, output_data=output_data)
             assert result.output_data == output_data
 
     def test_plugin_result_success_is_boolean(self):
         """PluginResult success field should be boolean."""
         # Test both boolean values
         for success_value in [True, False]:
-            result = PluginResult(
-                success=success_value,
-                output_data=None
-            )
+            result = PluginResult(success=success_value, output_data=None)
             assert isinstance(result.success, bool)
             assert result.success == success_value

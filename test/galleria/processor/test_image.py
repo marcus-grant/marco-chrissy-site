@@ -1,6 +1,5 @@
 """Unit tests for ImageProcessor."""
 
-
 import pytest
 from PIL import Image
 
@@ -213,7 +212,10 @@ class TestImageProcessorProcessImage:
         with pytest.raises(ImageProcessingError) as exc_info:
             processor.process_image(source_path, output_dir)
 
-        assert "invalid" in str(exc_info.value).lower() or "cannot" in str(exc_info.value).lower()
+        assert (
+            "invalid" in str(exc_info.value).lower()
+            or "cannot" in str(exc_info.value).lower()
+        )
 
     def test_process_image_raises_error_for_missing_file(self, tmp_path):
         """Missing source file → Raise clear error."""
@@ -229,7 +231,10 @@ class TestImageProcessorProcessImage:
         with pytest.raises(ImageProcessingError) as exc_info:
             processor.process_image(source_path, output_dir)
 
-        assert "not found" in str(exc_info.value).lower() or "does not exist" in str(exc_info.value).lower()
+        assert (
+            "not found" in str(exc_info.value).lower()
+            or "does not exist" in str(exc_info.value).lower()
+        )
 
 
 class TestImageProcessorCaching:

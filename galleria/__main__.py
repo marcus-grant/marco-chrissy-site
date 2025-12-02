@@ -1,13 +1,12 @@
 """Galleria CLI entry point."""
 
-import threading
-import time
 from pathlib import Path
 
 import click
 
 from .config import GalleriaConfig
 from .manager.pipeline import PipelineManager
+from .orchestrator.serve import ServeOrchestrator
 from .plugins.base import PluginContext
 from .plugins.css import BasicCSSPlugin
 from .plugins.pagination import BasicPaginationPlugin
@@ -25,21 +24,19 @@ def cli():
 
 @cli.command()
 @click.option(
-    "--config", "-c",
+    "--config",
+    "-c",
     type=click.Path(exists=True, path_type=Path),
     required=True,
-    help="Path to galleria configuration file"
+    help="Path to galleria configuration file",
 )
 @click.option(
-    "--output", "-o",
+    "--output",
+    "-o",
     type=click.Path(path_type=Path),
-    help="Output directory for generated gallery (overrides config)"
+    help="Output directory for generated gallery (overrides config)",
 )
-@click.option(
-    "--verbose", "-v",
-    is_flag=True,
-    help="Enable verbose output"
-)
+@click.option("--verbose", "-v", is_flag=True, help="Enable verbose output")
 def generate(config: Path, output: Path | None, verbose: bool):
     """Generate static gallery from configuration file.
 
@@ -85,14 +82,14 @@ def generate(config: Path, output: Path | None, verbose: bool):
         ("processor", "thumbnail-processor"),
         ("transform", "basic-pagination"),
         ("template", "basic-template"),
-        ("css", "basic-css")
+        ("css", "basic-css"),
     ]
 
     # Create initial context
     initial_context = PluginContext(
         input_data={"manifest_path": str(galleria_config.input_manifest_path)},
         config=galleria_config.to_pipeline_config(),
-        output_dir=galleria_config.output_directory
+        output_dir=galleria_config.output_directory,
     )
 
     # Execute pipeline with progress reporting
@@ -118,24 +115,108 @@ def generate(config: Path, output: Path | None, verbose: bool):
         final_output = final_result.output_data
         collection_name = final_output.get("collection_name", "gallery")
 
+        # TODO: REFACTOR FILE WRITING SYSTEM
+        # The current file writing validation is defensive programming against malformed plugin output.
+        # This indicates a design problem: plugins should not be able to generate invalid data structures.
+        # Post-MVP: Implement proper schema validation at plugin interface level and structured output types.
+        # See post-MVP task: "Refactor plugin output validation to use structured types and schema validation"
+
         # Write HTML files
         if "html_files" in final_output:
-            for html_file in final_output["html_files"]:
-                html_path = galleria_config.output_directory / html_file["filename"]
-                html_path.write_text(html_file["content"], encoding="utf-8")
-                if verbose:
-                    click.echo(f"  Wrote: {html_path}")
+            for i, html_file in enumerate(final_output["html_files"]):
+                try:
+                    # Validate file structure before writing
+                    if not isinstance(html_file, dict):
+                        raise click.ClickException(
+                            f"HTML file {i} is not a dictionary: {type(html_file)}"
+                        )
+
+                    if "filename" not in html_file:
+                        raise click.ClickException(
+                            f"HTML file {i} missing required 'filename' field"
+                        )
+
+                    if "content" not in html_file:
+                        raise click.ClickException(
+                            f"HTML file {i} missing required 'content' field"
+                        )
+
+                    content = html_file["content"]
+                    if content is None:
+                        raise click.ClickException(f"HTML file {i} has None content")
+
+                    if not isinstance(content, str):
+                        raise click.ClickException(
+                            f"HTML file {i} content is not a string: {type(content)}"
+                        )
+
+                    # Check content size to prevent massive files
+                    if len(content) > 50_000_000:  # 50MB limit
+                        raise click.ClickException(
+                            f"HTML file {i} content too large: {len(content)} bytes"
+                        )
+
+                    html_path = galleria_config.output_directory / html_file["filename"]
+                    html_path.write_text(content, encoding="utf-8")
+                    if verbose:
+                        click.echo(f"  Wrote: {html_path}")
+
+                except Exception as e:
+                    if isinstance(e, click.ClickException):
+                        raise
+                    raise click.ClickException(
+                        f"Failed to write HTML file {i}: {e}"
+                    ) from e
 
             page_count = len(final_output["html_files"])
             click.echo(f"Generated {page_count} HTML pages for '{collection_name}'")
 
         # Write CSS files
         if "css_files" in final_output:
-            for css_file in final_output["css_files"]:
-                css_path = galleria_config.output_directory / css_file["filename"]
-                css_path.write_text(css_file["content"], encoding="utf-8")
-                if verbose:
-                    click.echo(f"  Wrote: {css_path}")
+            for i, css_file in enumerate(final_output["css_files"]):
+                try:
+                    # Validate file structure before writing
+                    if not isinstance(css_file, dict):
+                        raise click.ClickException(
+                            f"CSS file {i} is not a dictionary: {type(css_file)}"
+                        )
+
+                    if "filename" not in css_file:
+                        raise click.ClickException(
+                            f"CSS file {i} missing required 'filename' field"
+                        )
+
+                    if "content" not in css_file:
+                        raise click.ClickException(
+                            f"CSS file {i} missing required 'content' field"
+                        )
+
+                    content = css_file["content"]
+                    if content is None:
+                        raise click.ClickException(f"CSS file {i} has None content")
+
+                    if not isinstance(content, str):
+                        raise click.ClickException(
+                            f"CSS file {i} content is not a string: {type(content)}"
+                        )
+
+                    # Check content size to prevent massive files
+                    if len(content) > 10_000_000:  # 10MB limit for CSS
+                        raise click.ClickException(
+                            f"CSS file {i} content too large: {len(content)} bytes"
+                        )
+
+                    css_path = galleria_config.output_directory / css_file["filename"]
+                    css_path.write_text(content, encoding="utf-8")
+                    if verbose:
+                        click.echo(f"  Wrote: {css_path}")
+
+                except Exception as e:
+                    if isinstance(e, click.ClickException):
+                        raise
+                    raise click.ClickException(
+                        f"Failed to write CSS file {i}: {e}"
+                    ) from e
 
             css_count = len(final_output["css_files"])
             click.echo(f"Generated {css_count} CSS files")
@@ -144,7 +225,9 @@ def generate(config: Path, output: Path | None, verbose: bool):
             thumb_count = final_output["thumbnail_count"]
             click.echo(f"Processed {thumb_count} thumbnails")
 
-        click.echo(f"Gallery generated successfully in: {galleria_config.output_directory}")
+        click.echo(
+            f"Gallery generated successfully in: {galleria_config.output_directory}"
+        )
 
     except Exception as e:
         if isinstance(e, click.ClickException):
@@ -154,255 +237,62 @@ def generate(config: Path, output: Path | None, verbose: bool):
 
 @cli.command()
 @click.option(
-    "--config", "-c",
+    "--config",
+    "-c",
     type=click.Path(exists=True, path_type=Path),
     required=True,
-    help="Path to galleria configuration file"
+    help="Path to galleria configuration file",
 )
 @click.option(
-    "--port", "-p",
+    "--host",
+    "-h",
+    default="127.0.0.1",
+    help="Host address to bind server (default: 127.0.0.1)",
+)
+@click.option(
+    "--port",
+    "-p",
     type=int,
     default=8000,
-    help="Port number for development server (default: 8000)"
+    help="Port number for development server (default: 8000)",
 )
-@click.option(
-    "--host", "-h",
-    type=str,
-    default="127.0.0.1",
-    help="Host address to bind server (default: 127.0.0.1)"
-)
-@click.option(
-    "--no-generate",
-    is_flag=True,
-    help="Skip gallery generation phase (serve existing files only)"
-)
-@click.option(
-    "--verbose", "-v",
-    is_flag=True,
-    help="Enable verbose output"
-)
-@click.option(
-    "--no-watch",
-    is_flag=True,
-    help="Disable file watching and hot reload functionality"
-)
-def serve(config: Path, port: int, host: str, no_generate: bool, verbose: bool, no_watch: bool):
-    """Start development server for static gallery.
+@click.option("--no-generate", is_flag=True, help="Skip gallery generation phase")
+@click.option("--no-watch", is_flag=True, help="Disable file watching and hot reload")
+@click.option("--verbose", "-v", is_flag=True, help="Enable verbose output")
+def serve(
+    config: Path, host: str, port: int, no_generate: bool, no_watch: bool, verbose: bool
+):
+    """Start development server for gallery with hot reload.
 
-    This command generates the gallery (unless --no-generate is specified)
-    and serves it on a local development server with hot reload capability.
+    This command starts an HTTP server to serve the generated gallery files
+    with optional file watching for hot reload during development.
     """
-    import http.server
-    import socketserver
-
     if verbose:
         click.echo("Starting galleria development server...")
-        click.echo(f"Config: {config}")
+        click.echo(f"Configuration: {config}")
         click.echo(f"Server: http://{host}:{port}")
         if no_generate:
-            click.echo("Skipping gallery generation (--no-generate)")
+            click.echo("Skipping gallery generation")
+        if no_watch:
+            click.echo("File watching disabled")
 
-    # Validate port range
-    if not (1024 <= port <= 65535):
-        raise click.ClickException(f"Port must be between 1024 and 65535, got: {port}")
-
-    # Load configuration to determine output directory
     try:
-        from .config import GalleriaConfig
-        galleria_config = GalleriaConfig.from_file(config)
-        galleria_config.validate_paths()
-        output_directory = galleria_config.output_directory
-
+        # Initialize and execute serve orchestrator
+        orchestrator = ServeOrchestrator()
+        orchestrator.execute(
+            config_path=config,
+            host=host,
+            port=port,
+            no_generate=no_generate,
+            no_watch=no_watch,
+            verbose=verbose,
+        )
+    except KeyboardInterrupt:
         if verbose:
-            click.echo(f"Output directory: {output_directory}")
-
+            click.echo("\nShutting down server...")
+        click.echo("Development server stopped.")
     except Exception as e:
-        raise click.ClickException(f"Configuration error: {e}") from e
-
-    # Generation phase (unless --no-generate)
-    if not no_generate:
-        if verbose:
-            click.echo("Generating gallery before serving...")
-
-        try:
-            # Use subprocess to call generate command for better isolation
-            import subprocess
-            import sys
-
-            generate_cmd = [
-                sys.executable, "-m", "galleria", "generate",
-                "--config", str(config)
-            ]
-            if verbose:
-                generate_cmd.append("--verbose")
-
-            result = subprocess.run(generate_cmd,
-                                  capture_output=True,
-                                  text=True,
-                                  cwd=Path.cwd())
-
-            if result.returncode != 0:
-                error_msg = f"Generation failed: {result.stderr or result.stdout}"
-                raise click.ClickException(error_msg)
-
-            if verbose:
-                click.echo("Gallery generation completed")
-                if result.stdout:
-                    click.echo(result.stdout)
-
-        except subprocess.SubprocessError as e:
-            raise click.ClickException(f"Generation subprocess failed: {e}") from e
-        except Exception as e:
-            if isinstance(e, click.ClickException):
-                raise
-            raise click.ClickException(f"Generation failed: {e}") from e
-
-    # Ensure output directory exists
-    if not output_directory.exists():
-        raise click.ClickException(f"Output directory does not exist: {output_directory}")
-
-    # Setup file watching for hot reload (unless disabled)
-    watch_files = set()
-    file_watcher_thread = None
-
-    if not no_watch:
-        # Files to watch for changes
-        watch_files.add(config)
-        if galleria_config.input_manifest_path.exists():
-            watch_files.add(galleria_config.input_manifest_path)
-
-        if verbose and watch_files:
-            click.echo(f"Watching files for changes: {[str(f) for f in watch_files]}")
-
-        # Start file watcher thread
-        def file_watcher():
-            """Watch files for changes and trigger regeneration."""
-            file_mtimes = {}
-
-            # Initialize modification times
-            for file_path in watch_files:
-                try:
-                    if file_path.exists():
-                        file_mtimes[file_path] = file_path.stat().st_mtime
-                except OSError:
-                    if verbose:
-                        click.echo(f"Warning: Could not get mtime for {file_path}")
-
-            while True:
-                try:
-                    time.sleep(1)  # Check every second
-
-                    # Check for file changes
-                    for file_path in watch_files:
-                        try:
-                            if file_path.exists():
-                                current_mtime = file_path.stat().st_mtime
-                                if file_path not in file_mtimes or current_mtime > file_mtimes[file_path]:
-                                    if verbose:
-                                        click.echo(f"File changed: {file_path}")
-                                        click.echo("Regenerating gallery...")
-
-                                    # Trigger regeneration
-                                    regenerate_gallery(config, verbose)
-                                    file_mtimes[file_path] = current_mtime
-
-                                    if verbose:
-                                        click.echo("Gallery regeneration completed")
-                        except OSError:
-                            # File might have been deleted or inaccessible
-                            if file_path in file_mtimes:
-                                del file_mtimes[file_path]
-
-                except Exception as e:
-                    if verbose:
-                        click.echo(f"File watcher error: {e}")
-
-        def regenerate_gallery(config_path, verbose_mode):
-            """Regenerate gallery when files change."""
-            try:
-                import subprocess
-                import sys
-
-                generate_cmd = [
-                    sys.executable, "-m", "galleria", "generate",
-                    "--config", str(config_path)
-                ]
-                if verbose_mode:
-                    generate_cmd.append("--verbose")
-
-                result = subprocess.run(generate_cmd,
-                                      capture_output=True,
-                                      text=True,
-                                      cwd=Path.cwd())
-
-                if result.returncode != 0 and verbose_mode:
-                    click.echo(f"Regeneration failed: {result.stderr}")
-
-            except Exception as e:
-                if verbose_mode:
-                    click.echo(f"Regeneration error: {e}")
-
-        if watch_files:
-            file_watcher_thread = threading.Thread(target=file_watcher, daemon=True)
-            file_watcher_thread.start()
-
-            if verbose:
-                click.echo("File watcher started (hot reload enabled)")
-
-    # Setup HTTP server
-    class GalleriaHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
-        """Custom request handler with gallery-specific behavior."""
-
-        def __init__(self, *args, **kwargs):
-            # Change to output directory for serving files
-            super().__init__(*args, directory=str(output_directory), **kwargs)
-
-        def end_headers(self):
-            # Add CORS headers for local development
-            self.send_header('Access-Control-Allow-Origin', '*')
-            self.send_header('Access-Control-Allow-Methods', 'GET, POST, OPTIONS')
-            self.send_header('Access-Control-Allow-Headers', '*')
-            super().end_headers()
-
-        def log_message(self, format, *args):
-            # Only log in verbose mode
-            if verbose:
-                super().log_message(format, *args)
-
-        def do_GET(self):
-            # Serve index.html for root requests
-            if self.path == '/':
-                self.path = '/page_1.html'
-            super().do_GET()
-
-    # Start server with improved error handling
-    try:
-        # Allow port reuse to avoid "Address already in use" errors
-        socketserver.TCPServer.allow_reuse_address = True
-
-        with socketserver.TCPServer((host, port), GalleriaHTTPRequestHandler) as httpd:
-            actual_host, actual_port = httpd.server_address
-
-            if verbose:
-                click.echo(f"Server started at http://{actual_host}:{actual_port}")
-                click.echo("Press Ctrl+C to stop the server")
-            else:
-                click.echo(f"Serving gallery at http://{actual_host}:{actual_port}")
-
-            try:
-                httpd.serve_forever()
-            except KeyboardInterrupt:
-                if verbose:
-                    click.echo("\nShutting down server...")
-                httpd.shutdown()
-
-    except OSError as e:
-        if e.errno == 98:  # Address already in use
-            raise click.ClickException(f"Port {port} is already in use. Try a different port with --port") from None
-        elif e.errno == 13:  # Permission denied
-            raise click.ClickException(f"Permission denied for port {port}. Try a port > 1024 or run with sudo") from None
-        else:
-            raise click.ClickException(f"Failed to start server on {host}:{port}: {e}") from e
+        raise click.ClickException(f"Server error: {e}") from e
 
 
 def main():
@@ -412,4 +302,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-
