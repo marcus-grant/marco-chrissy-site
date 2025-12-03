@@ -9,7 +9,6 @@ from typing import Literal
 
 import click
 
-from build.config_manager import ConfigManager
 from build.orchestrator import BuildOrchestrator
 
 
@@ -173,9 +172,9 @@ def serve(host: str, port: int, galleria_port: int, pelican_port: int, no_genera
     # Build site with localhost URL override for development
     localhost_url = f"http://{host}:{port}"
     click.echo(f"Building site with development URL: {localhost_url}")
-    
+
     orchestrator = BuildOrchestrator()
-    
+
     try:
         # Override site URL for development
         orchestrator.execute(override_site_url=localhost_url)

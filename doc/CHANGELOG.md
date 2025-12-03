@@ -7,6 +7,8 @@
 - BuildContext class for managing production vs development environment state
 - PelicanBuilder URL override functionality for development vs production builds
 - Mock config fixtures in test/conftest.py for consistent testing
+- Template plugin URL filters for context-aware URL generation
+- BasicTemplatePlugin BuildContext integration for development vs production URLs
 
 ## 2025-12-02
 

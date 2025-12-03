@@ -129,19 +129,19 @@ The below example, shows formatting and explanations for each task item.
 - [x] Write unit test for `full_url` filter that fails
 - [x] Implement Jinja2 filter that uses BuildContext for URL generation
 - [x] `uv run ruff check --fix --unsafe-fixes && uv run pytest`
-- [ ] Update TODO.md and CHANGELOG.md
-- [ ] Commit: `Ft: Add template URL filters for context-aware URL generation`
+- [x] Update TODO.md and CHANGELOG.md
+- [x] Commit: `Ft: Add template URL filters for context awareness`
 
-- [ ] **TDD VIOLATION HALT**: Session stopped due to implementing template plugin integration without tests first
-- [ ] **RESTART REQUIRED**: Must write unit tests for template plugin BuildContext integration before implementation
+- [x] **TDD VIOLATION HALT**: Session stopped due to implementing template plugin integration without tests first
+- [x] **RESTART REQUIRED**: Must write unit tests for template plugin BuildContext integration before implementation
 
-- [ ] Write unit test for BasicTemplatePlugin accepting BuildContext via metadata that fails
-- [ ] Write unit test for BasicTemplatePlugin using full_url filter with context that fails
-- [ ] Implement BasicTemplatePlugin metadata context access to pass tests
-- [ ] Modify `galleria/plugins/template.py` to use filters instead of `_make_relative_path()`
-- [ ] `uv run ruff check --fix --unsafe-fixes && uv run pytest`
-- [ ] Update TODO.md and CHANGELOG.md
-- [ ] Commit: `Ft: Template plugin uses context-aware URL filters`
+- [x] Write unit test for BasicTemplatePlugin accepting BuildContext via metadata that fails
+- [x] Write unit test for BasicTemplatePlugin using full_url filter with context that fails
+- [x] Implement BasicTemplatePlugin metadata context access to pass tests
+- [x] Modify `galleria/plugins/template.py` to use filters instead of `_make_relative_path()`
+- [x] `uv run ruff check --fix --unsafe-fixes && uv run pytest`
+- [x] Update TODO.md and CHANGELOG.md
+- [x] Commit: `Ft: Template plugin uses context-aware URL filters`
 
 - [ ] Write unit test for GalleriaBuilder accepting BuildContext parameters that fails
 - [ ] Write unit test for GalleriaBuilder passing BuildContext in metadata that fails

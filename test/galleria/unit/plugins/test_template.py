@@ -289,3 +289,89 @@ class TestBasicTemplatePlugin:
         )
         assert "../pics/full/img1.jpg" in html_content
         assert "/absolute/path/to/output/pics/img1.jpg" not in html_content
+
+    def test_basic_template_plugin_accepts_build_context_via_metadata(self, tmp_path):
+        """BasicTemplatePlugin should accept BuildContext via metadata and use it for URL generation."""
+        from build.context import BuildContext
+        from galleria.plugins.template import BasicTemplatePlugin
+
+        plugin = BasicTemplatePlugin()
+
+        # Create BuildContext and pass via metadata
+        build_context = BuildContext(production=False)  # Development mode
+        site_url = "http://127.0.0.1:8000"
+
+        context = PluginContext(
+            input_data={
+                "pages": [
+                    [
+                        {
+                            "source_path": "/home/user/photos/img1.jpg",
+                            "thumbnail_path": "/absolute/path/to/output/galleries/wedding/thumbnails/img1.webp",
+                            "dest_path": "/absolute/path/to/output/pics/full/img1.jpg",
+                        }
+                    ]
+                ],
+                "collection_name": "wedding",
+                "total_photos": 1,
+            },
+            config={},
+            output_dir=tmp_path,
+            metadata={
+                "build_context": build_context,
+                "site_url": site_url,
+            },
+        )
+
+        result = plugin.generate_html(context)
+
+        assert result.success
+        assert "html_files" in result.output_data
+
+        # Check that URLs are context-aware - in development mode should use localhost
+        html_content = result.output_data["html_files"][0]["content"]
+        assert "http://127.0.0.1:8000/galleries/wedding/thumbnails/img1.webp" in html_content
+        assert "http://127.0.0.1:8000/pics/full/img1.jpg" in html_content
+
+    def test_basic_template_plugin_uses_full_url_filter_with_production_context(self, tmp_path):
+        """BasicTemplatePlugin should use full_url filter and generate production URLs when context.production=True."""
+        from build.context import BuildContext
+        from galleria.plugins.template import BasicTemplatePlugin
+
+        plugin = BasicTemplatePlugin()
+
+        # Create production BuildContext
+        build_context = BuildContext(production=True)
+        site_url = "https://cdn.example.com"
+
+        context = PluginContext(
+            input_data={
+                "pages": [
+                    [
+                        {
+                            "source_path": "/home/user/photos/img1.jpg",
+                            "thumbnail_path": "/absolute/path/to/output/galleries/wedding/thumbnails/img1.webp",
+                            "dest_path": "/absolute/path/to/output/pics/full/img1.jpg",
+                        }
+                    ]
+                ],
+                "collection_name": "wedding",
+                "total_photos": 1,
+            },
+            config={},
+            output_dir=tmp_path,
+            metadata={
+                "build_context": build_context,
+                "site_url": site_url,
+            },
+        )
+
+        result = plugin.generate_html(context)
+
+        assert result.success
+        assert "html_files" in result.output_data
+
+        # Check that URLs use production CDN URLs
+        html_content = result.output_data["html_files"][0]["content"]
+        assert "https://cdn.example.com/galleries/wedding/thumbnails/img1.webp" in html_content
+        assert "https://cdn.example.com/pics/full/img1.jpg" in html_content
