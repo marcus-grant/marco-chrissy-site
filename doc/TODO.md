@@ -125,13 +125,37 @@ The below example, shows formatting and explanations for each task item.
 - [ ] Update TODO.md and CHANGELOG.md
 - [ ] Commit: `Ft: Serve command overrides site URL for localhost`
 
-- [ ] Create template filters in new `galleria/template/filters.py`
-- [ ] Write unit test for `full_url` filter that fails
-- [ ] Implement Jinja2 filter that uses BuildContext for URL generation
+- [x] Create template filters in new `galleria/template/filters.py`
+- [x] Write unit test for `full_url` filter that fails
+- [x] Implement Jinja2 filter that uses BuildContext for URL generation
+- [x] `uv run ruff check --fix --unsafe-fixes && uv run pytest`
+- [ ] Update TODO.md and CHANGELOG.md
+- [ ] Commit: `Ft: Add template URL filters for context-aware URL generation`
+
+- [ ] **TDD VIOLATION HALT**: Session stopped due to implementing template plugin integration without tests first
+- [ ] **RESTART REQUIRED**: Must write unit tests for template plugin BuildContext integration before implementation
+
+- [ ] Write unit test for BasicTemplatePlugin accepting BuildContext via metadata that fails
+- [ ] Write unit test for BasicTemplatePlugin using full_url filter with context that fails
+- [ ] Implement BasicTemplatePlugin metadata context access to pass tests
 - [ ] Modify `galleria/plugins/template.py` to use filters instead of `_make_relative_path()`
 - [ ] `uv run ruff check --fix --unsafe-fixes && uv run pytest`
 - [ ] Update TODO.md and CHANGELOG.md
-- [ ] Commit: `Ft: Add template URL filters with context awareness`
+- [ ] Commit: `Ft: Template plugin uses context-aware URL filters`
+
+- [ ] Write unit test for GalleriaBuilder accepting BuildContext parameters that fails
+- [ ] Write unit test for GalleriaBuilder passing BuildContext in metadata that fails
+- [ ] Implement GalleriaBuilder.build() BuildContext parameter support
+- [ ] `uv run ruff check --fix --unsafe-fixes && uv run pytest`
+- [ ] Update TODO.md and CHANGELOG.md
+- [ ] Commit: `Ft: GalleriaBuilder accepts BuildContext for URL generation`
+
+- [ ] Write unit test for BuildOrchestrator passing BuildContext to GalleriaBuilder that fails
+- [ ] Write unit test for BuildOrchestrator creating BuildContext from override_site_url that fails
+- [ ] Implement BuildOrchestrator BuildContext integration
+- [ ] `uv run ruff check --fix --unsafe-fixes && uv run pytest`
+- [ ] Update TODO.md and CHANGELOG.md
+- [ ] Commit: `Ft: BuildOrchestrator coordinates context-aware builds`
 
 - [ ] `gh pr create --title "Fix: Configurable base URLs for serve vs build" --body "Implements URL override system for development vs production"`
 
@@ -232,7 +256,7 @@ The below example, shows formatting and explanations for each task item.
 *Note: This task needs proper TDD planning. Consider commenting out code first to see which tests fail, revealing what needs to move to new modules.*
 
 - [ ] `git checkout -b ref/serve`
-- [ ] Extract business logic from `cli/commands/serve.py` 
+- [ ] Extract business logic from `cli/commands/serve.py`
 - [ ] Move `SiteServeProxy`, `ProxyHTTPHandler`, build orchestration to separate module
 - [ ] Leave only CLI arg parsing, calling serve manager, result reporting in command
 - [ ] Fix test isolation issues caused by build integration in command module
