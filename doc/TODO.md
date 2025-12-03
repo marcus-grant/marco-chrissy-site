@@ -1,124 +1,219 @@
 # Marco & Chrissy's Website - TODO
 
-## Current Status: Serve Command Basic Functionality Complete
+## Task Management via TODO
 
-**COMPLETED**:
+### Workflow
 
-- ✅ Manifest path bug fixed - Galleria can start and run
-- ✅ Proxy routing fixed - `/galleries/wedding/page_1.html` routes correctly
-- ✅ All E2E and unit tests pass (380 tests)
+Anyone reading this file should be able to
+naturally follow our workflow defined in [CONTRIBUTE.md](CONTRIBUTE.md).
+Simply following the checklist items below should lead to
+following the rules, defined within that document.
+The below example, shows formatting and explanations for each task item.
 
-**REMAINING ISSUES**:
+>**NOTE:** The completed top level task is following our workflow correctly.
 
-- [ ] --no-generate flag missing (needed for large photo sets)
-- [ ] Galleria CPU hang with 645+ photos  
-- [ ] Additional routing and photo link issues
+### Example Top Level Task or Phase
 
-**NEXT STEPS**: Complete --no-generate flag implementation, then resume full manual testing.
+#### Top Level Task Name
+
+- [ ] `git checkout -b commit-prefix/branch-name`
+  - Top level tasks should define a new branch with appropriate commit prefix
+  - This keeps PRs organized and easy to review
+  - It's OK to reuse old branches, they just need to be merged with main 1st
+- [ ] Modify or create e2e or integration test module `test/e2e/module_name.py`
+  - Task should mention module name
+    - Module name should contain main module being tested
+  - The idea is for a top-level test to test larger portions of code
+    - This usually surfaces missing or broken functionality
+    - Leading naturally to more specific specs defined by unit tests
+  - Before marking this task complete, check it fails expectantly
+- [ ] Add `@pytest.mark.skip("Reason for skipping")` to new test
+  - Only high-quality code should be committed
+  - A skip tag means you can still commit incomplete work
+- [ ] `uv run ruff check --fix --unsafe-fixes && uv run pytest`
+  - Run code formatter and linter
+  - Ensure code quality & changes just skip and don't ruin other tests
+- [ ] Update TODO.md and CHANGELOG.md
+  - Ensure you're logging work
+- [ ] `git commit -am "Tst: title of e2e/integration test (skipped)"`
+  - Commit with appropriate prefix (probably Tst for tests)
+  - Mention module being tested and that it's skipped
+
+- [ ] Create or modify `module/path/filename.py` with `syntaxed-functionality`
+  - Specify file path & if needed functionality being added
+  - This is meant to be a stub that that can be imported by unit tests
+  - **DO NOT** implement functionality yet
+- [ ] Write or modify unit test `TestClassName` for each function being tested
+  - Specify test class to make or modify
+  - Optionally specify the method strings needed in nested tasks
+- [ ] Create or modify `ImplementationClassOrFunction` to pass test(s)
+  - Optionally include nested sub-tasks for complex implementations
+- [ ] `uv run ruff check --fix --unsafe-fixes && uv run pytest`
+- [ ] Update TODO.md and CHANGELOG.md
+- [ ] `git commit -am "Ft or Fix: title of functionality being added"`
+  - This commit is likely a `Ft` or `Fix` type
+
+- Repeat either the above top-level task
+  - Depending on if commit can reasonably contain enough cycles
+    - You **DO NOT** want massive commits that are hard to review
+    - A good rule of thumb is roughly 300 lines of code or less
+  - You stop repeating when it's likely you can remove the skip decorator
+  - Do try and add enough unit tests to have decent edge-case coverage
+  - Not end of world if you missed something
+  - This process makes it easy to make fixes later
+
+- [ ] Remove `@pytest.mark.skip` from test of `test/e2e/module_name.py`
+  - The intention is to run the test and verify it passes
+    - If not, leave the skip, add tasks above for unit tests to fix it
+    - Leave this task uncompleted until test passes
+
+- Here you repeat expected e2e or integration test spec tasks
+  - Should have the same sequence as above
+  - If you have roughly a dozen or so...
+    - Your plan probably needs rethinking or breaking into smaller pieces
+    - PRs should be smaller than that for easier review
+
+- [ ] Add or update `doc/subtopic/article.md`
+  - There is likely going to be at least one of these tasks per PR
+  - Remember the `README.md` adjacency links
+    - Each sub-directory of `doc/` has a `README.md`
+    - Each `README.md` acts as a overview and index for that topic
+    - Each `README.md` links to:
+      - Another markdown document in that directory, or...
+      - A `README.md` in a sub-directory, representing a sub-topic
+      - This forms an adjacency list structure for documentation navigation
+      - Don't link to a non-README file in a sub-directory
+        - This keeps navigation consistent and predictable
+    - Each time you add a document or sub-topic...
+      - Update the parent directory's `README.md` to link to it
+      - If you create a sub-directory...
+        - update the parent `README.md` to link to its `README.md`
 
 ## MVP Roadmap
 
-### Phase 3: Integration Testing & Serve Command
-
-  **Critical Issues Found:**
-
-- **BLOCKING: Galleria hardcoded manifest path bug**
-  - Prepends "config/" to manifest paths
-- **BLOCKING: Galleria hangs processing 645 photos** - Uses 99.9% CPU, never completes
-- **Enhancement: Missing --no-generate flag** in site serve command
-  
-  **Additional Issues for Later:**
-
-- [ ] Pelican generating bad routing and site naming (Is it a weird navbar?)
-- [ ] Need configurable base URL for prod vs serve (<http://127.0.0.1:portnum>)
-
-- [x] **Fix Galleria manifest path bug (BLOCKING)** *(COMPLETED)*
-  - [x] **Root cause identified**
-    - E2E tests used relative manifest paths, galleria subprocess couldn't find manifest
-  - [x] **Solution implemented** - Updated serve E2E tests to use absolute paths and create pre-existing manifest+photos
-  - [x] **Fix verified** - Serve E2E tests now pass, full test suite passes (380 tests)
-  - [x] **Pattern documented** - Serve tests simulate post-build state with existing manifest, other tests create manifests
-
-- [x] **Add --no-generate flag to site serve command** *(COMPLETED)*
-  - [x] **Research --no-generate flag** - Confirmed flag exists in galleria serve command
-  - [x] **Design implementation** - Add CLI option and pass through to galleria subprocess
-  - [x] **Complete TDD implementation** - Write failing test, implement feature, ensure all tests pass
-  - [ ] **Test large photo sets** - Verify serve works quickly with 645+ photos
-  - [x] Commit: `Ft: Add --no-generate flag to site serve for development`
-
-- [x] **Manual testing guide with real photo set** *(COMPLETED)*
-  - [x] ~~Guide through testing serve command with real photos~~
-  - [x] **COMPLETED**: Identified and fixed blocking Galleria manifest and proxy routing issues  
-  - [x] **COMPLETED**: Fixed proxy routing - /galleries/wedding/page_1.html now routes correctly to Galleria
-  - [x] **COMPLETED**: Full serve testing verified - basic routing confirmed working
-  - [x] **VERIFIED**: Complete E2E workflow (validate → organize → build → serve) works correctly
-  - **Remaining issues documented**: Base URL configuration, missing gallery index pages captured in Phase 4
-
-- [ ] **Document serve command usage**
-  - [ ] Create `doc/commands/serve.md` with usage examples and URL pattern explanations
-  - [ ] Update `doc/commands/README.md` to link to serve.md
-  - [ ] `uv run ruff check --fix --unsafe-fixes`
-  - [ ] `uv run pytest`
-  - [ ] Update doc/CHANGELOG.md and doc/TODO.md
-  - [ ] Commit: `Doc: Add serve command usage documentation`
-
-- [ ] **Document serve architecture**
-  - [ ] Also, update the testing doc with the 'serve' e2e changes
-  - [ ] Create `doc/modules/galleria/serve.md` documenting ServeOrchestrator, server, watcher modules
-  - [ ] Update `doc/architecture.md` with serve command integration
-  - [ ] Update `doc/workflow.md` with development workflow using serve
-  - [ ] `uv run ruff check --fix --unsafe-fixes`
-  - [ ] `uv run pytest`
-  - [ ] Update doc/CHANGELOG.md and doc/TODO.md
-  - [ ] Commit: `Doc: Document serve command architecture and workflow`
-
 ### Phase 4: Template & CSS Architecture Fix (Pre-MVP Critical)
 
-- [ ] **Optimize Galleria photo processing performance** (Post-MVP if --no-generate works)
-  - [ ] Investigate why 645 photos cause 99.9% CPU hang in Galleria
-  - [ ] Implement batched or streaming photo processing  
-  - [ ] Add progress indicators for large photo collections
-  - [ ] Consider lazy loading or pagination for massive galleries
+#### Task 1: Configurable Base URLs (Branch: fix/url)
 
-- [ ] `git checkout -b fix/url`
-- [ ] Modify `test/e2e/test_site_serve.py` - add test case that verifies serve command generates localhost URLs in HTML output
-- [ ] Add `@pytest.mark.skip("URL override not implemented")` to new test
-- [ ] `uv run ruff check --fix --unsafe-fixes`
-- [ ] `uv run pytest` (test should be skipped)
-- [ ] Update TODO.md and CHANGELOG.md
-- [ ] Commit: `Tst: Add E2E test for serve URL override (skipped)`
+- [x] `git checkout -b fix/url`
+- [x] Modify `test/e2e/test_site_serve.py` - add test case that verifies serve command generates localhost URLs in HTML output
+- [x] Add `@pytest.mark.skip("URL override not implemented")` to new test
+- [x] `uv run ruff check --fix --unsafe-fixes`
+- [x] `uv run pytest` (test should be skipped)
+- [x] Update TODO.md and CHANGELOG.md
+- [x] Commit: `Tst: Add E2E test for serve URL override (skipped)`
 
-- [ ] Create `build/context.py` with `BuildContext` class having `production: bool` property
-- [ ] Write unit test for BuildContext that fails
-- [ ] Implement BuildContext class to pass test
+- [x] Create `build/context.py` with `BuildContext` class having `production: bool` property
+- [x] Write unit test for BuildContext that fails
+- [x] Implement BuildContext class to pass test
+- [x] `uv run ruff check --fix --unsafe-fixes && uv run pytest`
+- [x] Update TODO.md and CHANGELOG.md  
+- [x] Commit: `Ft: Add BuildContext with production flag`
+
+- [x] Modify `PelicanBuilder.build()` to accept `override_site_url` parameter
+- [x] Write unit test that fails for URL override functionality
+- [x] Implement URL override logic: `'SITEURL': override_site_url or pelican_config.get('site_url', '')`
+- [x] `uv run ruff check --fix --unsafe-fixes && uv run pytest`
+- [x] Update TODO.md and CHANGELOG.md
+- [x] Commit: `Ft: Add site URL override to PelicanBuilder`
+
+- [x] Create template filters in new `galleria/template/filters.py`
+- [x] Write unit test for `full_url` filter that fails
+- [x] Implement Jinja2 filter that uses BuildContext for URL generation
+- [x] `uv run ruff check --fix --unsafe-fixes && uv run pytest`
+- [x] Update TODO.md and CHANGELOG.md
+- [x] Commit: `Ft: Add template URL filters for context awareness`
+
+- [x] **TDD VIOLATION HALT**: Session stopped due to implementing template plugin integration without tests first
+- [x] **RESTART REQUIRED**: Must write unit tests for template plugin BuildContext integration before implementation
+
+- [x] Write unit test for BasicTemplatePlugin accepting BuildContext via metadata that fails
+- [x] Write unit test for BasicTemplatePlugin using full_url filter with context that fails
+- [x] Implement BasicTemplatePlugin metadata context access to pass tests
+- [x] Modify `galleria/plugins/template.py` to use filters instead of `_make_relative_path()`
+- [x] `uv run ruff check --fix --unsafe-fixes && uv run pytest`
+- [x] Update TODO.md and CHANGELOG.md
+- [x] Commit: `Ft: Template plugin uses context-aware URL filters`
+
+- [x] Write unit test for GalleriaBuilder accepting BuildContext parameters that fails
+- [x] Write unit test for GalleriaBuilder passing BuildContext in metadata that fails
+- [x] Implement GalleriaBuilder.build() BuildContext parameter support
+- [x] `uv run ruff check --fix --unsafe-fixes && uv run pytest`
+- [x] Update TODO.md and CHANGELOG.md
+- [x] Commit: `Ft: GalleriaBuilder accepts BuildContext for URL generation`
+
+- [x] Write unit test for BuildOrchestrator passing BuildContext to GalleriaBuilder that fails
+- [x] Write unit test for BuildOrchestrator creating BuildContext from override_site_url that fails
+- [x] Implement BuildOrchestrator BuildContext integration
+- [x] `uv run ruff check --fix --unsafe-fixes && uv run pytest`
+- [x] Update TODO.md and CHANGELOG.md
+- [x] Commit: `Ft: BuildOrchestrator coordinates context-aware builds`
+
+- [x] Update `doc/architecture.md` - Add BuildContext system section
+  - [x] Document BuildContext class purpose and production vs development modes
+  - [x] Explain context-aware URL generation architecture  
+  - [x] Update system overview with new build flow
+- [x] Update `doc/modules/build/README.md` - Document GalleriaBuilder BuildContext support
+  - [x] Add BuildContext parameter documentation to GalleriaBuilder.build()
+  - [x] Document metadata passing to galleria pipeline
+- [x] Update `doc/modules/galleria/README.md` - Document template filters module
+  - [x] Add `galleria/template/filters.py` module documentation  
+  - [x] Document full_url filter API and BuildContext integration
+- [ ] Update `doc/provider-architecture.md` - Document plugin metadata flow
+  - [ ] Add BuildContext metadata passing patterns
+  - [ ] Document how plugins access build context via PluginContext.metadata
+- [ ] Update serve command documentation - Document URL override capability
+  - [ ] Update serve workflow with BuildContext usage patterns
 - [ ] `uv run ruff check --fix --unsafe-fixes && uv run pytest`
-- [ ] Update TODO.md and CHANGELOG.md  
-- [ ] Commit: `Ft: Add BuildContext with production flag`
+- [ ] Commit: `Doc: Update documentation for BuildContext system`
 
-- [ ] Modify `PelicanBuilder.build()` to accept `override_site_url` parameter
-- [ ] Write unit test that fails for URL override functionality
-- [ ] Implement URL override logic: `'SITEURL': override_site_url or pelican_config.get('site_url', '')`
-- [ ] `uv run ruff check --fix --unsafe-fixes && uv run pytest`
-- [ ] Update TODO.md and CHANGELOG.md
-- [ ] Commit: `Ft: Add site URL override to PelicanBuilder`
+- [ ] `gh pr create --title "Fix: Configurable base URLs for serve vs build" --body "Implements URL override system for development vs production"`
 
-- [ ] Modify `cli/commands/serve.py` to pass localhost URL to PelicanBuilder
-- [ ] Write unit test that fails for serve URL passing
-- [ ] Implement serve command URL override: pass `http://127.0.0.1:8000` to build
+#### Task 1.1: Serve Command Architecture Refactor (Branch: ref/serve)
+
+*Note: This task needs proper TDD planning. Consider commenting out code first to see which tests fail, revealing what needs to move to new modules.*
+
+- [ ] `git checkout -b ref/serve`
+- [ ] Extract business logic from `cli/commands/serve.py`
+- [ ] Move `SiteServeProxy`, `ProxyHTTPHandler`, build orchestration to separate module
+- [ ] Leave only CLI arg parsing, calling serve manager, result reporting in command
+- [ ] Fix test isolation issues caused by build integration in command module
+- [ ] Update/move tests that break when logic moves to new modules
+- [ ] Write unit test that fails for serve URL passing to extracted orchestrator
+- [ ] Implement serve command URL override: pass `http://127.0.0.1:8000` to build via extracted orchestrator
 - [ ] Remove `@pytest.mark.skip` from E2E test
 - [ ] `uv run ruff check --fix --unsafe-fixes && uv run pytest`
 - [ ] Update TODO.md and CHANGELOG.md
-- [ ] Commit: `Ft: Serve command overrides site URL for localhost`
+- [ ] `gh pr create --title "Refactor: Extract serve command business logic" --body "Separates CLI concerns from serve orchestration logic"`
 
-- [ ] Create template filters in new `galleria/template/filters.py`
-- [ ] Write unit test for `full_url` filter that fails
-- [ ] Implement Jinja2 filter that uses BuildContext for URL generation
-- [ ] Modify `galleria/plugins/template.py` to use filters instead of `_make_relative_path()`
+*Problem: Serve command currently violates separation of concerns by mixing CLI handling with HTTP proxy logic, build orchestration, and server management. This causes test isolation issues and makes the command difficult to test properly.*
+
+#### Task 1.2: Fixture Refactoring (Branch: test/fixtures)
+
+- [ ] `git checkout -b test/fixtures`
+- [ ] Analyze existing test fixtures for mock config duplication
+- [ ] Write E2E test for comprehensive config fixture usage that fails
+- [ ] Add `@pytest.mark.skip("Fixture refactoring not implemented")`
 - [ ] `uv run ruff check --fix --unsafe-fixes && uv run pytest`
 - [ ] Update TODO.md and CHANGELOG.md
-- [ ] Commit: `Ft: Add template URL filters with context awareness`
+- [ ] Commit: `Tst: Add E2E test for fixture refactoring (skipped)`
 
-- [ ] `gh pr create --title "Fix: Configurable base URLs for serve vs build" --body "Implements URL override system for development vs production"`
+- [ ] Write unit test for enhanced config_file_factory that fails
+- [ ] Enhance config_file_factory to support mock overrides and complex configs
+- [ ] Merge mock_pelican_config and mock_site_config into enhanced factories
+- [ ] `uv run ruff check --fix --unsafe-fixes && uv run pytest`
+- [ ] Update TODO.md and CHANGELOG.md
+- [ ] Commit: `Ref: Enhance config_file_factory with mock support`
+
+- [ ] Write unit test for centralized test config management that fails
+- [ ] Create test_config_factory fixture for common test scenarios
+- [ ] Refactor existing tests to use centralized fixtures
+- [ ] Remove `@pytest.mark.skip` from E2E test
+- [ ] `uv run ruff check --fix --unsafe-fixes && uv run pytest`
+- [ ] Update TODO.md and CHANGELOG.md
+- [ ] Commit: `Ref: Centralize test configuration fixtures`
+
+- [ ] `gh pr create --title "Test: Refactor config fixtures for reusability" --body "Centralizes and enhances test fixtures to reduce duplication"`
 
 #### Task 2: Serve Command Cascade (Branch: fix/serve)
 
@@ -184,6 +279,25 @@
 - [ ] Commit: `Ref: CSS plugin copies files from theme directory`
 
 - [ ] `gh pr create --title "Feat: File-based theme system" --body "Replaces hardcoded templates/CSS with configurable theme files"`
+
+#### Task 4: Galleria Performance (Branch: perf/galleria)
+
+- [ ] `git checkout -b perf/galleria`
+- [ ] Create `test/performance/test_large_collections.py` with 645 photo test
+- [ ] Add `@pytest.mark.skip("Performance optimization not implemented")`
+- [ ] `uv run ruff check --fix --unsafe-fixes && uv run pytest`
+- [ ] Update TODO.md and CHANGELOG.md
+- [ ] Commit: `Tst: Add performance test for large photo collections (skipped)`
+
+- [ ] Write unit test for batched photo processing that fails
+- [ ] Implement batch processing in photo processor plugins
+- [ ] Add progress indicators for large collections
+- [ ] Remove `@pytest.mark.skip` from performance test
+- [ ] `uv run ruff check --fix --unsafe-fixes && uv run pytest`
+- [ ] Update TODO.md and CHANGELOG.md
+- [ ] Commit: `Perf: Implement batched photo processing for large collections`
+
+- [ ] `gh pr create --title "Perf: Optimize large photo collection processing" --body "Fixes CPU hang with 645+ photos via batched processing"`
 
 ### Phase 5: Performance Baseline
 

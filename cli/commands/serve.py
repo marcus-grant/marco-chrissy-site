@@ -9,6 +9,8 @@ from typing import Literal
 
 import click
 
+from build.orchestrator import BuildOrchestrator
+
 
 class SiteServeProxy:
     """Proxy server that routes requests to Galleria, Pelican, or static files."""
@@ -166,6 +168,20 @@ def serve(host: str, port: int, galleria_port: int, pelican_port: int, no_genera
     click.echo(f"Starting site serve proxy at http://{host}:{port}")
     click.echo(f"Galleria server will run on port {galleria_port}")
     click.echo(f"Pelican server will run on port {pelican_port}")
+
+    # Build site with localhost URL override for development
+    localhost_url = f"http://{host}:{port}"
+    click.echo(f"Building site with development URL: {localhost_url}")
+
+    orchestrator = BuildOrchestrator()
+
+    try:
+        # Override site URL for development
+        orchestrator.execute(override_site_url=localhost_url)
+        click.echo("Site build completed successfully")
+    except Exception as e:
+        click.echo(f"Warning: Site build failed: {e}")
+        click.echo("Continuing with serve using existing output...")
 
     # Create proxy instance
     proxy = SiteServeProxy(

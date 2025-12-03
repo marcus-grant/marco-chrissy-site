@@ -1,6 +1,7 @@
 """GalleriaBuilder for extracting galleria generation logic."""
 
 from pathlib import Path
+from typing import Optional
 
 from galleria.manager.pipeline import PipelineManager
 from galleria.plugins.base import PluginContext
@@ -9,6 +10,7 @@ from galleria.plugins.pagination import BasicPaginationPlugin
 from galleria.plugins.processors.thumbnail import ThumbnailProcessorPlugin
 from galleria.plugins.providers.normpic import NormPicProviderPlugin
 from galleria.plugins.template import BasicTemplatePlugin
+from .context import BuildContext
 from .exceptions import GalleriaError
 
 
@@ -19,12 +21,20 @@ class GalleriaBuilder:
         """Initialize GalleriaBuilder."""
         pass
 
-    def build(self, galleria_config: dict, base_dir: Path) -> bool:
+    def build(
+        self, 
+        galleria_config: dict, 
+        base_dir: Path, 
+        build_context: Optional[BuildContext] = None,
+        site_url: Optional[str] = None
+    ) -> bool:
         """Build galleria using the pipeline.
         
         Args:
             galleria_config: Galleria configuration dict
             base_dir: Base directory for resolving paths
+            build_context: BuildContext for production vs development mode
+            site_url: Base URL for the site (when using build_context)
             
         Returns:
             True if successful
@@ -57,6 +67,12 @@ class GalleriaBuilder:
                 ("css", "basic-css")
             ]
             
+            # Create metadata with BuildContext if provided
+            metadata = {}
+            if build_context is not None and site_url is not None:
+                metadata["build_context"] = build_context
+                metadata["site_url"] = site_url
+
             # Create initial context
             initial_context = PluginContext(
                 input_data={"manifest_path": str(manifest_path)},
@@ -75,7 +91,8 @@ class GalleriaBuilder:
                     },
                     "css": {}
                 },
-                output_dir=output_dir
+                output_dir=output_dir,
+                metadata=metadata
             )
             
             # Execute pipeline

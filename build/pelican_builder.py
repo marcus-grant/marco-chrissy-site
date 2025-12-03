@@ -16,13 +16,14 @@ class PelicanBuilder:
         """Initialize PelicanBuilder."""
         pass
 
-    def build(self, site_config: dict, pelican_config: dict, base_dir: Path) -> bool:
+    def build(self, site_config: dict, pelican_config: dict, base_dir: Path, override_site_url: str | None = None) -> bool:
         """Build pelican site using configuration.
         
         Args:
             site_config: Site configuration dict
             pelican_config: Pelican configuration dict
             base_dir: Base directory for resolving paths
+            override_site_url: Optional URL override for development (defaults to None)
             
         Returns:
             True if successful
@@ -53,7 +54,7 @@ class PelicanBuilder:
                 # Required settings from our config
                 'AUTHOR': pelican_config.get('author', 'Unknown Author'),
                 'SITENAME': pelican_config.get('sitename', 'My Site'),
-                'SITEURL': pelican_config.get('site_url', ''),
+                'SITEURL': override_site_url or pelican_config.get('site_url', ''),
                 'PATH': str(content_dir),
                 'OUTPUT_PATH': str(base_dir / site_config.get('output_dir', 'output')),
                 'THEME': pelican_config.get('theme', 'notmyidea'),

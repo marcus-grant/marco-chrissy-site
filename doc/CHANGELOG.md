@@ -1,5 +1,23 @@
 # Changelog
 
+## [Unreleased]
+
+### Added
+- E2E test for serve command URL override (skipped until implementation)
+- BuildContext class for managing production vs development environment state
+- PelicanBuilder URL override functionality for development vs production builds
+- Mock config fixtures in test/conftest.py for consistent testing
+- Template plugin URL filters for context-aware URL generation
+- BasicTemplatePlugin BuildContext integration for development vs production URLs
+- GalleriaBuilder BuildContext parameter support for pipeline coordination
+- BuildOrchestrator BuildContext coordination for context-aware builds
+
+### Documentation
+- Comprehensive BuildContext system documentation in architecture.md
+- Updated build module documentation with BuildContext integration details
+- Added template filters module documentation for context-aware URL generation
+- Updated GalleriaBuilder API reference with new BuildContext parameters
+
 ## 2025-12-02
 
 ### Fix: Pelican Index Page Conflict Resolution

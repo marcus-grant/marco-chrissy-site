@@ -11,8 +11,14 @@ class GalleriaBuilder:
     def __init__(self):
         pass  # Stateless builder
     
-    def build(self, galleria_config: dict, base_dir: Path = Path.cwd()) -> bool:
-        # Executes galleria plugin pipeline
+    def build(
+        self, 
+        galleria_config: dict, 
+        base_dir: Path = Path.cwd(),
+        build_context: Optional[BuildContext] = None,
+        site_url: Optional[str] = None
+    ) -> bool:
+        # Executes galleria plugin pipeline with BuildContext support
 ```
 
 ## Key Features
@@ -27,6 +33,11 @@ class GalleriaBuilder:
 - Maps config file paths to plugin requirements
 - Handles plugin-specific configuration options
 
+### BuildContext Integration
+- Accepts optional BuildContext for environment-aware builds
+- Passes BuildContext and site_url through pipeline metadata
+- Enables template plugins to generate context-appropriate URLs
+
 ### Error Handling
 - Catches plugin execution errors and wraps in GalleriaError
 - Provides clear error messages for plugin failures
@@ -34,13 +45,15 @@ class GalleriaBuilder:
 
 ## API Reference
 
-### `build(galleria_config: dict, base_dir: Path = Path.cwd()) -> bool`
+### `build(galleria_config: dict, base_dir: Path = Path.cwd(), build_context: Optional[BuildContext] = None, site_url: Optional[str] = None) -> bool`
 
-Executes the complete galleria build workflow.
+Executes the complete galleria build workflow with optional BuildContext support.
 
 **Parameters:**
 - `galleria_config`: Configuration dictionary loaded from galleria.json
 - `base_dir`: Base directory for resolving relative paths
+- `build_context`: Optional BuildContext for production vs development mode
+- `site_url`: Optional base URL for the site (required when using build_context)
 
 **Returns:**
 - `True` if galleria build completed successfully
@@ -99,6 +112,30 @@ builder = GalleriaBuilder()
 success = builder.build(
     galleria_config,
     base_dir=Path("/project/root")
+)
+```
+
+### BuildContext Integration
+```python
+from build.galleria_builder import GalleriaBuilder
+from build.context import BuildContext
+
+builder = GalleriaBuilder()
+
+# Production build
+production_context = BuildContext(production=True)
+success = builder.build(
+    galleria_config,
+    build_context=production_context,
+    site_url="https://site.example.com"
+)
+
+# Development build
+dev_context = BuildContext(production=False)
+success = builder.build(
+    galleria_config,
+    build_context=dev_context,
+    site_url="http://localhost:8000"
 )
 ```
 

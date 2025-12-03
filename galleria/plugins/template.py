@@ -38,7 +38,7 @@ class BasicTemplatePlugin(TemplatePlugin):
                 pages = context.input_data["pages"]
                 for page_num, photos in enumerate(pages, 1):
                     html_content = self._generate_page_html(
-                        photos, collection_name, page_num, len(pages), context.config
+                        photos, collection_name, page_num, len(pages), context
                     )
                     html_files.append(
                         {
@@ -51,7 +51,7 @@ class BasicTemplatePlugin(TemplatePlugin):
                 # Direct photos input (no pagination)
                 photos = context.input_data["photos"]
                 html_content = self._generate_gallery_html(
-                    photos, collection_name, context.config
+                    photos, collection_name, context
                 )
                 html_files.append(
                     {
@@ -90,10 +90,11 @@ class BasicTemplatePlugin(TemplatePlugin):
         collection_name: str,
         page_num: int,
         total_pages: int,
-        config: dict[str, Any],
+        context: PluginContext,
     ) -> str:
         """Generate HTML for a single page of photos."""
         # Support both nested and direct config patterns
+        config = context.config
         if "template" in config:
             template_config = config["template"]
         else:
@@ -108,14 +109,14 @@ class BasicTemplatePlugin(TemplatePlugin):
             thumb_path = photo.get("thumbnail_path", photo.get("dest_path", ""))
             photo_path = photo.get("dest_path", "")
 
-            # Convert absolute paths to relative web paths
-            relative_thumb_path = self._make_relative_path(thumb_path)
-            relative_photo_path = self._make_relative_path(photo_path)
+            # Convert paths to URLs using context-aware filter
+            thumb_url = self._make_url(thumb_path, context)
+            photo_url = self._make_url(photo_path, context)
 
             photo_html += f"""
             <div class="photo-item">
-                <a href="{relative_photo_path}">
-                    <img src="{relative_thumb_path}" alt="Photo from {collection_name}" loading="lazy">
+                <a href="{photo_url}">
+                    <img src="{thumb_url}" alt="Photo from {collection_name}" loading="lazy">
                 </a>
             </div>"""
 
@@ -156,10 +157,10 @@ class BasicTemplatePlugin(TemplatePlugin):
 </html>"""
 
     def _generate_gallery_html(
-        self, photos: list[dict[str, Any]], collection_name: str, config: dict[str, Any]
+        self, photos: list[dict[str, Any]], collection_name: str, context: PluginContext
     ) -> str:
         """Generate HTML for complete gallery (no pagination)."""
-        return self._generate_page_html(photos, collection_name, 1, 1, config)
+        return self._generate_page_html(photos, collection_name, 1, 1, context)
 
     def _generate_empty_gallery_html(self, collection_name: str) -> str:
         """Generate HTML for empty gallery."""
@@ -185,6 +186,31 @@ class BasicTemplatePlugin(TemplatePlugin):
     </footer>
 </body>
 </html>"""
+
+    def _make_url(self, path: str, context: PluginContext) -> str:
+        """Convert path to URL using BuildContext and site_url from metadata.
+
+        Args:
+            path: File path to convert to URL
+            context: Plugin context containing metadata with build_context and site_url
+
+        Returns:
+            Full URL if BuildContext available, otherwise relative path
+        """
+        if not path:
+            return path
+
+        # Check if BuildContext is available in metadata
+        build_context = context.metadata.get("build_context")
+        site_url = context.metadata.get("site_url", "")
+
+        if build_context is not None and site_url:
+            # Use context-aware URL filter (import locally to avoid circular import)
+            from ..template.filters import full_url
+            return full_url(path, build_context, site_url)
+        else:
+            # Fallback to original relative path method
+            return self._make_relative_path(path)
 
     def _make_relative_path(self, path: str) -> str:
         """Convert absolute filesystem path to relative web path.

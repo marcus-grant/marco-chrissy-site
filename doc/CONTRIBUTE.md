@@ -1,24 +1,39 @@
 # Development Guidelines
 
+## Rule 1
+
+* These are not suggestions - they are rules that MUST BE FOLLOWED
+* Failure to follow them results in:
+  * broken code, wasted time, and most importantly...
+    disorganized work and task planning that's hard to follow up on
+* I will immediately reject commits that violate these rules
+
 ## Important Donts
 
 * NEVER EVER READ SHELL ENV VARIABLES
 * Don't commit code without ruff linting checks and full test suite runs
 * Never implement without associated test
+* Never fix bugs without first fixing test modules that permitted it to exist
+* Never attempt quick fixes that bypass these rules
+  * They will only waste time and be rejected anyways
 
 ## Planning Process for doc/TODO.md
 
-When adding complex features, update doc/TODO.md with concrete, actionable tasks that spell out the entire workflow:
+When adding complex features:
+update doc/TODO.md with concrete,
+actionable tasks that spell out the entire workflow:
 
 ### Task Structure
 
 Each task must specify exactly:
+
 * **What to implement/test** (specific files, classes, methods)
 * **Pre-commit workflow**: `uv run ruff check --fix --unsafe-fixes`, `uv run pytest`, update docs
 * **Commit message format**: `Prefix: Description`
 * **Expected outcome** (tests pass/fail, what functionality works)
 
 ### Task Organization
+
 * **E2E/Integration tests first** - Mark with `@pytest.mark.skip`, own commit
 * **Unit test cycles** - RED → GREEN → refactor → commit (200-300 LOC max)
 * **Implementation follows TDD** - Write failing tests, implement to pass
@@ -37,6 +52,7 @@ Each task must specify exactly:
 ```
 
 ### Key Principles
+
 * **No workflow explanation in tasks** - Tasks ARE the workflow, step by step
 * **Concrete file paths** - Specify exact files to create/modify
 * **Self-contained** - Each task can be completed independently across context breaks
@@ -117,6 +133,7 @@ Each task must specify exactly:
 5. **Commit** - Only if all tests pass
 
 **Why this order matters:**
+
 * Ruff auto-fixes can change code logic (rare but possible)
 * Style changes can break tests in unexpected ways  
 * Catching issues early prevents context pollution from easy-to-fix errors

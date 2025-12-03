@@ -61,3 +61,34 @@ This is a test page.
             builder.build(site_config, pelican_config, temp_filesystem)
         
         assert "Pelican generation failed" in str(exc_info.value)
+
+
+class TestPelicanBuilderURLOverride:
+    """Test PelicanBuilder URL override functionality."""
+
+    def test_build_uses_override_url_when_provided(self, mock_site_config, mock_pelican_config, temp_filesystem):
+        """Test build uses override URL when provided."""
+        from unittest.mock import Mock, patch
+        
+        override_url = "http://127.0.0.1:8000"
+        builder = PelicanBuilder()
+        
+        with patch('build.pelican_builder.pelican.Pelican') as mock_pelican_class:
+            mock_pelican_instance = Mock()
+            mock_pelican_class.return_value = mock_pelican_instance
+            
+            with patch('build.pelican_builder.configure_settings') as mock_configure:
+                mock_configure.return_value = {}
+                
+                result = builder.build(
+                    mock_site_config,
+                    mock_pelican_config, 
+                    temp_filesystem,
+                    override_site_url=override_url
+                )
+                
+                # Should call configure_settings with override URL
+                mock_configure.assert_called_once()
+                settings_dict = mock_configure.call_args[0][0]
+                assert settings_dict['SITEURL'] == override_url
+                assert result is True
