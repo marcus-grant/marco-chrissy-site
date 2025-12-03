@@ -17,51 +17,78 @@ For detailed planning guidance, templates, and examples, see: **[`PLANNING.md`](
 
 #### Task 1.1: Serve Command Architecture Refactor (Branch: ref/serve)
 
-*Note: This task needs proper TDD planning. Consider commenting out code first to see which tests fail, revealing what needs to move to new modules.*
+*Problem Statement: The serve command in `cli/commands/serve.py` has too much logic mixed together, making unit tests increasingly difficult to mock properly. We need to extract business logic to separate modules so unit tests can focus on smaller, testable components while keeping E2E tests as true end-to-end validation.*
 
-- [ ] `git checkout -b ref/serve`
-- [ ] Extract business logic from `cli/commands/serve.py`
-- [ ] Move `SiteServeProxy`, `ProxyHTTPHandler`, build orchestration to separate module
-- [ ] Leave only CLI arg parsing, calling serve manager, result reporting in command
-- [ ] Fix test isolation issues caused by build integration in command module
-- [ ] Update/move tests that break when logic moves to new modules
-- [ ] Write unit test that fails for serve URL passing to extracted orchestrator
-- [ ] Implement serve command URL override: pass `http://127.0.0.1:8000` to build via extracted orchestrator
-- [ ] Remove `@pytest.mark.skip` from E2E test
+**Phase 1: Setup & Test Discovery**
+- [ ] `git checkout -b ref/serve` (or merge main if branch exists)
+- [ ] Comment out non-CLI logic in `cli/commands/serve.py` (proxy, orchestration, server management)
+- [ ] Leave only CLI arg parsing, calling placeholder orchestrator, result reporting
+- [ ] `uv run ruff check --fix --unsafe-fixes && uv run pytest` - **expect failures**
+- [ ] Review test failures and mark with skip decorators:
+  - [ ] Mark failing unit tests with `@pytest.mark.skip("Will migrate to appropriate test modules after logic extraction")`
+  - [ ] Mark failing E2E tests with `@pytest.mark.skip("Will work after serve refactor implementation")`
+- [ ] Add new E2E test case to verify refactored architecture will work end-to-end
+- [ ] Mark new test case with `@pytest.mark.skip("Serve refactor not implemented")`
+- [ ] Commit: `Tst: Comment out serve logic and mark tests for migration`
+
+**Phase 2: TDD Implementation Cycles**
+
+*Cycle 1: Create Serve Module Structure*
+- [ ] Create stub `serve/__init__.py`
+- [ ] Create stub `serve/orchestrator.py` with `ServeOrchestrator` class
+- [ ] Identify unit tests from Phase 1 that specify orchestrator behavior
+- [ ] Port those specific tests to `test/unit/test_serve_orchestrator.py`
+- [ ] Remove skip decorators from ported tests in new location
+- [ ] Run `uv run pytest test/unit/test_serve_orchestrator.py` - should fail as expected
+- [ ] Port relevant commented-out logic from serve command to orchestrator
+- [ ] Run tests again - may still fail, refactor test if needed
+- [ ] Fix implementation until tests pass
 - [ ] `uv run ruff check --fix --unsafe-fixes && uv run pytest`
 - [ ] Update TODO.md and CHANGELOG.md
-- [ ] `gh pr create --title "Refactor: Extract serve command business logic" --body "Separates CLI concerns from serve orchestration logic"`
+- [ ] Commit: `Ft: Add ServeOrchestrator class structure`
 
-*Problem: Serve command currently violates separation of concerns by mixing CLI handling with HTTP proxy logic, build orchestration, and server management. This causes test isolation issues and makes the command difficult to test properly.*
-
-#### Task 1.2: Fixture Refactoring (Branch: test/fixtures)
-
-- [ ] `git checkout -b test/fixtures`
-- [ ] Analyze existing test fixtures for mock config duplication
-- [ ] Write E2E test for comprehensive config fixture usage that fails
-- [ ] Add `@pytest.mark.skip("Fixture refactoring not implemented")`
+*Cycle 2: Extract Proxy Logic*
+- [ ] Create `serve/proxy.py` stub
+- [ ] Identify unit tests that specify proxy behavior (SiteServeProxy, ProxyHTTPHandler)
+- [ ] Port those specific tests to `test/unit/test_serve_proxy.py`
+- [ ] Remove skip decorators, run tests - should fail
+- [ ] Port proxy classes from commented serve command code (**may not work as-is**)
+- [ ] If ported code doesn't work: refactor → red → green cycle until tests pass
+- [ ] Update orchestrator to use extracted proxy
 - [ ] `uv run ruff check --fix --unsafe-fixes && uv run pytest`
 - [ ] Update TODO.md and CHANGELOG.md
-- [ ] Commit: `Tst: Add E2E test for fixture refactoring (skipped)`
+- [ ] Commit: `Ref: Extract proxy logic to separate module`
 
-- [ ] Write unit test for enhanced config_file_factory that fails
-- [ ] Enhance config_file_factory to support mock overrides and complex configs
-- [ ] Merge mock_pelican_config and mock_site_config into enhanced factories
+*Cycle 3: Update CLI Command*
+- [ ] Identify remaining unit tests that specify pure CLI interface behavior
+- [ ] Keep those tests in original location but update to test new interface
+- [ ] Remove skip decorators, run tests - should fail
+- [ ] Refactor `cli/commands/serve.py` to only handle:
+  - [ ] Argument parsing
+  - [ ] Calling ServeOrchestrator
+  - [ ] Result reporting
+- [ ] Fix CLI tests until they pass with new simplified interface
 - [ ] `uv run ruff check --fix --unsafe-fixes && uv run pytest`
 - [ ] Update TODO.md and CHANGELOG.md
-- [ ] Commit: `Ref: Enhance config_file_factory with mock support`
+- [ ] Commit: `Ref: Simplify serve command to CLI-only concerns`
 
-- [ ] Write unit test for centralized test config management that fails
-- [ ] Create test_config_factory fixture for common test scenarios
-- [ ] Refactor existing tests to use centralized fixtures
-- [ ] Remove `@pytest.mark.skip` from E2E test
+**Phase 3: Integration & Documentation**
+- [ ] Remove `@pytest.mark.skip` from E2E tests marked in Phase 1
+- [ ] Verify E2E tests pass (if not, return to Phase 2 cycles)
+- [ ] Remove `@pytest.mark.skip` from new E2E test case
+- [ ] **Verify no remaining skip decorators are related to this refactor**
+- [ ] **Document any remaining skip decorators unrelated to this PR** (in commit message or TODO)
+- [ ] Update `doc/modules/serve/README.md` with new architecture
+- [ ] Update `doc/commands/serve.md` with simplified interface
+- [ ] Update `doc/architecture.md` with separation of concerns explanation
 - [ ] `uv run ruff check --fix --unsafe-fixes && uv run pytest`
 - [ ] Update TODO.md and CHANGELOG.md
-- [ ] Commit: `Ref: Centralize test configuration fixtures`
+- [ ] Commit: `Doc: Update serve architecture documentation`
 
-- [ ] `gh pr create --title "Test: Refactor config fixtures for reusability" --body "Centralizes and enhances test fixtures to reduce duplication"`
+**Phase 4: PR Creation**
+- [ ] `gh pr create --title "Ref: Extract serve command business logic" --body "Separates CLI concerns from serve orchestration logic for better testability and maintainability"`
 
-#### Task 2: Serve Command Cascade (Branch: fix/serve)
+#### Task 1.2: Serve Command Cascade (Branch: fix/serve)
 
 - [ ] `git checkout -b fix/serve`
 - [ ] Modify `test/e2e/test_site_serve.py` - add test case for serve with missing output/ directory
@@ -85,7 +112,7 @@ For detailed planning guidance, templates, and examples, see: **[`PLANNING.md`](
 
 - [ ] `gh pr create --title "Fix: Serve command cascade to build" --body "Auto-calls build pipeline when output directory missing"`
 
-#### Task 3: Template & CSS Architecture (Branch: ft/theme)
+#### Task 1.3: Template & CSS Architecture (Branch: ft/theme)
 
 - [ ] `git checkout -b ft/theme`
 - [ ] Create `test/e2e/test_theme_system.py` with file-based theme loading test
@@ -126,7 +153,7 @@ For detailed planning guidance, templates, and examples, see: **[`PLANNING.md`](
 
 - [ ] `gh pr create --title "Feat: File-based theme system" --body "Replaces hardcoded templates/CSS with configurable theme files"`
 
-#### Task 4: Galleria Performance (Branch: perf/galleria)
+#### Task 1.4: Galleria Performance (Branch: perf/galleria)
 
 - [ ] `git checkout -b perf/galleria`
 - [ ] Create `test/performance/test_large_collections.py` with 645 photo test
@@ -292,6 +319,32 @@ For detailed planning guidance, templates, and examples, see: **[`PLANNING.md`](
 - [ ] Move pelican stuff into a root 'pelican' directory instead of 'content'
 
 ### Medium-term Features
+
+#### Fixture Refactoring (Branch: test/fixtures)
+
+*Problem Statement: Test fixtures have duplication between mock_pelican_config, mock_site_config, and config_file_factory. This creates maintenance overhead and inconsistent test setup patterns. We need to consolidate these into enhanced, reusable fixtures that support both simple and complex configuration scenarios.*
+
+- [ ] `git checkout -b test/fixtures`
+- [ ] Analyze existing test fixtures for mock config duplication
+- [ ] Write E2E test for comprehensive config fixture usage that fails
+- [ ] Add `@pytest.mark.skip("Fixture refactoring not implemented")`
+- [ ] `uv run ruff check --fix --unsafe-fixes && uv run pytest`
+- [ ] Update TODO.md and CHANGELOG.md
+- [ ] Commit: `Tst: Add E2E test for fixture refactoring (skipped)`
+- [ ] Write unit test for enhanced config_file_factory that fails
+- [ ] Enhance config_file_factory to support mock overrides and complex configs
+- [ ] Merge mock_pelican_config and mock_site_config into enhanced factories
+- [ ] `uv run ruff check --fix --unsafe-fixes && uv run pytest`
+- [ ] Update TODO.md and CHANGELOG.md
+- [ ] Commit: `Ref: Enhance config_file_factory with mock support`
+- [ ] Write unit test for centralized test config management that fails
+- [ ] Create test_config_factory fixture for common test scenarios
+- [ ] Refactor existing tests to use centralized fixtures
+- [ ] Remove `@pytest.mark.skip` from E2E test
+- [ ] `uv run ruff check --fix --unsafe-fixes && uv run pytest`
+- [ ] Update TODO.md and CHANGELOG.md
+- [ ] Commit: `Ref: Centralize test configuration fixtures`
+- [ ] `gh pr create --title "Test: Refactor config fixtures for reusability" --body "Centralizes and enhances test fixtures to reduce duplication"`
 
 - [ ] Galleria plugin system implementation
   - [ ] Implement plugin loading mechanism
