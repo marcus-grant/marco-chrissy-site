@@ -5,6 +5,8 @@
 ### Added
 - E2E test for serve command URL override (skipped until implementation)
 - BuildContext class for managing production vs development environment state
+- PelicanBuilder URL override functionality for development vs production builds
+- Mock config fixtures in test/conftest.py for consistent testing
 
 ## 2025-12-02
 

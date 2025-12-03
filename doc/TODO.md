@@ -21,10 +21,10 @@
 - [ ] Update TODO.md and CHANGELOG.md  
 - [ ] Commit: `Ft: Add BuildContext with production flag`
 
-- [ ] Modify `PelicanBuilder.build()` to accept `override_site_url` parameter
-- [ ] Write unit test that fails for URL override functionality
-- [ ] Implement URL override logic: `'SITEURL': override_site_url or pelican_config.get('site_url', '')`
-- [ ] `uv run ruff check --fix --unsafe-fixes && uv run pytest`
+- [x] Modify `PelicanBuilder.build()` to accept `override_site_url` parameter
+- [x] Write unit test that fails for URL override functionality
+- [x] Implement URL override logic: `'SITEURL': override_site_url or pelican_config.get('site_url', '')`
+- [x] `uv run ruff check --fix --unsafe-fixes && uv run pytest`
 - [ ] Update TODO.md and CHANGELOG.md
 - [ ] Commit: `Ft: Add site URL override to PelicanBuilder`
 
@@ -45,6 +45,33 @@
 - [ ] Commit: `Ft: Add template URL filters with context awareness`
 
 - [ ] `gh pr create --title "Fix: Configurable base URLs for serve vs build" --body "Implements URL override system for development vs production"`
+
+#### Task 1.1: Fixture Refactoring (Branch: test/fixtures)
+
+- [ ] `git checkout -b test/fixtures`
+- [ ] Analyze existing test fixtures for mock config duplication
+- [ ] Write E2E test for comprehensive config fixture usage that fails
+- [ ] Add `@pytest.mark.skip("Fixture refactoring not implemented")`
+- [ ] `uv run ruff check --fix --unsafe-fixes && uv run pytest`
+- [ ] Update TODO.md and CHANGELOG.md
+- [ ] Commit: `Tst: Add E2E test for fixture refactoring (skipped)`
+
+- [ ] Write unit test for enhanced config_file_factory that fails
+- [ ] Enhance config_file_factory to support mock overrides and complex configs
+- [ ] Merge mock_pelican_config and mock_site_config into enhanced factories
+- [ ] `uv run ruff check --fix --unsafe-fixes && uv run pytest`
+- [ ] Update TODO.md and CHANGELOG.md
+- [ ] Commit: `Ref: Enhance config_file_factory with mock support`
+
+- [ ] Write unit test for centralized test config management that fails
+- [ ] Create test_config_factory fixture for common test scenarios
+- [ ] Refactor existing tests to use centralized fixtures
+- [ ] Remove `@pytest.mark.skip` from E2E test
+- [ ] `uv run ruff check --fix --unsafe-fixes && uv run pytest`
+- [ ] Update TODO.md and CHANGELOG.md
+- [ ] Commit: `Ref: Centralize test configuration fixtures`
+
+- [ ] `gh pr create --title "Test: Refactor config fixtures for reusability" --body "Centralizes and enhances test fixtures to reduce duplication"`
 
 #### Task 2: Serve Command Cascade (Branch: fix/serve)
 

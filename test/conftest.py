@@ -218,3 +218,23 @@ def free_port():
         return port
 
     return _get_free_port
+
+
+@pytest.fixture
+def mock_pelican_config():
+    """Mock pelican configuration for URL testing."""
+    return {
+        "author": "Test Author",
+        "sitename": "Test Site",
+        "site_url": "https://marco-chrissy.com",
+        "timezone": "UTC",
+        "default_lang": "en"
+    }
+
+
+@pytest.fixture
+def mock_site_config():
+    """Mock site configuration for build testing."""
+    return {
+        "output_dir": "output"
+    }
