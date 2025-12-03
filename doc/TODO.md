@@ -227,6 +227,20 @@ The below example, shows formatting and explanations for each task item.
 
 - [ ] `gh pr create --title "Feat: File-based theme system" --body "Replaces hardcoded templates/CSS with configurable theme files"`
 
+#### Serve Command Architecture Refactor (Branch: ref/serve)
+
+*Note: This task needs proper TDD planning. Consider commenting out code first to see which tests fail, revealing what needs to move to new modules.*
+
+- [ ] `git checkout -b ref/serve`
+- [ ] Extract business logic from `cli/commands/serve.py` 
+- [ ] Move `SiteServeProxy`, `ProxyHTTPHandler`, build orchestration to separate module
+- [ ] Leave only CLI arg parsing, calling serve manager, result reporting in command
+- [ ] Fix test isolation issues caused by build integration in command module
+- [ ] Update/move tests that break when logic moves to new modules
+- [ ] `gh pr create --title "Refactor: Extract serve command business logic" --body "Separates CLI concerns from serve orchestration logic"`
+
+*Problem: Serve command currently violates separation of concerns by mixing CLI handling with HTTP proxy logic, build orchestration, and server management. This causes test isolation issues and makes the command difficult to test properly.*
+
 #### Task 4: Galleria Performance (Branch: perf/galleria)
 
 - [ ] `git checkout -b perf/galleria`
