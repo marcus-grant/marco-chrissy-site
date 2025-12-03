@@ -1,5 +1,94 @@
 # Marco & Chrissy's Website - TODO
 
+## Task Management via TODO
+
+### Workflow
+
+Anyone reading this file should be able to
+naturally follow our workflow defined in [CONTRIBUTE.md](CONTRIBUTE.md).
+Simply following the checklist items below should lead to
+following the rules, defined within that document.
+The below example, shows formatting and explanations for each task item.
+
+>**NOTE:** The completed top level task is following our workflow correctly.
+
+### Example Top Level Task or Phase
+
+#### Top Level Task Name
+
+- [ ] `git checkout -b commit-prefix/branch-name`
+  - Top level tasks should define a new branch with appropriate commit prefix
+  - This keeps PRs organized and easy to review
+  - It's OK to reuse old branches, they just need to be merged with main 1st
+- [ ] Modify or create e2e or integration test module `test/e2e/module_name.py`
+  - Task should mention module name
+    - Module name should contain main module being tested
+  - The idea is for a top-level test to test larger portions of code
+    - This usually surfaces missing or broken functionality
+    - Leading naturally to more specific specs defined by unit tests
+  - Before marking this task complete, check it fails expectantly
+- [ ] Add `@pytest.mark.skip("Reason for skipping")` to new test
+  - Only high-quality code should be committed
+  - A skip tag means you can still commit incomplete work
+- [ ] `uv run ruff check --fix --unsafe-fixes && uv run pytest`
+  - Run code formatter and linter
+  - Ensure code quality & changes just skip and don't ruin other tests
+- [ ] Update TODO.md and CHANGELOG.md
+  - Ensure you're logging work
+- [ ] `git commit -am "Tst: title of e2e/integration test (skipped)"`
+  - Commit with appropriate prefix (probably Tst for tests)
+  - Mention module being tested and that it's skipped
+
+- [ ] Create or modify `module/path/filename.py` with `syntaxed-functionality`
+  - Specify file path & if needed functionality being added
+  - This is meant to be a stub that that can be imported by unit tests
+  - **DO NOT** implement functionality yet
+- [ ] Write or modify unit test `TestClassName` for each function being tested
+  - Specify test class to make or modify
+  - Optionally specify the method strings needed in nested tasks
+- [ ] Create or modify `ImplementationClassOrFunction` to pass test(s)
+  - Optionally include nested sub-tasks for complex implementations
+- [ ] `uv run ruff check --fix --unsafe-fixes && uv run pytest`
+- [ ] Update TODO.md and CHANGELOG.md
+- [ ] `git commit -am "Ft or Fix: title of functionality being added"`
+  - This commit is likely a `Ft` or `Fix` type
+
+- Repeat either the above top-level task
+  - Depending on if commit can reasonably contain enough cycles
+    - You **DO NOT** want massive commits that are hard to review
+    - A good rule of thumb is roughly 300 lines of code or less
+  - You stop repeating when it's likely you can remove the skip decorator
+  - Do try and add enough unit tests to have decent edge-case coverage
+  - Not end of world if you missed something
+  - This process makes it easy to make fixes later
+
+- [ ] Remove `@pytest.mark.skip` from test of `test/e2e/module_name.py`
+  - The intention is to run the test and verify it passes
+    - If not, leave the skip, add tasks above for unit tests to fix it
+    - Leave this task uncompleted until test passes
+
+- Here you repeat expected e2e or integration test spec tasks
+  - Should have the same sequence as above
+  - If you have roughly a dozen or so...
+    - Your plan probably needs rethinking or breaking into smaller pieces
+    - PRs should be smaller than that for easier review
+
+- [ ] Add or update `doc/subtopic/article.md`
+  - There is likely going to be at least one of these tasks per PR
+  - Remember the `README.md` adjacency links
+    - Each sub-directory of `doc/` has a `README.md`
+    - Each `README.md` acts as a overview and index for that topic
+    - Each `README.md` links to:
+      - Another markdown document in that directory, or...
+      - A `README.md` in a sub-directory, representing a sub-topic
+      - This forms an adjacency list structure for documentation navigation
+      - Don't link to a non-README file in a sub-directory
+        - This keeps navigation consistent and predictable
+    - Each time you add a document or sub-topic...
+      - Update the parent directory's `README.md` to link to it
+      - If you create a sub-directory...
+        - update the parent `README.md` to link to its `README.md`
+
 ## MVP Roadmap
 
 ### Phase 4: Template & CSS Architecture Fix (Pre-MVP Critical)
@@ -11,15 +100,15 @@
 - [x] Add `@pytest.mark.skip("URL override not implemented")` to new test
 - [x] `uv run ruff check --fix --unsafe-fixes`
 - [x] `uv run pytest` (test should be skipped)
-- [ ] Update TODO.md and CHANGELOG.md
-- [ ] Commit: `Tst: Add E2E test for serve URL override (skipped)`
+- [x] Update TODO.md and CHANGELOG.md
+- [x] Commit: `Tst: Add E2E test for serve URL override (skipped)`
 
 - [x] Create `build/context.py` with `BuildContext` class having `production: bool` property
 - [x] Write unit test for BuildContext that fails
 - [x] Implement BuildContext class to pass test
 - [x] `uv run ruff check --fix --unsafe-fixes && uv run pytest`
-- [ ] Update TODO.md and CHANGELOG.md  
-- [ ] Commit: `Ft: Add BuildContext with production flag`
+- [x] Update TODO.md and CHANGELOG.md  
+- [x] Commit: `Ft: Add BuildContext with production flag`
 
 - [x] Modify `PelicanBuilder.build()` to accept `override_site_url` parameter
 - [x] Write unit test that fails for URL override functionality
