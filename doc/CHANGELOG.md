@@ -10,6 +10,7 @@
 - Template plugin URL filters for context-aware URL generation
 - BasicTemplatePlugin BuildContext integration for development vs production URLs
 - GalleriaBuilder BuildContext parameter support for pipeline coordination
+- BuildOrchestrator BuildContext coordination for context-aware builds
 
 ## 2025-12-02
 

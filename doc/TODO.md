@@ -142,12 +142,30 @@ The below example, shows formatting and explanations for each task item.
 - [x] Update TODO.md and CHANGELOG.md
 - [x] Commit: `Ft: GalleriaBuilder accepts BuildContext for URL generation`
 
-- [ ] Write unit test for BuildOrchestrator passing BuildContext to GalleriaBuilder that fails
-- [ ] Write unit test for BuildOrchestrator creating BuildContext from override_site_url that fails
-- [ ] Implement BuildOrchestrator BuildContext integration
+- [x] Write unit test for BuildOrchestrator passing BuildContext to GalleriaBuilder that fails
+- [x] Write unit test for BuildOrchestrator creating BuildContext from override_site_url that fails
+- [x] Implement BuildOrchestrator BuildContext integration
+- [x] `uv run ruff check --fix --unsafe-fixes && uv run pytest`
+- [x] Update TODO.md and CHANGELOG.md
+- [x] Commit: `Ft: BuildOrchestrator coordinates context-aware builds`
+
+- [ ] Update `doc/architecture.md` - Add BuildContext system section
+  - [ ] Document BuildContext class purpose and production vs development modes
+  - [ ] Explain context-aware URL generation architecture  
+  - [ ] Update system overview with new build flow
+- [ ] Update `doc/modules/build/README.md` - Document GalleriaBuilder BuildContext support
+  - [ ] Add BuildContext parameter documentation to GalleriaBuilder.build()
+  - [ ] Document metadata passing to galleria pipeline
+- [ ] Update `doc/modules/galleria/README.md` - Document template filters module
+  - [ ] Add `galleria/template/filters.py` module documentation  
+  - [ ] Document full_url filter API and BuildContext integration
+- [ ] Update `doc/provider-architecture.md` - Document plugin metadata flow
+  - [ ] Add BuildContext metadata passing patterns
+  - [ ] Document how plugins access build context via PluginContext.metadata
+- [ ] Update serve command documentation - Document URL override capability
+  - [ ] Update serve workflow with BuildContext usage patterns
 - [ ] `uv run ruff check --fix --unsafe-fixes && uv run pytest`
-- [ ] Update TODO.md and CHANGELOG.md
-- [ ] Commit: `Ft: BuildOrchestrator coordinates context-aware builds`
+- [ ] Commit: `Doc: Update documentation for BuildContext system`
 
 - [ ] `gh pr create --title "Fix: Configurable base URLs for serve vs build" --body "Implements URL override system for development vs production"`
 
