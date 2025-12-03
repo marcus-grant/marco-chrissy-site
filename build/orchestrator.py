@@ -17,12 +17,13 @@ class BuildOrchestrator:
         self.galleria_builder = GalleriaBuilder()
         self.pelican_builder = PelicanBuilder()
 
-    def execute(self, config_dir: Path = None, base_dir: Path = None) -> bool:
+    def execute(self, config_dir: Path = None, base_dir: Path = None, override_site_url: str | None = None) -> bool:
         """Execute the complete build process.
         
         Args:
             config_dir: Directory containing config files (optional)
             base_dir: Base directory for resolving paths (optional)
+            override_site_url: Optional URL override for development (optional)
             
         Returns:
             True if successful
@@ -50,7 +51,7 @@ class BuildOrchestrator:
             self.galleria_builder.build(galleria_config, base_dir)
 
             # Execute pelican build
-            self.pelican_builder.build(site_config, pelican_config, base_dir)
+            self.pelican_builder.build(site_config, pelican_config, base_dir, override_site_url)
 
             return True
 
