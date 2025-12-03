@@ -1,90 +1,16 @@
 # Marco & Chrissy's Website - TODO
 
-## Current Status: Serve Command Basic Functionality Complete
-
-**COMPLETED**:
-
-- ✅ Manifest path bug fixed - Galleria can start and run
-- ✅ Proxy routing fixed - `/galleries/wedding/page_1.html` routes correctly
-- ✅ All E2E and unit tests pass (380 tests)
-
-**REMAINING ISSUES**:
-
-- [ ] --no-generate flag missing (needed for large photo sets)
-- [ ] Galleria CPU hang with 645+ photos  
-- [ ] Additional routing and photo link issues
-
-**NEXT STEPS**: Complete --no-generate flag implementation, then resume full manual testing.
-
 ## MVP Roadmap
-
-### Phase 3: Integration Testing & Serve Command
-
-  **Critical Issues Found:**
-
-- **BLOCKING: Galleria hardcoded manifest path bug**
-  - Prepends "config/" to manifest paths
-- **BLOCKING: Galleria hangs processing 645 photos** - Uses 99.9% CPU, never completes
-- **Enhancement: Missing --no-generate flag** in site serve command
-  
-  **Additional Issues for Later:**
-
-- [ ] Pelican generating bad routing and site naming (Is it a weird navbar?)
-- [ ] Need configurable base URL for prod vs serve (<http://127.0.0.1:portnum>)
-
-- [x] **Fix Galleria manifest path bug (BLOCKING)** *(COMPLETED)*
-  - [x] **Root cause identified**
-    - E2E tests used relative manifest paths, galleria subprocess couldn't find manifest
-  - [x] **Solution implemented** - Updated serve E2E tests to use absolute paths and create pre-existing manifest+photos
-  - [x] **Fix verified** - Serve E2E tests now pass, full test suite passes (380 tests)
-  - [x] **Pattern documented** - Serve tests simulate post-build state with existing manifest, other tests create manifests
-
-- [x] **Add --no-generate flag to site serve command** *(COMPLETED)*
-  - [x] **Research --no-generate flag** - Confirmed flag exists in galleria serve command
-  - [x] **Design implementation** - Add CLI option and pass through to galleria subprocess
-  - [x] **Complete TDD implementation** - Write failing test, implement feature, ensure all tests pass
-  - [ ] **Test large photo sets** - Verify serve works quickly with 645+ photos
-  - [x] Commit: `Ft: Add --no-generate flag to site serve for development`
-
-- [x] **Manual testing guide with real photo set** *(COMPLETED)*
-  - [x] ~~Guide through testing serve command with real photos~~
-  - [x] **COMPLETED**: Identified and fixed blocking Galleria manifest and proxy routing issues  
-  - [x] **COMPLETED**: Fixed proxy routing - /galleries/wedding/page_1.html now routes correctly to Galleria
-  - [x] **COMPLETED**: Full serve testing verified - basic routing confirmed working
-  - [x] **VERIFIED**: Complete E2E workflow (validate → organize → build → serve) works correctly
-  - **Remaining issues documented**: Base URL configuration, missing gallery index pages captured in Phase 4
-
-- [ ] **Document serve command usage**
-  - [ ] Create `doc/commands/serve.md` with usage examples and URL pattern explanations
-  - [ ] Update `doc/commands/README.md` to link to serve.md
-  - [ ] `uv run ruff check --fix --unsafe-fixes`
-  - [ ] `uv run pytest`
-  - [ ] Update doc/CHANGELOG.md and doc/TODO.md
-  - [ ] Commit: `Doc: Add serve command usage documentation`
-
-- [ ] **Document serve architecture**
-  - [ ] Also, update the testing doc with the 'serve' e2e changes
-  - [ ] Create `doc/modules/galleria/serve.md` documenting ServeOrchestrator, server, watcher modules
-  - [ ] Update `doc/architecture.md` with serve command integration
-  - [ ] Update `doc/workflow.md` with development workflow using serve
-  - [ ] `uv run ruff check --fix --unsafe-fixes`
-  - [ ] `uv run pytest`
-  - [ ] Update doc/CHANGELOG.md and doc/TODO.md
-  - [ ] Commit: `Doc: Document serve command architecture and workflow`
 
 ### Phase 4: Template & CSS Architecture Fix (Pre-MVP Critical)
 
-- [ ] **Optimize Galleria photo processing performance** (Post-MVP if --no-generate works)
-  - [ ] Investigate why 645 photos cause 99.9% CPU hang in Galleria
-  - [ ] Implement batched or streaming photo processing  
-  - [ ] Add progress indicators for large photo collections
-  - [ ] Consider lazy loading or pagination for massive galleries
+#### Task 1: Configurable Base URLs (Branch: fix/url)
 
-- [ ] `git checkout -b fix/url`
-- [ ] Modify `test/e2e/test_site_serve.py` - add test case that verifies serve command generates localhost URLs in HTML output
-- [ ] Add `@pytest.mark.skip("URL override not implemented")` to new test
-- [ ] `uv run ruff check --fix --unsafe-fixes`
-- [ ] `uv run pytest` (test should be skipped)
+- [x] `git checkout -b fix/url`
+- [x] Modify `test/e2e/test_site_serve.py` - add test case that verifies serve command generates localhost URLs in HTML output
+- [x] Add `@pytest.mark.skip("URL override not implemented")` to new test
+- [x] `uv run ruff check --fix --unsafe-fixes`
+- [x] `uv run pytest` (test should be skipped)
 - [ ] Update TODO.md and CHANGELOG.md
 - [ ] Commit: `Tst: Add E2E test for serve URL override (skipped)`
 
@@ -184,6 +110,25 @@
 - [ ] Commit: `Ref: CSS plugin copies files from theme directory`
 
 - [ ] `gh pr create --title "Feat: File-based theme system" --body "Replaces hardcoded templates/CSS with configurable theme files"`
+
+#### Task 4: Galleria Performance (Branch: perf/galleria)
+
+- [ ] `git checkout -b perf/galleria`
+- [ ] Create `test/performance/test_large_collections.py` with 645 photo test
+- [ ] Add `@pytest.mark.skip("Performance optimization not implemented")`
+- [ ] `uv run ruff check --fix --unsafe-fixes && uv run pytest`
+- [ ] Update TODO.md and CHANGELOG.md
+- [ ] Commit: `Tst: Add performance test for large photo collections (skipped)`
+
+- [ ] Write unit test for batched photo processing that fails
+- [ ] Implement batch processing in photo processor plugins
+- [ ] Add progress indicators for large collections
+- [ ] Remove `@pytest.mark.skip` from performance test
+- [ ] `uv run ruff check --fix --unsafe-fixes && uv run pytest`
+- [ ] Update TODO.md and CHANGELOG.md
+- [ ] Commit: `Perf: Implement batched photo processing for large collections`
+
+- [ ] `gh pr create --title "Perf: Optimize large photo collection processing" --body "Fixes CPU hang with 645+ photos via batched processing"`
 
 ### Phase 5: Performance Baseline
 

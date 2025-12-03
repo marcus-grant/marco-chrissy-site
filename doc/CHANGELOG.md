@@ -1,5 +1,10 @@
 # Changelog
 
+## [Unreleased]
+
+### Added
+- E2E test for serve command URL override (skipped until implementation)
+
 ## 2025-12-02
 
 ### Fix: Pelican Index Page Conflict Resolution
