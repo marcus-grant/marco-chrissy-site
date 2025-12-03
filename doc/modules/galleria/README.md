@@ -9,6 +9,7 @@ Galleria is a focused gallery generator that converts NormPic manifests into sta
 - [Plugin System](plugin-system.md) - Plugin architecture and extensibility framework
 - [Serializer Module](serializer.md) - Photo collection loading and manifest parsing
 - [Processor Module](processor.md) - Image processing and thumbnail generation
+- [Template Filters](template-filters.md) - Jinja2 filters for context-aware URL generation
 - [Testing Fixtures](testing-fixtures.md) - Comprehensive test fixtures for galleria development
 
 ## Module Status
@@ -17,6 +18,7 @@ Galleria is a focused gallery generator that converts NormPic manifests into sta
 - Plugin System: Complete foundation with interfaces, exceptions, and hooks
 - Serializer: NormPic v0.1.0 manifest loading
 - Processor: Thumbnail generation with caching
+- Template Filters: Context-aware URL generation with BuildContext integration
 
 **🚧 In Progress**:
 - Plugin System: Specific plugin interface implementations

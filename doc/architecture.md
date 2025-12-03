@@ -154,6 +154,80 @@ BuildOrchestrator.execute()
 
 See [Build Module Documentation](modules/build/) for detailed usage and API reference.
 
+## BuildContext System
+
+The BuildContext system provides environment-aware build coordination for production vs development scenarios. This system enables context-sensitive URL generation and build behavior throughout the pipeline.
+
+### BuildContext Architecture
+
+```
+BuildOrchestrator.execute(override_site_url)
+         ↓
+Creates BuildContext(production=override_site_url is None)
+         ↓
+GalleriaBuilder.build(build_context, site_url)
+         ↓
+Galleria Pipeline (metadata with BuildContext)
+         ↓
+Template Plugins (context-aware URL generation)
+```
+
+### Context States
+
+**Production Mode** (`BuildContext(production=True)`):
+- Triggered when `override_site_url=None` in BuildOrchestrator
+- Uses site URL from `config/site.json` CDN configuration
+- Generates absolute URLs for production deployment
+- Default mode for `site build` command
+
+**Development Mode** (`BuildContext(production=False)`):
+- Triggered when `override_site_url` provided to BuildOrchestrator
+- Uses override URL (typically `http://localhost:8000`)
+- Generates localhost URLs for local development
+- Used by `site serve` command for development workflow
+
+### URL Generation Flow
+
+The BuildContext enables context-aware URL generation throughout the system:
+
+```python
+# Template filter usage
+full_url(path, context, site_url)
+    ↓
+# Production: Uses CDN URLs from config
+"https://site.example.com/galleries/wedding/page1"
+    ↓
+# Development: Uses localhost URLs
+"http://localhost:8000/galleries/wedding/page1"
+```
+
+### Integration Points
+
+**BuildOrchestrator**:
+- Creates appropriate BuildContext based on parameters
+- Passes both BuildContext and resolved site_url to GalleriaBuilder
+- Maintains production vs development mode coordination
+
+**GalleriaBuilder**:
+- Receives BuildContext and site_url as parameters
+- Passes both through pipeline metadata for plugin access
+- Enables template plugins to generate context-appropriate URLs
+
+**Template System**:
+- `galleria/template/filters.py` provides `full_url()` filter
+- Template plugins use BuildContext for URL generation decisions
+- Seamless switching between production and development URL patterns
+
+### Design Benefits
+
+**Environment Flexibility**: Single build system supports both production deployment and local development without configuration changes.
+
+**URL Consistency**: All URL generation flows through BuildContext system, ensuring consistent behavior across templates and plugins.
+
+**Development Workflow**: Local development server URLs work seamlessly with the same template system used for production.
+
+**Plugin Extensibility**: Any template plugin can access BuildContext for environment-aware behavior without direct environment detection.
+
 ## Galleria Plugin Architecture
 
 Galleria uses a 5-stage plugin pipeline for extensible gallery generation:

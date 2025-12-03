@@ -12,6 +12,12 @@
 - GalleriaBuilder BuildContext parameter support for pipeline coordination
 - BuildOrchestrator BuildContext coordination for context-aware builds
 
+### Documentation
+- Comprehensive BuildContext system documentation in architecture.md
+- Updated build module documentation with BuildContext integration details
+- Added template filters module documentation for context-aware URL generation
+- Updated GalleriaBuilder API reference with new BuildContext parameters
+
 ## 2025-12-02
 
 ### Fix: Pelican Index Page Conflict Resolution

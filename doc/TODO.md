@@ -149,16 +149,16 @@ The below example, shows formatting and explanations for each task item.
 - [x] Update TODO.md and CHANGELOG.md
 - [x] Commit: `Ft: BuildOrchestrator coordinates context-aware builds`
 
-- [ ] Update `doc/architecture.md` - Add BuildContext system section
-  - [ ] Document BuildContext class purpose and production vs development modes
-  - [ ] Explain context-aware URL generation architecture  
-  - [ ] Update system overview with new build flow
-- [ ] Update `doc/modules/build/README.md` - Document GalleriaBuilder BuildContext support
-  - [ ] Add BuildContext parameter documentation to GalleriaBuilder.build()
-  - [ ] Document metadata passing to galleria pipeline
-- [ ] Update `doc/modules/galleria/README.md` - Document template filters module
-  - [ ] Add `galleria/template/filters.py` module documentation  
-  - [ ] Document full_url filter API and BuildContext integration
+- [x] Update `doc/architecture.md` - Add BuildContext system section
+  - [x] Document BuildContext class purpose and production vs development modes
+  - [x] Explain context-aware URL generation architecture  
+  - [x] Update system overview with new build flow
+- [x] Update `doc/modules/build/README.md` - Document GalleriaBuilder BuildContext support
+  - [x] Add BuildContext parameter documentation to GalleriaBuilder.build()
+  - [x] Document metadata passing to galleria pipeline
+- [x] Update `doc/modules/galleria/README.md` - Document template filters module
+  - [x] Add `galleria/template/filters.py` module documentation  
+  - [x] Document full_url filter API and BuildContext integration
 - [ ] Update `doc/provider-architecture.md` - Document plugin metadata flow
   - [ ] Add BuildContext metadata passing patterns
   - [ ] Document how plugins access build context via PluginContext.metadata
