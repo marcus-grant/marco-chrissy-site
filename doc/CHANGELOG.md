@@ -4,6 +4,7 @@
 
 ### Added
 - E2E test for serve command URL override (skipped until implementation)
+- BuildContext class for managing production vs development environment state
 
 ## 2025-12-02
 

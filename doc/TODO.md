@@ -14,10 +14,10 @@
 - [ ] Update TODO.md and CHANGELOG.md
 - [ ] Commit: `Tst: Add E2E test for serve URL override (skipped)`
 
-- [ ] Create `build/context.py` with `BuildContext` class having `production: bool` property
-- [ ] Write unit test for BuildContext that fails
-- [ ] Implement BuildContext class to pass test
-- [ ] `uv run ruff check --fix --unsafe-fixes && uv run pytest`
+- [x] Create `build/context.py` with `BuildContext` class having `production: bool` property
+- [x] Write unit test for BuildContext that fails
+- [x] Implement BuildContext class to pass test
+- [x] `uv run ruff check --fix --unsafe-fixes && uv run pytest`
 - [ ] Update TODO.md and CHANGELOG.md  
 - [ ] Commit: `Ft: Add BuildContext with production flag`
 
