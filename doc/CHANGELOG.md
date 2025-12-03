@@ -9,6 +9,7 @@
 - Mock config fixtures in test/conftest.py for consistent testing
 - Template plugin URL filters for context-aware URL generation
 - BasicTemplatePlugin BuildContext integration for development vs production URLs
+- GalleriaBuilder BuildContext parameter support for pipeline coordination
 
 ## 2025-12-02
 

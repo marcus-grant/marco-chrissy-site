@@ -114,16 +114,8 @@ The below example, shows formatting and explanations for each task item.
 - [x] Write unit test that fails for URL override functionality
 - [x] Implement URL override logic: `'SITEURL': override_site_url or pelican_config.get('site_url', '')`
 - [x] `uv run ruff check --fix --unsafe-fixes && uv run pytest`
-- [ ] Update TODO.md and CHANGELOG.md
-- [ ] Commit: `Ft: Add site URL override to PelicanBuilder`
-
-- [ ] Modify `cli/commands/serve.py` to pass localhost URL to PelicanBuilder
-- [ ] Write unit test that fails for serve URL passing
-- [ ] Implement serve command URL override: pass `http://127.0.0.1:8000` to build
-- [ ] Remove `@pytest.mark.skip` from E2E test
-- [ ] `uv run ruff check --fix --unsafe-fixes && uv run pytest`
-- [ ] Update TODO.md and CHANGELOG.md
-- [ ] Commit: `Ft: Serve command overrides site URL for localhost`
+- [x] Update TODO.md and CHANGELOG.md
+- [x] Commit: `Ft: Add site URL override to PelicanBuilder`
 
 - [x] Create template filters in new `galleria/template/filters.py`
 - [x] Write unit test for `full_url` filter that fails
@@ -143,12 +135,12 @@ The below example, shows formatting and explanations for each task item.
 - [x] Update TODO.md and CHANGELOG.md
 - [x] Commit: `Ft: Template plugin uses context-aware URL filters`
 
-- [ ] Write unit test for GalleriaBuilder accepting BuildContext parameters that fails
-- [ ] Write unit test for GalleriaBuilder passing BuildContext in metadata that fails
-- [ ] Implement GalleriaBuilder.build() BuildContext parameter support
-- [ ] `uv run ruff check --fix --unsafe-fixes && uv run pytest`
-- [ ] Update TODO.md and CHANGELOG.md
-- [ ] Commit: `Ft: GalleriaBuilder accepts BuildContext for URL generation`
+- [x] Write unit test for GalleriaBuilder accepting BuildContext parameters that fails
+- [x] Write unit test for GalleriaBuilder passing BuildContext in metadata that fails
+- [x] Implement GalleriaBuilder.build() BuildContext parameter support
+- [x] `uv run ruff check --fix --unsafe-fixes && uv run pytest`
+- [x] Update TODO.md and CHANGELOG.md
+- [x] Commit: `Ft: GalleriaBuilder accepts BuildContext for URL generation`
 
 - [ ] Write unit test for BuildOrchestrator passing BuildContext to GalleriaBuilder that fails
 - [ ] Write unit test for BuildOrchestrator creating BuildContext from override_site_url that fails
@@ -159,7 +151,26 @@ The below example, shows formatting and explanations for each task item.
 
 - [ ] `gh pr create --title "Fix: Configurable base URLs for serve vs build" --body "Implements URL override system for development vs production"`
 
-#### Task 1.1: Fixture Refactoring (Branch: test/fixtures)
+#### Task 1.1: Serve Command Architecture Refactor (Branch: ref/serve)
+
+*Note: This task needs proper TDD planning. Consider commenting out code first to see which tests fail, revealing what needs to move to new modules.*
+
+- [ ] `git checkout -b ref/serve`
+- [ ] Extract business logic from `cli/commands/serve.py`
+- [ ] Move `SiteServeProxy`, `ProxyHTTPHandler`, build orchestration to separate module
+- [ ] Leave only CLI arg parsing, calling serve manager, result reporting in command
+- [ ] Fix test isolation issues caused by build integration in command module
+- [ ] Update/move tests that break when logic moves to new modules
+- [ ] Write unit test that fails for serve URL passing to extracted orchestrator
+- [ ] Implement serve command URL override: pass `http://127.0.0.1:8000` to build via extracted orchestrator
+- [ ] Remove `@pytest.mark.skip` from E2E test
+- [ ] `uv run ruff check --fix --unsafe-fixes && uv run pytest`
+- [ ] Update TODO.md and CHANGELOG.md
+- [ ] `gh pr create --title "Refactor: Extract serve command business logic" --body "Separates CLI concerns from serve orchestration logic"`
+
+*Problem: Serve command currently violates separation of concerns by mixing CLI handling with HTTP proxy logic, build orchestration, and server management. This causes test isolation issues and makes the command difficult to test properly.*
+
+#### Task 1.2: Fixture Refactoring (Branch: test/fixtures)
 
 - [ ] `git checkout -b test/fixtures`
 - [ ] Analyze existing test fixtures for mock config duplication
@@ -250,20 +261,6 @@ The below example, shows formatting and explanations for each task item.
 - [ ] Commit: `Ref: CSS plugin copies files from theme directory`
 
 - [ ] `gh pr create --title "Feat: File-based theme system" --body "Replaces hardcoded templates/CSS with configurable theme files"`
-
-#### Serve Command Architecture Refactor (Branch: ref/serve)
-
-*Note: This task needs proper TDD planning. Consider commenting out code first to see which tests fail, revealing what needs to move to new modules.*
-
-- [ ] `git checkout -b ref/serve`
-- [ ] Extract business logic from `cli/commands/serve.py`
-- [ ] Move `SiteServeProxy`, `ProxyHTTPHandler`, build orchestration to separate module
-- [ ] Leave only CLI arg parsing, calling serve manager, result reporting in command
-- [ ] Fix test isolation issues caused by build integration in command module
-- [ ] Update/move tests that break when logic moves to new modules
-- [ ] `gh pr create --title "Refactor: Extract serve command business logic" --body "Separates CLI concerns from serve orchestration logic"`
-
-*Problem: Serve command currently violates separation of concerns by mixing CLI handling with HTTP proxy logic, build orchestration, and server management. This causes test isolation issues and makes the command difficult to test properly.*
 
 #### Task 4: Galleria Performance (Branch: perf/galleria)
 
