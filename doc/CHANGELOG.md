@@ -17,6 +17,7 @@
 - Updated build module documentation with BuildContext integration details
 - Added template filters module documentation for context-aware URL generation
 - Updated GalleriaBuilder API reference with new BuildContext parameters
+- Added PLANNING.md with systematic task planning workflow and TDD methodology
 
 ## 2025-12-02
 

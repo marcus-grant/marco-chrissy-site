@@ -17,46 +17,13 @@
 * Never attempt quick fixes that bypass these rules
   * They will only waste time and be rejected anyways
 
-## Planning Process for doc/TODO.md
+## Planning Process
 
-When adding complex features:
-update doc/TODO.md with concrete,
-actionable tasks that spell out the entire workflow:
+All task planning should follow the systematic approach defined in [`PLANNING.md`](PLANNING.md).
 
-### Task Structure
+**Key principle**: Tasks in [`TODO.md`](TODO.md) should be structured so that following them automatically results in following our development workflow.
 
-Each task must specify exactly:
-
-* **What to implement/test** (specific files, classes, methods)
-* **Pre-commit workflow**: `uv run ruff check --fix --unsafe-fixes`, `uv run pytest`, update docs
-* **Commit message format**: `Prefix: Description`
-* **Expected outcome** (tests pass/fail, what functionality works)
-
-### Task Organization
-
-* **E2E/Integration tests first** - Mark with `@pytest.mark.skip`, own commit
-* **Unit test cycles** - RED → GREEN → refactor → commit (200-300 LOC max)
-* **Implementation follows TDD** - Write failing tests, implement to pass
-* **Documentation tasks last** - Batch doc updates after functionality complete
-
-### Example Task Format
-
-```
-- [ ] **Create galleria serve E2E tests (skipped)**
-  - [ ] Create `galleria/test/test_serve_e2e.py` with tests:
-    - [ ] `@pytest.mark.skip` test_serve_cli_integration - Test CLI starts server
-  - [ ] `uv run ruff check --fix --unsafe-fixes`
-  - [ ] `uv run pytest` (tests should be skipped)
-  - [ ] Update doc/CHANGELOG.md and doc/TODO.md
-  - [ ] Commit: `Tst: Add galleria serve E2E tests (skipped)`
-```
-
-### Key Principles
-
-* **No workflow explanation in tasks** - Tasks ARE the workflow, step by step
-* **Concrete file paths** - Specify exact files to create/modify
-* **Self-contained** - Each task can be completed independently across context breaks
-* **Pre-commit checks mandatory** - Every commit includes ruff + pytest + doc updates
+For detailed planning guidance, templates, and examples, see: **[`PLANNING.md`](PLANNING.md)**
 
 ## Testing Requirements
 
