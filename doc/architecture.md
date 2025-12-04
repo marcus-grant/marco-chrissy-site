@@ -154,6 +154,47 @@ BuildOrchestrator.execute()
 
 See [Build Module Documentation](modules/build/) for detailed usage and API reference.
 
+## Serve Orchestrator Architecture
+
+The serve system uses the same orchestrator pattern as the build system, separating CLI concerns from serve coordination logic for better testability and maintainability.
+
+### Orchestrator Pattern Structure
+```
+cli/commands/serve.py (simplified CLI interface)
+         ↓
+ServeOrchestrator.start()
+    ├── SiteServeProxy (request routing)
+    ├── HTTP Server (proxy coordination)
+    ├── Galleria subprocess (gallery serving)
+    └── Pelican subprocess (site serving)
+```
+
+### Key Components
+
+- **ServeOrchestrator**: Main coordination class that manages the complete serve workflow
+- **SiteServeProxy**: Handles request routing between Galleria, Pelican, and static files
+- **ProxyHTTPHandler**: HTTP request handler for the proxy server
+- **CLI Command**: Simplified interface focused on argument parsing and result reporting
+
+### Architecture Benefits
+
+**Business Logic Separation**:
+- CLI layer only handles argument parsing and user interaction  
+- Core serve logic completely independent of CLI framework
+- ServeOrchestrator callable from any context (API, scripts, tests)
+
+**Improved Testability**:
+- Unit tests can mock ServeOrchestrator instead of complex server setup
+- Proxy logic testable independently from server coordination
+- Clear separation enables focused testing of each component
+
+**Signal Handling Fix**:
+- Previous implementation had deadlock issues with signal handlers calling cleanup from serve_forever() thread
+- New implementation uses event-driven shutdown with _stop_event flag
+- Cleanup happens in main thread after server shutdown completes
+
+See [Serve Module Documentation](modules/serve/) for detailed implementation and testing information.
+
 ## BuildContext System
 
 The BuildContext system provides environment-aware build coordination for production vs development scenarios. This system enables context-sensitive URL generation and build behavior throughout the pipeline.

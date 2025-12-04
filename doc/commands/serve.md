@@ -92,24 +92,30 @@ The proxy handles errors gracefully:
 
 ## Implementation Details
 
+The serve command uses an orchestrator pattern that separates CLI concerns from server coordination logic.
+
 ### Core Components
 
-- **SiteServeProxy**: Routing logic and subprocess management
-  - Creates and manages Galleria and Pelican server subprocesses
-  - Handles graceful cleanup on shutdown
-  - Routes requests based on URL patterns
+- **ServeOrchestrator** (`serve/orchestrator.py`): Main coordination class that manages the complete serve workflow
+  - Handles server lifecycle (startup, shutdown, cleanup)  
+  - Manages signal handlers for graceful shutdown
+  - Creates and coordinates proxy, Galleria, and Pelican servers
 
-- **ProxyHTTPHandler**: HTTP request handling and forwarding
+- **SiteServeProxy** (`serve/proxy.py`): Routing logic and subprocess management
+  - Creates and manages Galleria and Pelican server subprocesses
+  - Routes requests based on URL patterns
+  - Handles graceful cleanup on shutdown
+
+- **ProxyHTTPHandler** (`serve/proxy.py`): HTTP request handling and forwarding
   - Forwards `/galleries/*` requests to Galleria server
   - Serves `/pics/*` requests directly from filesystem
   - Forwards all other requests to Pelican server
   - Handles connection errors with 502/404 responses
 
-- **HTTP Server Integration**: Actual server startup and coordination
-  - Creates `http.server.HTTPServer` instance
-  - Links proxy handler to server
-  - Starts backend servers automatically
-  - Handles Ctrl+C graceful shutdown
+- **CLI Command** (`cli/commands/serve.py`): Simplified interface for argument parsing
+  - Parses command-line arguments
+  - Creates ServeOrchestrator and calls start()
+  - Reports results to user
 
 ### Backend Server Management
 
@@ -120,12 +126,26 @@ The serve command automatically starts required backend servers:
 
 Both servers are terminated cleanly when the proxy server shuts down.
 
+### Architecture Benefits
+
+**Business Logic Separation**:
+- CLI layer only handles argument parsing and user interaction
+- Core serve logic completely independent of CLI framework  
+- ServeOrchestrator callable from any context (API, scripts, tests)
+
+**Improved Testability**:
+- Unit tests can mock ServeOrchestrator instead of complex server setup
+- Proxy logic testable independently from server coordination
+- Clear separation enables focused testing of each component
+
 ### Testing
 
 The serve command has comprehensive test coverage:
 
-- **16 unit tests** covering all proxy functionality and server integration
-- **E2E tests** for complete server coordination workflow
-- **Error handling tests** for connection failures and missing backends
+- **Unit tests** covering orchestrator lifecycle, proxy routing, and CLI interface
+- **E2E tests** for complete server coordination and request routing
+- **Signal handling tests** for graceful shutdown scenarios
 
-See `test/unit/test_site_serve.py` and `test/e2e/test_site_serve.py` for detailed test examples.
+See `test/unit/test_serve_orchestrator.py`, `test/unit/test_serve_proxy.py`, `test/unit/test_site_serve.py`, and `test/e2e/test_site_serve.py` for detailed test examples.
+
+For detailed architecture documentation, see [Serve Module Documentation](../modules/serve/).

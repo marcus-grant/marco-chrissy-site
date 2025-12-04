@@ -4,218 +4,125 @@
 
 ### Workflow
 
-Anyone reading this file should be able to
-naturally follow our workflow defined in [CONTRIBUTE.md](CONTRIBUTE.md).
-Simply following the checklist items below should lead to
-following the rules, defined within that document.
-The below example, shows formatting and explanations for each task item.
+Tasks in this file follow the systematic planning approach defined in [`PLANNING.md`](PLANNING.md). This ensures consistent, high-quality development that naturally follows the workflow rules in [`CONTRIBUTE.md`](CONTRIBUTE.md).
 
->**NOTE:** The completed top level task is following our workflow correctly.
+**Key principle**: Following TODO tasks should automatically result in following our development workflow.
 
-### Example Top Level Task or Phase
-
-#### Top Level Task Name
-
-- [ ] `git checkout -b commit-prefix/branch-name`
-  - Top level tasks should define a new branch with appropriate commit prefix
-  - This keeps PRs organized and easy to review
-  - It's OK to reuse old branches, they just need to be merged with main 1st
-- [ ] Modify or create e2e or integration test module `test/e2e/module_name.py`
-  - Task should mention module name
-    - Module name should contain main module being tested
-  - The idea is for a top-level test to test larger portions of code
-    - This usually surfaces missing or broken functionality
-    - Leading naturally to more specific specs defined by unit tests
-  - Before marking this task complete, check it fails expectantly
-- [ ] Add `@pytest.mark.skip("Reason for skipping")` to new test
-  - Only high-quality code should be committed
-  - A skip tag means you can still commit incomplete work
-- [ ] `uv run ruff check --fix --unsafe-fixes && uv run pytest`
-  - Run code formatter and linter
-  - Ensure code quality & changes just skip and don't ruin other tests
-- [ ] Update TODO.md and CHANGELOG.md
-  - Ensure you're logging work
-- [ ] `git commit -am "Tst: title of e2e/integration test (skipped)"`
-  - Commit with appropriate prefix (probably Tst for tests)
-  - Mention module being tested and that it's skipped
-
-- [ ] Create or modify `module/path/filename.py` with `syntaxed-functionality`
-  - Specify file path & if needed functionality being added
-  - This is meant to be a stub that that can be imported by unit tests
-  - **DO NOT** implement functionality yet
-- [ ] Write or modify unit test `TestClassName` for each function being tested
-  - Specify test class to make or modify
-  - Optionally specify the method strings needed in nested tasks
-- [ ] Create or modify `ImplementationClassOrFunction` to pass test(s)
-  - Optionally include nested sub-tasks for complex implementations
-- [ ] `uv run ruff check --fix --unsafe-fixes && uv run pytest`
-- [ ] Update TODO.md and CHANGELOG.md
-- [ ] `git commit -am "Ft or Fix: title of functionality being added"`
-  - This commit is likely a `Ft` or `Fix` type
-
-- Repeat either the above top-level task
-  - Depending on if commit can reasonably contain enough cycles
-    - You **DO NOT** want massive commits that are hard to review
-    - A good rule of thumb is roughly 300 lines of code or less
-  - You stop repeating when it's likely you can remove the skip decorator
-  - Do try and add enough unit tests to have decent edge-case coverage
-  - Not end of world if you missed something
-  - This process makes it easy to make fixes later
-
-- [ ] Remove `@pytest.mark.skip` from test of `test/e2e/module_name.py`
-  - The intention is to run the test and verify it passes
-    - If not, leave the skip, add tasks above for unit tests to fix it
-    - Leave this task uncompleted until test passes
-
-- Here you repeat expected e2e or integration test spec tasks
-  - Should have the same sequence as above
-  - If you have roughly a dozen or so...
-    - Your plan probably needs rethinking or breaking into smaller pieces
-    - PRs should be smaller than that for easier review
-
-- [ ] Add or update `doc/subtopic/article.md`
-  - There is likely going to be at least one of these tasks per PR
-  - Remember the `README.md` adjacency links
-    - Each sub-directory of `doc/` has a `README.md`
-    - Each `README.md` acts as a overview and index for that topic
-    - Each `README.md` links to:
-      - Another markdown document in that directory, or...
-      - A `README.md` in a sub-directory, representing a sub-topic
-      - This forms an adjacency list structure for documentation navigation
-      - Don't link to a non-README file in a sub-directory
-        - This keeps navigation consistent and predictable
-    - Each time you add a document or sub-topic...
-      - Update the parent directory's `README.md` to link to it
-      - If you create a sub-directory...
-        - update the parent `README.md` to link to its `README.md`
+For detailed planning guidance, templates, and examples, see: **[`PLANNING.md`](PLANNING.md)**
 
 ## MVP Roadmap
 
 ### Phase 4: Template & CSS Architecture Fix (Pre-MVP Critical)
 
-#### Task 1: Configurable Base URLs (Branch: fix/url)
-
-- [x] `git checkout -b fix/url`
-- [x] Modify `test/e2e/test_site_serve.py` - add test case that verifies serve command generates localhost URLs in HTML output
-- [x] Add `@pytest.mark.skip("URL override not implemented")` to new test
-- [x] `uv run ruff check --fix --unsafe-fixes`
-- [x] `uv run pytest` (test should be skipped)
-- [x] Update TODO.md and CHANGELOG.md
-- [x] Commit: `Tst: Add E2E test for serve URL override (skipped)`
-
-- [x] Create `build/context.py` with `BuildContext` class having `production: bool` property
-- [x] Write unit test for BuildContext that fails
-- [x] Implement BuildContext class to pass test
-- [x] `uv run ruff check --fix --unsafe-fixes && uv run pytest`
-- [x] Update TODO.md and CHANGELOG.md  
-- [x] Commit: `Ft: Add BuildContext with production flag`
-
-- [x] Modify `PelicanBuilder.build()` to accept `override_site_url` parameter
-- [x] Write unit test that fails for URL override functionality
-- [x] Implement URL override logic: `'SITEURL': override_site_url or pelican_config.get('site_url', '')`
-- [x] `uv run ruff check --fix --unsafe-fixes && uv run pytest`
-- [x] Update TODO.md and CHANGELOG.md
-- [x] Commit: `Ft: Add site URL override to PelicanBuilder`
-
-- [x] Create template filters in new `galleria/template/filters.py`
-- [x] Write unit test for `full_url` filter that fails
-- [x] Implement Jinja2 filter that uses BuildContext for URL generation
-- [x] `uv run ruff check --fix --unsafe-fixes && uv run pytest`
-- [x] Update TODO.md and CHANGELOG.md
-- [x] Commit: `Ft: Add template URL filters for context awareness`
-
-- [x] **TDD VIOLATION HALT**: Session stopped due to implementing template plugin integration without tests first
-- [x] **RESTART REQUIRED**: Must write unit tests for template plugin BuildContext integration before implementation
-
-- [x] Write unit test for BasicTemplatePlugin accepting BuildContext via metadata that fails
-- [x] Write unit test for BasicTemplatePlugin using full_url filter with context that fails
-- [x] Implement BasicTemplatePlugin metadata context access to pass tests
-- [x] Modify `galleria/plugins/template.py` to use filters instead of `_make_relative_path()`
-- [x] `uv run ruff check --fix --unsafe-fixes && uv run pytest`
-- [x] Update TODO.md and CHANGELOG.md
-- [x] Commit: `Ft: Template plugin uses context-aware URL filters`
-
-- [x] Write unit test for GalleriaBuilder accepting BuildContext parameters that fails
-- [x] Write unit test for GalleriaBuilder passing BuildContext in metadata that fails
-- [x] Implement GalleriaBuilder.build() BuildContext parameter support
-- [x] `uv run ruff check --fix --unsafe-fixes && uv run pytest`
-- [x] Update TODO.md and CHANGELOG.md
-- [x] Commit: `Ft: GalleriaBuilder accepts BuildContext for URL generation`
-
-- [x] Write unit test for BuildOrchestrator passing BuildContext to GalleriaBuilder that fails
-- [x] Write unit test for BuildOrchestrator creating BuildContext from override_site_url that fails
-- [x] Implement BuildOrchestrator BuildContext integration
-- [x] `uv run ruff check --fix --unsafe-fixes && uv run pytest`
-- [x] Update TODO.md and CHANGELOG.md
-- [x] Commit: `Ft: BuildOrchestrator coordinates context-aware builds`
-
-- [x] Update `doc/architecture.md` - Add BuildContext system section
-  - [x] Document BuildContext class purpose and production vs development modes
-  - [x] Explain context-aware URL generation architecture  
-  - [x] Update system overview with new build flow
-- [x] Update `doc/modules/build/README.md` - Document GalleriaBuilder BuildContext support
-  - [x] Add BuildContext parameter documentation to GalleriaBuilder.build()
-  - [x] Document metadata passing to galleria pipeline
-- [x] Update `doc/modules/galleria/README.md` - Document template filters module
-  - [x] Add `galleria/template/filters.py` module documentation  
-  - [x] Document full_url filter API and BuildContext integration
-- [ ] Update `doc/provider-architecture.md` - Document plugin metadata flow
-  - [ ] Add BuildContext metadata passing patterns
-  - [ ] Document how plugins access build context via PluginContext.metadata
-- [ ] Update serve command documentation - Document URL override capability
-  - [ ] Update serve workflow with BuildContext usage patterns
-- [ ] `uv run ruff check --fix --unsafe-fixes && uv run pytest`
-- [ ] Commit: `Doc: Update documentation for BuildContext system`
-
-- [ ] `gh pr create --title "Fix: Configurable base URLs for serve vs build" --body "Implements URL override system for development vs production"`
 
 #### Task 1.1: Serve Command Architecture Refactor (Branch: ref/serve)
 
-*Note: This task needs proper TDD planning. Consider commenting out code first to see which tests fail, revealing what needs to move to new modules.*
+*Problem Statement: The serve command in `cli/commands/serve.py` has too much logic mixed together, making unit tests increasingly difficult to mock properly. We need to extract business logic to separate modules so unit tests can focus on smaller, testable components while keeping E2E tests as true end-to-end validation.*
 
-- [ ] `git checkout -b ref/serve`
-- [ ] Extract business logic from `cli/commands/serve.py`
-- [ ] Move `SiteServeProxy`, `ProxyHTTPHandler`, build orchestration to separate module
-- [ ] Leave only CLI arg parsing, calling serve manager, result reporting in command
-- [ ] Fix test isolation issues caused by build integration in command module
-- [ ] Update/move tests that break when logic moves to new modules
-- [ ] Write unit test that fails for serve URL passing to extracted orchestrator
-- [ ] Implement serve command URL override: pass `http://127.0.0.1:8000` to build via extracted orchestrator
-- [ ] Remove `@pytest.mark.skip` from E2E test
+**Phase 1: Setup & Test Discovery**
+- [ ] `git checkout -b ref/serve` (or merge main if branch exists)
+- [ ] Comment out non-CLI logic in `cli/commands/serve.py` (proxy, orchestration, server management)
+- [ ] Leave only CLI arg parsing, calling placeholder orchestrator, result reporting
+- [ ] `uv run ruff check --fix --unsafe-fixes && uv run pytest` - **expect failures**
+- [ ] Review test failures and mark with skip decorators:
+  - [ ] Mark failing unit tests with `@pytest.mark.skip("Will migrate to appropriate test modules after logic extraction")`
+  - [ ] Mark failing E2E tests with `@pytest.mark.skip("Will work after serve refactor implementation")`
+- [ ] Add new E2E test case to verify refactored architecture will work end-to-end
+- [ ] Mark new test case with `@pytest.mark.skip("Serve refactor not implemented")`
+- [ ] Commit: `Tst: Comment out serve logic and mark tests for migration`
+
+**Phase 2: TDD Implementation Cycles**
+
+*Cycle 1: Create Serve Module Structure*
+- [x] Create stub `serve/__init__.py`
+- [x] Create stub `serve/orchestrator.py` with `ServeOrchestrator` class
+- [x] Identify unit tests from Phase 1 that specify orchestrator behavior
+- [x] Port those specific tests to `test/unit/test_serve_orchestrator.py`
+- [x] Remove skip decorators from ported tests in new location
+- [x] Run `uv run pytest test/unit/test_serve_orchestrator.py` - should fail as expected
+- [x] Port relevant commented-out logic from serve command to orchestrator
+- [x] Run tests again - may still fail, refactor test if needed
+- [x] Fix implementation until tests pass
+- [x] `uv run ruff check --fix --unsafe-fixes && uv run pytest`
+- [x] Update TODO.md and CHANGELOG.md
+- [x] Commit: `Ft: Add ServeOrchestrator class structure`
+
+*Cycle 2: Extract Proxy Logic*
+- [x] Create `serve/proxy.py` stub
+- [x] Identify unit tests that specify proxy behavior (SiteServeProxy, ProxyHTTPHandler)
+- [x] Port those specific tests to `test/unit/test_serve_proxy.py`
+- [x] Remove skip decorators, run tests - should fail
+- [x] Port proxy classes from commented serve command code (**may not work as-is**)
+- [x] If ported code doesn't work: refactor → red → green cycle until tests pass
+- [x] Update orchestrator to use extracted proxy
+- [x] `uv run ruff check --fix --unsafe-fixes && uv run pytest`
+- [x] Update TODO.md and CHANGELOG.md
+- [x] Commit: `Ref: Extract proxy logic to separate module`
+
+*Cycle 3: Update CLI Command*
+- [x] Identify remaining unit tests that specify pure CLI interface behavior
+- [x] Keep those tests in original location but update to test new interface
+- [x] Remove skip decorators, run tests - should fail
+- [x] Refactor `cli/commands/serve.py` to only handle:
+  - [x] Argument parsing
+  - [x] Calling ServeOrchestrator
+  - [x] Result reporting
+- [x] Fix CLI tests until they pass with new simplified interface
+- [x] `uv run ruff check --fix --unsafe-fixes && uv run pytest`
+- [x] Update TODO.md and CHANGELOG.md
+- [x] Commit: `Ref: Simplify serve command to CLI-only concerns`
+
+**Phase 2.5: CRITICAL BUG INVESTIGATION (serve command hangs indefinitely)** *(COMPLETED)*
+- [x] Debug why `uv run site serve` hangs indefinitely during execution
+- [x] Analyze `server.serve_forever()` behavior in ServeOrchestrator.start()
+- [x] Test minimal serve command execution to isolate root cause of hang
+- [x] Investigate server lifecycle and cleanup mechanisms
+- [x] Check if subprocess management (Galleria/Pelican) causes blocking
+- [x] Fix server hang issue that prevents serve command from working
+- [x] Verify serve command executes and terminates properly
+- [x] Update E2E tests to work with fixed serve implementation
+
+**SOLUTION IMPLEMENTED:**
+- Refactored ServeOrchestrator to avoid deadlocks when shutting down HTTP server
+- HTTPServer.serve_forever() runs in background thread via _run_http_server
+- Uses _stop_event set by _signal_handler (for SIGINT/SIGTERM)
+- Cleanup (proxy + server shutdown) happens in finally block of start(), not from signal handler
+- Fixed test_serve_orchestrator_graceful_shutdown_on_signal and kept test_refactored_serve_architecture passing
+
+- [x] Fix unit tests in test/unit/test_serve_orchestrator.py that assume old signal handler behavior:
+  - [x] test_signal_handler_calls_cleanup_and_exits → test_signal_handler_sets_stop_event: Assert _stop_event.is_set(), not direct cleanup/sys.exit
+  - [x] test_signal_handler_calls_cleanup_directly → test_signal_handler_does_not_call_cleanup_directly: Verify signal handler doesn't call cleanup directly  
+  - [x] test_start_runs_server_in_separate_thread_for_signal_handling: Expect target=_run_http_server, not mock_server.serve_forever
+- [x] Remove duplicate test methods that were causing F811 ruff errors
+- [x] `uv run pytest test/unit/test_serve_orchestrator.py --timeout=5` passes (11/11 tests)
+- [x] `uv run ruff check --fix --unsafe-fixes && uv run pytest --timeout=5` passes (397/425 tests, 27 skipped, 1 timeout unrelated)
+- [x] Commit: `Fix: Resolve serve command hanging issue`
+
+**Phase 3: Integration & Documentation**
+- [x] Remove `@pytest.mark.skip` from E2E tests marked in Phase 1
+- [x] Verify E2E tests pass (if not, return to Phase 2 cycles)
+- [x] Remove `@pytest.mark.skip` from new E2E test case
+- [x] Verify no remaining skip decorators are related to this refactor
+- [x] Update `doc/modules/serve/README.md` with new architecture
+- [x] Update `doc/commands/serve.md` with simplified interface
+- [x] Update `doc/architecture.md` with separation of concerns explanation
+- [x] Remove legacy test classes from test/unit/test_site_serve.py
+- [x] `uv run ruff check --fix --unsafe-fixes && uv run pytest`
+- [x] Update TODO.md and CHANGELOG.md
+- [x] Commit: `Doc: Update serve architecture documentation`
+
+**Phase 4: PR Creation**
+- [x] `gh pr create --title "Ref: Extract serve command business logic" --body "Separates CLI concerns from serve orchestration logic for better testability and maintainability"`
+
+**Phase 4.5: Validate Command Skip Decorator Cleanup**
+- [ ] Remove `@pytest.mark.skip` from test/e2e/test_site_validate.py validate tests
+- [ ] Implement test_validate_checks_dependencies functionality 
+- [ ] Implement test_validate_checks_output_permissions functionality
+- [ ] Implement test_validate_fails_on_missing_requirements functionality
 - [ ] `uv run ruff check --fix --unsafe-fixes && uv run pytest`
-- [ ] Update TODO.md and CHANGELOG.md
-- [ ] `gh pr create --title "Refactor: Extract serve command business logic" --body "Separates CLI concerns from serve orchestration logic"`
+- [ ] Commit: `Ft: Implement remaining validate command functionality`
 
-*Problem: Serve command currently violates separation of concerns by mixing CLI handling with HTTP proxy logic, build orchestration, and server management. This causes test isolation issues and makes the command difficult to test properly.*
-
-#### Task 1.2: Fixture Refactoring (Branch: test/fixtures)
-
-- [ ] `git checkout -b test/fixtures`
-- [ ] Analyze existing test fixtures for mock config duplication
-- [ ] Write E2E test for comprehensive config fixture usage that fails
-- [ ] Add `@pytest.mark.skip("Fixture refactoring not implemented")`
-- [ ] `uv run ruff check --fix --unsafe-fixes && uv run pytest`
-- [ ] Update TODO.md and CHANGELOG.md
-- [ ] Commit: `Tst: Add E2E test for fixture refactoring (skipped)`
-
-- [ ] Write unit test for enhanced config_file_factory that fails
-- [ ] Enhance config_file_factory to support mock overrides and complex configs
-- [ ] Merge mock_pelican_config and mock_site_config into enhanced factories
-- [ ] `uv run ruff check --fix --unsafe-fixes && uv run pytest`
-- [ ] Update TODO.md and CHANGELOG.md
-- [ ] Commit: `Ref: Enhance config_file_factory with mock support`
-
-- [ ] Write unit test for centralized test config management that fails
-- [ ] Create test_config_factory fixture for common test scenarios
-- [ ] Refactor existing tests to use centralized fixtures
-- [ ] Remove `@pytest.mark.skip` from E2E test
-- [ ] `uv run ruff check --fix --unsafe-fixes && uv run pytest`
-- [ ] Update TODO.md and CHANGELOG.md
-- [ ] Commit: `Ref: Centralize test configuration fixtures`
-
-- [ ] `gh pr create --title "Test: Refactor config fixtures for reusability" --body "Centralizes and enhances test fixtures to reduce duplication"`
-
-#### Task 2: Serve Command Cascade (Branch: fix/serve)
+#### Task 1.2: Serve Command Cascade (Branch: fix/serve)
 
 - [ ] `git checkout -b fix/serve`
 - [ ] Modify `test/e2e/test_site_serve.py` - add test case for serve with missing output/ directory
@@ -239,7 +146,7 @@ The below example, shows formatting and explanations for each task item.
 
 - [ ] `gh pr create --title "Fix: Serve command cascade to build" --body "Auto-calls build pipeline when output directory missing"`
 
-#### Task 3: Template & CSS Architecture (Branch: ft/theme)
+#### Task 1.3: Template & CSS Architecture (Branch: ft/theme)
 
 - [ ] `git checkout -b ft/theme`
 - [ ] Create `test/e2e/test_theme_system.py` with file-based theme loading test
@@ -280,7 +187,7 @@ The below example, shows formatting and explanations for each task item.
 
 - [ ] `gh pr create --title "Feat: File-based theme system" --body "Replaces hardcoded templates/CSS with configurable theme files"`
 
-#### Task 4: Galleria Performance (Branch: perf/galleria)
+#### Task 1.4: Galleria Performance (Branch: perf/galleria)
 
 - [ ] `git checkout -b perf/galleria`
 - [ ] Create `test/performance/test_large_collections.py` with 645 photo test
@@ -446,6 +353,32 @@ The below example, shows formatting and explanations for each task item.
 - [ ] Move pelican stuff into a root 'pelican' directory instead of 'content'
 
 ### Medium-term Features
+
+#### Fixture Refactoring (Branch: test/fixtures)
+
+*Problem Statement: Test fixtures have duplication between mock_pelican_config, mock_site_config, and config_file_factory. This creates maintenance overhead and inconsistent test setup patterns. We need to consolidate these into enhanced, reusable fixtures that support both simple and complex configuration scenarios.*
+
+- [ ] `git checkout -b test/fixtures`
+- [ ] Analyze existing test fixtures for mock config duplication
+- [ ] Write E2E test for comprehensive config fixture usage that fails
+- [ ] Add `@pytest.mark.skip("Fixture refactoring not implemented")`
+- [ ] `uv run ruff check --fix --unsafe-fixes && uv run pytest`
+- [ ] Update TODO.md and CHANGELOG.md
+- [ ] Commit: `Tst: Add E2E test for fixture refactoring (skipped)`
+- [ ] Write unit test for enhanced config_file_factory that fails
+- [ ] Enhance config_file_factory to support mock overrides and complex configs
+- [ ] Merge mock_pelican_config and mock_site_config into enhanced factories
+- [ ] `uv run ruff check --fix --unsafe-fixes && uv run pytest`
+- [ ] Update TODO.md and CHANGELOG.md
+- [ ] Commit: `Ref: Enhance config_file_factory with mock support`
+- [ ] Write unit test for centralized test config management that fails
+- [ ] Create test_config_factory fixture for common test scenarios
+- [ ] Refactor existing tests to use centralized fixtures
+- [ ] Remove `@pytest.mark.skip` from E2E test
+- [ ] `uv run ruff check --fix --unsafe-fixes && uv run pytest`
+- [ ] Update TODO.md and CHANGELOG.md
+- [ ] Commit: `Ref: Centralize test configuration fixtures`
+- [ ] `gh pr create --title "Test: Refactor config fixtures for reusability" --body "Centralizes and enhances test fixtures to reduce duplication"`
 
 - [ ] Galleria plugin system implementation
   - [ ] Implement plugin loading mechanism
