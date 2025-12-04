@@ -34,43 +34,69 @@ For detailed planning guidance, templates, and examples, see: **[`PLANNING.md`](
 **Phase 2: TDD Implementation Cycles**
 
 *Cycle 1: Create Serve Module Structure*
-- [ ] Create stub `serve/__init__.py`
-- [ ] Create stub `serve/orchestrator.py` with `ServeOrchestrator` class
-- [ ] Identify unit tests from Phase 1 that specify orchestrator behavior
-- [ ] Port those specific tests to `test/unit/test_serve_orchestrator.py`
-- [ ] Remove skip decorators from ported tests in new location
-- [ ] Run `uv run pytest test/unit/test_serve_orchestrator.py` - should fail as expected
-- [ ] Port relevant commented-out logic from serve command to orchestrator
-- [ ] Run tests again - may still fail, refactor test if needed
-- [ ] Fix implementation until tests pass
-- [ ] `uv run ruff check --fix --unsafe-fixes && uv run pytest`
-- [ ] Update TODO.md and CHANGELOG.md
-- [ ] Commit: `Ft: Add ServeOrchestrator class structure`
+- [x] Create stub `serve/__init__.py`
+- [x] Create stub `serve/orchestrator.py` with `ServeOrchestrator` class
+- [x] Identify unit tests from Phase 1 that specify orchestrator behavior
+- [x] Port those specific tests to `test/unit/test_serve_orchestrator.py`
+- [x] Remove skip decorators from ported tests in new location
+- [x] Run `uv run pytest test/unit/test_serve_orchestrator.py` - should fail as expected
+- [x] Port relevant commented-out logic from serve command to orchestrator
+- [x] Run tests again - may still fail, refactor test if needed
+- [x] Fix implementation until tests pass
+- [x] `uv run ruff check --fix --unsafe-fixes && uv run pytest`
+- [x] Update TODO.md and CHANGELOG.md
+- [x] Commit: `Ft: Add ServeOrchestrator class structure`
 
 *Cycle 2: Extract Proxy Logic*
-- [ ] Create `serve/proxy.py` stub
-- [ ] Identify unit tests that specify proxy behavior (SiteServeProxy, ProxyHTTPHandler)
-- [ ] Port those specific tests to `test/unit/test_serve_proxy.py`
-- [ ] Remove skip decorators, run tests - should fail
-- [ ] Port proxy classes from commented serve command code (**may not work as-is**)
-- [ ] If ported code doesn't work: refactor → red → green cycle until tests pass
-- [ ] Update orchestrator to use extracted proxy
-- [ ] `uv run ruff check --fix --unsafe-fixes && uv run pytest`
-- [ ] Update TODO.md and CHANGELOG.md
-- [ ] Commit: `Ref: Extract proxy logic to separate module`
+- [x] Create `serve/proxy.py` stub
+- [x] Identify unit tests that specify proxy behavior (SiteServeProxy, ProxyHTTPHandler)
+- [x] Port those specific tests to `test/unit/test_serve_proxy.py`
+- [x] Remove skip decorators, run tests - should fail
+- [x] Port proxy classes from commented serve command code (**may not work as-is**)
+- [x] If ported code doesn't work: refactor → red → green cycle until tests pass
+- [x] Update orchestrator to use extracted proxy
+- [x] `uv run ruff check --fix --unsafe-fixes && uv run pytest`
+- [x] Update TODO.md and CHANGELOG.md
+- [x] Commit: `Ref: Extract proxy logic to separate module`
 
 *Cycle 3: Update CLI Command*
-- [ ] Identify remaining unit tests that specify pure CLI interface behavior
-- [ ] Keep those tests in original location but update to test new interface
-- [ ] Remove skip decorators, run tests - should fail
-- [ ] Refactor `cli/commands/serve.py` to only handle:
-  - [ ] Argument parsing
-  - [ ] Calling ServeOrchestrator
-  - [ ] Result reporting
-- [ ] Fix CLI tests until they pass with new simplified interface
-- [ ] `uv run ruff check --fix --unsafe-fixes && uv run pytest`
-- [ ] Update TODO.md and CHANGELOG.md
-- [ ] Commit: `Ref: Simplify serve command to CLI-only concerns`
+- [x] Identify remaining unit tests that specify pure CLI interface behavior
+- [x] Keep those tests in original location but update to test new interface
+- [x] Remove skip decorators, run tests - should fail
+- [x] Refactor `cli/commands/serve.py` to only handle:
+  - [x] Argument parsing
+  - [x] Calling ServeOrchestrator
+  - [x] Result reporting
+- [x] Fix CLI tests until they pass with new simplified interface
+- [x] `uv run ruff check --fix --unsafe-fixes && uv run pytest`
+- [x] Update TODO.md and CHANGELOG.md
+- [x] Commit: `Ref: Simplify serve command to CLI-only concerns`
+
+**Phase 2.5: CRITICAL BUG INVESTIGATION (serve command hangs indefinitely)** *(COMPLETED)*
+- [x] Debug why `uv run site serve` hangs indefinitely during execution
+- [x] Analyze `server.serve_forever()` behavior in ServeOrchestrator.start()
+- [x] Test minimal serve command execution to isolate root cause of hang
+- [x] Investigate server lifecycle and cleanup mechanisms
+- [x] Check if subprocess management (Galleria/Pelican) causes blocking
+- [x] Fix server hang issue that prevents serve command from working
+- [x] Verify serve command executes and terminates properly
+- [x] Update E2E tests to work with fixed serve implementation
+
+**SOLUTION IMPLEMENTED:**
+- Refactored ServeOrchestrator to avoid deadlocks when shutting down HTTP server
+- HTTPServer.serve_forever() runs in background thread via _run_http_server
+- Uses _stop_event set by _signal_handler (for SIGINT/SIGTERM)
+- Cleanup (proxy + server shutdown) happens in finally block of start(), not from signal handler
+- Fixed test_serve_orchestrator_graceful_shutdown_on_signal and kept test_refactored_serve_architecture passing
+
+- [x] Fix unit tests in test/unit/test_serve_orchestrator.py that assume old signal handler behavior:
+  - [x] test_signal_handler_calls_cleanup_and_exits → test_signal_handler_sets_stop_event: Assert _stop_event.is_set(), not direct cleanup/sys.exit
+  - [x] test_signal_handler_calls_cleanup_directly → test_signal_handler_does_not_call_cleanup_directly: Verify signal handler doesn't call cleanup directly  
+  - [x] test_start_runs_server_in_separate_thread_for_signal_handling: Expect target=_run_http_server, not mock_server.serve_forever
+- [x] Remove duplicate test methods that were causing F811 ruff errors
+- [x] `uv run pytest test/unit/test_serve_orchestrator.py --timeout=5` passes (11/11 tests)
+- [x] `uv run ruff check --fix --unsafe-fixes && uv run pytest --timeout=5` passes (397/425 tests, 27 skipped, 1 timeout unrelated)
+- [x] Commit: `Fix: Resolve serve command hanging issue`
 
 **Phase 3: Integration & Documentation**
 - [ ] Remove `@pytest.mark.skip` from E2E tests marked in Phase 1

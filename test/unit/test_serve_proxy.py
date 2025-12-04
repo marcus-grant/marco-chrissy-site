@@ -1,5 +1,6 @@
 """Unit tests for serve proxy logic."""
 
+import subprocess
 from unittest.mock import Mock, patch
 
 from serve.proxy import SiteServeProxy
@@ -102,7 +103,51 @@ class TestSiteServeProxy:
         proxy.cleanup()
 
         mock_galleria.terminate.assert_called_once()
+        mock_galleria.wait.assert_called_once_with(timeout=3)
         mock_pelican.terminate.assert_called_once()
+        mock_pelican.wait.assert_called_once_with(timeout=3)
+
+    def test_cleanup_kills_processes_if_terminate_times_out(self):
+        """Test cleanup kills processes if terminate times out."""
+        proxy = SiteServeProxy(8001, 8002, "/pics")
+        # Mock processes that timeout on wait
+        mock_galleria = Mock()
+        mock_galleria.wait.side_effect = subprocess.TimeoutExpired("cmd", 3)
+        mock_pelican = Mock()
+        mock_pelican.wait.side_effect = subprocess.TimeoutExpired("cmd", 3)
+
+        proxy.galleria_process = mock_galleria
+        proxy.pelican_process = mock_pelican
+
+        proxy.cleanup()
+
+        # Should try terminate first, then kill when timeout
+        mock_galleria.terminate.assert_called_once()
+        mock_galleria.kill.assert_called_once()
+        mock_pelican.terminate.assert_called_once()
+        mock_pelican.kill.assert_called_once()
+
+    def test_cleanup_handles_none_processes(self):
+        """Test cleanup handles None processes gracefully."""
+        proxy = SiteServeProxy(8001, 8002, "/pics")
+        proxy.galleria_process = None
+        proxy.pelican_process = None
+
+        # Should not raise any exceptions
+        proxy.cleanup()
+
+    def test_cleanup_handles_mixed_process_states(self):
+        """Test cleanup handles mix of None and active processes."""
+        proxy = SiteServeProxy(8001, 8002, "/pics")
+        mock_galleria = Mock()
+        proxy.galleria_process = mock_galleria
+        proxy.pelican_process = None  # None process
+
+        proxy.cleanup()
+
+        # Should only cleanup the active process
+        mock_galleria.terminate.assert_called_once()
+        mock_galleria.wait.assert_called_once_with(timeout=3)
 
 
 class TestProxyHTTPHandler:

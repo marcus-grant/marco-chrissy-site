@@ -2,6 +2,12 @@
 
 ## [Unreleased]
 
+### Fixed
+- Resolve serve command hanging issue by updating unit tests to match new signal handler behavior
+- Updated test_serve_orchestrator.py to reflect new architecture where signal handlers set stop events instead of calling cleanup directly
+- Removed duplicate test methods causing ruff F811 errors
+- All serve orchestrator unit tests now pass (11/11) with proper timeout handling
+
 ### Added
 - E2E test for serve command URL override (skipped until implementation)
 - BuildContext class for managing production vs development environment state

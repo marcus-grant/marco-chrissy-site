@@ -30,6 +30,8 @@ For detailed planning guidance, templates, and examples, see: **[`PLANNING.md`](
 * This is a `**uv**`` managed project
   * **Test Command**: Use `uv run pytest` to run tests
     * **NOT**: `python -m pytest`
+  * Prefer timeouts and multithreading with a command like this:
+    * `uv run pytest -vv --timeout=20 -n auto`
 * **ALWAYS run ruff first**: `uv run ruff check --fix --unsafe-fixes` before testing
 * **ALWAYS run full test suite**: Before every single commit
 * **Specific Test Files**:

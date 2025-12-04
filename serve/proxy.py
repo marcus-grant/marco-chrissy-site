@@ -89,8 +89,17 @@ class SiteServeProxy:
         """Terminate running server subprocesses."""
         if self.galleria_process:
             self.galleria_process.terminate()
+            try:
+                self.galleria_process.wait(timeout=3)
+            except subprocess.TimeoutExpired:
+                self.galleria_process.kill()
+
         if self.pelican_process:
             self.pelican_process.terminate()
+            try:
+                self.pelican_process.wait(timeout=3)
+            except subprocess.TimeoutExpired:
+                self.pelican_process.kill()
 
 
 class ProxyHTTPHandler(http.server.BaseHTTPRequestHandler):

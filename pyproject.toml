@@ -93,5 +93,7 @@ exclude_lines = [
 dev = [
     "pyfakefs>=5.10.2",
     "pytest>=9.0.1",
-    "watchdog>=3.0.0",  # For file watching in serve command
+    "pytest-timeout>=2.4.0",
+    "pytest-xdist>=3.8.0",
+    "watchdog>=3.0.0", # For file watching in serve command
 ]
