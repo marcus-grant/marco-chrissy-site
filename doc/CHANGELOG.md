@@ -50,6 +50,13 @@
   - Removed skip decorators from CLI tests, now all pass with proper mocking
   - CLI command now follows single responsibility principle: parse args → call orchestrator → report results
 
+* **KNOWN ISSUE: Serve command hangs indefinitely during execution**
+  - E2E tests timeout after 2 minutes when testing actual serve command
+  - Server startup appears to work but servers don't terminate cleanly
+  - Unit tests pass with mocking, but real execution has blocking issue
+  - Need to debug server lifecycle and cleanup in ServeOrchestrator
+  - Architecture refactor complete but needs server management fixes
+
 ## 2025-12-02
 
 ### Fix: Pelican Index Page Conflict Resolution
