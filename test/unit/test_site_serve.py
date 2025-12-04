@@ -7,7 +7,7 @@ import pytest
 # from cli.commands.serve import ProxyHTTPHandler, SiteServeProxy, serve
 
 
-@pytest.mark.skip("Will migrate to test_serve_proxy.py after logic extraction")
+@pytest.mark.skip("Migrated to test_serve_proxy.py - keeping for reference")
 class TestSiteServeProxy:
     """Unit tests for SiteServeProxy routing logic."""
 
@@ -124,7 +124,7 @@ class TestSiteServeCommand:
         pass  # Will work after refactor
 
 
-@pytest.mark.skip("Will migrate to test_serve_proxy.py after logic extraction")
+@pytest.mark.skip("Migrated to test_serve_proxy.py - keeping for reference")
 class TestProxyHTTPHandler:
     """Unit tests for HTTP proxy handler that forwards requests."""
 

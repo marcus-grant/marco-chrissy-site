@@ -33,6 +33,15 @@
   - Extracted orchestration logic from commented serve command implementation
   - All 2 orchestrator unit tests pass with proper BuildOrchestrator integration
 
+* **COMPLETED: Proxy logic extraction to separate module**
+  - Created serve/proxy.py with SiteServeProxy and ProxyHTTPHandler classes
+  - Extracted all HTTP proxy logic from commented serve command implementation
+  - Implemented request routing: /galleries/* → Galleria, /pics/* → static, other → Pelican
+  - Added subprocess management for Galleria and Pelican servers with cleanup
+  - Created comprehensive unit tests in test/unit/test_serve_proxy.py (15 tests)
+  - Updated ServeOrchestrator to use extracted proxy classes
+  - Enhanced orchestrator tests with proper mocking to prevent server startup during testing
+
 ## 2025-12-02
 
 ### Fix: Pelican Index Page Conflict Resolution
