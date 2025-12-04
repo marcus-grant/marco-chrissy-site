@@ -42,6 +42,14 @@
   - Updated ServeOrchestrator to use extracted proxy classes
   - Enhanced orchestrator tests with proper mocking to prevent server startup during testing
 
+* **COMPLETED: CLI command simplified to handle only interface concerns**
+  - Refactored cli/commands/serve.py to focus solely on argument parsing and orchestrator delegation
+  - Removed all business logic from CLI command, delegating to ServeOrchestrator
+  - Added proper error handling and user feedback for KeyboardInterrupt and exceptions
+  - Updated CLI tests to work with new simplified interface (4 tests updated)
+  - Removed skip decorators from CLI tests, now all pass with proper mocking
+  - CLI command now follows single responsibility principle: parse args → call orchestrator → report results
+
 ## 2025-12-02
 
 ### Fix: Pelican Index Page Conflict Resolution

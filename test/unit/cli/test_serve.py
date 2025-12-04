@@ -1,16 +1,43 @@
 """Unit tests for serve command URL override functionality."""
 
+from unittest.mock import Mock, patch
 
-import pytest
 
-
-@pytest.mark.skip("Will work after serve refactor implementation")
 class TestServeCommandURLOverride:
     """Test serve command URL override functionality."""
 
-    def test_serve_calls_build_with_localhost_url_override(self, temp_filesystem):
+    @patch('cli.commands.serve.ServeOrchestrator')
+    def test_serve_calls_build_with_localhost_url_override(self, mock_orchestrator_class, temp_filesystem):
         """Test serve command calls build with localhost URL override."""
-        pass  # Will work after refactor
+        from click.testing import CliRunner
+
+        from cli.commands.serve import serve
+
+        # Arrange: Mock orchestrator to prevent actual server startup
+        mock_orchestrator = Mock()
+        mock_orchestrator_class.return_value = mock_orchestrator
+        mock_orchestrator.start.side_effect = KeyboardInterrupt()  # Exit immediately
+
+        # Act: Call serve command via CliRunner
+        runner = CliRunner()
+        result = runner.invoke(serve, [
+            '--host', '127.0.0.1',
+            '--port', '8000',
+            '--galleria-port', '8001',
+            '--pelican-port', '8002'
+        ])
+
+        # Assert: Command should complete (with KeyboardInterrupt handled)
+        assert result.exit_code == 0
+
+        # Assert: Should have called orchestrator start with correct parameters
+        mock_orchestrator.start.assert_called_once_with(
+            host="127.0.0.1",
+            port=8000,
+            galleria_port=8001,
+            pelican_port=8002,
+            no_generate=False
+        )
 
         # Original test - will be restored after refactor:
         # from click.testing import CliRunner

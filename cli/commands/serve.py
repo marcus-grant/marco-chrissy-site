@@ -1,16 +1,8 @@
 """Site serve command with proxy routing functionality."""
 
-# import http.client
-# import http.server
-# import mimetypes
-# import subprocess
-# from pathlib import Path
-# from typing import Literal
-
 import click
 
-# from build.orchestrator import BuildOrchestrator
-
+from serve.orchestrator import ServeOrchestrator
 
 # TODO: Extract to serve/proxy.py during refactor
 # class SiteServeProxy:
@@ -167,22 +159,23 @@ def serve(host: str, port: int, galleria_port: int, pelican_port: int, no_genera
     - /pics/* → Static file server
     - Everything else → Pelican server
     """
-    # TODO: Replace with ServeOrchestrator during refactor
-    click.echo("Serve command temporarily disabled during refactor")
-    click.echo(f"Would start proxy at http://{host}:{port}")
-    click.echo(f"Would use Galleria port: {galleria_port}")
-    click.echo(f"Would use Pelican port: {pelican_port}")
-    click.echo(f"No-generate flag: {no_generate}")
+    click.echo(f"Starting site serve proxy at http://{host}:{port}")
+    click.echo(f"Galleria server will run on port {galleria_port}")
+    click.echo(f"Pelican server will run on port {pelican_port}")
 
-    # Placeholder for ServeOrchestrator call
-    # orchestrator = ServeOrchestrator()
-    # orchestrator.start(
-    #     host=host,
-    #     port=port,
-    #     galleria_port=galleria_port,
-    #     pelican_port=pelican_port,
-    #     no_generate=no_generate
-    # )
+    orchestrator = ServeOrchestrator()
+    try:
+        orchestrator.start(
+            host=host,
+            port=port,
+            galleria_port=galleria_port,
+            pelican_port=pelican_port,
+            no_generate=no_generate,
+        )
+    except KeyboardInterrupt:
+        click.echo("\nShutting down server...")
+    except Exception as e:
+        click.echo(f"Error starting serve: {e}", err=True)
 
 
 # TODO: Extract to serve/orchestrator.py during refactor
