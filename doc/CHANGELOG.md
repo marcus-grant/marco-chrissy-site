@@ -1,6 +1,12 @@
 # Changelog
 
-## [Unreleased]
+## 2024-11-04
+
+### Refactored
+- Extract serve command business logic to orchestrator pattern for better testability and maintainability
+- Separate CLI concerns from serve orchestration logic in serve/orchestrator.py and serve/proxy.py
+- Remove legacy test classes and enable all serve-related E2E tests
+- Update serve architecture documentation with new separation of concerns pattern
 
 ### Fixed
 - Resolve serve command hanging issue by updating unit tests to match new signal handler behavior

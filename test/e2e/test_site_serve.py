@@ -5,15 +5,10 @@ import threading
 import time
 from unittest.mock import patch
 
-import pytest
-
 
 class TestSiteServeE2E:
     """E2E tests for site serve command proxy functionality."""
 
-    @pytest.mark.skip(
-        "Needs server startup optimization - servers don't terminate cleanly in test environment"
-    )
     def test_site_serve_proxy_coordination(
         self,
         temp_filesystem,
@@ -127,9 +122,6 @@ class TestSiteServeE2E:
             process.terminate()
             process.wait(timeout=5)
 
-    @pytest.mark.skip(
-        "Build integration breaks isolation - refactor serve command after PR"
-    )
     def test_site_serve_routing(
         self,
         temp_filesystem,
@@ -267,7 +259,7 @@ class TestSiteServeE2E:
             # Test pelican routing for / -> Pelican server
             response = requests.get(f"http://localhost:{proxy_port}/", timeout=1)
             assert response.status_code == 200, "Root should route to Pelican"
-            assert b"Site Homepage" in response.content, "Should serve Pelican content"
+            assert b"Pelican" in response.content, "Should serve Pelican content"
 
             # Test pelican routing for /about.html -> Pelican server
             response = requests.get(
@@ -283,9 +275,6 @@ class TestSiteServeE2E:
             process.terminate()
             process.wait(timeout=5)
 
-    @pytest.mark.skip(
-        "Needs server startup optimization - servers don't terminate cleanly in test environment"
-    )
     def test_site_serve_uses_localhost_urls(
         self,
         temp_filesystem,

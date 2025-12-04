@@ -99,20 +99,28 @@ For detailed planning guidance, templates, and examples, see: **[`PLANNING.md`](
 - [x] Commit: `Fix: Resolve serve command hanging issue`
 
 **Phase 3: Integration & Documentation**
-- [ ] Remove `@pytest.mark.skip` from E2E tests marked in Phase 1
-- [ ] Verify E2E tests pass (if not, return to Phase 2 cycles)
-- [ ] Remove `@pytest.mark.skip` from new E2E test case
-- [ ] **Verify no remaining skip decorators are related to this refactor**
-- [ ] **Document any remaining skip decorators unrelated to this PR** (in commit message or TODO)
-- [ ] Update `doc/modules/serve/README.md` with new architecture
-- [ ] Update `doc/commands/serve.md` with simplified interface
-- [ ] Update `doc/architecture.md` with separation of concerns explanation
-- [ ] `uv run ruff check --fix --unsafe-fixes && uv run pytest`
-- [ ] Update TODO.md and CHANGELOG.md
-- [ ] Commit: `Doc: Update serve architecture documentation`
+- [x] Remove `@pytest.mark.skip` from E2E tests marked in Phase 1
+- [x] Verify E2E tests pass (if not, return to Phase 2 cycles)
+- [x] Remove `@pytest.mark.skip` from new E2E test case
+- [x] Verify no remaining skip decorators are related to this refactor
+- [x] Update `doc/modules/serve/README.md` with new architecture
+- [x] Update `doc/commands/serve.md` with simplified interface
+- [x] Update `doc/architecture.md` with separation of concerns explanation
+- [x] Remove legacy test classes from test/unit/test_site_serve.py
+- [x] `uv run ruff check --fix --unsafe-fixes && uv run pytest`
+- [x] Update TODO.md and CHANGELOG.md
+- [x] Commit: `Doc: Update serve architecture documentation`
 
 **Phase 4: PR Creation**
-- [ ] `gh pr create --title "Ref: Extract serve command business logic" --body "Separates CLI concerns from serve orchestration logic for better testability and maintainability"`
+- [x] `gh pr create --title "Ref: Extract serve command business logic" --body "Separates CLI concerns from serve orchestration logic for better testability and maintainability"`
+
+**Phase 4.5: Validate Command Skip Decorator Cleanup**
+- [ ] Remove `@pytest.mark.skip` from test/e2e/test_site_validate.py validate tests
+- [ ] Implement test_validate_checks_dependencies functionality 
+- [ ] Implement test_validate_checks_output_permissions functionality
+- [ ] Implement test_validate_fails_on_missing_requirements functionality
+- [ ] `uv run ruff check --fix --unsafe-fixes && uv run pytest`
+- [ ] Commit: `Ft: Implement remaining validate command functionality`
 
 #### Task 1.2: Serve Command Cascade (Branch: fix/serve)
 
