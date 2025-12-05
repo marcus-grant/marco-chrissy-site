@@ -2,7 +2,7 @@
 
 ## Overview
 
-The validator module provides configuration file validation functionality for the site build system. It ensures config files exist and contain valid content against JSON schemas.
+The validator module provides comprehensive validation functionality for the site build system. It includes config file validation, dependency checking, and permission verification.
 
 ## ConfigValidator API
 
@@ -91,6 +91,100 @@ finally:
 # NEW (isolated)
 validator = ConfigValidator(base_path=temp_filesystem)
 result = validator.validate_config_files()
+```
+
+## DependencyValidator API
+
+### Constructor
+
+```python
+DependencyValidator()
+```
+
+No parameters required. Validates a predefined set of core dependencies.
+
+### Methods
+
+#### validate_dependencies()
+
+```python
+def validate_dependencies(self) -> ValidationResult
+```
+
+Validates that all required Python dependencies are importable.
+
+**Returns:** `ValidationResult` with `success: bool` and `errors: list[str]`
+
+**Validated Dependencies:**
+- `pelican` - Static site generator
+- `PIL` (Pillow) - Image processing
+- `click` - CLI framework
+- `jinja2` - Template engine
+- `jsonschema` - Config validation
+- `normpic` - Photo organization tool
+
+### Usage Example
+
+```python
+from validator.dependencies import DependencyValidator
+
+validator = DependencyValidator()
+result = validator.validate_dependencies()
+
+if not result.success:
+    for error in result.errors:
+        print(f"Dependency error: {error}")
+```
+
+## PermissionValidator API
+
+### Constructor
+
+```python
+PermissionValidator(base_path=None)
+```
+
+**Parameters:**
+- `base_path` (Path, optional): Base directory for resolving paths. Defaults to `Path.cwd()`.
+
+### Methods
+
+#### validate_output_permissions()
+
+```python
+def validate_output_permissions(self) -> ValidationResult
+```
+
+Validates write permissions for required output directories.
+
+**Returns:** `ValidationResult` with `success: bool` and `errors: list[str]`
+
+**Validated Directories:**
+- `output/` - Main output directory for generated site
+- `temp/` - Temporary directory for build operations
+
+### Usage Example
+
+```python
+from validator.permissions import PermissionValidator
+
+validator = PermissionValidator()
+result = validator.validate_output_permissions()
+
+if not result.success:
+    for error in result.errors:
+        print(f"Permission error: {error}")
+```
+
+## ValidationResult Common Interface
+
+All validators return a consistent `ValidationResult` object:
+
+```python
+@dataclass
+class ValidationResult:
+    success: bool      # True if all checks passed
+    errors: list[str]  # List of error messages (empty if success=True)
 ```
 
 ## Future Enhancements

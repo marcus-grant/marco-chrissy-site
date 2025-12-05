@@ -7,6 +7,7 @@ This project uses a molecule-inspired cascading command system where each comman
 ## Command Documentation
 
 - [Pipeline Commands](pipeline.md) - Main site building commands
+- [Validate Command](validate.md) - Pre-flight checks and validation
 - [Build Command](build.md) - Complete site generation documentation
 - [Serve Command](serve.md) - Development server with proxy routing
 - [Development Commands](development.md) - Developer workflow commands  

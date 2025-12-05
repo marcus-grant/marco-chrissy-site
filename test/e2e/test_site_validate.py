@@ -2,8 +2,6 @@
 
 import subprocess
 
-import pytest
-
 
 class TestSiteValidate:
     """Test the site validate command functionality."""
@@ -26,7 +24,6 @@ class TestSiteValidate:
         assert result.returncode == 0
         assert "config files found" in result.stdout.lower()
 
-    @pytest.mark.skip(reason="Validate command functionality not yet implemented")
     def test_validate_checks_dependencies(self):
         """Test that validate command checks for required dependencies."""
         result = subprocess.run(
@@ -35,7 +32,6 @@ class TestSiteValidate:
         assert result.returncode == 0
         assert "dependencies" in result.stdout.lower()
 
-    @pytest.mark.skip(reason="Validate command functionality not yet implemented")
     def test_validate_checks_output_permissions(self):
         """Test that validate command checks output directory permissions."""
         result = subprocess.run(
@@ -44,8 +40,15 @@ class TestSiteValidate:
         assert result.returncode == 0
         assert "permissions" in result.stdout.lower()
 
-    @pytest.mark.skip(reason="Validate command functionality not yet implemented")
-    def test_validate_fails_on_missing_requirements(self):
+    def test_validate_fails_on_missing_requirements(self, temp_filesystem):
         """Test that validate command fails when requirements not met."""
-        # This would test scenarios where validation should fail
-        pass
+        # Test with missing config files - should fail
+        result = subprocess.run(
+            ["uv", "run", "site", "validate"],
+            capture_output=True,
+            text=True,
+            cwd=str(temp_filesystem),
+        )
+
+        assert result.returncode != 0
+        assert "config validation failed" in result.stdout.lower()

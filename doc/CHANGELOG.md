@@ -1,5 +1,24 @@
 # Changelog
 
+## 2025-12-05
+
+### Added
+- Complete validate command functionality implementation
+- DependencyValidator for Python dependency checking
+- PermissionValidator for output directory permission verification  
+- Proper exit code handling in validate command (returns 1 on failure)
+- Comprehensive E2E test coverage for all validate functionality
+
+### Changed  
+- Removed skip decorators from validate E2E tests
+- Enhanced validate command with dependencies and permissions checks
+- Updated validator module with three specialized validator classes
+
+### Documentation
+- Added doc/commands/validate.md with complete validate command documentation
+- Updated doc/modules/validator.md with DependencyValidator and PermissionValidator APIs
+- Added validate command link to doc/commands/README.md
+
 ## 2024-11-04
 
 ### Refactored
