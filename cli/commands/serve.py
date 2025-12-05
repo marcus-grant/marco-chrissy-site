@@ -1,5 +1,7 @@
 """Site serve command with proxy routing functionality."""
 
+import os
+
 import click
 
 from serve.orchestrator import ServeOrchestrator
@@ -162,6 +164,13 @@ def serve(host: str, port: int, galleria_port: int, pelican_port: int, no_genera
     click.echo(f"Starting site serve proxy at http://{host}:{port}")
     click.echo(f"Galleria server will run on port {galleria_port}")
     click.echo(f"Pelican server will run on port {pelican_port}")
+
+    # Check if output directory exists
+    if not os.path.exists("output"):
+        click.echo("✗ Output directory does not exist", err=True)
+        click.echo("  Run 'site build' first to generate the site", err=True)
+        ctx = click.get_current_context()
+        ctx.exit(1)
 
     orchestrator = ServeOrchestrator()
     try:

@@ -30,6 +30,29 @@ class TestSiteServeCommand:
         assert result.exit_code == 0
         assert "Starting site serve proxy at http://127.0.0.1:8000" in result.output
 
+    @patch('cli.commands.serve.ServeOrchestrator')
+    @patch('os.path.exists')
+    def test_serve_checks_output_directory_exists(self, mock_exists, mock_orchestrator_class):
+        """Test serve command checks for output directory existence."""
+        from click.testing import CliRunner
+
+        from cli.commands.serve import serve
+
+        # Arrange: Mock output directory doesn't exist, but don't start orchestrator
+        mock_exists.side_effect = lambda path: path != "output"
+        mock_orchestrator = Mock()
+        mock_orchestrator_class.return_value = mock_orchestrator
+
+        # Act: Run serve command
+        runner = CliRunner()
+        result = runner.invoke(serve)
+
+        # Assert: Should fail with helpful message about missing output
+        assert result.exit_code == 1
+        assert "output directory does not exist" in result.output.lower()
+        # Orchestrator should not have been called
+        mock_orchestrator.start.assert_not_called()
+
         # Original test - will work after refactor:
         # @patch('cli.commands.serve.http.server.HTTPServer')
         # @patch('cli.commands.serve.SiteServeProxy')
