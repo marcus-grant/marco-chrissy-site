@@ -6,6 +6,8 @@ import click
 
 from serve.orchestrator import ServeOrchestrator
 
+from .build import build
+
 # TODO: Extract to serve/proxy.py during refactor
 # class SiteServeProxy:
 #     """Proxy server that routes requests to Galleria, Pelican, or static files."""
@@ -165,12 +167,22 @@ def serve(host: str, port: int, galleria_port: int, pelican_port: int, no_genera
     click.echo(f"Galleria server will run on port {galleria_port}")
     click.echo(f"Pelican server will run on port {pelican_port}")
 
-    # Check if output directory exists
+    # Check if output directory exists, auto-call build if missing
     if not os.path.exists("output"):
-        click.echo("✗ Output directory does not exist", err=True)
-        click.echo("  Run 'site build' first to generate the site", err=True)
+        click.echo("Output directory missing - running build pipeline...")
         ctx = click.get_current_context()
-        ctx.exit(1)
+        result = ctx.invoke(build)
+
+        if result and hasattr(result, "exit_code") and result.exit_code != 0:
+            click.echo("✗ Build failed - cannot start serve", err=True)
+            ctx.exit(1)
+
+        # Verify build created output directory
+        if not os.path.exists("output"):
+            click.echo("✗ Build completed but output directory still missing", err=True)
+            ctx.exit(1)
+
+        click.echo("✓ Build completed - starting serve")
 
     orchestrator = ServeOrchestrator()
     try:
