@@ -5,6 +5,8 @@ import threading
 import time
 from unittest.mock import patch
 
+import pytest
+
 
 class TestSiteServeE2E:
     """E2E tests for site serve command proxy functionality."""
@@ -538,3 +540,103 @@ class TestSiteServeE2E:
             # Server should have been shut down cleanly
             mock_server.shutdown.assert_called_once()
             mock_server.server_close.assert_called_once()
+
+    @pytest.mark.skip("Cascade not implemented")
+    def test_serve_cascade_calls_build_when_output_missing(
+        self,
+        temp_filesystem,
+        config_file_factory,
+        file_factory,
+        fake_image_factory,
+        free_port,
+    ):
+        """E2E: Test serve command automatically calls build when output/ directory missing.
+
+        Test cascade functionality:
+        1. Verify serve detects missing output/ directory
+        2. Verify serve automatically calls build→organize→validate pipeline
+        3. Verify serve starts normally after successful build
+        4. Verify serve fails gracefully if build pipeline fails
+        """
+        import subprocess
+        import time
+
+        # Arrange: Create config files but NO output directory
+        fake_image_factory(
+            "photo1.jpg", directory="pics/full", use_raw_bytes=True
+        )
+        manifest_content = {
+            "collection_name": "test_wedding",
+            "collection_description": "Test photos for cascade",
+            "photos": [
+                {
+                    "filename": "photo1.jpg",
+                    "path": str(temp_filesystem / "pics" / "full" / "photo1.jpg"),
+                    "timestamp": "2024-01-01T10:00:00",
+                }
+            ],
+        }
+        file_factory("pics/full/manifest.json", json_content=manifest_content)
+
+        config_file_factory("site")
+        config_file_factory(
+            "galleria",
+            {
+                "provider": {"plugin": "normpic-provider"},
+                "processor": {"plugin": "thumbnail-processor"},
+                "transform": {"plugin": "basic-pagination"},
+                "template": {"plugin": "basic-template"},
+                "css": {"plugin": "basic-css"},
+                "output_dir": str(temp_filesystem / "output" / "galleries" / "test"),
+                "manifest_path": str(
+                    temp_filesystem / "pics" / "full" / "manifest.json"
+                ),
+            },
+        )
+        config_file_factory("pelican")
+        config_file_factory("normpic")
+
+        # CRITICAL: Do NOT create output/ directory - serve should detect this
+        # and automatically call build→organize→validate
+        assert not (temp_filesystem / "output").exists(), "Output dir should not exist initially"
+
+        proxy_port = free_port()
+        galleria_port = free_port()
+        pelican_port = free_port()
+
+        # Act: Start site serve command - should automatically build first
+        process = subprocess.Popen(
+            [
+                "uv",
+                "run",
+                "site",
+                "serve",
+                "--port",
+                str(proxy_port),
+                "--galleria-port",
+                str(galleria_port),
+                "--pelican-port",
+                str(pelican_port),
+            ],
+            cwd=temp_filesystem,
+            capture_output=True,
+            text=True,
+        )
+
+        try:
+            # Wait for build and server startup
+            time.sleep(3)
+
+            # Assert: Verify output directory was created by auto-build
+            assert (temp_filesystem / "output").exists(), "Output dir should be created by cascade"
+            assert (temp_filesystem / "output" / "galleries").exists(), "Galleries should be generated"
+
+            # Verify serve started successfully after build
+            import requests
+            response = requests.get(f"http://localhost:{proxy_port}/", timeout=1)
+            assert response.status_code in [200, 404], "Serve should be running after cascade"
+
+        finally:
+            # Cleanup
+            process.terminate()
+            process.wait(timeout=5)
