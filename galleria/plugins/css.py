@@ -105,6 +105,8 @@ class BasicCSSPlugin(CSSPlugin):
 
     def _generate_gallery_css(self, config: dict) -> str:
         """Generate base gallery CSS styles."""
+        # PLACEHOLDER FOR TEST DISCOVERY
+        return "/* PLACEHOLDER_CSS */"
         layout = config.get("layout", "grid")
 
         if layout == "grid":

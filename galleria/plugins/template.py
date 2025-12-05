@@ -93,6 +93,8 @@ class BasicTemplatePlugin(TemplatePlugin):
         context: PluginContext,
     ) -> str:
         """Generate HTML for a single page of photos."""
+        # PLACEHOLDER FOR TEST DISCOVERY
+        return "<div>PLACEHOLDER_HTML</div>"
         # Support both nested and direct config patterns
         config = context.config
         if "template" in config:
