@@ -10,6 +10,14 @@ The `site serve` command provides a development server that coordinates multiple
 site serve [OPTIONS]
 ```
 
+### Automatic Build Pipeline
+
+The serve command follows the cascading pipeline pattern:
+- **Checks for output directory** - If missing, automatically calls `build` command
+- **Build cascade** - build→organize→validate pipeline runs automatically  
+- **Error handling** - Exits gracefully if build pipeline fails
+- **Development ready** - Starts server only after successful build
+
 ### Options
 
 - `--host TEXT`: Host to bind proxy server (default: 127.0.0.1)
