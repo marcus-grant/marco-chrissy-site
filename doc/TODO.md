@@ -15,29 +15,6 @@ For detailed planning guidance, templates, and examples, see: **[`PLANNING.md`](
 ### Phase 4: Template & CSS Architecture Fix (Pre-MVP Critical)
 
 
-#### Task 1.2: Serve Command Cascade (Branch: fix/serve)
-
-- [ ] `git checkout -b fix/serve`
-- [ ] Modify `test/e2e/test_site_serve.py` - add test case for serve with missing output/ directory
-- [ ] Add `@pytest.mark.skip("Cascade not implemented")` to new test
-- [ ] `uv run ruff check --fix --unsafe-fixes && uv run pytest`
-- [ ] Update TODO.md and CHANGELOG.md
-- [ ] Commit: `Tst: Add E2E test for serve cascade behavior (skipped)`
-
-- [ ] Write unit test for serve output directory checking that fails
-- [ ] Implement output directory check in `cli/commands/serve.py`
-- [ ] `uv run ruff check --fix --unsafe-fixes && uv run pytest`
-- [ ] Update TODO.md and CHANGELOG.md
-- [ ] Commit: `Ft: Add output directory existence check to serve`
-
-- [ ] Write unit test for serve auto-calling build command that fails
-- [ ] Implement build command invocation when output/ missing
-- [ ] Remove `@pytest.mark.skip` from E2E test
-- [ ] `uv run ruff check --fix --unsafe-fixes && uv run pytest`
-- [ ] Update TODO.md and CHANGELOG.md
-- [ ] Commit: `Ft: Serve auto-calls build when output missing`
-
-- [ ] `gh pr create --title "Fix: Serve command cascade to build" --body "Auto-calls build pipeline when output directory missing"`
 
 #### Task 1.3: Template & CSS Architecture (Branch: ft/theme)
 

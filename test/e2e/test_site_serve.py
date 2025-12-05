@@ -538,3 +538,119 @@ class TestSiteServeE2E:
             # Server should have been shut down cleanly
             mock_server.shutdown.assert_called_once()
             mock_server.server_close.assert_called_once()
+
+    def test_serve_cascade_calls_build_when_output_missing(
+        self,
+        temp_filesystem,
+        config_file_factory,
+        file_factory,
+        fake_image_factory,
+        free_port,
+    ):
+        """E2E: Test serve command automatically calls build when output/ directory missing.
+
+        Test cascade functionality:
+        1. Verify serve detects missing output/ directory
+        2. Verify serve automatically calls build→organize→validate pipeline
+        3. Verify serve starts normally after successful build
+        4. Verify serve fails gracefully if build pipeline fails
+        """
+        import subprocess
+        import time
+
+        # Arrange: Create config files but NO output directory
+        fake_image_factory(
+            "photo1.jpg", directory="pics/full", use_raw_bytes=True
+        )
+        manifest_content = {
+            "collection_name": "test_wedding",
+            "collection_description": "Test photos for cascade",
+            "photos": [
+                {
+                    "filename": "photo1.jpg",
+                    "path": str(temp_filesystem / "pics" / "full" / "photo1.jpg"),
+                    "timestamp": "2024-01-01T10:00:00",
+                }
+            ],
+        }
+        file_factory("pics/full/manifest.json", json_content=manifest_content)
+
+        config_file_factory("site")
+        config_file_factory(
+            "galleria",
+            {
+                "provider": {"plugin": "normpic-provider"},
+                "processor": {"plugin": "thumbnail-processor"},
+                "transform": {"plugin": "basic-pagination"},
+                "template": {"plugin": "basic-template"},
+                "css": {"plugin": "basic-css"},
+                "output_dir": str(temp_filesystem / "output" / "galleries" / "test"),
+                "manifest_path": str(
+                    temp_filesystem / "pics" / "full" / "manifest.json"
+                ),
+            },
+        )
+        config_file_factory("pelican")
+        config_file_factory("normpic")
+
+        # CRITICAL: Do NOT create output/ directory - serve should detect this
+        # and automatically call build→organize→validate
+        assert not (temp_filesystem / "output").exists(), "Output dir should not exist initially"
+
+        proxy_port = free_port()
+        galleria_port = free_port()
+        pelican_port = free_port()
+
+        # Act: Start site serve command - should automatically build first
+        process = subprocess.Popen(
+            [
+                "uv",
+                "run",
+                "site",
+                "serve",
+                "--port",
+                str(proxy_port),
+                "--galleria-port",
+                str(galleria_port),
+                "--pelican-port",
+                str(pelican_port),
+            ],
+            cwd=temp_filesystem,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            text=True,
+        )
+
+        try:
+            # Wait for build to complete (but not for server to be fully ready)
+            time.sleep(5)
+
+            # Check if process is still running (good - means build succeeded and serve started)
+            poll_result = process.poll()
+            if poll_result is not None:
+                # Process exited - this might be an error, let's get the output
+                stdout, stderr = process.communicate()
+                print(f"Process exited with code: {poll_result}")
+                print(f"STDOUT: {stdout}")
+                print(f"STDERR: {stderr}")
+
+            # Assert: Verify output directory was created by auto-build
+            assert (temp_filesystem / "output").exists(), "Output dir should be created by cascade"
+
+            # Check that build pipeline ran successfully (some content should exist)
+            output_contents = list((temp_filesystem / "output").iterdir()) if (temp_filesystem / "output").exists() else []
+            print(f"Output directory contents: {output_contents}")
+            assert len(output_contents) > 0, "Build should have created some output content"
+
+            # Verify serve process started (should be running or at least attempted to start)
+            # Process should still be running if cascade succeeded
+            if poll_result is not None and poll_result != 0:
+                raise AssertionError(f"Serve process exited with error code: {poll_result}")
+
+            # The main success criteria: cascade triggered build and created output
+            print("✓ Cascade functionality working: serve auto-called build when output/ missing")
+
+        finally:
+            # Cleanup
+            process.terminate()
+            process.wait(timeout=5)

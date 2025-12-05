@@ -8,16 +8,23 @@
 - PermissionValidator for output directory permission verification  
 - Proper exit code handling in validate command (returns 1 on failure)
 - Comprehensive E2E test coverage for all validate functionality
+- Serve command cascade functionality - auto-calls build when output/ missing
 
 ### Changed  
 - Removed skip decorators from validate E2E tests
 - Enhanced validate command with dependencies and permissions checks
 - Updated validator module with three specialized validator classes
+- Serve command now follows cascading pipeline pattern (serve→build→organize→validate)
+
+### Fixed
+- Serve command cascade to build pipeline when output directory missing
+- Proper error handling when build fails during serve cascade
 
 ### Documentation
 - Added doc/commands/validate.md with complete validate command documentation
 - Updated doc/modules/validator.md with DependencyValidator and PermissionValidator APIs
 - Added validate command link to doc/commands/README.md
+- Updated serve command documentation with cascade behavior
 
 ## 2024-11-04
 
