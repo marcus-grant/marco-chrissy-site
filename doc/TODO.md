@@ -49,14 +49,14 @@ For detailed planning guidance, templates, and examples, see: **[`PLANNING.md`](
   - `test/galleria/unit/test_cli_e2e.py::TestGalleriaCLIE2E::test_cli_generate_command_with_fake_filesystem` - CLI E2E expects real output
 - [x] Review failing tests against current TODO.md plan: **ALL COVERED** - Expected template/CSS plugin tests + E2E pipeline tests
 - [x] If gaps found: **NO GAPS** - all failing tests are expected categories
-- [ ] Commit: `Pln: Update theme system plan based on test discovery`
-- [ ] Evaluate current fixture landscape for theme system needs
-- [ ] Create theme-specific fixtures if beneficial
-- [ ] Create integration test in `test/integration/test_theme_system.py`
-- [ ] Add `@pytest.mark.skip("Theme system not implemented")`
-- [ ] `uv run ruff check --fix --unsafe-fixes && uv run pytest`
-- [ ] Update TODO.md and CHANGELOG.md
-- [ ] Commit: `Tst: Add theme system integration test with fixtures (skipped)`
+- [x] Commit: `Pln: Update theme system plan based on test discovery`
+- [x] Evaluate current fixture landscape for theme system needs: **SUFFICIENT** - temp_filesystem, config_file_factory, file_factory cover theme directory creation
+- [x] Create theme-specific fixtures if beneficial: **NOT NEEDED** - existing fixtures adequate for theme file creation  
+- [x] Create integration test in `test/e2e/test_theme_integration.py`
+- [x] Add `@pytest.mark.skip("Theme system not implemented")`
+- [x] `uv run ruff check --fix --unsafe-fixes && uv run pytest`
+- [x] Update TODO.md and CHANGELOG.md
+- [ ] Commit: `Tst: Add theme system integration test (skipped)`
 
 **Phase 2: TDD Implementation Cycles**
 

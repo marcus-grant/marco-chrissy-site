@@ -1,5 +1,7 @@
 # Changelog
 
+## 2025-12-11
+
 ## 2025-12-05
 
 ### Added
@@ -23,6 +25,20 @@
   - DependencyValidator
   - PermissionValidator APIs
 - Added validate command link to doc/commands/README.md
+- Created doc/release/ archive structure for changelog organization
+- Updated doc/README.md with release archive links
+
+### Planning
+
+- Comprehensive TDD plan for theme system implementation (Task 1.3)
+- Test discovery methodology with placeholder implementations
+- Complete MVP 0.1.0 release preparation tasks documented
+
+### Tests
+
+- Added theme system integration tests in test/e2e/test_theme_integration.py
+- Integration test covers theme file loading, template rendering, CSS processing
+- Tests for theme validation and PicoCSS integration prepared
 
 ## 2024-12-04
 
