@@ -71,13 +71,13 @@ For detailed planning guidance, templates, and examples, see: **[`PLANNING.md`](
 - [ ] Commit: `Ft: Implement theme directory validation`
 
 *Cycle 2: Jinja2 Template Loading*
-- [ ] Create stub in `galleria/theme/loader.py` with `TemplateLoader` class
-- [ ] Write unit test for `TemplateLoader.load_template()` that fails
-- [ ] **Test Discovery**: Comment out new functionality, run tests, identify porting needs
-- [ ] Implement minimal Jinja2 template loading from theme directory
-- [ ] Refactor for better design (keeping tests green)
-- [ ] `uv run ruff check --fix --unsafe-fixes && uv run pytest`
-- [ ] Update TODO.md and CHANGELOG.md
+- [x] Create stub in `galleria/theme/loader.py` with `TemplateLoader` class
+- [x] Write unit test for `TemplateLoader.load_template()` that fails
+- [x] **Test Discovery**: No existing functionality to comment out (new module)
+- [x] Implement minimal Jinja2 template loading from theme directory
+- [x] Refactor for better design (keeping tests green)
+- [x] `uv run ruff check --fix --unsafe-fixes && uv run pytest`
+- [x] Update TODO.md and CHANGELOG.md
 - [ ] Commit: `Ft: Implement Jinja2 template loading`
 
 *Cycle 3: Template Plugin Refactor*

@@ -47,6 +47,9 @@
 - ThemeValidator class with validate_theme_directory method
 - Validation for theme.json, templates/, and static/css/ structure
 - Required template files: base.j2.html, gallery.j2.html, empty.j2.html
+- Jinja2 template loading system in galleria/theme/loader.py
+- TemplateLoader class with FileSystemLoader and template inheritance
+- HTML autoescape support for security
 
 ## 2024-12-04
 
