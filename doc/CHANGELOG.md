@@ -58,6 +58,10 @@
 - Fallback to hardcoded HTML when theme_path not configured
 - Template data preparation with proper URL generation
 - PicoCSS integration through theme base templates
+- BasicCSSPlugin now supports theme_path configuration
+- Theme-based CSS file reading from static/css directory
+- CSS files sorted with custom.css loaded last for highest priority
+- Fallback to hardcoded CSS when theme_path not configured
 
 ## 2024-12-04
 

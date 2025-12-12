@@ -88,16 +88,16 @@ For detailed planning guidance, templates, and examples, see: **[`PLANNING.md`](
 - [x] Refactor for better design (keeping tests green)
 - [x] `uv run ruff check --fix --unsafe-fixes && uv run pytest`
 - [x] Update TODO.md and CHANGELOG.md
-- [ ] Commit: `Ref: Replace hardcoded HTML with Jinja2 templates`
+- [x] Commit: `Ref: Replace hardcoded HTML with Jinja2 templates`
 
 *Cycle 4: CSS Plugin Refactor*
-- [ ] Create/modify stub in `galleria/plugins/css.py`
-- [ ] Write unit test for theme-based `BasicCSSPlugin.generate_css()` that fails
-- [ ] **Test Discovery**: Comment out new functionality, run tests, identify porting needs
-- [ ] Implement theme CSS file reading in BasicCSSPlugin
-- [ ] Refactor for better design (keeping tests green)
-- [ ] `uv run ruff check --fix --unsafe-fixes && uv run pytest`
-- [ ] Update TODO.md and CHANGELOG.md
+- [x] Create/modify stub in `galleria/plugins/css.py`
+- [x] Write unit test for theme-based `BasicCSSPlugin.generate_css()` that fails
+- [x] **Test Discovery**: Theme integration uses existing placeholder method
+- [x] Implement theme CSS file reading in BasicCSSPlugin
+- [x] Refactor for better design (keeping tests green)
+- [x] `uv run ruff check --fix --unsafe-fixes && uv run pytest`
+- [x] Update TODO.md and CHANGELOG.md
 - [ ] Commit: `Ref: Replace hardcoded CSS with theme files`
 
 *Cycle 5: Test Migration & Cleanup*

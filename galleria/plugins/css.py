@@ -57,14 +57,19 @@ class BasicCSSPlugin(CSSPlugin):
             collection_name = context.input_data["collection_name"]
             html_files = context.input_data["html_files"]
 
-            # Generate CSS files
-            css_files = []
+            # Check if theme path is configured
+            theme_path = context.config.get("theme_path")
+            if theme_path:
+                css_files = self._read_theme_css_files(theme_path, css_config)
+            else:
+                # Generate CSS files using hardcoded implementation
+                css_files = []
 
-            # Main gallery CSS (needs layout from template config)
-            gallery_css = self._generate_gallery_css(template_config)
-            css_files.append(
-                {"filename": "gallery.css", "content": gallery_css, "type": "gallery"}
-            )
+                # Main gallery CSS (needs layout from template config)
+                gallery_css = self._generate_gallery_css(template_config)
+                css_files.append(
+                    {"filename": "gallery.css", "content": gallery_css, "type": "gallery"}
+                )
 
             # Theme-specific CSS if theme is specified
             if theme:
@@ -105,8 +110,6 @@ class BasicCSSPlugin(CSSPlugin):
 
     def _generate_gallery_css(self, config: dict) -> str:
         """Generate base gallery CSS styles."""
-        # PLACEHOLDER FOR TEST DISCOVERY
-        return "/* PLACEHOLDER_CSS */"
         layout = config.get("layout", "grid")
 
         if layout == "grid":
@@ -435,3 +438,39 @@ body.theme-light {
             raise ValueError(f"CSS content too large: {len(css_content)} bytes")
 
         return css_content
+
+    def _read_theme_css_files(self, theme_path: str, css_config: dict) -> list[dict]:
+        """Read CSS files from theme directory.
+
+        Args:
+            theme_path: Path to theme directory
+            css_config: CSS configuration
+
+        Returns:
+            List of CSS file dictionaries
+        """
+        from pathlib import Path
+
+        css_files = []
+        theme_css_dir = Path(theme_path) / "static" / "css"
+
+        if not theme_css_dir.exists():
+            return css_files
+
+        # Read all CSS files, with custom.css loaded last for highest priority
+        css_file_paths = list(theme_css_dir.glob("*.css"))
+        css_file_paths.sort(key=lambda p: (p.name == "custom.css", p.name))
+
+        for css_file_path in css_file_paths:
+            try:
+                css_content = css_file_path.read_text(encoding="utf-8")
+                css_files.append({
+                    "filename": css_file_path.name,
+                    "content": css_content,
+                    "type": "theme"
+                })
+            except (OSError, UnicodeDecodeError):
+                # Skip files that can't be read
+                continue
+
+        return css_files
