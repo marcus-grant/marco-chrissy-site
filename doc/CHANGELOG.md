@@ -51,6 +51,14 @@
 - TemplateLoader class with FileSystemLoader and template inheritance
 - HTML autoescape support for security
 
+### Refactored
+
+- BasicTemplatePlugin now supports theme_path configuration
+- Theme-based HTML generation with Jinja2 template rendering
+- Fallback to hardcoded HTML when theme_path not configured
+- Template data preparation with proper URL generation
+- PicoCSS integration through theme base templates
+
 ## 2024-12-04
 
 ### Refactored

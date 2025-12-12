@@ -81,13 +81,13 @@ For detailed planning guidance, templates, and examples, see: **[`PLANNING.md`](
 - [ ] Commit: `Ft: Implement Jinja2 template loading`
 
 *Cycle 3: Template Plugin Refactor*
-- [ ] Create/modify stub in `galleria/plugins/template.py`
-- [ ] Write unit test for theme-based `BasicTemplatePlugin.generate_html()` that fails
-- [ ] **Test Discovery**: Comment out new functionality, run tests, identify porting needs
-- [ ] Implement theme file integration in BasicTemplatePlugin
-- [ ] Refactor for better design (keeping tests green)
-- [ ] `uv run ruff check --fix --unsafe-fixes && uv run pytest`
-- [ ] Update TODO.md and CHANGELOG.md
+- [x] Create/modify stub in `galleria/plugins/template.py`
+- [x] Write unit test for theme-based `BasicTemplatePlugin.generate_html()` that fails
+- [x] **Test Discovery**: Theme integration uses existing placeholder method
+- [x] Implement theme file integration in BasicTemplatePlugin
+- [x] Refactor for better design (keeping tests green)
+- [x] `uv run ruff check --fix --unsafe-fixes && uv run pytest`
+- [x] Update TODO.md and CHANGELOG.md
 - [ ] Commit: `Ref: Replace hardcoded HTML with Jinja2 templates`
 
 *Cycle 4: CSS Plugin Refactor*
