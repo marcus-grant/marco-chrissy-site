@@ -39,6 +39,14 @@
 - Added theme system integration tests in test/e2e/test_theme_integration.py
 - Integration test covers theme file loading, template rendering, CSS processing
 - Tests for theme validation and PicoCSS integration prepared
+- Added ThemeValidator unit tests with theme directory structure validation
+
+### Added
+
+- Theme directory validation system in galleria/theme/validator.py
+- ThemeValidator class with validate_theme_directory method
+- Validation for theme.json, templates/, and static/css/ structure
+- Required template files: base.j2.html, gallery.j2.html, empty.j2.html
 
 ## 2024-12-04
 

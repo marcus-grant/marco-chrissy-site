@@ -61,13 +61,13 @@ For detailed planning guidance, templates, and examples, see: **[`PLANNING.md`](
 **Phase 2: TDD Implementation Cycles**
 
 *Cycle 1: Theme File Structure & Validation*
-- [ ] Create stub in `galleria/theme/validator.py` with `ThemeValidator` class
-- [ ] Write unit test for `ThemeValidator.validate_theme_directory()` that fails
-- [ ] **Test Discovery**: Comment out new functionality, run tests, identify porting needs
-- [ ] Implement minimal theme directory validation
-- [ ] Refactor for better design (keeping tests green)
-- [ ] `uv run ruff check --fix --unsafe-fixes && uv run pytest`
-- [ ] Update TODO.md and CHANGELOG.md
+- [x] Create stub in `galleria/theme/validator.py` with `ThemeValidator` class
+- [x] Write unit test for `ThemeValidator.validate_theme_directory()` that fails
+- [x] **Test Discovery**: No existing functionality to comment out (new module)
+- [x] Implement minimal theme directory validation
+- [x] Refactor for better design (keeping tests green)
+- [x] `uv run ruff check --fix --unsafe-fixes && uv run pytest`
+- [x] Update TODO.md and CHANGELOG.md
 - [ ] Commit: `Ft: Implement theme directory validation`
 
 *Cycle 2: Jinja2 Template Loading*
