@@ -56,5 +56,16 @@ def _make_relative_path(path: str) -> str:
         relative_parts = path_parts[output_index + 1:]
         return '/'.join(relative_parts)
     except ValueError:
-        # 'output' not found in path, use filename
-        return os.path.basename(path)
+        # 'output' not found in path, determine URL based on file type
+        filename = os.path.basename(path)
+
+        # For photos (jpg, jpeg), they should be in pics/full/
+        if filename.lower().endswith(('.jpg', '.jpeg')):
+            return f'pics/full/{filename}'
+        # For thumbnails (webp), they should be in galleries/{collection}/thumbnails/
+        elif filename.lower().endswith('.webp'):
+            # Without collection context, fallback to thumbnails/
+            return f'thumbnails/{filename}'
+        else:
+            # Fallback to just filename
+            return filename
