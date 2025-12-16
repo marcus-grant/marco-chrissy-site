@@ -47,6 +47,17 @@ class BasicTemplatePlugin(TemplatePlugin):
                             "page_number": page_num,
                         }
                     )
+
+                # Generate index.html that redirects to first page for direct directory access
+                if pages:
+                    index_content = self._generate_gallery_index_html(collection_name)
+                    html_files.append(
+                        {
+                            "filename": "index.html",
+                            "content": index_content,
+                            "page_number": 0,  # Special marker for index page
+                        }
+                    )
             elif "photos" in context.input_data:
                 # Direct photos input (no pagination)
                 photos = context.input_data["photos"]
@@ -128,6 +139,32 @@ class BasicTemplatePlugin(TemplatePlugin):
 
     <main class="gallery">
         <p class="empty-message">No photos found in this collection.</p>
+    </main>
+
+    <footer>
+        <p>Generated with Galleria</p>
+    </footer>
+</body>
+</html>"""
+
+    def _generate_gallery_index_html(self, collection_name: str) -> str:
+        """Generate index.html that redirects to first page for gallery directory access."""
+        return f"""<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="refresh" content="0; url=page_1.html">
+    <title>{collection_name}</title>
+    <link rel="stylesheet" href="gallery.css">
+</head>
+<body>
+    <header>
+        <h1>{collection_name}</h1>
+    </header>
+
+    <main class="gallery">
+        <p>Redirecting to gallery... If you are not redirected, <a href="page_1.html">click here</a>.</p>
     </main>
 
     <footer>
