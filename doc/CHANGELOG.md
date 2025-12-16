@@ -1,5 +1,48 @@
 # Changelog
 
+## 2025-12-16
+
+### Added
+
+- Complete theme system integration test in test/e2e/test_theme_integration.py
+- Theme system enables external template/CSS files instead of hardcoded strings
+- Theme-based gallery generation with full plugin pipeline integration
+- Validated theme directory structure with ThemeValidator
+- Jinja2 template loading from theme files via TemplateLoader
+- CSS file loading from theme static/css directory
+- Fallback to hardcoded templates/CSS when theme_path not configured
+
+### Changed
+
+- Removed @pytest.mark.skip from theme integration test - theme system now functional
+- BasicTemplatePlugin now supports theme_path configuration for external templates  
+- BasicCSSPlugin now supports theme_path configuration for external CSS files
+- Template and CSS plugins maintain backward compatibility with hardcoded fallbacks
+
+### Documentation
+
+- Updated doc/modules/galleria/template-plugins.md with complete theme system documentation
+- Added ThemeValidator and TemplateLoader architecture sections
+- Documented theme directory structure and configuration format
+- Added theme-based gallery generation usage examples
+- Documented theme_path configuration for template and CSS plugins
+
+### Tests  
+
+- Theme integration test validates end-to-end theme file loading and plugin processing
+- Test covers theme validation, template loading, HTML generation, and CSS processing
+- All existing tests continue to pass through fallback pattern
+- Integration test demonstrates theme files → plugin processing → output validation
+
+### Issues Discovered
+
+- **CRITICAL UX**: Gallery URL routing problems discovered during manual testing
+  - `/galleries/wedding/` returns 404 (no index.html in gallery directories)
+  - `/galleries/` returns 404 (no gallery index page exists)
+  - Users must type full `/galleries/wedding/page_1.html` URLs to access galleries
+  - Documented in TODO.md as post-MVP priority fix
+  - Updated serve.md documentation with current URL limitations and workarounds
+
 ## 2025-12-11
 
 ## 2025-12-05
