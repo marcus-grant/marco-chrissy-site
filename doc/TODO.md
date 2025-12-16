@@ -110,14 +110,18 @@ For detailed planning guidance, templates, and examples, see: **[`PLANNING.md`](
 - [x] Commit: `Tst: Verify theme system with existing test suite`
 
 **Phase 3: Critical Bug Fixes (BLOCKING MVP)** ✅ COMPLETED
-- [x] **RESOLVED: Photo link URLs were already correct**
-  - [x] **Analysis**: Template plugin correctly generates `../pics/full/{filename}` relative paths
-  - [x] **Testing**: Added comprehensive URL generation tests covering relative and production scenarios
-  - [x] **Result**: No fix needed - URL generation was working correctly
-- [x] **FIXED: Gallery index files missing**
-  - [x] **Implementation**: Added `_generate_gallery_index_html()` method to BasicTemplatePlugin
-  - [x] **Solution**: Generate index.html with meta refresh redirect to page_1.html
-  - [x] **Testing**: Added failing test, implemented fix, verified all tests pass
+- [x] **FIXED: Photo link URLs generating incorrect paths** *(2025-12-16 - ACTUALLY FIXED)*
+  - [x] **Root Cause**: URL filter returned relative paths early instead of applying file type detection to bare filenames
+  - [x] **Real Issue**: Manifest provides `dest_path` as bare filename, but URL filter only applied file extension logic to absolute paths
+  - [x] **Solution**: Modified `_make_relative_path()` to apply file type detection to all bare filenames (no directory separators)
+  - [x] **Testing**: Created regression test with real manifest data structure, verified fix works in browser
+  - [x] **Result**: Photo URLs now correctly generate `/pics/full/filename.jpg` instead of `/filename.jpg`
+  - [x] **Additional**: Updated tests to use proper fixtures instead of hardcoded production data
+- [x] **FIXED: Gallery directory access returning 404**
+  - [x] **Root Cause**: Proxy server transformed `/galleries/wedding/` to `/` instead of `/index.html`
+  - [x] **Solution**: Updated proxy URL transformation to map directory access to `/index.html`
+  - [x] **Template Fix**: Added `_generate_gallery_index_html()` method for redirect pages
+  - [x] **Testing**: Added URL transformation logic tests, verified all scenarios work
   - [x] **Result**: Gallery directories now handle `/galleries/wedding/` access correctly
 
 **Phase 4: Integration & Documentation** ✅ COMPLETED

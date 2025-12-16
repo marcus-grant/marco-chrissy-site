@@ -42,21 +42,23 @@ def _make_relative_path(path: str) -> str:
     if not path:
         return path
 
-    # If already relative, return as-is
-    if not os.path.isabs(path):
-        return path
+    # If it's an absolute path, try to extract parts after 'output' directory
+    if os.path.isabs(path):
+        path_parts = path.split(os.sep)
+        try:
+            # Find the 'output' directory in the path
+            output_index = path_parts.index('output')
+            # Get everything after 'output'
+            relative_parts = path_parts[output_index + 1:]
+            return '/'.join(relative_parts)
+        except ValueError:
+            # 'output' not found in absolute path, fall through to file type detection
+            pass
 
-    # Extract parts after 'output' directory
-    path_parts = path.split(os.sep)
-
-    try:
-        # Find the 'output' directory in the path
-        output_index = path_parts.index('output')
-        # Get everything after 'output'
-        relative_parts = path_parts[output_index + 1:]
-        return '/'.join(relative_parts)
-    except ValueError:
-        # 'output' not found in path, determine URL based on file type
+    # For relative paths OR absolute paths without 'output', check if it needs file type detection
+    # Only apply file type detection if it's a bare filename (no directory separators)
+    if os.sep not in path and '/' not in path:
+        # This is a bare filename, apply file type detection
         filename = os.path.basename(path)
 
         # For photos (jpg, jpeg), they should be in pics/full/
@@ -69,3 +71,6 @@ def _make_relative_path(path: str) -> str:
         else:
             # Fallback to just filename
             return filename
+    else:
+        # This is a relative path with directory structure, preserve it
+        return path

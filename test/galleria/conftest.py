@@ -514,6 +514,75 @@ def complete_serving_scenario(
 
 
 # =============================================================================
+# Plugin Context Test Fixtures
+# =============================================================================
+
+
+@pytest.fixture
+def plugin_context_factory():
+    """Factory for creating PluginContext objects for testing."""
+    from build.context import BuildContext
+    from galleria.plugins.base import PluginContext
+
+    def _create_context(
+        photos: list[dict[str, Any]] | None = None,
+        collection_name: str = "test_gallery",
+        config: dict[str, Any] | None = None,
+        metadata: dict[str, Any] | None = None,
+        build_context: BuildContext | None = None,
+        site_url: str = "http://localhost:8000",
+        output_dir: Path | None = None,
+    ) -> PluginContext:
+        """Create a PluginContext for testing.
+
+        Args:
+            photos: List of photo data, uses defaults if None
+            collection_name: Name of the gallery collection
+            config: Plugin configuration dict
+            metadata: Additional metadata dict
+            build_context: BuildContext for production/development
+            site_url: Base site URL for URL generation
+            output_dir: Output directory path
+
+        Returns:
+            PluginContext configured for testing
+        """
+        if photos is None:
+            photos = [
+                {
+                    "source_path": "/fake/source/IMG_001.jpg",
+                    "thumbnail_path": "/fake/thumbnails/IMG_001.webp",
+                    "dest_path": "IMG_001.jpg",  # Real manifest provides just filename
+                }
+            ]
+
+        if config is None:
+            config = {}
+
+        if metadata is None:
+            metadata = {}
+
+        # Add build context and site URL to metadata if provided
+        if build_context is not None:
+            metadata["build_context"] = build_context
+        if site_url:
+            metadata["site_url"] = site_url
+
+        return PluginContext(
+            input_data={
+                "pages": [photos],
+                "collection_name": collection_name,
+                "total_photos": len(photos),
+            },
+            config=config,
+            output_dir=output_dir or Path("/fake/output"),
+            metadata=metadata,
+        )
+
+    return _create_context
+
+
+# =============================================================================
 # File Watcher Test Fixtures
 # =============================================================================
 

@@ -22,9 +22,10 @@
 
 ### Fixed
 
-- Gallery directory access now generates index.html with redirect to page_1.html
-- Fixed 404 errors when accessing /galleries/wedding/ URLs without page number
-- Photo URL generation already correctly generates ../pics/full/ relative paths
+- Photo URL generation bug - links now correctly point to /pics/full/{filename} instead of /{filename}
+- URL filter now properly handles bare filenames from manifest data using file extension detection
+- Gallery directory access now generates index.html with redirect to page_1.html for /galleries/wedding/ URLs
+- Template plugin tests now use proper fixtures instead of hardcoded production data
 - Added comprehensive tests for URL generation edge cases and bugs
 
 ### Documentation
