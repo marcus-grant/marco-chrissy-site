@@ -98,7 +98,7 @@ For detailed planning guidance, templates, and examples, see: **[`PLANNING.md`](
 - [x] Refactor for better design (keeping tests green)
 - [x] `uv run ruff check --fix --unsafe-fixes && uv run pytest`
 - [x] Update TODO.md and CHANGELOG.md
-- [ ] Commit: `Ref: Replace hardcoded CSS with theme files`
+- [x] Commit: `Ref: Replace hardcoded CSS with theme files`
 
 *Cycle 5: Test Migration & Cleanup*
 - [x] Port all failing tests identified throughout cycles to work with theme system: **NO PORTING NEEDED** - fallback implementation preserves original behavior
@@ -107,7 +107,7 @@ For detailed planning guidance, templates, and examples, see: **[`PLANNING.md`](
 - [x] Refactor for better design (keeping tests green): **COMPLETED** with proper fallback pattern
 - [x] `uv run ruff check --fix --unsafe-fixes && uv run pytest`: **ALL TESTS PASSING**
 - [x] Update TODO.md and CHANGELOG.md
-- [ ] Commit: `Tst: Verify theme system with existing test suite`
+- [x] Commit: `Tst: Verify theme system with existing test suite`
 
 **Phase 3: Integration & Documentation**
 - [ ] Remove `@pytest.mark.skip` from integration test
