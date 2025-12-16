@@ -11,6 +11,7 @@
 - Jinja2 template loading from theme files via TemplateLoader
 - CSS file loading from theme static/css directory
 - Fallback to hardcoded templates/CSS when theme_path not configured
+- Gallery index.html generation for paginated galleries to handle directory access
 
 ### Changed
 
@@ -18,6 +19,13 @@
 - BasicTemplatePlugin now supports theme_path configuration for external templates  
 - BasicCSSPlugin now supports theme_path configuration for external CSS files
 - Template and CSS plugins maintain backward compatibility with hardcoded fallbacks
+
+### Fixed
+
+- Gallery directory access now generates index.html with redirect to page_1.html
+- Fixed 404 errors when accessing /galleries/wedding/ URLs without page number
+- Photo URL generation already correctly generates ../pics/full/ relative paths
+- Added comprehensive tests for URL generation edge cases and bugs
 
 ### Documentation
 

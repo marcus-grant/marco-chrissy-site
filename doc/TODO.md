@@ -109,16 +109,27 @@ For detailed planning guidance, templates, and examples, see: **[`PLANNING.md`](
 - [x] Update TODO.md and CHANGELOG.md
 - [x] Commit: `Tst: Verify theme system with existing test suite`
 
-**Phase 3: Integration & Documentation**
-- [ ] Remove `@pytest.mark.skip` from integration test
-- [ ] Verify integration test passes (if not, return to Phase 2)
-- [ ] Update relevant documentation in `doc/modules/galleria/`
-- [ ] Ensure documentation links are maintained
-- [ ] `uv run ruff check --fix --unsafe-fixes && uv run pytest`
-- [ ] Update TODO.md and CHANGELOG.md
-- [ ] Commit: `Doc: Update template documentation for theme system`
+**Phase 3: Critical Bug Fixes (BLOCKING MVP)** ✅ COMPLETED
+- [x] **RESOLVED: Photo link URLs were already correct**
+  - [x] **Analysis**: Template plugin correctly generates `../pics/full/{filename}` relative paths
+  - [x] **Testing**: Added comprehensive URL generation tests covering relative and production scenarios
+  - [x] **Result**: No fix needed - URL generation was working correctly
+- [x] **FIXED: Gallery index files missing**
+  - [x] **Implementation**: Added `_generate_gallery_index_html()` method to BasicTemplatePlugin
+  - [x] **Solution**: Generate index.html with meta refresh redirect to page_1.html
+  - [x] **Testing**: Added failing test, implemented fix, verified all tests pass
+  - [x] **Result**: Gallery directories now handle `/galleries/wedding/` access correctly
 
-**Phase 4: PR Creation**
+**Phase 4: Integration & Documentation** ✅ COMPLETED
+- [x] Remove `@pytest.mark.skip` from integration test
+- [x] Verify integration test passes (if not, return to Phase 2)
+- [x] Update relevant documentation in `doc/modules/galleria/`
+- [x] Ensure documentation links are maintained
+- [x] `uv run ruff check --fix --unsafe-fixes && uv run pytest`
+- [x] Update TODO.md and CHANGELOG.md
+- [x] Commit: `Doc: Enable theme integration test and update docs`
+
+**Phase 5: PR Creation**
 - [ ] `gh pr create --title "Feat: File-based theme system" --body "Replaces hardcoded templates/CSS with configurable theme files"`
 
 ### Phase 5: Performance Baseline
@@ -279,6 +290,9 @@ For detailed planning guidance, templates, and examples, see: **[`PLANNING.md`](
   - [ ] Template plugin errors (missing themes, invalid syntax, rendering failures)
   - [ ] Pipeline integration errors (plugin loading, dependency conflicts, crashes)
   - [ ] System-level errors (permissions, disk space, memory issues)
+- [ ] **Gallery URL routing improvements** (moved to MVP as critical issues)
+  - [ ] **Solution**: Create `/galleries/index.html` that lists all galleries with preview thumbnails
+  - [ ] **Solution**: Consider URL rewriting so `/galleries/wedding/` automatically serves first page
 - [ ] Dark mode toggle (CSS variables + minimal JS)
 - [ ] Gallery performance optimization
   - [ ] Implement lazy loading with JS
