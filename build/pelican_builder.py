@@ -61,6 +61,9 @@ class PelicanBuilder:
                 'PATH': str(content_dir),
                 'OUTPUT_PATH': str(base_dir / site_config.get('output_dir', 'output')),
                 'THEME': pelican_config.get('theme', 'notmyidea'),
+                
+                # Enable jinja2content plugin for template includes in Markdown
+                'PLUGINS': ['jinja2content'],
 
                 # File handling settings - allow overwriting existing files  
                 'DELETE_OUTPUT_DIRECTORY': False,
@@ -97,9 +100,19 @@ class PelicanBuilder:
                     # Use configure_pelican_shared_templates for proper template precedence
                     template_dirs = configure_pelican_shared_templates(temp_config_path)
                     if template_dirs:
-                        pelican_settings_dict['JINJA_ENVIRONMENT'] = {
-                            'loader': jinja2.FileSystemLoader(template_dirs)
-                        }
+                        # Convert relative paths to absolute paths for proper resolution
+                        absolute_template_dirs = []
+                        for template_dir in template_dirs:
+                            if not Path(template_dir).is_absolute():
+                                absolute_path = str(base_dir / template_dir)
+                            else:
+                                absolute_path = template_dir
+                            absolute_template_dirs.append(absolute_path)
+                        
+                        # Set template paths for theme templates
+                        pelican_settings_dict['THEME_TEMPLATES_OVERRIDES'] = absolute_template_dirs
+                        # Set template paths for jinja2content plugin (for includes in Markdown)
+                        pelican_settings_dict['JINJA2CONTENT_TEMPLATES'] = absolute_template_dirs
                 finally:
                     # Clean up temporary file
                     Path(temp_config_path).unlink(missing_ok=True)
