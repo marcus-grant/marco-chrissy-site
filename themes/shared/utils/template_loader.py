@@ -4,6 +4,8 @@ from pathlib import Path
 
 import jinja2
 
+from defaults import get_shared_template_paths
+
 
 def configure_pelican_shared_templates(config_path: str) -> list[str]:
     """Configure Pelican Jinja2 environment to include shared template paths.
@@ -21,10 +23,14 @@ def configure_pelican_shared_templates(config_path: str) -> list[str]:
 
     template_dirs = []
 
-    # Add shared templates if configured
+    # Add shared templates if configured, otherwise use defaults
     if "SHARED_THEME_PATH" in config:
         shared_templates = Path(config["SHARED_THEME_PATH"]) / "templates"
         template_dirs.append(str(shared_templates))
+    else:
+        # Use default shared template paths
+        default_paths = [str(path) for path in get_shared_template_paths()]
+        template_dirs.extend(default_paths)
 
     # Add theme-specific templates
     if "THEME" in config:
@@ -56,7 +62,12 @@ class GalleriaSharedTemplateLoader:
 
         # 2. External/shared templates (lower precedence)
         external_templates = config.get("theme", {}).get("external_templates", [])
-        search_paths.extend(external_templates)
+        if external_templates:
+            search_paths.extend(external_templates)
+        else:
+            # Use default shared template paths if no external templates configured
+            default_paths = [str(path) for path in get_shared_template_paths()]
+            search_paths.extend(default_paths)
 
         # Create Jinja2 environment with search paths
         loader = jinja2.FileSystemLoader(search_paths)

@@ -88,13 +88,13 @@ Critical Issues:
 
 *Cycle 4: Add Shared Component Path Defaults*
 
-- [ ] Write unit test for shared component path getters that fails
-- [ ] Add `get_shared_template_paths()` and `get_shared_css_paths()` to defaults.py
-- [ ] Update `themes/shared/utils/template_loader.py` to use defaults
-- [ ] Update `themes/shared/utils/asset_manager.py` to use defaults
-- [ ] Test that functions return lists of Path objects for external compatibility
-- [ ] `uv run ruff check --fix --unsafe-fixes && uv run pytest`
-- [ ] Update TODO.md and CHANGELOG.md
+- [x] Write unit test for shared component path getters that fails
+- [x] Add `get_shared_template_paths()` and `get_shared_css_paths()` to defaults.py
+- [x] Update `themes/shared/utils/template_loader.py` to use defaults
+- [x] Update `themes/shared/utils/asset_manager.py` to use defaults
+- [x] Test that functions return lists of Path objects for external compatibility
+- [x] `uv run ruff check --fix --unsafe-fixes && uv run pytest`
+- [x] Update TODO.md and CHANGELOG.md
 - [ ] Commit: `Ft: Add shared component path defaults for external usage`
 
 *Cycle 5: Add True Shared Component Integration Tests*

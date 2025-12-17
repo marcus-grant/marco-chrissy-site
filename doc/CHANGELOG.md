@@ -21,6 +21,13 @@
 - Fixed build command mocking in serve tests preventing real command execution
 - All serve command unit tests now pass without test isolation issues
 
+### Added
+
+- Added get_shared_template_paths() and get_shared_css_paths() to defaults module
+- Enhanced template_loader.py to use defaults when no external templates configured
+- Extended asset_manager.py with shared CSS file handling using defaults
+- Functions return Path objects for external package compatibility
+
 ### Planning
 
 - Restructured TODO.md to fix shared component integration failures
