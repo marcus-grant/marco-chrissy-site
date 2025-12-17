@@ -36,6 +36,12 @@
 - Used existing fixtures (full_config_setup, file_factory) for proper test setup
 - Test currently skipped as shared component build integration not implemented
 
+### Fixed
+
+- Added Pelican shared template integration via SHARED_THEME_PATH config
+- Pelican builder now configures Jinja2 environment for shared templates  
+- Unit tests verify Pelican uses shared templates when configured
+
 ### Planning
 
 - Restructured TODO.md to fix shared component integration failures

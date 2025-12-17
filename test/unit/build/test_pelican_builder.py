@@ -92,3 +92,63 @@ class TestPelicanBuilderURLOverride:
                 settings_dict = mock_configure.call_args[0][0]
                 assert settings_dict['SITEURL'] == override_url
                 assert result is True
+
+    def test_build_configures_shared_theme_paths(self, shared_theme_dirs, file_factory, mock_site_config, config_file_factory):
+        """Test that build configures Pelican to use shared theme paths when SHARED_THEME_PATH is provided."""
+        from unittest.mock import patch
+        
+        # Use shared_theme_dirs fixture to create standard shared theme structure
+        theme_dirs = shared_theme_dirs()
+        shared_templates = theme_dirs["shared_templates"]
+        
+        # Create shared navbar using file_factory
+        navbar_template = file_factory(
+            "themes/shared/templates/navbar.html",
+            '<nav class="shared-nav">Test Navbar</nav>'
+        )
+        
+        # Create pelican config with shared theme path using config_file_factory
+        pelican_config_path = config_file_factory("pelican", {
+            "author": "Test Author", 
+            "sitename": "Test Site",
+            "content_path": "content",
+            "SHARED_THEME_PATH": str(shared_templates.parent)  # Point to themes/shared dir
+        })
+        
+        # Load the config for the test
+        import json
+        with open(pelican_config_path) as f:
+            pelican_config = json.load(f)
+        
+        # Create content with shared template include using file_factory
+        page_content = """Title: Test Page
+Date: 2023-01-01
+
+Test content with navbar: {% include 'navbar.html' %}
+"""
+        file_factory("content/test.md", content=page_content)
+        
+        builder = PelicanBuilder()
+        
+        with patch('build.pelican_builder.pelican.Pelican') as mock_pelican_class:
+            with patch('build.pelican_builder.configure_settings') as mock_configure:
+                mock_configure.return_value = {}
+                mock_pelican_class.return_value.run.return_value = None
+                
+                # Get temp filesystem from fixture (available via shared_theme_dirs)
+                temp_dir = shared_templates.parents[1]  # Go up to get base temp dir
+                
+                result = builder.build(mock_site_config, pelican_config, temp_dir)
+                
+                # Verify configure_settings was called with shared template paths
+                mock_configure.assert_called_once()
+                settings_dict = mock_configure.call_args[0][0]
+                
+                # Should include shared template paths in JINJA_ENVIRONMENT settings
+                assert 'JINJA_ENVIRONMENT' in settings_dict, "JINJA_ENVIRONMENT should be configured for shared templates"
+                jinja_env = settings_dict['JINJA_ENVIRONMENT']
+                
+                # Check that shared templates directory is in the loader search paths
+                loader_search_paths = jinja_env['loader'].searchpath
+                assert str(shared_templates) in loader_search_paths, "Shared template path should be in Jinja loader search paths"
+                assert result is True

@@ -5,8 +5,11 @@ import tempfile
 from pathlib import Path
 
 import pelican
+import jinja2
 from pelican.settings import DEFAULT_CONFIG, configure_settings
 from .exceptions import PelicanError
+from defaults import get_shared_template_paths
+from themes.shared.utils.template_loader import configure_pelican_shared_templates
 
 
 class PelicanBuilder:
@@ -81,7 +84,17 @@ class PelicanBuilder:
                 'DIRECT_TEMPLATES': ['index', 'archives', 'tags', 'categories'],
                 'INDEX_SAVE_AS': '' if has_index_content else 'index.html',
             })
-
+            
+            # Configure shared template paths only when explicitly provided
+            if 'SHARED_THEME_PATH' in pelican_config:
+                shared_path = Path(pelican_config['SHARED_THEME_PATH'])
+                shared_templates_dir = shared_path / 'templates'
+                
+                if shared_templates_dir.exists():
+                    pelican_settings_dict['JINJA_ENVIRONMENT'] = {
+                        'loader': jinja2.FileSystemLoader([str(shared_templates_dir)])
+                    }
+            
             # Remove any existing index.html that would conflict with Pelican
             output_path = base_dir / site_config.get('output_dir', 'output')
             index_path = output_path / 'index.html'
