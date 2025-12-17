@@ -8,6 +8,12 @@
 - Implemented get_output_dir() function returning Path object for testability
 - Added comprehensive unit test coverage for defaults module path configuration
 
+### Fixed
+
+- Replaced hardcoded "output" path with defaults.get_output_dir() in serve command
+- Added unit test for serve command defaults usage ensuring proper mockability
+- Removed hardcoded path dependencies breaking test isolation
+
 ### Planning
 
 - Restructured TODO.md to fix shared component integration failures

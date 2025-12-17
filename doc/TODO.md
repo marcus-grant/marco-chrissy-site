@@ -67,12 +67,12 @@ Critical Issues:
 
 *Cycle 2: Fix Serve Command Hardcoded Path*
 
-- [ ] Write unit test for serve command using `get_output_dir()` that fails
-- [ ] Update `cli/commands/serve.py` to import and use `defaults.get_output_dir()`
-- [ ] Replace `if not os.path.exists("output"):` with `if not get_output_dir().exists():`
-- [ ] Replace second `os.path.exists("output")` with same pattern
-- [ ] `uv run ruff check --fix --unsafe-fixes && uv run pytest`
-- [ ] Update TODO.md and CHANGELOG.md
+- [x] Write unit test for serve command using `get_output_dir()` that fails
+- [x] Update `cli/commands/serve.py` to import and use `defaults.get_output_dir()`
+- [x] Replace `if not os.path.exists("output"):` with `if not get_output_dir().exists():`
+- [x] Replace second `os.path.exists("output")` with same pattern
+- [x] `uv run ruff check --fix --unsafe-fixes && uv run pytest`
+- [x] Update TODO.md and CHANGELOG.md
 - [ ] Commit: `Fix: Replace hardcoded output path with defaults module`
 
 *Cycle 3: Remove Skip Decorators and Fix Serve Tests*
