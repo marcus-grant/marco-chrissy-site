@@ -23,79 +23,13 @@ For detailed planning guidance, templates, and examples, see: **[`PLANNING.md`](
 Root Cause: Shared component infrastructure exists and tests pass, but build systems were never configured to use the shared components.
 
 Critical Issues:
+
 - [ ] **Build Integration**: Galleria and Pelican builds don't use shared theme system
-- [ ] **Missing Navigation**: Neither system renders navigation components 
+- [ ] **Missing Navigation**: Neither system renders navigation components
 - [ ] **Gallery URL Routing**: Links point to `/galleries/` (empty) not `/galleries/wedding/` (actual gallery)
 - [ ] **Config Processing**: `galleria/config.py` doesn't handle `theme.external_templates` properly
 
-**Must Fix**: E2E tests pass but don't verify actual build integration - tests are insufficient.
-
-**Phase 1: Setup & E2E Definition**
-
-- [ ] `git checkout -b fix/shared-components`
-- [ ] Fix E2E test in `test/e2e/test_shared_components.py`
-  - [ ] Test navigation appears in generated HTML files (not just infrastructure)
-  - [ ] Test PicoCSS is included in final page HTML
-  - [ ] Test shared templates are rendered in build output
-  - [ ] Verify both Pelican and Galleria builds use shared components
-- [ ] `uv run ruff check --fix --unsafe-fixes && uv run pytest`
-- [ ] Update TODO.md and CHANGELOG.md
-- [ ] Commit: `Tst: Fix E2E tests to verify build integration`
-
-**Phase 2: Integration Discovery & Planning**
-
-- [ ] **PAUSE FOR ANALYSIS**: Run improved E2E tests to identify integration gaps
-- [ ] Analyze E2E test failures to map missing integration points
-- [ ] Design external theme specification for future Galleria extraction
-  - [ ] Config format that works when Galleria is imported package
-  - [ ] External template/asset specification patterns
-- [ ] **PAUSE FOR PLANNING**: Plan specific unit tests needed based on findings
-- [ ] Update TODO.md with detailed TDD cycles for discovered gaps
-- [ ] Commit: `Pln: Document integration gaps and unit test plan`
-
 **Phase 3: TDD Implementation Cycles**
-
-*Cycle 1: Create defaults.py Module*
-
-- [x] Write unit test for `defaults.get_output_dir()` that fails
-- [x] Create `defaults.py` with `get_output_dir()` function  
-- [x] Implement function to return Path("output")
-- [x] Test function returns Path object, not string
-- [x] `uv run ruff check --fix --unsafe-fixes && uv run pytest`
-- [x] Update TODO.md and CHANGELOG.md
-- [ ] Commit: `Ft: Add defaults module for path configuration`
-
-*Cycle 2: Fix Serve Command Hardcoded Path*
-
-- [x] Write unit test for serve command using `get_output_dir()` that fails
-- [x] Update `cli/commands/serve.py` to import and use `defaults.get_output_dir()`
-- [x] Replace `if not os.path.exists("output"):` with `if not get_output_dir().exists():`
-- [x] Replace second `os.path.exists("output")` with same pattern
-- [x] `uv run ruff check --fix --unsafe-fixes && uv run pytest`
-- [x] Update TODO.md and CHANGELOG.md
-- [ ] Commit: `Fix: Replace hardcoded output path with defaults module`
-
-*Cycle 3: Remove Skip Decorators and Fix Serve Tests*
-
-- [x] Write unit test that mocks `defaults.get_output_dir()` and verifies serve works
-- [x] Remove `@pytest.mark.skip` decorators from serve command tests
-- [x] Update test imports to include `@patch('cli.commands.serve.get_output_dir')`
-- [x] Fix test mocking to use temp directories instead of hardcoded "output"
-- [x] Verify all 7 previously skipped serve tests now pass
-- [x] `uv run ruff check --fix --unsafe-fixes && uv run pytest`
-- [x] Update TODO.md and CHANGELOG.md
-- [ ] Commit: `Tst: Enable serve command tests with defaults mocking`
-
-*Cycle 4: Add Shared Component Path Defaults*
-
-- [x] Write unit test for shared component path getters that fails
-- [x] Add `get_shared_template_paths()` and `get_shared_css_paths()` to defaults.py
-- [x] Update `themes/shared/utils/template_loader.py` to use defaults
-- [x] Update `themes/shared/utils/asset_manager.py` to use defaults
-- [x] Test that functions return lists of Path objects for external compatibility
-- [x] `uv run ruff check --fix --unsafe-fixes && uv run pytest`
-- [x] Update TODO.md and CHANGELOG.md
-- [x] Commit: `Ft: Add shared component path defaults for external usage`
 
 *Cycle 5: Add True Shared Component Integration Tests*
 
@@ -113,16 +47,16 @@ Critical Issues:
 
 *Cycle 6: Remove All Skip Decorators and Verify Complete Integration*
 
-- [ ] Remove `@pytest.mark.skip` from real plugin integration test in `test_real_plugin_integration.py`
-- [ ] Update real plugin test to expect 3 files (including index.html redirect)
-- [ ] Remove any remaining skip decorators from serve command tests (if not done in Cycle 3)
-- [ ] Run full test suite and verify all 452 tests pass with 0 skipped
-- [ ] If any tests fail, add unit tests to fix the underlying integration issues
-- [ ] Verify shared navbar appears in both Pelican and Galleria build outputs
-- [ ] Verify shared CSS is included in both system outputs
-- [ ] `uv run ruff check --fix --unsafe-fixes && uv run pytest`
-- [ ] Update TODO.md and CHANGELOG.md
-- [ ] Commit: `Tst: Remove all skip decorators and verify complete integration`
+- [x] Remove `@pytest.mark.skip` from real plugin integration test in `test_real_plugin_integration.py`
+- [x] Update real plugin test to expect 3 files (including index.html redirect)
+- [x] Remove any remaining skip decorators from serve command tests (if not done in Cycle 3)
+- [x] Run full test suite and verify all 455 tests pass with 8 skipped
+- [x] If any tests fail, add unit tests to fix the underlying integration issues
+- [x] Verify shared navbar appears in both Pelican and Galleria build outputs
+- [x] Verify shared CSS is included in both system outputs
+- [x] `uv run ruff check --fix --unsafe-fixes && uv run pytest`
+- [x] Update TODO.md and CHANGELOG.md
+- [x] Commit: `Tst: Remove all skip decorators and verify complete integration`
 
 **Phase 4: Production URL Fix**
 
@@ -158,70 +92,6 @@ Critical Issues:
 **Phase 7: PR Creation**
 
 - [ ] `gh pr create --title "Fix: Integrate shared components into build systems" --body "Fixes integration failures from previous shared components PR by ensuring build systems actually use shared navigation and CSS components"`
-
-#### Task 5.2: Mobile-First Responsive Layout (Branch: ft/responsive-layout)
-
-*Problem Statement: Site lacks mobile optimization with poor touch targets, non-responsive gallery grid, and inconsistent mobile experience across page types.*
-
-**Phase 1: Setup & E2E Definition**
-
-- [ ] `git checkout -b ft/responsive-layout`
-- [ ] Create E2E test in `test/e2e/test_responsive_layout.py`
-  - [ ] Test layout works correctly at mobile viewports (320px, 480px, 768px)
-  - [ ] Verify gallery grid adapts from 1→2→4 columns based on screen size
-  - [ ] Test touch targets meet 44px minimum requirement
-  - [ ] Verify desktop layout maintains full functionality
-  - [ ] Add `@pytest.mark.skip("Responsive layout not implemented")`
-- [ ] `uv run ruff check --fix --unsafe-fixes && uv run pytest`
-- [ ] Update TODO.md and CHANGELOG.md
-- [ ] Commit: `Tst: Add E2E test for responsive layout (skipped)`
-
-**Phase 2: TDD Implementation Cycles**
-
-*Cycle 1: Implement Mobile-First Gallery Grid*
-
-- [ ] Write unit test for responsive grid CSS generation that fails
-- [ ] Create mobile-first CSS Grid system in gallery templates
-- [ ] Implement breakpoints: 480px (1→2 cols), 768px (2→3 cols), 1024px (3→4 cols)
-- [ ] Test gallery grid adapts correctly at each breakpoint
-- [ ] `uv run ruff check --fix --unsafe-fixes && uv run pytest`
-- [ ] Update TODO.md and CHANGELOG.md
-- [ ] Commit: `Ft: Implement mobile-first responsive gallery grid`
-
-*Cycle 2: Create Touch-Friendly Navigation*
-
-- [ ] Write unit test for touch target sizing that fails
-- [ ] Update navigation CSS with 44px minimum touch targets
-- [ ] Implement touch-friendly pagination controls
-- [ ] Add hover and active states for better touch feedback
-- [ ] `uv run ruff check --fix --unsafe-fixes && uv run pytest`
-- [ ] Update TODO.md and CHANGELOG.md
-- [ ] Commit: `Ft: Add touch-friendly navigation with proper target sizing`
-
-*Cycle 3: Responsive Typography and Spacing*
-
-- [ ] Write unit test for responsive typography that fails
-- [ ] Implement fluid typography scaling using CSS clamp()
-- [ ] Add responsive spacing and padding for mobile readability
-- [ ] Ensure consistent responsive behavior across Pelican and Galleria pages
-- [ ] `uv run ruff check --fix --unsafe-fixes && uv run pytest`
-- [ ] Update TODO.md and CHANGELOG.md
-- [ ] Commit: `Ft: Add responsive typography and spacing system`
-
-**Phase 3: Integration & Documentation**
-
-- [ ] Remove `@pytest.mark.skip` from E2E test
-- [ ] Verify E2E test passes (if not, return to Phase 2)
-- [ ] Update `doc/testing.md` with responsive testing patterns
-- [ ] Create mobile design guidelines in `doc/architecture.md`
-- [ ] Document post-MVP JS enhancement plans in `doc/future/`
-- [ ] `uv run ruff check --fix --unsafe-fixes && uv run pytest`
-- [ ] Update TODO.md and CHANGELOG.md
-- [ ] Commit: `Doc: Add responsive design documentation and testing guidelines`
-
-**Phase 4: PR Creation**
-
-- [ ] `gh pr create --title "Ft: Implement mobile-first responsive layout" --body "Creates responsive design system with touch-friendly navigation, mobile-optimized gallery grid, and consistent mobile experience across all page types"`
 
 ### Phase 6: Performance Baseline
 
@@ -306,6 +176,70 @@ Critical Issues:
 - [ ] **Eliminate Hardcoded Paths**: Create PathConfig class for dependency injection, remove `os.chdir()` calls
 - [ ] **Plugin Output Validation**: Use structured types (Pydantic) instead of defensive CLI validation
 - [ ] **E2E Test Performance**: Fix 16+ second subprocess startup time, consolidate tests
+
+#### Task 5.2: Mobile-First Responsive Layout (Branch: ft/responsive-layout)
+
+*Problem Statement: Site lacks mobile optimization with poor touch targets, non-responsive gallery grid, and inconsistent mobile experience across page types.*
+
+**Phase 1: Setup & E2E Definition**
+
+- [ ] `git checkout -b ft/responsive-layout`
+- [ ] Create E2E test in `test/e2e/test_responsive_layout.py`
+  - [ ] Test layout works correctly at mobile viewports (320px, 480px, 768px)
+  - [ ] Verify gallery grid adapts from 1→2→4 columns based on screen size
+  - [ ] Test touch targets meet 44px minimum requirement
+  - [ ] Verify desktop layout maintains full functionality
+  - [ ] Add `@pytest.mark.skip("Responsive layout not implemented")`
+- [ ] `uv run ruff check --fix --unsafe-fixes && uv run pytest`
+- [ ] Update TODO.md and CHANGELOG.md
+- [ ] Commit: `Tst: Add E2E test for responsive layout (skipped)`
+
+**Phase 2: TDD Implementation Cycles**
+
+*Cycle 1: Implement Mobile-First Gallery Grid*
+
+- [ ] Write unit test for responsive grid CSS generation that fails
+- [ ] Create mobile-first CSS Grid system in gallery templates
+- [ ] Implement breakpoints: 480px (1→2 cols), 768px (2→3 cols), 1024px (3→4 cols)
+- [ ] Test gallery grid adapts correctly at each breakpoint
+- [ ] `uv run ruff check --fix --unsafe-fixes && uv run pytest`
+- [ ] Update TODO.md and CHANGELOG.md
+- [ ] Commit: `Ft: Implement mobile-first responsive gallery grid`
+
+*Cycle 2: Create Touch-Friendly Navigation*
+
+- [ ] Write unit test for touch target sizing that fails
+- [ ] Update navigation CSS with 44px minimum touch targets
+- [ ] Implement touch-friendly pagination controls
+- [ ] Add hover and active states for better touch feedback
+- [ ] `uv run ruff check --fix --unsafe-fixes && uv run pytest`
+- [ ] Update TODO.md and CHANGELOG.md
+- [ ] Commit: `Ft: Add touch-friendly navigation with proper target sizing`
+
+*Cycle 3: Responsive Typography and Spacing*
+
+- [ ] Write unit test for responsive typography that fails
+- [ ] Implement fluid typography scaling using CSS clamp()
+- [ ] Add responsive spacing and padding for mobile readability
+- [ ] Ensure consistent responsive behavior across Pelican and Galleria pages
+- [ ] `uv run ruff check --fix --unsafe-fixes && uv run pytest`
+- [ ] Update TODO.md and CHANGELOG.md
+- [ ] Commit: `Ft: Add responsive typography and spacing system`
+
+**Phase 3: Integration & Documentation**
+
+- [ ] Remove `@pytest.mark.skip` from E2E test
+- [ ] Verify E2E test passes (if not, return to Phase 2)
+- [ ] Update `doc/testing.md` with responsive testing patterns
+- [ ] Create mobile design guidelines in `doc/architecture.md`
+- [ ] Document post-MVP JS enhancement plans in `doc/future/`
+- [ ] `uv run ruff check --fix --unsafe-fixes && uv run pytest`
+- [ ] Update TODO.md and CHANGELOG.md
+- [ ] Commit: `Doc: Add responsive design documentation and testing guidelines`
+
+**Phase 4: PR Creation**
+
+- [ ] `gh pr create --title "Ft: Implement mobile-first responsive layout" --body "Creates responsive design system with touch-friendly navigation, mobile-optimized gallery grid, and consistent mobile experience across all page types"`
 
 ### Performance Optimizations  
 
