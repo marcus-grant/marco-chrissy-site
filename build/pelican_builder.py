@@ -87,13 +87,22 @@ class PelicanBuilder:
             
             # Configure shared template paths only when explicitly provided
             if 'SHARED_THEME_PATH' in pelican_config:
-                shared_path = Path(pelican_config['SHARED_THEME_PATH'])
-                shared_templates_dir = shared_path / 'templates'
+                # Create temporary config file for configure_pelican_shared_templates
+                import json
+                with tempfile.NamedTemporaryFile(mode='w', suffix='.json', delete=False) as temp_config:
+                    json.dump(pelican_config, temp_config)
+                    temp_config_path = temp_config.name
                 
-                if shared_templates_dir.exists():
-                    pelican_settings_dict['JINJA_ENVIRONMENT'] = {
-                        'loader': jinja2.FileSystemLoader([str(shared_templates_dir)])
-                    }
+                try:
+                    # Use configure_pelican_shared_templates for proper template precedence
+                    template_dirs = configure_pelican_shared_templates(temp_config_path)
+                    if template_dirs:
+                        pelican_settings_dict['JINJA_ENVIRONMENT'] = {
+                            'loader': jinja2.FileSystemLoader(template_dirs)
+                        }
+                finally:
+                    # Clean up temporary file
+                    Path(temp_config_path).unlink(missing_ok=True)
             
             # Remove any existing index.html that would conflict with Pelican
             output_path = base_dir / site_config.get('output_dir', 'output')

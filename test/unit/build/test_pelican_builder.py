@@ -152,3 +152,46 @@ Test content with navbar: {% include 'navbar.html' %}
                 loader_search_paths = jinja_env['loader'].searchpath
                 assert str(shared_templates) in loader_search_paths, "Shared template path should be in Jinja loader search paths"
                 assert result is True
+
+    def test_build_uses_proper_template_loader_configuration(self, shared_theme_dirs, file_factory, mock_site_config, config_file_factory):
+        """Test that build uses configure_pelican_shared_templates for proper template precedence."""
+        from unittest.mock import patch, Mock
+        
+        # Use shared_theme_dirs fixture to create standard shared theme structure
+        theme_dirs = shared_theme_dirs()
+        shared_templates = theme_dirs["shared_templates"]
+        
+        # Create pelican config with shared theme path
+        pelican_config_path = config_file_factory("pelican", {
+            "author": "Test Author", 
+            "sitename": "Test Site",
+            "content_path": "content",
+            "theme": "minimal",  # Add theme config
+            "SHARED_THEME_PATH": str(shared_templates.parent)  # Point to themes/shared dir
+        })
+        
+        # Load the config for the test
+        import json
+        with open(pelican_config_path) as f:
+            pelican_config = json.load(f)
+        
+        builder = PelicanBuilder()
+        temp_dir = shared_templates.parents[1]  # Go up to get base temp dir
+        
+        # Mock configure_pelican_shared_templates to verify it's called
+        with patch('build.pelican_builder.configure_pelican_shared_templates') as mock_configure_shared:
+            with patch('build.pelican_builder.pelican.Pelican') as mock_pelican_class:
+                with patch('build.pelican_builder.configure_settings') as mock_configure:
+                    # Mock configure_pelican_shared_templates to return expected paths
+                    mock_configure_shared.return_value = [str(shared_templates), "themes/minimal/templates"]
+                    mock_configure.return_value = {}
+                    mock_pelican_class.return_value.run.return_value = None
+                    
+                    result = builder.build(mock_site_config, pelican_config, temp_dir)
+                    
+                    # Verify configure_pelican_shared_templates was called
+                    mock_configure_shared.assert_called_once()
+                    # Should be called with a config file path (can be temporary file)
+                    call_args = mock_configure_shared.call_args[0]
+                    assert call_args[0].endswith('.json'), "Should be called with a JSON config file"
+                    assert result is True

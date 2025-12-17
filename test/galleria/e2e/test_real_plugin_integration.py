@@ -126,7 +126,7 @@ class TestRealPluginIntegration:
 
         # Verify HTML files were generated from pagination
         html_files = final_output["html_files"]
-        assert len(html_files) == 2  # 3 photos / page_size=2 → 2 pages
+        assert len(html_files) == 3  # 3 photos / page_size=2 → 2 pages + 1 index.html redirect
         assert all("filename" in html_file for html_file in html_files)
 
         # Verify photos were processed through entire pipeline
