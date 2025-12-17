@@ -12,105 +12,87 @@ For detailed planning guidance, templates, and examples, see: **[`PLANNING.md`](
 
 ## MVP Roadmap
 
-### Phase 4: Template & CSS Architecture Fix (Pre-MVP Critical)
-
 ### Phase 5: Site Navigation & Layout Integration
 
-*Problem Statement: Site lacks cohesive navigation between Pelican static pages and Galleria gallery pages, resulting in inconsistent styling and poor user experience. Users cannot easily navigate between static content (/about/) and galleries (/galleries/wedding/), and the two systems use completely separate CSS frameworks with no visual consistency.*
+#### Task 5.1: Fix Shared Component Integration (Branch: fix/shared-components)
 
-#### Task 5.2: Unified Navigation Component (Branch: ft/unified-nav)
+*Problem Statement: Shared component infrastructure exists but build systems don't use it, resulting in missing navigation and inconsistent styling between Pelican and Galleria pages.*
 
-*Problem Statement: Users cannot navigate cohesively between static pages and galleries due to independent navigation systems with no cross-system linking.*
+**❌ INTEGRATION FAILURES - Infrastructure Built But Not Connected**
 
-**❌ CRITICAL: Task 5.1 Integration Failures Blocking 5.2**
+Root Cause: Shared component infrastructure exists and tests pass, but build systems were never configured to use the shared components.
 
-Task 5.1 (Shared Theme Component Foundation) was merged via PR #16 but the **integration is broken**:
+Critical Issues:
+- [ ] **Build Integration**: Galleria and Pelican builds don't use shared theme system
+- [ ] **Missing Navigation**: Neither system renders navigation components 
+- [ ] **Gallery URL Routing**: Links point to `/galleries/` (empty) not `/galleries/wedding/` (actual gallery)
+- [ ] **Config Processing**: `galleria/config.py` doesn't handle `theme.external_templates` properly
 
-**Issues Discovered**:
-- [ ] **Gallery Navigation Missing**: Gallery pages still use hardcoded templates with no shared navigation
-- [ ] **Pelican Navigation Missing**: Static pages have no navigation system whatsoever  
-- [ ] **Gallery URL Routing**: Navigation links to `/galleries/` (empty) instead of `/galleries/wedding/` (actual gallery location)
-- [ ] **Serve Proxy Errors**: `BrokenPipeError` race conditions when serving thumbnails
-- [ ] **Configuration Gap**: `galleria/config.py` doesn't process nested theme objects for `external_templates`
-- [ ] **Build Integration**: Shared components exist but build systems never updated to use them
-
-**Root Cause**: Shared component infrastructure is solid and tested, but the actual build processes were never configured to use the shared components. `GalleriaSharedTemplateLoader` works when tested directly but isn't used by gallery generation.
-
-**Must Fix Before Starting 5.2**: These integration issues block unified navigation implementation since the foundation doesn't work.
+**Must Fix**: E2E tests pass but don't verify actual build integration - tests are insufficient.
 
 **Phase 1: Setup & E2E Definition**
 
-- [ ] `git checkout -b ft/unified-nav`
-- [ ] Create E2E test in `test/e2e/test_unified_navigation.py`
-  - [ ] Test navigation appears consistently on all page types (static and gallery)
-  - [ ] Verify navigation links work between Pelican and Galleria pages
-  - [ ] Test active state highlighting for current page/section
-  - [ ] Test responsive navigation behavior at different screen sizes
-  - [ ] Add `@pytest.mark.skip("Unified navigation not implemented")`
+- [ ] `git checkout -b fix/shared-components`
+- [ ] Fix E2E test in `test/e2e/test_shared_components.py`
+  - [ ] Test navigation appears in generated HTML files (not just infrastructure)
+  - [ ] Test PicoCSS is included in final page HTML
+  - [ ] Test shared templates are rendered in build output
+  - [ ] Verify both Pelican and Galleria builds use shared components
 - [ ] `uv run ruff check --fix --unsafe-fixes && uv run pytest`
 - [ ] Update TODO.md and CHANGELOG.md
-- [ ] Commit: `Tst: Add E2E test for unified navigation (skipped)`
+- [ ] Commit: `Tst: Fix E2E tests to verify build integration`
 
-**Phase 2: TDD Implementation Cycles**
+**Phase 2: Integration Discovery & Planning**
 
-*Cycle 1: Create Shared Navigation Configuration*
+- [ ] **PAUSE FOR ANALYSIS**: Run improved E2E tests to identify integration gaps
+- [ ] Analyze E2E test failures to map missing integration points
+- [ ] Design external theme specification for future Galleria extraction
+  - [ ] Config format that works when Galleria is imported package
+  - [ ] External template/asset specification patterns
+- [ ] **PAUSE FOR PLANNING**: Plan specific unit tests needed based on findings
+- [ ] Update TODO.md with detailed TDD cycles for discovered gaps
+- [ ] Commit: `Pln: Document integration gaps and unit test plan`
 
-- [ ] Write unit test for navigation configuration loading that fails
-- [ ] Create `config/navigation.json` with primary nav and gallery context
-- [ ] Update site configuration loading to include navigation config
-- [ ] Implement navigation config validation
+**Phase 3: TDD Implementation Cycles** 
+
+*[Specific cycles will be added after Phase 2 analysis]*
+
+**Phase 4: Production URL Fix**
+
+- [ ] Find all hardcoded `/galleries/` links in templates/code
+- [ ] Replace with `/galleries/wedding/` links
+- [ ] `uv run ruff check --fix --unsafe-fixes && uv run pytest`
+- [ ] Commit: `Fix: Update gallery links to point to actual gallery`
+
+**Phase 5: Manual Integration Verification**
+
+- [ ] **Manual Build Test**: Guide user through `uv run site build`
+  - [ ] Verify shared navigation appears in output HTML
+  - [ ] Check PicoCSS inclusion in generated pages
+  - [ ] Confirm `/galleries/wedding/` links work
+- [ ] **Manual Serve Test**: Guide user through `uv run site serve`
+  - [ ] Test navigation between Pelican and Galleria pages
+  - [ ] Verify consistent styling across page types
+
+**Phase 6: Documentation Updates**
+
+- [ ] Update existing documents:
+  - [ ] `doc/modules/galleria/themes.md` - External template configuration
+  - [ ] `doc/configuration.md` - Shared theme configuration options
+  - [ ] `doc/architecture.md` - Shared component integration patterns
+- [ ] Create missing documents:
+  - [ ] `doc/modules/shared/README.md` - Shared theme system overview
+  - [ ] `doc/modules/shared/external-integration.md` - External project compatibility
+- [ ] Update navigation in `doc/README.md` to include shared theme docs
 - [ ] `uv run ruff check --fix --unsafe-fixes && uv run pytest`
 - [ ] Update TODO.md and CHANGELOG.md
-- [ ] Commit: `Ft: Add navigation configuration structure`
+- [ ] Commit: `Doc: Add shared component integration documentation`
 
-*Cycle 2: Build Shared Navigation Templates*
+**Phase 7: PR Creation**
 
-- [ ] Write unit test for navigation template rendering that fails
-- [ ] Create `themes/shared/templates/navigation/` directory
-- [ ] Implement `base.html`, `primary.html`, `breadcrumbs.html` templates
-- [ ] Add responsive design with mobile-first approach
-- [ ] `uv run ruff check --fix --unsafe-fixes && uv run pytest`
-- [ ] Update TODO.md and CHANGELOG.md
-- [ ] Commit: `Ft: Create shared navigation templates with responsive design`
+- [ ] `gh pr create --title "Fix: Integrate shared components into build systems" --body "Fixes integration failures from previous shared components PR by ensuring build systems actually use shared navigation and CSS components"`
 
-*Cycle 3: Integrate Navigation into Pelican*
-
-- [ ] Write unit test for Pelican navigation integration that fails
-- [ ] Create custom Pelican theme inheriting from "simple"
-- [ ] Update Pelican `base.html` to include shared navigation templates
-- [ ] Implement Pelican context adapter for navigation data
-- [ ] Test navigation active states for static pages
-- [ ] `uv run ruff check --fix --unsafe-fixes && uv run pytest`
-- [ ] Update TODO.md and CHANGELOG.md
-- [ ] Commit: `Ft: Integrate shared navigation into Pelican pages`
-
-*Cycle 4: Integrate Navigation into Galleria*
-
-- [ ] Write unit test for Galleria navigation integration that fails
-- [ ] Update Galleria templates to include shared navigation
-- [ ] Implement Galleria context adapter for navigation data
-- [ ] Add breadcrumb navigation for gallery context (Home > Galleries > Wedding)
-- [ ] Test navigation works with gallery URL structure
-- [ ] `uv run ruff check --fix --unsafe-fixes && uv run pytest`
-- [ ] Update TODO.md and CHANGELOG.md
-- [ ] Commit: `Ft: Integrate shared navigation into Galleria pages`
-
-**Phase 3: Integration & Documentation**
-
-- [ ] Remove `@pytest.mark.skip` from E2E test
-- [ ] Verify E2E test passes (if not, return to Phase 2)
-- [ ] Update `doc/configuration.md` with navigation configuration options
-- [ ] Update `doc/modules/galleria/themes.md` with template inheritance patterns
-- [ ] Document responsive navigation patterns in architecture docs
-- [ ] `uv run ruff check --fix --unsafe-fixes && uv run pytest`
-- [ ] Update TODO.md and CHANGELOG.md
-- [ ] Commit: `Doc: Update navigation and template integration documentation`
-
-**Phase 4: PR Creation**
-
-- [ ] `gh pr create --title "Ft: Implement unified navigation across all pages" --body "Creates consistent navigation experience between static content and gallery pages with responsive design and proper context awareness"`
-
-#### Task 5.3: Mobile-First Responsive Layout (Branch: ft/responsive-layout)
+#### Task 5.2: Mobile-First Responsive Layout (Branch: ft/responsive-layout)
 
 *Problem Statement: Site lacks mobile optimization with poor touch targets, non-responsive gallery grid, and inconsistent mobile experience across page types.*
 
