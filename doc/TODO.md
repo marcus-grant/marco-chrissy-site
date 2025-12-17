@@ -77,13 +77,13 @@ Critical Issues:
 
 *Cycle 3: Remove Skip Decorators and Fix Serve Tests*
 
-- [ ] Write unit test that mocks `defaults.get_output_dir()` and verifies serve works
-- [ ] Remove `@pytest.mark.skip` decorators from serve command tests
-- [ ] Update test imports to include `@patch('cli.commands.serve.get_output_dir')`
-- [ ] Fix test mocking to use temp directories instead of hardcoded "output"
-- [ ] Verify all 6 previously skipped serve tests now pass
-- [ ] `uv run ruff check --fix --unsafe-fixes && uv run pytest`
-- [ ] Update TODO.md and CHANGELOG.md
+- [x] Write unit test that mocks `defaults.get_output_dir()` and verifies serve works
+- [x] Remove `@pytest.mark.skip` decorators from serve command tests
+- [x] Update test imports to include `@patch('cli.commands.serve.get_output_dir')`
+- [x] Fix test mocking to use temp directories instead of hardcoded "output"
+- [x] Verify all 7 previously skipped serve tests now pass
+- [x] `uv run ruff check --fix --unsafe-fixes && uv run pytest`
+- [x] Update TODO.md and CHANGELOG.md
 - [ ] Commit: `Tst: Enable serve command tests with defaults mocking`
 
 *Cycle 4: Add Shared Component Path Defaults*

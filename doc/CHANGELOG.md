@@ -14,6 +14,13 @@
 - Added unit test for serve command defaults usage ensuring proper mockability
 - Removed hardcoded path dependencies breaking test isolation
 
+### Tests
+
+- Enabled all 7 previously skipped serve command tests with proper mocking
+- Added get_output_dir() mocking to all serve tests for isolation
+- Fixed build command mocking in serve tests preventing real command execution
+- All serve command unit tests now pass without test isolation issues
+
 ### Planning
 
 - Restructured TODO.md to fix shared component integration failures

@@ -1,21 +1,23 @@
 """Unit tests for serve command URL override functionality."""
 
-from pathlib import Path
 from unittest.mock import Mock, patch
-
-import pytest
 
 
 class TestServeCommandURLOverride:
     """Test serve command URL override functionality."""
 
-    @pytest.mark.skip("Serve command uses hardcoded 'output' directory - breaks test isolation")
+    @patch('cli.commands.serve.get_output_dir')
     @patch('cli.commands.serve.ServeOrchestrator')
-    def test_serve_calls_build_with_localhost_url_override(self, mock_orchestrator_class, temp_filesystem):
+    def test_serve_calls_build_with_localhost_url_override(self, mock_orchestrator_class, mock_get_output_dir, temp_filesystem):
         """Test serve command calls build with localhost URL override."""
         from click.testing import CliRunner
 
         from cli.commands.serve import serve
+
+        # Arrange: Mock get_output_dir to return an existing directory (to skip build)
+        mock_output_dir = Mock()
+        mock_output_dir.exists.return_value = True  # Directory exists, skip build
+        mock_get_output_dir.return_value = mock_output_dir
 
         # Arrange: Mock orchestrator to prevent actual server startup
         mock_orchestrator = Mock()
@@ -93,7 +95,7 @@ class TestServeCommandURLOverride:
         mock_output_dir = Mock()
         mock_output_dir.exists.return_value = True  # Directory exists, skip build
         mock_get_output_dir.return_value = mock_output_dir
-        
+
         # Mock orchestrator to prevent actual server startup
         mock_orchestrator = Mock()
         mock_orchestrator_class.return_value = mock_orchestrator
