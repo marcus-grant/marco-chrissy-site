@@ -60,10 +60,10 @@ Critical Issues:
 
 **Phase 4: Production URL Fix**
 
-- [ ] Find all hardcoded `/galleries/` links in templates/code
-- [ ] Replace with `/galleries/wedding/` links
-- [ ] `uv run ruff check --fix --unsafe-fixes && uv run pytest`
-- [ ] Commit: `Fix: Update gallery links to point to actual gallery`
+- [x] Find all hardcoded `/galleries/` links in templates/code
+- [x] Replace with `/galleries/wedding/` links
+- [x] `uv run ruff check --fix --unsafe-fixes && uv run pytest`
+- [x] Commit: `Fix: Update gallery links to point to actual gallery`
 
 **Phase 5: Manual Integration Verification**
 

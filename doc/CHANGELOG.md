@@ -22,6 +22,9 @@
 - Removed @pytest.mark.skip decorators from real plugin integration test
 - Verified complete shared component integration with all 455 tests passing (8 skipped)
 - Confirmed shared navbar and CSS appear correctly in both Pelican and Galleria build outputs
+- Updated gallery navigation links from generic /galleries/ to actual /galleries/wedding/
+- Fixed content navigation to point to working gallery instead of empty directory
+- Verified gallery pagination works correctly with index.html redirecting to page_1.html
 
 ### Fixed
 
