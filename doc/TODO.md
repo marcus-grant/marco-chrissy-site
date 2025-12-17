@@ -41,14 +41,14 @@ For detailed planning guidance, templates, and examples, see: **[`PLANNING.md`](
 *Problem Statement: Site needs unified theme system to share assets, templates, and components between Pelican and Galleria without tight coupling for future Galleria extraction.*
 
 **Phase 1: Setup & E2E Definition**
-- [ ] `git checkout -b ft/shared-components`
-- [ ] Create E2E test in `test/e2e/test_shared_components.py`
-  - [ ] Test that both Pelican and Galleria can load shared assets and templates
-  - [ ] Verify PicoCSS loads consistently across page types
-  - [ ] Test shared template inclusion from both systems
-  - [ ] Add `@pytest.mark.skip("Shared component system not implemented")`
-- [ ] `uv run ruff check --fix --unsafe-fixes && uv run pytest`
-- [ ] Update TODO.md and CHANGELOG.md
+- [x] `git checkout -b ft/shared-components`
+- [x] Create E2E test in `test/e2e/test_shared_components.py`
+  - [x] Test that both Pelican and Galleria can load shared assets and templates
+  - [x] Verify PicoCSS loads consistently across page types
+  - [x] Test shared template inclusion from both systems
+  - [x] Add `@pytest.mark.skip("Shared component system not implemented")`
+- [x] `uv run ruff check --fix --unsafe-fixes && uv run pytest`
+- [x] Update TODO.md and CHANGELOG.md
 - [ ] Commit: `Tst: Add E2E test for shared component system (skipped)`
 
 **Phase 2: TDD Implementation Cycles**

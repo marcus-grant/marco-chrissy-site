@@ -1,5 +1,14 @@
 # Changelog
 
+## 2025-12-17
+
+### Added
+
+- E2E test framework for shared component system in test/e2e/test_shared_components.py
+- Test coverage for shared asset management and template inclusion
+- Test verification for PicoCSS integration across Pelican and Galleria
+- Planning framework for unified navigation and responsive layout implementation
+
 ## 2025-12-16
 
 ### Added
