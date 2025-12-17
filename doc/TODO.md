@@ -15,46 +15,125 @@ For detailed planning guidance, templates, and examples, see: **[`PLANNING.md`](
 ### Phase 4: Template & CSS Architecture Fix (Pre-MVP Critical)
 
 
+#### ✅ Task 1.2: Serve Command Cascade (Branch: fix/serve) - COMPLETED
+
+**Status**: Merged to main via PR #13 on 2025-12-05
+
+**Implementation Summary**:
+- Added cascade functionality to serve command to auto-call build when output/ missing
+- Following the same cascading pattern as other commands (serve→build→organize→validate)  
+- Comprehensive test coverage with both unit and E2E tests
+- Complete documentation updates in CHANGELOG.md, serve.md, and pipeline.md
+
+**Key Changes**:
+- `cli/commands/serve.py`: Added output directory check and build command invocation
+- `test/unit/test_site_serve.py`: Added unit tests for cascade behavior
+- `test/e2e/test_site_serve.py`: Added E2E test for full cascade functionality
+- Documentation updated across multiple files
 
 #### Task 1.3: Template & CSS Architecture (Branch: ft/theme)
 
-- [ ] `git checkout -b ft/theme`
-- [ ] Create `test/e2e/test_theme_system.py` with file-based theme loading test
-- [ ] Add `@pytest.mark.skip("Theme system not implemented")`
-- [ ] `uv run ruff check --fix --unsafe-fixes && uv run pytest`
-- [ ] Update TODO.md and CHANGELOG.md
-- [ ] Commit: `Tst: Add E2E test for file-based theme system (skipped)`
+*Problem Statement: Template and CSS plugins contain hardcoded HTML strings and CSS styles instead of loading from external theme files. This violates separation of concerns, makes customization difficult, and prevents coherent styling with the parent Pelican site.*
 
-- [ ] Create `themes/basic/theme.json` with theme metadata schema
-- [ ] Create `themes/basic/templates/gallery.html.j2` - move HTML from template.py
-- [ ] Create `themes/basic/templates/empty.html.j2` - move empty gallery HTML
-- [ ] Create `themes/basic/static/css/gallery.css` - move CSS from css.py
-- [ ] `uv run ruff check --fix --unsafe-fixes && uv run pytest`
-- [ ] Update TODO.md and CHANGELOG.md
-- [ ] Commit: `Ft: Create basic theme with file-based templates and CSS`
+**Phase 1: Setup & Integration Definition**
+- [x] `git checkout -b ft/theme`
+- [x] Insert nonsensical placeholder returns:
+  - [x] `BasicTemplatePlugin._generate_page_html()` → `return "<div>PLACEHOLDER_HTML</div>"`
+  - [x] `BasicCSSPlugin._generate_gallery_css()` → `return "/* PLACEHOLDER_CSS */"`
+- [x] Run `uv run pytest` to identify failing tests
+- [x] Document all failing test modules with specific failure reasons:
+  - `test/e2e/test_site_build.py::TestSiteBuild::test_build_uses_orchestrator_pattern` - Build E2E expects real HTML/CSS output
+  - `test/galleria/e2e/test_cli_generate.py` - CLI generate expects real gallery HTML/CSS (2 tests)
+  - `test/galleria/e2e/test_serve_e2e.py` - Serve E2E expects real generated content (3 tests)  
+  - `test/galleria/unit/plugins/test_template.py::TestBasicTemplatePlugin` - Template plugin unit tests expect real HTML structure (3 tests)
+  - `test/galleria/unit/test_cli_e2e.py::TestGalleriaCLIE2E::test_cli_generate_command_with_fake_filesystem` - CLI E2E expects real output
+- [x] Review failing tests against current TODO.md plan: **ALL COVERED** - Expected template/CSS plugin tests + E2E pipeline tests
+- [x] If gaps found: **NO GAPS** - all failing tests are expected categories
+- [x] Commit: `Pln: Update theme system plan based on test discovery`
+- [x] Evaluate current fixture landscape for theme system needs: **SUFFICIENT** - temp_filesystem, config_file_factory, file_factory cover theme directory creation
+- [x] Create theme-specific fixtures if beneficial: **NOT NEEDED** - existing fixtures adequate for theme file creation  
+- [x] Create integration test in `test/e2e/test_theme_integration.py`
+- [x] Add `@pytest.mark.skip("Theme system not implemented")`
+- [x] `uv run ruff check --fix --unsafe-fixes && uv run pytest`
+- [x] Update TODO.md and CHANGELOG.md
+- [ ] Commit: `Tst: Add theme system integration test (skipped)`
 
-- [ ] Write unit test for theme validation that fails
-- [ ] Create `galleria/theme/validator.py` with theme.json schema validation
-- [ ] Implement theme directory and file existence checks
-- [ ] `uv run ruff check --fix --unsafe-fixes && uv run pytest`
-- [ ] Update TODO.md and CHANGELOG.md
-- [ ] Commit: `Ft: Add theme validation system`
+**Phase 2: TDD Implementation Cycles**
 
-- [ ] Write unit test for template plugin refactor that fails
-- [ ] Modify `BasicTemplatePlugin` to load Jinja2 templates from theme directory
-- [ ] Remove hardcoded HTML strings from template.py
-- [ ] `uv run ruff check --fix --unsafe-fixes && uv run pytest`
-- [ ] Update TODO.md and CHANGELOG.md
-- [ ] Commit: `Ref: Template plugin uses file-based Jinja2 templates`
+*Cycle 1: Theme File Structure & Validation*
+- [x] Create stub in `galleria/theme/validator.py` with `ThemeValidator` class
+- [x] Write unit test for `ThemeValidator.validate_theme_directory()` that fails
+- [x] **Test Discovery**: No existing functionality to comment out (new module)
+- [x] Implement minimal theme directory validation
+- [x] Refactor for better design (keeping tests green)
+- [x] `uv run ruff check --fix --unsafe-fixes && uv run pytest`
+- [x] Update TODO.md and CHANGELOG.md
+- [ ] Commit: `Ft: Implement theme directory validation`
 
-- [ ] Write unit test for CSS plugin refactor that fails
-- [ ] Modify `BasicCSSPlugin` to copy static files from theme directory
-- [ ] Remove hardcoded CSS strings from css.py
-- [ ] Remove `@pytest.mark.skip` from E2E test
-- [ ] `uv run ruff check --fix --unsafe-fixes && uv run pytest`
-- [ ] Update TODO.md and CHANGELOG.md
-- [ ] Commit: `Ref: CSS plugin copies files from theme directory`
+*Cycle 2: Jinja2 Template Loading*
+- [x] Create stub in `galleria/theme/loader.py` with `TemplateLoader` class
+- [x] Write unit test for `TemplateLoader.load_template()` that fails
+- [x] **Test Discovery**: No existing functionality to comment out (new module)
+- [x] Implement minimal Jinja2 template loading from theme directory
+- [x] Refactor for better design (keeping tests green)
+- [x] `uv run ruff check --fix --unsafe-fixes && uv run pytest`
+- [x] Update TODO.md and CHANGELOG.md
+- [ ] Commit: `Ft: Implement Jinja2 template loading`
 
+*Cycle 3: Template Plugin Refactor*
+- [x] Create/modify stub in `galleria/plugins/template.py`
+- [x] Write unit test for theme-based `BasicTemplatePlugin.generate_html()` that fails
+- [x] **Test Discovery**: Theme integration uses existing placeholder method
+- [x] Implement theme file integration in BasicTemplatePlugin
+- [x] Refactor for better design (keeping tests green)
+- [x] `uv run ruff check --fix --unsafe-fixes && uv run pytest`
+- [x] Update TODO.md and CHANGELOG.md
+- [x] Commit: `Ref: Replace hardcoded HTML with Jinja2 templates`
+
+*Cycle 4: CSS Plugin Refactor*
+- [x] Create/modify stub in `galleria/plugins/css.py`
+- [x] Write unit test for theme-based `BasicCSSPlugin.generate_css()` that fails
+- [x] **Test Discovery**: Theme integration uses existing placeholder method
+- [x] Implement theme CSS file reading in BasicCSSPlugin
+- [x] Refactor for better design (keeping tests green)
+- [x] `uv run ruff check --fix --unsafe-fixes && uv run pytest`
+- [x] Update TODO.md and CHANGELOG.md
+- [x] Commit: `Ref: Replace hardcoded CSS with theme files`
+
+*Cycle 5: Test Migration & Cleanup*
+- [x] Port all failing tests identified throughout cycles to work with theme system: **NO PORTING NEEDED** - fallback implementation preserves original behavior
+- [x] **Test Discovery**: Remove placeholder implementations, verify all tests pass with theme system: **PLACEHOLDERS ALREADY REPLACED** during implementation
+- [x] Remove commented-out implementation code and placeholders: **COMPLETED** during refactoring
+- [x] Refactor for better design (keeping tests green): **COMPLETED** with proper fallback pattern
+- [x] `uv run ruff check --fix --unsafe-fixes && uv run pytest`: **ALL TESTS PASSING**
+- [x] Update TODO.md and CHANGELOG.md
+- [x] Commit: `Tst: Verify theme system with existing test suite`
+
+**Phase 3: Critical Bug Fixes (BLOCKING MVP)** ✅ COMPLETED
+- [x] **FIXED: Photo link URLs generating incorrect paths** *(2025-12-16 - ACTUALLY FIXED)*
+  - [x] **Root Cause**: URL filter returned relative paths early instead of applying file type detection to bare filenames
+  - [x] **Real Issue**: Manifest provides `dest_path` as bare filename, but URL filter only applied file extension logic to absolute paths
+  - [x] **Solution**: Modified `_make_relative_path()` to apply file type detection to all bare filenames (no directory separators)
+  - [x] **Testing**: Created regression test with real manifest data structure, verified fix works in browser
+  - [x] **Result**: Photo URLs now correctly generate `/pics/full/filename.jpg` instead of `/filename.jpg`
+  - [x] **Additional**: Updated tests to use proper fixtures instead of hardcoded production data
+- [x] **FIXED: Gallery directory access returning 404**
+  - [x] **Root Cause**: Proxy server transformed `/galleries/wedding/` to `/` instead of `/index.html`
+  - [x] **Solution**: Updated proxy URL transformation to map directory access to `/index.html`
+  - [x] **Template Fix**: Added `_generate_gallery_index_html()` method for redirect pages
+  - [x] **Testing**: Added URL transformation logic tests, verified all scenarios work
+  - [x] **Result**: Gallery directories now handle `/galleries/wedding/` access correctly
+
+**Phase 4: Integration & Documentation** ✅ COMPLETED
+- [x] Remove `@pytest.mark.skip` from integration test
+- [x] Verify integration test passes (if not, return to Phase 2)
+- [x] Update relevant documentation in `doc/modules/galleria/`
+- [x] Ensure documentation links are maintained
+- [x] `uv run ruff check --fix --unsafe-fixes && uv run pytest`
+- [x] Update TODO.md and CHANGELOG.md
+- [x] Commit: `Doc: Enable theme integration test and update docs`
+
+**Phase 5: PR Creation**
 - [ ] `gh pr create --title "Feat: File-based theme system" --body "Replaces hardcoded templates/CSS with configurable theme files"`
 
 ### Phase 5: Performance Baseline
@@ -107,6 +186,42 @@ For detailed planning guidance, templates, and examples, see: **[`PLANNING.md`](
   - **Solution implemented**: Smart detection of conflicting content and conditional INDEX_SAVE_AS configuration
   - **Verification complete**: Both test scenarios pass - with and without conflicting index content
   - Manual testing can now proceed without requiring `rm output/index.html && site build` workaround
+
+## MVP 0.1.0 Release Preparation
+
+**Prerequisites**: All Phase 4-7 tasks must be completed first.
+
+### Final Pre-MVP Bookkeeping Tasks
+
+- [ ] **Changelog Migration Verification**
+  - [ ] Verify all entries from 2024-12-04 and older moved to `doc/release/0-1.md`
+  - [ ] Confirm only 2025-12-05 and newer remain in main `CHANGELOG.md`
+  - [ ] Update `doc/release/README.md` with comprehensive 0.1.0 MVP summary
+
+- [ ] **Documentation Quality Assurance** 
+  - [ ] Review all 40 documentation files for accuracy and consistency
+  - [ ] Verify all internal links work correctly  
+  - [ ] Update outdated information and remove "future" annotations for completed features
+  - [ ] Standardize formatting, terminology, and structure across all docs
+
+- [ ] **Dead Code Investigation & Removal**
+  - [ ] Investigate and remove old non-plugin based manifest serializer
+  - [ ] Remove old thumbnail processor that bypassed plugin interfaces  
+  - [ ] Scan for unused configuration files or deprecated settings
+  - [ ] Remove commented-out code blocks and duplicate implementations
+
+- [ ] **MVP Success Criteria Verification**
+  - [ ] Verify build process is repeatable via script
+  - [ ] Confirm site works without JavaScript requirement
+  - [ ] Test complete pipeline (validate→organize→build) end-to-end
+  - [ ] Validate configuration system completeness
+  - [ ] Performance metrics documentation
+
+- [ ] **Version 0.1.0 Release Finalization**
+  - [ ] Final ruff/pytest run across entire codebase (target: 0 failures)
+  - [ ] Update version numbers in relevant files
+  - [ ] Create final commit with version bump and release notes
+  - [ ] Tag release v0.1.0
 
 ## Post-MVP Enhancements
 
@@ -179,6 +294,9 @@ For detailed planning guidance, templates, and examples, see: **[`PLANNING.md`](
   - [ ] Template plugin errors (missing themes, invalid syntax, rendering failures)
   - [ ] Pipeline integration errors (plugin loading, dependency conflicts, crashes)
   - [ ] System-level errors (permissions, disk space, memory issues)
+- [ ] **Gallery URL routing improvements** (moved to MVP as critical issues)
+  - [ ] **Solution**: Create `/galleries/index.html` that lists all galleries with preview thumbnails
+  - [ ] **Solution**: Consider URL rewriting so `/galleries/wedding/` automatically serves first page
 - [ ] Dark mode toggle (CSS variables + minimal JS)
 - [ ] Gallery performance optimization
   - [ ] Implement lazy loading with JS

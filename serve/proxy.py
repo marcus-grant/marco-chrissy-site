@@ -114,7 +114,12 @@ class ProxyHTTPHandler(http.server.BaseHTTPRequestHandler):
             if self.path.startswith("/galleries/"):
                 # Remove /galleries/collection/ keeping just the filename part
                 path_parts = self.path.split("/", 3)  # ['', 'galleries', 'collection', 'filename']
-                galleria_path = "/" + path_parts[3] if len(path_parts) > 3 else "/"
+                if len(path_parts) > 3 and path_parts[3]:
+                    # Has filename after collection
+                    galleria_path = "/" + path_parts[3]
+                else:
+                    # Directory access: /galleries/collection/ -> /index.html
+                    galleria_path = "/index.html"
             else:
                 galleria_path = self.path
             self.forward_to_server("127.0.0.1", target_location, galleria_path)

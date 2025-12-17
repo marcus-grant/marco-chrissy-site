@@ -12,6 +12,8 @@ The site orchestrates multiple tools to generate static content deployed to Bunn
 ### Project Documentation
 
 - [TODO](TODO.md) - Project roadmap and task tracking
+- [CHANGELOG](CHANGELOG.md) - Recent development changes
+- [Release Archive](release/) - Archived changelog entries by version
 - [Planning Guide](PLANNING.md) - Task planning workflow and TDD methodology
 - [Development Workflow](workflow.md) - TDD workflow and site command pipeline
 - [Testing Guide](testing.md) - Test organization, fixtures, and development patterns

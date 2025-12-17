@@ -39,7 +39,7 @@ Template plugins generate HTML markup from transformed photo data.
 
 #### BasicTemplatePlugin
 
-Generates semantic HTML5 gallery pages with responsive design.
+Generates semantic HTML5 gallery pages with responsive design. Supports both hardcoded templates and theme-based file loading.
 
 **Features:**
 - Pagination support with navigation
@@ -47,14 +47,30 @@ Generates semantic HTML5 gallery pages with responsive design.
 - Lazy loading images
 - Empty gallery state handling
 - SEO-friendly markup
+- Theme system integration with fallback to hardcoded templates
 
 **Configuration:**
 ```python
 {
-    "theme": "minimal|elegant|modern",  # Default: "minimal"
+    "theme": "minimal|elegant|modern",  # Default: "minimal" (hardcoded mode)
     "layout": "grid|flex",              # Default: "grid"
+    "theme_path": "/path/to/theme/dir", # Optional: enables theme system
 }
 ```
+
+**Theme System:**
+When `theme_path` is configured, the plugin loads templates from external theme files:
+
+- **Template Directory**: `{theme_path}/templates/`
+- **Main Template**: `gallery.j2.html` (Jinja2 format)
+- **Template Variables**: 
+  - `collection_name` - Gallery title
+  - `photos` - List of photo objects with `thumb_url`, `photo_url`, `collection_name`
+  - `page_num` - Current page number
+  - `total_pages` - Total number of pages
+
+**Fallback Behavior:**
+Without `theme_path`, uses hardcoded HTML templates for backward compatibility.
 
 ### CSSPlugin
 
@@ -98,7 +114,7 @@ CSS plugins generate stylesheets for the HTML templates.
 
 #### BasicCSSPlugin
 
-Generates comprehensive stylesheets with theme and responsive support.
+Generates comprehensive stylesheets with theme and responsive support. Supports both hardcoded CSS generation and theme-based file loading.
 
 **Features:**
 - Light, dark, and auto themes
@@ -106,20 +122,35 @@ Generates comprehensive stylesheets with theme and responsive support.
 - Grid and flexbox layout support
 - Pagination navigation styling
 - Modern typography and spacing
+- Theme system integration with fallback to hardcoded CSS
 
 **Configuration:**
 ```python
 {
-    "theme": "light|dark|auto",     # Default: None (no theme)
-    "layout": "grid|flex",          # Default: "grid"
-    "responsive": bool,             # Default: True
+    "theme": "light|dark|auto",         # Default: None (no theme)
+    "layout": "grid|flex",              # Default: "grid"
+    "responsive": bool,                 # Default: True
+    "theme_path": "/path/to/theme/dir", # Optional: enables theme system
 }
 ```
 
+**Theme System:**
+When `theme_path` is configured, the plugin loads CSS from external theme files:
+
+- **CSS Directory**: `{theme_path}/static/css/`
+- **CSS Files**: All `.css` files in the directory
+- **Load Order**: Alphabetical, with `custom.css` loaded last for highest priority
+- **File Structure**: Each CSS file becomes a separate output file
+
 **Generated Files:**
-- `gallery.css` - Base gallery styles
-- `theme-{name}.css` - Theme-specific styles (if theme specified)
-- `responsive.css` - Responsive breakpoints (if enabled)
+- **Theme Mode**: Files from theme directory (e.g., `gallery.css`, `custom.css`)
+- **Hardcoded Mode**: 
+  - `gallery.css` - Base gallery styles
+  - `theme-{name}.css` - Theme-specific styles (if theme specified)
+  - `responsive.css` - Responsive breakpoints (if enabled)
+
+**Fallback Behavior:**
+Without `theme_path`, generates hardcoded CSS for backward compatibility.
 
 ## Transform Plugins
 
@@ -203,6 +234,59 @@ Intelligent pagination with adaptive page balancing.
 }
 ```
 
+## Theme System Architecture
+
+### ThemeValidator
+
+Validates theme directory structure and configuration.
+
+**Location**: `galleria.theme.validator`
+**Method**: `validate_theme_directory(theme_path: Path) -> bool`
+
+#### Validation Requirements:
+- `theme.json` configuration file exists
+- `templates/` directory exists
+- `static/css/` directory exists
+- `theme.json` contains valid configuration
+
+#### Theme Configuration Format:
+```json
+{
+  "name": "Theme Name",
+  "version": "1.0.0",
+  "templates": ["gallery.j2.html", "page.j2.html"],
+  "css": ["gallery.css", "custom.css"]
+}
+```
+
+### TemplateLoader
+
+Loads and renders Jinja2 templates from theme directory.
+
+**Location**: `galleria.theme.loader`
+**Method**: `load_template(template_name: str) -> jinja2.Template`
+
+#### Features:
+- Jinja2 environment with theme directory as template root
+- Template inheritance support
+- Error handling for missing templates
+- UTF-8 encoding support
+
+#### Template Structure:
+```
+theme_directory/
+├── theme.json
+├── templates/
+│   ├── gallery.j2.html       # Main gallery template
+│   ├── base.j2.html          # Base template (optional)
+│   └── components/           # Template components (optional)
+└── static/
+    └── css/
+        ├── gallery.css       # Main styles
+        ├── responsive.css    # Responsive styles (optional)
+        └── custom.css        # Custom overrides (optional)
+```
+
 ## Usage Examples
 
 ### Basic Gallery Generation
@@ -257,6 +341,43 @@ result = smart_pagination.transform_data(PluginContext(
 # Check pagination strategy used
 strategy = result.output_data["transform_metadata"]["pagination_strategy"]
 print(f"Used {strategy} pagination strategy")
+```
+
+### Theme-Based Gallery Generation
+
+```python
+from galleria.theme.validator import ThemeValidator
+from galleria.plugins.template import BasicTemplatePlugin
+from galleria.plugins.css import BasicCSSPlugin
+from pathlib import Path
+
+# Validate theme directory
+theme_path = Path("themes/my_custom_theme")
+validator = ThemeValidator()
+if not validator.validate_theme_directory(theme_path):
+    raise ValueError("Invalid theme directory")
+
+# Configure plugins with theme path
+theme_config = {"theme_path": str(theme_path)}
+
+# Generate HTML using theme templates
+template = BasicTemplatePlugin()
+html_result = template.generate_html(PluginContext(
+    input_data=pagination_result.output_data,
+    config=theme_config,
+    output_dir=output_path
+))
+
+# Generate CSS using theme files
+css = BasicCSSPlugin()
+css_result = css.generate_css(PluginContext(
+    input_data=html_result.output_data,
+    config=theme_config,
+    output_dir=output_path
+))
+
+# Output will use theme files instead of hardcoded templates/CSS
+print(f"Generated {len(css_result.output_data['css_files'])} CSS files from theme")
 ```
 
 ## Error Handling
