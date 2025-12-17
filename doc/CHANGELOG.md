@@ -8,6 +8,9 @@
 - Test coverage for shared asset management and template inclusion
 - Test verification for PicoCSS integration across Pelican and Galleria
 - Planning framework for unified navigation and responsive layout implementation
+- Shared asset manager in themes/shared/utils/asset_manager.py for external dependency management
+- PicoCSS download functionality with automatic directory creation and URL generation
+- Unit test coverage for asset manager with proper TDD implementation
 
 ## 2025-12-16
 

@@ -54,12 +54,12 @@ For detailed planning guidance, templates, and examples, see: **[`PLANNING.md`](
 **Phase 2: TDD Implementation Cycles**
 
 *Cycle 1: Create Shared Asset Management*
-- [ ] Create `themes/shared/` directory structure
-- [ ] Write unit test for asset manager utility that fails
-- [ ] Implement `themes/shared/utils/asset_manager.py` for external dependencies
-- [ ] Download PicoCSS to `output/css/pico.min.css` during build
-- [ ] `uv run ruff check --fix --unsafe-fixes && uv run pytest`
-- [ ] Update TODO.md and CHANGELOG.md
+- [x] Create `themes/shared/` directory structure
+- [x] Write unit test for asset manager utility that fails
+- [x] Implement `themes/shared/utils/asset_manager.py` for external dependencies
+- [x] Download PicoCSS to `output/css/pico.min.css` during build
+- [x] `uv run ruff check --fix --unsafe-fixes && uv run pytest`
+- [x] Update TODO.md and CHANGELOG.md
 - [ ] Commit: `Ft: Add shared asset manager with PicoCSS integration`
 
 *Cycle 2: Implement Shared Template Search Paths*
@@ -316,6 +316,8 @@ For detailed planning guidance, templates, and examples, see: **[`PLANNING.md`](
 - [ ] Remove dead code (old manifest serializer, thumbnail processor)
 
 ### Medium-term Features
+
+- [ ] **External Asset Version Pinning**: Add version control for reproducible builds (config-based pinning with integrity hashes vs lock files) - update themes/shared/utils/asset_manager.py
 
 #### Test Infrastructure
 - [ ] **Fixture Refactoring**: Consolidate mock_pelican_config, mock_site_config, and config_file_factory
