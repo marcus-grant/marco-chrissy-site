@@ -16,6 +16,9 @@
 - Jinja2 template inclusion support across both systems with shared components
 - Comprehensive test coverage for template loading and precedence rules
 - New shared_theme_dirs fixture for consistent theme testing setup
+- Context adapter system for converting Pelican and Galleria contexts to shared format
+- Abstract base class pattern for template context standardization
+- Navigation configuration loading functionality
 
 ## 2025-12-16
 

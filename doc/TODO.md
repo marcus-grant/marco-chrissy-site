@@ -69,15 +69,15 @@ For detailed planning guidance, templates, and examples, see: **[`PLANNING.md`](
 - [x] Create example shared template to verify functionality
 - [x] `uv run ruff check --fix --unsafe-fixes && uv run pytest`
 - [x] Update TODO.md and CHANGELOG.md
-- [ ] Commit: `Ft: Configure shared template search paths for both systems`
+- [x] Commit: `Ft: Configure shared template search paths for both systems`
 
 *Cycle 3: Create Context Adapter Pattern*
-- [ ] Write unit test for context adapter interface that fails
-- [ ] Create `themes/shared/utils/context_adapters.py` with base interface
-- [ ] Implement Pelican context adapter for shared templates
-- [ ] Implement Galleria context adapter for shared templates
-- [ ] `uv run ruff check --fix --unsafe-fixes && uv run pytest`
-- [ ] Update TODO.md and CHANGELOG.md
+- [x] Write unit test for context adapter interface that fails
+- [x] Create `themes/shared/utils/context_adapters.py` with base interface
+- [x] Implement Pelican context adapter for shared templates
+- [x] Implement Galleria context adapter for shared templates
+- [x] `uv run ruff check --fix --unsafe-fixes && uv run pytest`
+- [x] Update TODO.md and CHANGELOG.md
 - [ ] Commit: `Ft: Implement context adapters for template compatibility`
 
 **Phase 3: Integration & Documentation**
