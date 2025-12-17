@@ -506,6 +506,64 @@ Each schema defines:
 - Generic configuration patterns suitable for any project
 - Clear separation between site-specific and tool-specific configuration
 
+### Shared Component System
+
+The shared component system enables unified theme and asset management between Pelican and Galleria without tight coupling, preserving Galleria's extractability for future modularization.
+
+#### Component Architecture
+
+**Shared Asset Manager** (`themes/shared/utils/asset_manager.py`):
+- Downloads external dependencies (PicoCSS) to `output/css/` directory
+- Automatic directory creation and URL generation (`/css/pico.min.css`)
+- Provides consistent asset URLs across both systems
+- Designed for future version pinning and integrity validation
+
+**Template Search Paths** (`themes/shared/utils/template_loader.py`):
+- Enables both Pelican and Galleria to include shared Jinja2 templates
+- Template precedence: Theme-specific templates override shared templates
+- `configure_pelican_shared_templates()` configures Pelican Jinja2 loader
+- `GalleriaSharedTemplateLoader` provides shared template support for Galleria
+
+**Context Adapters** (`themes/shared/utils/context_adapters.py`):
+- Standardizes Pelican and Galleria contexts for shared templates
+- Abstract base class pattern with concrete implementations
+- Converts system-specific data to unified format
+- Enables shared templates to work with both systems seamlessly
+
+#### Integration Flow
+
+```
+Shared Components System
+├── Asset Manager
+│   ├── External dependencies (PicoCSS) → output/css/
+│   └── Consistent URLs (/css/pico.min.css) → Both systems
+├── Template Loader
+│   ├── themes/shared/templates/ → Shared template search path
+│   ├── Pelican Jinja2 loader ← configure_pelican_shared_templates()
+│   └── Galleria template system ← GalleriaSharedTemplateLoader
+└── Context Adapters
+    ├── PelicanContextAdapter → Unified shared context
+    └── GalleriaContextAdapter → Unified shared context
+```
+
+#### Architecture Benefits
+
+**Loose Coupling**: Shared components work through well-defined interfaces without requiring changes to core Pelican or Galleria systems.
+
+**Extraction Compatibility**: System designed to support Galleria extraction - shared components can be packaged independently or integrated into host projects.
+
+**Template Consistency**: Both systems can include shared navigation, components, and styling through the same template inclusion patterns.
+
+**Asset Management**: External dependencies downloaded once and referenced consistently across all generated pages.
+
+#### Future Considerations
+
+**Version Pinning**: Asset manager currently uses latest versions - post-MVP enhancement will add config-based version pinning with integrity hashes.
+
+**Dependency Injection**: Context adapters designed to support future Galleria extraction through dependency injection patterns.
+
+**Plugin Integration**: System integrates with Galleria's plugin architecture and Pelican's template system without requiring core modifications.
+
 ### Error Handling Architecture
 
 **Exception Hierarchy**:

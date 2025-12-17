@@ -101,6 +101,48 @@ def test_custom_configs(self, full_config_setup):
     configs = full_config_setup(custom_configs)
 ```
 
+### Theme Testing Fixtures
+
+**`shared_theme_dirs`** - Create shared theme directory structure:
+```python
+def test_shared_templates(self, shared_theme_dirs):
+    """Test shared theme directory structure creation."""
+    # Returns dict with standardized paths
+    shared_templates = shared_theme_dirs["shared_templates"]
+    galleria_templates = shared_theme_dirs["galleria_templates"]
+    
+    # Create and test shared templates
+    template_path = shared_templates / "navigation.html"
+    template_path.write_text("<nav>Shared Navigation</nav>")
+    
+    assert template_path.exists()
+    assert shared_templates.exists()
+    assert galleria_templates.exists()
+```
+
+**Fixture Benefits**:
+- Replaces repeated directory creation in 4+ tests
+- Provides standardized shared theme structure
+- Returns consistent path dictionary for easy access
+- Integrates with temp_filesystem for proper isolation
+
+**Usage Pattern**:
+```python
+def test_template_loading(self, shared_theme_dirs):
+    """Test template loading from shared directories."""
+    from themes.shared.utils.template_loader import GalleriaSharedTemplateLoader
+    
+    # Use fixture paths
+    config = {
+        "theme": {
+            "external_templates": [str(shared_theme_dirs["shared_templates"])]
+        }
+    }
+    
+    loader = GalleriaSharedTemplateLoader(config, shared_theme_dirs["galleria_templates"])
+    # Test template loading functionality
+```
+
 ## Test Isolation Patterns
 
 ### CRITICAL: No Direct Filesystem Access
