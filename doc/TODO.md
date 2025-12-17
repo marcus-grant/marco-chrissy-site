@@ -53,9 +53,76 @@ Critical Issues:
 - [ ] Update TODO.md with detailed TDD cycles for discovered gaps
 - [ ] Commit: `Pln: Document integration gaps and unit test plan`
 
-**Phase 3: TDD Implementation Cycles** 
+**Phase 3: TDD Implementation Cycles**
 
-*[Specific cycles will be added after Phase 2 analysis]*
+*Cycle 1: Create defaults.py Module*
+
+- [ ] Write unit test for `defaults.get_output_dir()` that fails
+- [ ] Create `defaults.py` with `get_output_dir()` function  
+- [ ] Implement function to return Path("output")
+- [ ] Test function returns Path object, not string
+- [ ] `uv run ruff check --fix --unsafe-fixes && uv run pytest`
+- [ ] Update TODO.md and CHANGELOG.md
+- [ ] Commit: `Ft: Add defaults module for path configuration`
+
+*Cycle 2: Fix Serve Command Hardcoded Path*
+
+- [ ] Write unit test for serve command using `get_output_dir()` that fails
+- [ ] Update `cli/commands/serve.py` to import and use `defaults.get_output_dir()`
+- [ ] Replace `if not os.path.exists("output"):` with `if not get_output_dir().exists():`
+- [ ] Replace second `os.path.exists("output")` with same pattern
+- [ ] `uv run ruff check --fix --unsafe-fixes && uv run pytest`
+- [ ] Update TODO.md and CHANGELOG.md
+- [ ] Commit: `Fix: Replace hardcoded output path with defaults module`
+
+*Cycle 3: Remove Skip Decorators and Fix Serve Tests*
+
+- [ ] Write unit test that mocks `defaults.get_output_dir()` and verifies serve works
+- [ ] Remove `@pytest.mark.skip` decorators from serve command tests
+- [ ] Update test imports to include `@patch('cli.commands.serve.get_output_dir')`
+- [ ] Fix test mocking to use temp directories instead of hardcoded "output"
+- [ ] Verify all 6 previously skipped serve tests now pass
+- [ ] `uv run ruff check --fix --unsafe-fixes && uv run pytest`
+- [ ] Update TODO.md and CHANGELOG.md
+- [ ] Commit: `Tst: Enable serve command tests with defaults mocking`
+
+*Cycle 4: Add Shared Component Path Defaults*
+
+- [ ] Write unit test for shared component path getters that fails
+- [ ] Add `get_shared_template_paths()` and `get_shared_css_paths()` to defaults.py
+- [ ] Update `themes/shared/utils/template_loader.py` to use defaults
+- [ ] Update `themes/shared/utils/asset_manager.py` to use defaults
+- [ ] Test that functions return lists of Path objects for external compatibility
+- [ ] `uv run ruff check --fix --unsafe-fixes && uv run pytest`
+- [ ] Update TODO.md and CHANGELOG.md
+- [ ] Commit: `Ft: Add shared component path defaults for external usage`
+
+*Cycle 5: Add True Shared Component Integration Tests*
+
+- [ ] Write E2E test that verifies shared components appear in both Pelican and Galleria HTML output
+- [ ] Create mock shared navbar template: `<nav class="shared-nav">Test Navbar</nav>`
+- [ ] Create mock shared CSS file: `.shared-nav { color: blue; background: red; }`
+- [ ] Test that `uv run site build` includes shared navbar HTML in both system outputs
+- [ ] Test that shared CSS file is copied to output and referenced in both HTML outputs
+- [ ] Assert "Test Navbar" text appears in generated Pelican pages
+- [ ] Assert "Test Navbar" text appears in generated Galleria pages
+- [ ] Assert CSS rule `.shared-nav { color: blue; background: red; }` exists in output
+- [ ] `uv run ruff check --fix --unsafe-fixes && uv run pytest`
+- [ ] Update TODO.md and CHANGELOG.md
+- [ ] Commit: `Tst: Add E2E tests for true shared component integration`
+
+*Cycle 6: Remove All Skip Decorators and Verify Complete Integration*
+
+- [ ] Remove `@pytest.mark.skip` from real plugin integration test in `test_real_plugin_integration.py`
+- [ ] Update real plugin test to expect 3 files (including index.html redirect)
+- [ ] Remove any remaining skip decorators from serve command tests (if not done in Cycle 3)
+- [ ] Run full test suite and verify all 452 tests pass with 0 skipped
+- [ ] If any tests fail, add unit tests to fix the underlying integration issues
+- [ ] Verify shared navbar appears in both Pelican and Galleria build outputs
+- [ ] Verify shared CSS is included in both system outputs
+- [ ] `uv run ruff check --fix --unsafe-fixes && uv run pytest`
+- [ ] Update TODO.md and CHANGELOG.md
+- [ ] Commit: `Tst: Remove all skip decorators and verify complete integration`
 
 **Phase 4: Production URL Fix**
 
