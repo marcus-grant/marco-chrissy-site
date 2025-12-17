@@ -238,3 +238,23 @@ def mock_site_config():
     return {
         "output_dir": "output"
     }
+
+
+@pytest.fixture
+def shared_theme_dirs(directory_factory):
+    """Create standard shared theme directory structure for testing.
+
+    Returns:
+        Dict with 'shared_templates' and 'galleria_templates' Path objects
+    """
+    def _create_theme_dirs():
+        """Create theme directories and return paths."""
+        shared_templates = directory_factory("themes/shared/templates")
+        galleria_templates = directory_factory("galleria/themes/minimal/templates")
+
+        return {
+            "shared_templates": shared_templates,
+            "galleria_templates": galleria_templates
+        }
+
+    return _create_theme_dirs

@@ -63,12 +63,12 @@ For detailed planning guidance, templates, and examples, see: **[`PLANNING.md`](
 - [ ] Commit: `Ft: Add shared asset manager with PicoCSS integration`
 
 *Cycle 2: Implement Shared Template Search Paths*
-- [ ] Write unit test for template loader configuration that fails
-- [ ] Update Pelican Jinja2 loader to include `themes/shared/templates/`
-- [ ] Update Galleria template system to include shared template paths
-- [ ] Create example shared template to verify functionality
-- [ ] `uv run ruff check --fix --unsafe-fixes && uv run pytest`
-- [ ] Update TODO.md and CHANGELOG.md
+- [x] Write unit test for template loader configuration that fails
+- [x] Update Pelican Jinja2 loader to include `themes/shared/templates/`
+- [x] Update Galleria template system to include shared template paths
+- [x] Create example shared template to verify functionality
+- [x] `uv run ruff check --fix --unsafe-fixes && uv run pytest`
+- [x] Update TODO.md and CHANGELOG.md
 - [ ] Commit: `Ft: Configure shared template search paths for both systems`
 
 *Cycle 3: Create Context Adapter Pattern*

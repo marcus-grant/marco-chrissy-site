@@ -11,6 +11,11 @@
 - Shared asset manager in themes/shared/utils/asset_manager.py for external dependency management
 - PicoCSS download functionality with automatic directory creation and URL generation
 - Unit test coverage for asset manager with proper TDD implementation
+- Shared template loader system in themes/shared/utils/template_loader.py
+- Pelican and Galleria template search path configuration with proper precedence
+- Jinja2 template inclusion support across both systems with shared components
+- Comprehensive test coverage for template loading and precedence rules
+- New shared_theme_dirs fixture for consistent theme testing setup
 
 ## 2025-12-16
 
