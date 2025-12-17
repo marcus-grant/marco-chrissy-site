@@ -30,6 +30,64 @@ class TestSiteServeCommand:
         assert result.exit_code == 0
         assert "Starting site serve proxy at http://127.0.0.1:8000" in result.output
 
+    @patch('cli.commands.serve.ServeOrchestrator')
+    @patch('os.path.exists')
+    def test_serve_fails_when_build_cannot_create_output_dir(self, mock_exists, mock_orchestrator_class):
+        """Test serve command fails when build completes but output directory still missing."""
+        from click.testing import CliRunner
+
+        from cli.commands.serve import serve
+
+        # Arrange: Mock output directory never exists, even after build
+        mock_exists.side_effect = lambda path: path != "output"
+        mock_orchestrator = Mock()
+        mock_orchestrator_class.return_value = mock_orchestrator
+
+        # Act: Run serve command
+        runner = CliRunner()
+        result = runner.invoke(serve)
+
+        # Assert: Should fail when build doesn't create output directory
+        assert result.exit_code == 1
+        assert "build completed but output directory still missing" in result.output.lower()
+        # Orchestrator should not have been called
+        mock_orchestrator.start.assert_not_called()
+
+    @patch('cli.commands.serve.ServeOrchestrator')
+    @patch('os.path.exists')
+    def test_serve_auto_calls_build_when_output_missing(self, mock_exists, mock_orchestrator_class):
+        """Test serve command automatically calls build when output directory missing."""
+        from unittest.mock import Mock
+
+        from click.testing import CliRunner
+
+        from cli.commands.serve import serve
+
+        # Arrange: Mock that output directory doesn't exist initially but build creates it
+        call_count = 0
+        def exists_side_effect(path):
+            nonlocal call_count
+            if path == "output":
+                call_count += 1
+                # First call: output doesn't exist, second call: output exists after build
+                return call_count > 1
+            return True
+
+        mock_exists.side_effect = exists_side_effect
+        mock_orchestrator = Mock()
+        mock_orchestrator_class.return_value = mock_orchestrator
+        mock_orchestrator.start.side_effect = KeyboardInterrupt()  # Exit immediately
+
+        # Act: Run serve command
+        runner = CliRunner()
+        result = runner.invoke(serve)
+
+        # Assert: Should succeed after auto-calling build
+        assert result.exit_code == 0
+        assert "running build" in result.output.lower()
+        # Orchestrator should have been called after successful build
+        mock_orchestrator.start.assert_called_once()
+
         # Original test - will work after refactor:
         # @patch('cli.commands.serve.http.server.HTTPServer')
         # @patch('cli.commands.serve.SiteServeProxy')

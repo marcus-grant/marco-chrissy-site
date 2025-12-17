@@ -51,5 +51,18 @@ The core site building pipeline follows this cascading sequence:
 - Set appropriate cache headers
 - Validate deployment
 
+## Development Commands
+
+### serve
+**Purpose**: Development server with build cascade  
+**Calls**: `build` only (if output directory missing)
+
+**Responsibilities**:
+- Check for output directory existence
+- Auto-call build→organize→validate if output missing
+- Start HTTP proxy server coordinating Galleria and Pelican
+- Route requests: /galleries/* → Galleria, /pics/* → static files, other → Pelican
+- Provide development-time localhost URL override
+
 ## Implementation Location
 Pipeline commands are implemented in the `cli/commands/` module. Each command uses direct Python module imports rather than subprocess calls for better integration and error handling.

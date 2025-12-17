@@ -63,12 +63,18 @@
 - PermissionValidator for output directory permission verification  
 - Proper exit code handling in validate command (returns 1 on failure)
 - Comprehensive E2E test coverage for all validate functionality
+- Serve command cascade functionality - auto-calls build when output/ missing
 
 ### Changed  
 
 - Removed skip decorators from validate E2E tests
 - Enhanced validate command with dependencies and permissions checks
 - Updated validator module with three specialized validator classes
+- Serve command now follows cascading pipeline pattern (serve→build→organize→validate)
+
+### Fixed
+- Serve command cascade to build pipeline when output directory missing
+- Proper error handling when build fails during serve cascade
 
 ### Documentation
 
@@ -77,16 +83,7 @@
   - DependencyValidator
   - PermissionValidator APIs
 - Added validate command link to doc/commands/README.md
-- Created doc/release/ archive structure for changelog organization
-- Updated doc/README.md with release archive links
-
-### Planning
-
-- Comprehensive TDD plan for theme system implementation (Task 1.3)
-- Test discovery methodology with placeholder implementations
-- Complete MVP 0.1.0 release preparation tasks documented
-
-### Tests
+- Updated serve command documentation with cascade behavior
 
 - Added theme system integration tests in test/e2e/test_theme_integration.py
 - Integration test covers theme file loading, template rendering, CSS processing
