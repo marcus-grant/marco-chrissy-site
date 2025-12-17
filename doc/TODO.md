@@ -57,12 +57,12 @@ Critical Issues:
 
 *Cycle 1: Create defaults.py Module*
 
-- [ ] Write unit test for `defaults.get_output_dir()` that fails
-- [ ] Create `defaults.py` with `get_output_dir()` function  
-- [ ] Implement function to return Path("output")
-- [ ] Test function returns Path object, not string
-- [ ] `uv run ruff check --fix --unsafe-fixes && uv run pytest`
-- [ ] Update TODO.md and CHANGELOG.md
+- [x] Write unit test for `defaults.get_output_dir()` that fails
+- [x] Create `defaults.py` with `get_output_dir()` function  
+- [x] Implement function to return Path("output")
+- [x] Test function returns Path object, not string
+- [x] `uv run ruff check --fix --unsafe-fixes && uv run pytest`
+- [x] Update TODO.md and CHANGELOG.md
 - [ ] Commit: `Ft: Add defaults module for path configuration`
 
 *Cycle 2: Fix Serve Command Hardcoded Path*
