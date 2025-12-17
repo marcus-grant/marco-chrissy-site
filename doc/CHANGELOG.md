@@ -28,6 +28,14 @@
 - Extended asset_manager.py with shared CSS file handling using defaults
 - Functions return Path objects for external package compatibility
 
+### Tests
+
+- Added integration test for shared component build system verification
+- Test uses BeautifulSoup to verify shared navbar appears in both Pelican and Galleria HTML
+- Test verifies shared CSS is copied to output and properly integrated
+- Used existing fixtures (full_config_setup, file_factory) for proper test setup
+- Test currently skipped as shared component build integration not implemented
+
 ### Planning
 
 - Restructured TODO.md to fix shared component integration failures

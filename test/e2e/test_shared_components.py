@@ -1,6 +1,8 @@
 """E2E tests for shared theme component system integration."""
 
+from pathlib import Path
 
+import pytest
 
 
 class TestSharedComponentSystem:
@@ -108,3 +110,107 @@ class TestSharedComponentSystem:
         # This test will verify asset URL consistency
         # Implementation will be added when asset manager is built
         pass
+
+    @pytest.mark.skip("Shared component build integration not implemented")
+    def test_build_integrates_shared_components_into_both_systems(self, full_config_setup, file_factory, directory_factory, fake_image_factory):
+        """Test that shared navbar and CSS appear in both Pelican and Galleria HTML output.
+
+        This integration test verifies that:
+        - Shared navbar template is included in both Pelican and Galleria pages
+        - Shared CSS is copied to output and referenced in both systems
+        - Build system properly integrates external shared components
+        """
+        import os
+        import subprocess
+
+        from bs4 import BeautifulSoup
+
+        # Create shared component files
+        directory_factory("themes/shared/templates")
+        directory_factory("themes/shared/css")
+
+        file_factory(
+            "themes/shared/templates/navbar.html",
+            '<nav class="shared-nav">Test Navbar</nav>'
+        )
+
+        file_factory(
+            "themes/shared/css/shared.css",
+            '.shared-nav { color: blue; background: red; }'
+        )
+
+        # Create test content for Pelican
+        file_factory("content/test.md", """
+Title: Test Page
+Date: 2023-01-01
+
+Test content with shared navbar:
+{% include 'navbar.html' %}
+""")
+
+        # Create configs that reference shared components
+        full_config_setup({
+            "pelican": {
+                "SITENAME": "Test Site",
+                "SHARED_THEME_PATH": "themes/shared"
+            },
+            "galleria": {
+                "theme": {
+                    "external_templates": ["themes/shared/templates"],
+                    "external_assets": {"css": ["/css/shared.css"]}
+                },
+                "galleries": {
+                    "test": {
+                        "title": "Test Gallery",
+                        "input_dir": "photos",
+                        "template": "gallery.html"
+                    }
+                }
+            }
+        })
+
+        # Create test photos for Galleria
+        directory_factory("photos")
+        fake_image_factory("test.jpg", "photos")
+
+        # Run site build
+        result = subprocess.run(
+            ["uv", "run", "site", "build"],
+            cwd=os.getcwd(),
+            capture_output=True,
+            text=True,
+            timeout=30
+        )
+
+        # Build should succeed
+        assert result.returncode == 0, f"Build failed: {result.stderr}"
+
+        # Verify shared navbar in Pelican HTML output
+        pelican_files = list(Path("output").glob("*.html"))
+        assert len(pelican_files) > 0, "No Pelican HTML files generated"
+
+        pelican_html = pelican_files[0].read_text()
+        pelican_soup = BeautifulSoup(pelican_html, 'html.parser')
+        pelican_navbar = pelican_soup.find('nav', class_='shared-nav')
+
+        assert pelican_navbar is not None, "Shared navbar not found in Pelican HTML"
+        assert pelican_navbar.get_text().strip() == "Test Navbar", "Navbar text incorrect in Pelican HTML"
+
+        # Verify shared navbar in Galleria HTML output
+        galleria_files = list(Path("output/galleries").rglob("*.html"))
+        assert len(galleria_files) > 0, "No Galleria HTML files generated"
+
+        galleria_html = galleria_files[0].read_text()
+        galleria_soup = BeautifulSoup(galleria_html, 'html.parser')
+        galleria_navbar = galleria_soup.find('nav', class_='shared-nav')
+
+        assert galleria_navbar is not None, "Shared navbar not found in Galleria HTML"
+        assert galleria_navbar.get_text().strip() == "Test Navbar", "Navbar text incorrect in Galleria HTML"
+
+        # Verify shared CSS is copied to output
+        shared_css_output = Path("output/css/shared.css")
+        assert shared_css_output.exists(), "Shared CSS not copied to output"
+
+        css_content = shared_css_output.read_text()
+        assert ".shared-nav" in css_content, "Shared CSS rules missing from output"
+        assert "color: blue" in css_content, "CSS styling missing from output"

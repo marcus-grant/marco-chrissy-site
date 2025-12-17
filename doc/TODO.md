@@ -95,21 +95,21 @@ Critical Issues:
 - [x] Test that functions return lists of Path objects for external compatibility
 - [x] `uv run ruff check --fix --unsafe-fixes && uv run pytest`
 - [x] Update TODO.md and CHANGELOG.md
-- [ ] Commit: `Ft: Add shared component path defaults for external usage`
+- [x] Commit: `Ft: Add shared component path defaults for external usage`
 
 *Cycle 5: Add True Shared Component Integration Tests*
 
-- [ ] Write E2E test that verifies shared components appear in both Pelican and Galleria HTML output
-- [ ] Create mock shared navbar template: `<nav class="shared-nav">Test Navbar</nav>`
-- [ ] Create mock shared CSS file: `.shared-nav { color: blue; background: red; }`
-- [ ] Test that `uv run site build` includes shared navbar HTML in both system outputs
-- [ ] Test that shared CSS file is copied to output and referenced in both HTML outputs
-- [ ] Assert "Test Navbar" text appears in generated Pelican pages
-- [ ] Assert "Test Navbar" text appears in generated Galleria pages
-- [ ] Assert CSS rule `.shared-nav { color: blue; background: red; }` exists in output
-- [ ] `uv run ruff check --fix --unsafe-fixes && uv run pytest`
-- [ ] Update TODO.md and CHANGELOG.md
-- [ ] Commit: `Tst: Add E2E tests for true shared component integration`
+- [x] Write E2E test that verifies shared components appear in both Pelican and Galleria HTML output
+- [x] Create mock shared navbar template: `<nav class="shared-nav">Test Navbar</nav>`
+- [x] Create mock shared CSS file: `.shared-nav { color: blue; background: red; }`
+- [x] Test that `uv run site build` includes shared navbar HTML in both system outputs
+- [x] Test that shared CSS file is copied to output and referenced in both HTML outputs
+- [x] Assert "Test Navbar" text appears in generated Pelican pages
+- [x] Assert "Test Navbar" text appears in generated Galleria pages
+- [x] Assert CSS rule `.shared-nav { color: blue; background: red; }` exists in output
+- [x] `uv run ruff check --fix --unsafe-fixes && uv run pytest`
+- [x] Update TODO.md and CHANGELOG.md
+- [ ] Commit: `Tst: Add integration test for shared component build verification`
 
 *Cycle 6: Remove All Skip Decorators and Verify Complete Integration*
 
