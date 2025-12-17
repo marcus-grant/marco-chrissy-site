@@ -31,112 +31,196 @@ For detailed planning guidance, templates, and examples, see: **[`PLANNING.md`](
 - `test/e2e/test_site_serve.py`: Added E2E test for full cascade functionality
 - Documentation updated across multiple files
 
-#### Task 1.3: Template & CSS Architecture (Branch: ft/theme)
 
-*Problem Statement: Template and CSS plugins contain hardcoded HTML strings and CSS styles instead of loading from external theme files. This violates separation of concerns, makes customization difficult, and prevents coherent styling with the parent Pelican site.*
+### Phase 5: Site Navigation & Layout Integration
 
-**Phase 1: Setup & Integration Definition**
-- [x] `git checkout -b ft/theme`
-- [x] Insert nonsensical placeholder returns:
-  - [x] `BasicTemplatePlugin._generate_page_html()` → `return "<div>PLACEHOLDER_HTML</div>"`
-  - [x] `BasicCSSPlugin._generate_gallery_css()` → `return "/* PLACEHOLDER_CSS */"`
-- [x] Run `uv run pytest` to identify failing tests
-- [x] Document all failing test modules with specific failure reasons:
-  - `test/e2e/test_site_build.py::TestSiteBuild::test_build_uses_orchestrator_pattern` - Build E2E expects real HTML/CSS output
-  - `test/galleria/e2e/test_cli_generate.py` - CLI generate expects real gallery HTML/CSS (2 tests)
-  - `test/galleria/e2e/test_serve_e2e.py` - Serve E2E expects real generated content (3 tests)  
-  - `test/galleria/unit/plugins/test_template.py::TestBasicTemplatePlugin` - Template plugin unit tests expect real HTML structure (3 tests)
-  - `test/galleria/unit/test_cli_e2e.py::TestGalleriaCLIE2E::test_cli_generate_command_with_fake_filesystem` - CLI E2E expects real output
-- [x] Review failing tests against current TODO.md plan: **ALL COVERED** - Expected template/CSS plugin tests + E2E pipeline tests
-- [x] If gaps found: **NO GAPS** - all failing tests are expected categories
-- [x] Commit: `Pln: Update theme system plan based on test discovery`
-- [x] Evaluate current fixture landscape for theme system needs: **SUFFICIENT** - temp_filesystem, config_file_factory, file_factory cover theme directory creation
-- [x] Create theme-specific fixtures if beneficial: **NOT NEEDED** - existing fixtures adequate for theme file creation  
-- [x] Create integration test in `test/e2e/test_theme_integration.py`
-- [x] Add `@pytest.mark.skip("Theme system not implemented")`
-- [x] `uv run ruff check --fix --unsafe-fixes && uv run pytest`
-- [x] Update TODO.md and CHANGELOG.md
-- [ ] Commit: `Tst: Add theme system integration test (skipped)`
+*Problem Statement: Site lacks cohesive navigation between Pelican static pages and Galleria gallery pages, resulting in inconsistent styling and poor user experience. Users cannot easily navigate between static content (/about/) and galleries (/galleries/wedding/), and the two systems use completely separate CSS frameworks with no visual consistency.*
+
+#### Task 5.1: Shared Theme Component Foundation (Branch: ft/shared-components)
+
+*Problem Statement: Site needs unified theme system to share assets, templates, and components between Pelican and Galleria without tight coupling for future Galleria extraction.*
+
+**Phase 1: Setup & E2E Definition**
+- [ ] `git checkout -b ft/shared-components`
+- [ ] Create E2E test in `test/e2e/test_shared_components.py`
+  - [ ] Test that both Pelican and Galleria can load shared assets and templates
+  - [ ] Verify PicoCSS loads consistently across page types
+  - [ ] Test shared template inclusion from both systems
+  - [ ] Add `@pytest.mark.skip("Shared component system not implemented")`
+- [ ] `uv run ruff check --fix --unsafe-fixes && uv run pytest`
+- [ ] Update TODO.md and CHANGELOG.md
+- [ ] Commit: `Tst: Add E2E test for shared component system (skipped)`
 
 **Phase 2: TDD Implementation Cycles**
 
-*Cycle 1: Theme File Structure & Validation*
-- [x] Create stub in `galleria/theme/validator.py` with `ThemeValidator` class
-- [x] Write unit test for `ThemeValidator.validate_theme_directory()` that fails
-- [x] **Test Discovery**: No existing functionality to comment out (new module)
-- [x] Implement minimal theme directory validation
-- [x] Refactor for better design (keeping tests green)
-- [x] `uv run ruff check --fix --unsafe-fixes && uv run pytest`
-- [x] Update TODO.md and CHANGELOG.md
-- [ ] Commit: `Ft: Implement theme directory validation`
+*Cycle 1: Create Shared Asset Management*
+- [ ] Create `themes/shared/` directory structure
+- [ ] Write unit test for asset manager utility that fails
+- [ ] Implement `themes/shared/utils/asset_manager.py` for external dependencies
+- [ ] Download PicoCSS to `output/css/pico.min.css` during build
+- [ ] `uv run ruff check --fix --unsafe-fixes && uv run pytest`
+- [ ] Update TODO.md and CHANGELOG.md
+- [ ] Commit: `Ft: Add shared asset manager with PicoCSS integration`
 
-*Cycle 2: Jinja2 Template Loading*
-- [x] Create stub in `galleria/theme/loader.py` with `TemplateLoader` class
-- [x] Write unit test for `TemplateLoader.load_template()` that fails
-- [x] **Test Discovery**: No existing functionality to comment out (new module)
-- [x] Implement minimal Jinja2 template loading from theme directory
-- [x] Refactor for better design (keeping tests green)
-- [x] `uv run ruff check --fix --unsafe-fixes && uv run pytest`
-- [x] Update TODO.md and CHANGELOG.md
-- [ ] Commit: `Ft: Implement Jinja2 template loading`
+*Cycle 2: Implement Shared Template Search Paths*
+- [ ] Write unit test for template loader configuration that fails
+- [ ] Update Pelican Jinja2 loader to include `themes/shared/templates/`
+- [ ] Update Galleria template system to include shared template paths
+- [ ] Create example shared template to verify functionality
+- [ ] `uv run ruff check --fix --unsafe-fixes && uv run pytest`
+- [ ] Update TODO.md and CHANGELOG.md
+- [ ] Commit: `Ft: Configure shared template search paths for both systems`
 
-*Cycle 3: Template Plugin Refactor*
-- [x] Create/modify stub in `galleria/plugins/template.py`
-- [x] Write unit test for theme-based `BasicTemplatePlugin.generate_html()` that fails
-- [x] **Test Discovery**: Theme integration uses existing placeholder method
-- [x] Implement theme file integration in BasicTemplatePlugin
-- [x] Refactor for better design (keeping tests green)
-- [x] `uv run ruff check --fix --unsafe-fixes && uv run pytest`
-- [x] Update TODO.md and CHANGELOG.md
-- [x] Commit: `Ref: Replace hardcoded HTML with Jinja2 templates`
+*Cycle 3: Create Context Adapter Pattern*
+- [ ] Write unit test for context adapter interface that fails
+- [ ] Create `themes/shared/utils/context_adapters.py` with base interface
+- [ ] Implement Pelican context adapter for shared templates
+- [ ] Implement Galleria context adapter for shared templates
+- [ ] `uv run ruff check --fix --unsafe-fixes && uv run pytest`
+- [ ] Update TODO.md and CHANGELOG.md
+- [ ] Commit: `Ft: Implement context adapters for template compatibility`
 
-*Cycle 4: CSS Plugin Refactor*
-- [x] Create/modify stub in `galleria/plugins/css.py`
-- [x] Write unit test for theme-based `BasicCSSPlugin.generate_css()` that fails
-- [x] **Test Discovery**: Theme integration uses existing placeholder method
-- [x] Implement theme CSS file reading in BasicCSSPlugin
-- [x] Refactor for better design (keeping tests green)
-- [x] `uv run ruff check --fix --unsafe-fixes && uv run pytest`
-- [x] Update TODO.md and CHANGELOG.md
-- [x] Commit: `Ref: Replace hardcoded CSS with theme files`
+**Phase 3: Integration & Documentation**
+- [ ] Remove `@pytest.mark.skip` from E2E test
+- [ ] Verify E2E test passes (if not, return to Phase 2)
+- [ ] Update `doc/architecture.md` with shared component architecture
+- [ ] Create `doc/future/galleria-extraction.md` with dependency injection patterns
+- [ ] Update `doc/modules/galleria/themes.md` with new template system
+- [ ] `uv run ruff check --fix --unsafe-fixes && uv run pytest`
+- [ ] Update TODO.md and CHANGELOG.md
+- [ ] Commit: `Doc: Document shared component architecture and extraction patterns`
 
-*Cycle 5: Test Migration & Cleanup*
-- [x] Port all failing tests identified throughout cycles to work with theme system: **NO PORTING NEEDED** - fallback implementation preserves original behavior
-- [x] **Test Discovery**: Remove placeholder implementations, verify all tests pass with theme system: **PLACEHOLDERS ALREADY REPLACED** during implementation
-- [x] Remove commented-out implementation code and placeholders: **COMPLETED** during refactoring
-- [x] Refactor for better design (keeping tests green): **COMPLETED** with proper fallback pattern
-- [x] `uv run ruff check --fix --unsafe-fixes && uv run pytest`: **ALL TESTS PASSING**
-- [x] Update TODO.md and CHANGELOG.md
-- [x] Commit: `Tst: Verify theme system with existing test suite`
+**Phase 4: PR Creation**
+- [ ] `gh pr create --title "Ft: Implement shared theme component foundation" --body "Establishes unified system for sharing assets, templates, and components between Pelican and Galleria with future-ready extraction patterns"`
 
-**Phase 3: Critical Bug Fixes (BLOCKING MVP)** ✅ COMPLETED
-- [x] **FIXED: Photo link URLs generating incorrect paths** *(2025-12-16 - ACTUALLY FIXED)*
-  - [x] **Root Cause**: URL filter returned relative paths early instead of applying file type detection to bare filenames
-  - [x] **Real Issue**: Manifest provides `dest_path` as bare filename, but URL filter only applied file extension logic to absolute paths
-  - [x] **Solution**: Modified `_make_relative_path()` to apply file type detection to all bare filenames (no directory separators)
-  - [x] **Testing**: Created regression test with real manifest data structure, verified fix works in browser
-  - [x] **Result**: Photo URLs now correctly generate `/pics/full/filename.jpg` instead of `/filename.jpg`
-  - [x] **Additional**: Updated tests to use proper fixtures instead of hardcoded production data
-- [x] **FIXED: Gallery directory access returning 404**
-  - [x] **Root Cause**: Proxy server transformed `/galleries/wedding/` to `/` instead of `/index.html`
-  - [x] **Solution**: Updated proxy URL transformation to map directory access to `/index.html`
-  - [x] **Template Fix**: Added `_generate_gallery_index_html()` method for redirect pages
-  - [x] **Testing**: Added URL transformation logic tests, verified all scenarios work
-  - [x] **Result**: Gallery directories now handle `/galleries/wedding/` access correctly
+#### Task 5.2: Unified Navigation Component (Branch: ft/unified-nav)
 
-**Phase 4: Integration & Documentation** ✅ COMPLETED
-- [x] Remove `@pytest.mark.skip` from integration test
-- [x] Verify integration test passes (if not, return to Phase 2)
-- [x] Update relevant documentation in `doc/modules/galleria/`
-- [x] Ensure documentation links are maintained
-- [x] `uv run ruff check --fix --unsafe-fixes && uv run pytest`
-- [x] Update TODO.md and CHANGELOG.md
-- [x] Commit: `Doc: Enable theme integration test and update docs`
+*Problem Statement: Users cannot navigate cohesively between static pages and galleries due to independent navigation systems with no cross-system linking.*
 
-**Phase 5: PR Creation**
-- [ ] `gh pr create --title "Feat: File-based theme system" --body "Replaces hardcoded templates/CSS with configurable theme files"`
+**Phase 1: Setup & E2E Definition**
+- [ ] `git checkout -b ft/unified-nav`
+- [ ] Create E2E test in `test/e2e/test_unified_navigation.py`
+  - [ ] Test navigation appears consistently on all page types (static and gallery)
+  - [ ] Verify navigation links work between Pelican and Galleria pages
+  - [ ] Test active state highlighting for current page/section
+  - [ ] Test responsive navigation behavior at different screen sizes
+  - [ ] Add `@pytest.mark.skip("Unified navigation not implemented")`
+- [ ] `uv run ruff check --fix --unsafe-fixes && uv run pytest`
+- [ ] Update TODO.md and CHANGELOG.md
+- [ ] Commit: `Tst: Add E2E test for unified navigation (skipped)`
 
-### Phase 5: Performance Baseline
+**Phase 2: TDD Implementation Cycles**
+
+*Cycle 1: Create Shared Navigation Configuration*
+- [ ] Write unit test for navigation configuration loading that fails
+- [ ] Create `config/navigation.json` with primary nav and gallery context
+- [ ] Update site configuration loading to include navigation config
+- [ ] Implement navigation config validation
+- [ ] `uv run ruff check --fix --unsafe-fixes && uv run pytest`
+- [ ] Update TODO.md and CHANGELOG.md
+- [ ] Commit: `Ft: Add navigation configuration structure`
+
+*Cycle 2: Build Shared Navigation Templates*
+- [ ] Write unit test for navigation template rendering that fails
+- [ ] Create `themes/shared/templates/navigation/` directory
+- [ ] Implement `base.html`, `primary.html`, `breadcrumbs.html` templates
+- [ ] Add responsive design with mobile-first approach
+- [ ] `uv run ruff check --fix --unsafe-fixes && uv run pytest`
+- [ ] Update TODO.md and CHANGELOG.md
+- [ ] Commit: `Ft: Create shared navigation templates with responsive design`
+
+*Cycle 3: Integrate Navigation into Pelican*
+- [ ] Write unit test for Pelican navigation integration that fails
+- [ ] Create custom Pelican theme inheriting from "simple"
+- [ ] Update Pelican `base.html` to include shared navigation templates
+- [ ] Implement Pelican context adapter for navigation data
+- [ ] Test navigation active states for static pages
+- [ ] `uv run ruff check --fix --unsafe-fixes && uv run pytest`
+- [ ] Update TODO.md and CHANGELOG.md
+- [ ] Commit: `Ft: Integrate shared navigation into Pelican pages`
+
+*Cycle 4: Integrate Navigation into Galleria*
+- [ ] Write unit test for Galleria navigation integration that fails
+- [ ] Update Galleria templates to include shared navigation
+- [ ] Implement Galleria context adapter for navigation data
+- [ ] Add breadcrumb navigation for gallery context (Home > Galleries > Wedding)
+- [ ] Test navigation works with gallery URL structure
+- [ ] `uv run ruff check --fix --unsafe-fixes && uv run pytest`
+- [ ] Update TODO.md and CHANGELOG.md
+- [ ] Commit: `Ft: Integrate shared navigation into Galleria pages`
+
+**Phase 3: Integration & Documentation**
+- [ ] Remove `@pytest.mark.skip` from E2E test
+- [ ] Verify E2E test passes (if not, return to Phase 2)
+- [ ] Update `doc/configuration.md` with navigation configuration options
+- [ ] Update `doc/modules/galleria/themes.md` with template inheritance patterns
+- [ ] Document responsive navigation patterns in architecture docs
+- [ ] `uv run ruff check --fix --unsafe-fixes && uv run pytest`
+- [ ] Update TODO.md and CHANGELOG.md
+- [ ] Commit: `Doc: Update navigation and template integration documentation`
+
+**Phase 4: PR Creation**
+- [ ] `gh pr create --title "Ft: Implement unified navigation across all pages" --body "Creates consistent navigation experience between static content and gallery pages with responsive design and proper context awareness"`
+
+#### Task 5.3: Mobile-First Responsive Layout (Branch: ft/responsive-layout)
+
+*Problem Statement: Site lacks mobile optimization with poor touch targets, non-responsive gallery grid, and inconsistent mobile experience across page types.*
+
+**Phase 1: Setup & E2E Definition**
+- [ ] `git checkout -b ft/responsive-layout`
+- [ ] Create E2E test in `test/e2e/test_responsive_layout.py`
+  - [ ] Test layout works correctly at mobile viewports (320px, 480px, 768px)
+  - [ ] Verify gallery grid adapts from 1→2→4 columns based on screen size
+  - [ ] Test touch targets meet 44px minimum requirement
+  - [ ] Verify desktop layout maintains full functionality
+  - [ ] Add `@pytest.mark.skip("Responsive layout not implemented")`
+- [ ] `uv run ruff check --fix --unsafe-fixes && uv run pytest`
+- [ ] Update TODO.md and CHANGELOG.md
+- [ ] Commit: `Tst: Add E2E test for responsive layout (skipped)`
+
+**Phase 2: TDD Implementation Cycles**
+
+*Cycle 1: Implement Mobile-First Gallery Grid*
+- [ ] Write unit test for responsive grid CSS generation that fails
+- [ ] Create mobile-first CSS Grid system in gallery templates
+- [ ] Implement breakpoints: 480px (1→2 cols), 768px (2→3 cols), 1024px (3→4 cols)
+- [ ] Test gallery grid adapts correctly at each breakpoint
+- [ ] `uv run ruff check --fix --unsafe-fixes && uv run pytest`
+- [ ] Update TODO.md and CHANGELOG.md
+- [ ] Commit: `Ft: Implement mobile-first responsive gallery grid`
+
+*Cycle 2: Create Touch-Friendly Navigation*
+- [ ] Write unit test for touch target sizing that fails
+- [ ] Update navigation CSS with 44px minimum touch targets
+- [ ] Implement touch-friendly pagination controls
+- [ ] Add hover and active states for better touch feedback
+- [ ] `uv run ruff check --fix --unsafe-fixes && uv run pytest`
+- [ ] Update TODO.md and CHANGELOG.md
+- [ ] Commit: `Ft: Add touch-friendly navigation with proper target sizing`
+
+*Cycle 3: Responsive Typography and Spacing*
+- [ ] Write unit test for responsive typography that fails
+- [ ] Implement fluid typography scaling using CSS clamp()
+- [ ] Add responsive spacing and padding for mobile readability
+- [ ] Ensure consistent responsive behavior across Pelican and Galleria pages
+- [ ] `uv run ruff check --fix --unsafe-fixes && uv run pytest`
+- [ ] Update TODO.md and CHANGELOG.md
+- [ ] Commit: `Ft: Add responsive typography and spacing system`
+
+**Phase 3: Integration & Documentation**
+- [ ] Remove `@pytest.mark.skip` from E2E test
+- [ ] Verify E2E test passes (if not, return to Phase 2)
+- [ ] Update `doc/testing.md` with responsive testing patterns
+- [ ] Create mobile design guidelines in `doc/architecture.md`
+- [ ] Document post-MVP JS enhancement plans in `doc/future/`
+- [ ] `uv run ruff check --fix --unsafe-fixes && uv run pytest`
+- [ ] Update TODO.md and CHANGELOG.md
+- [ ] Commit: `Doc: Add responsive design documentation and testing guidelines`
+
+**Phase 4: PR Creation**
+- [ ] `gh pr create --title "Ft: Implement mobile-first responsive layout" --body "Creates responsive design system with touch-friendly navigation, mobile-optimized gallery grid, and consistent mobile experience across all page types"`
+
+### Phase 6: Performance Baseline
 
 - [ ] Measure initial performance metrics
   - [ ] Pipeline timing: validate, organize (16s), build (6m4s), deploy step durations
@@ -174,18 +258,6 @@ For detailed planning guidance, templates, and examples, see: **[`PLANNING.md`](
 
 - [ ] Plan rest of this step, needs much more detail
 - [ ] Set up dual CDN deployment strategy (photos vs site content)
-- [ ] **DESIGN ISSUE: Serve command doesn't cascade to build**
-  - Manual testing revealed serve fails when output/ doesn't exist
-  - Manual testing confirmed serve doesn't detect content changes and auto-rebuild
-  - Expected behavior: serve should auto-call build → organize → validate
-  - Current behavior: serve assumes build has already been run
-  - This violates the cascading pipeline pattern described in CONTRIBUTE.md
-  - Non-breaking issue: workaround is manual `site build` before `site serve`
-- [x] **PELICAN INTEGRATION ISSUE: File overwrite conflicts** *(RESOLVED)*
-  - **Root cause identified**: Pelican's default blog index and custom page with `slug: index` both try to generate `index.html`
-  - **Solution implemented**: Smart detection of conflicting content and conditional INDEX_SAVE_AS configuration
-  - **Verification complete**: Both test scenarios pass - with and without conflicting index content
-  - Manual testing can now proceed without requiring `rm output/index.html && site build` workaround
 
 ## MVP 0.1.0 Release Preparation
 
@@ -225,201 +297,56 @@ For detailed planning guidance, templates, and examples, see: **[`PLANNING.md`](
 
 ## Post-MVP Enhancements
 
-### Near-term Optimizations
+### Priority Issues
+- [ ] **Galleria Performance**: Optimize large photo collection processing (645+ photos cause CPU hang)
+- [ ] **Eliminate Hardcoded Paths**: Create PathConfig class for dependency injection, remove `os.chdir()` calls
+- [ ] **Plugin Output Validation**: Use structured types (Pydantic) instead of defensive CLI validation
+- [ ] **E2E Test Performance**: Fix 16+ second subprocess startup time, consolidate tests
 
-#### Task 4: Galleria Performance (Branch: perf/galleria)
-
-- [ ] `git checkout -b perf/galleria`
-- [ ] Create `test/performance/test_large_collections.py` with 645 photo test
-- [ ] Add `@pytest.mark.skip("Performance optimization not implemented")`
-- [ ] `uv run ruff check --fix --unsafe-fixes && uv run pytest`
-- [ ] Update TODO.md and CHANGELOG.md
-- [ ] Commit: `Tst: Add performance test for large photo collections (skipped)`
-
-- [ ] Write unit test for batched photo processing that fails
-- [ ] Implement batch processing in photo processor plugins
-- [ ] Add progress indicators for large collections
-- [ ] Remove `@pytest.mark.skip` from performance test
-- [ ] `uv run ruff check --fix --unsafe-fixes && uv run pytest`
-- [ ] Update TODO.md and CHANGELOG.md
-- [ ] Commit: `Perf: Implement batched photo processing for large collections`
-
-- [ ] `gh pr create --title "Perf: Optimize large photo collection processing" --body "Fixes CPU hang with 645+ photos via batched processing"`
-
-- [ ] **PRIORITY HIGH: Eliminate stateful operations and hardcoded paths**
-  - [ ] **Context**: Test infrastructure revealed hardcoded paths and stateful operations throughout codebase
-  - [ ] **Current anti-patterns**:
-    - [ ] Scattered hardcoded paths like `"config/schema/normpic.json"` cause testing and deployment issues
-    - [ ] `os.chdir()` calls in galleria server create stateful contamination between tests
-    - [ ] Working directory dependencies make tests fragile and non-isolated
-  - [ ] **Solution**: Centralized path configuration with dependency injection and stateless operations
-  - [ ] Create PathConfig class with configurable: config_dir, schema_dir, output_dir, temp_dir, working_dir paths
-  - [ ] Refactor galleria server to accept `serve_directory` parameter instead of using `os.chdir()`
-  - [ ] Refactor ConfigValidator to use PathConfig instead of hardcoded relative paths  
-  - [ ] Update all modules to use dependency-injected paths instead of hardcoded strings
-  - [ ] Replace all stateful operations with explicit parameter passing
-  - [ ] Benefits: deployment flexibility, Docker support, testing isolation, CDN integration, parallel test execution
-  - [ ] Enable different path structures for development vs production vs containerized environments
-  - [ ] Document path configuration options and deployment scenarios
-
-- [ ] **Refactor plugin output validation to use structured types and schema validation**
-  - [ ] Current file writing validation in CLI is defensive programming against malformed plugin output
-  - [ ] Design problem: plugins should not be able to generate invalid data structures
-  - [ ] Implement proper schema validation at plugin interface level using Pydantic or similar
-  - [ ] Create structured output types (e.g., HTMLFile, CSSFile dataclasses) instead of dictionaries
-  - [ ] Remove defensive validation from CLI once plugin interfaces are properly typed
-  - [ ] Add compile-time type checking for plugin contracts
-  - [ ] Update all existing plugins to use new structured output types
-- [ ] **E2E test performance optimization**
-  - [ ] Fix 16+ second subprocess startup time in E2E tests (unacceptable)
-  - [ ] Replace subprocess calls with direct function calls in E2E tests
-  - [ ] Consolidate 4 separate E2E tests into single comprehensive workflow test
-  - [ ] Achieve 460x performance improvement: 37s → 0.08s for organize E2E tests
-  - [ ] Consider pytest-xdist for parallel test execution
-  - [ ] Investigate uv run startup overhead with large dependency trees
-- [ ] **Verify galleria idempotency behavior**
-  - [ ] Verify galleria already handles idempotent rebuilds correctly
-  - [ ] Confirm manifest-based change detection works as expected
-  - [ ] Document that galleria handles its own change detection (no reimplementation needed)
-  - [ ] Test galleria's lazy rebuild behavior with config/template/plugin changes
-- [ ] **Enhanced fake image fixture for EXIF testing**
-  - [ ] Extend fake_image_factory to create EXIF timestamped photos
-  - [ ] Create 5 test images with interesting chronological order for normpic testing
-  - [ ] Test normpic's time ordering behavior without camera timestamp collisions
-  - [ ] Verify proper handling of sub-second timestamp variations
-  - [ ] Test multiple camera scenarios with different timestamp patterns
-- [ ] Comprehensive error handling improvements
-  - [ ] Manifest plugin errors (missing files, invalid JSON, version mismatches)
-  - [ ] Processor plugin errors (missing photos, corrupted files, permissions)
-  - [ ] Template plugin errors (missing themes, invalid syntax, rendering failures)
-  - [ ] Pipeline integration errors (plugin loading, dependency conflicts, crashes)
-  - [ ] System-level errors (permissions, disk space, memory issues)
-- [ ] **Gallery URL routing improvements** (moved to MVP as critical issues)
-  - [ ] **Solution**: Create `/galleries/index.html` that lists all galleries with preview thumbnails
-  - [ ] **Solution**: Consider URL rewriting so `/galleries/wedding/` automatically serves first page
+### Performance Optimizations  
+- [ ] Gallery lazy loading with JS progressive enhancement
+- [ ] Parallel thumbnail processing and incremental generation
+- [ ] WebP compression optimization
 - [ ] Dark mode toggle (CSS variables + minimal JS)
-- [ ] Gallery performance optimization
-  - [ ] Implement lazy loading with JS
-  - [ ] Add "Load More" progressive enhancement
-  - [ ] Consider intersection observer
-  - [ ] Parallel thumbnail processing
-  - [ ] Incremental generation (skip unchanged)
-  - [ ] Memory-efficient processing for large collections
-  - [ ] WebP compression optimization
-- [ ] Galleria customization features
-  - [ ] Configurable thumbnail sizes
-  - [ ] Aspect ratio preservation option
-  - [ ] Multiple thumbnail quality settings
-  - [ ] Configurable photos per page
-- [ ] Galleria theme system
-  - [ ] Extract theme to separate module
-  - [ ] Create theme base class
-  - [ ] Implement theme inheritance
-  - [ ] Add dark mode theme variant
-- [ ] Investigate dead code or re-implemented code
-  - [ ] Old non-plugin based manifest serializer module based on normpic's code
-  - [ ] Old thumbnail processor that didn't use the plugin interfaces
-- [ ] Move pelican stuff into a root 'pelican' directory instead of 'content'
+
+### Code Quality
+- [ ] Comprehensive error handling for plugin failures
+- [ ] Verify galleria idempotency behavior and manifest-based change detection
+- [ ] Enhanced fake image fixtures for EXIF testing
+- [ ] Remove dead code (old manifest serializer, thumbnail processor)
 
 ### Medium-term Features
 
-#### Fixture Refactoring (Branch: test/fixtures)
+#### Test Infrastructure
+- [ ] **Fixture Refactoring**: Consolidate mock_pelican_config, mock_site_config, and config_file_factory
+- [ ] Refactor large integration/e2e tests in galleria plugin system  
+- [ ] Create reusable mock plugin factories for consistent test data
 
-*Problem Statement: Test fixtures have duplication between mock_pelican_config, mock_site_config, and config_file_factory. This creates maintenance overhead and inconsistent test setup patterns. We need to consolidate these into enhanced, reusable fixtures that support both simple and complex configuration scenarios.*
-
-- [ ] `git checkout -b test/fixtures`
-- [ ] Analyze existing test fixtures for mock config duplication
-- [ ] Write E2E test for comprehensive config fixture usage that fails
-- [ ] Add `@pytest.mark.skip("Fixture refactoring not implemented")`
-- [ ] `uv run ruff check --fix --unsafe-fixes && uv run pytest`
-- [ ] Update TODO.md and CHANGELOG.md
-- [ ] Commit: `Tst: Add E2E test for fixture refactoring (skipped)`
-- [ ] Write unit test for enhanced config_file_factory that fails
-- [ ] Enhance config_file_factory to support mock overrides and complex configs
-- [ ] Merge mock_pelican_config and mock_site_config into enhanced factories
-- [ ] `uv run ruff check --fix --unsafe-fixes && uv run pytest`
-- [ ] Update TODO.md and CHANGELOG.md
-- [ ] Commit: `Ref: Enhance config_file_factory with mock support`
-- [ ] Write unit test for centralized test config management that fails
-- [ ] Create test_config_factory fixture for common test scenarios
-- [ ] Refactor existing tests to use centralized fixtures
-- [ ] Remove `@pytest.mark.skip` from E2E test
-- [ ] `uv run ruff check --fix --unsafe-fixes && uv run pytest`
-- [ ] Update TODO.md and CHANGELOG.md
-- [ ] Commit: `Ref: Centralize test configuration fixtures`
-- [ ] `gh pr create --title "Test: Refactor config fixtures for reusability" --body "Centralizes and enhances test fixtures to reduce duplication"`
-
-- [ ] Galleria plugin system implementation
-  - [ ] Implement plugin loading mechanism
-  - [ ] Create example plugins
-    - [ ] EXIF display plugin
-    - [ ] Photo download options plugin
-    - [ ] Social sharing plugin
-- [ ] Photographer web-optimized mirror set handling
-  - [ ] Handle photographer web-optimized versions
-  - [ ] Fill gaps with auto-generated versions
-  - [ ] Size variant selection UI
-- [ ] Multiple photo size options for download
+#### Gallery Enhancements
+- [ ] Galleria plugin system: EXIF display, photo download options, social sharing
 - [ ] Gallery search/filter capabilities
-- [ ] Galleria output options
-  - [ ] JSON data export for JS frameworks
-  - [ ] RSS feed generation
-  - [ ] Sitemap generation
-  - [ ] Open Graph meta tags
+- [ ] Multiple photo size options and photographer web-optimized mirror sets
+- [ ] JSON data export, RSS feeds, sitemap generation, Open Graph meta tags
+
+#### Site Content
 - [ ] Blog/updates section
+- [ ] Christmas and vacation galleries  
 - [ ] Christmas card pages
-- [ ] Add Christmas gallery
-- [ ] Add vacation gallery
 
-### Infrastructure Improvements
-
+#### Infrastructure
 - [ ] GitHub Actions CI/CD pipeline
-- [ ] Docker containerization consideration
-- [ ] Ansible automation evaluation
-- [ ] CDN optimization (separate bucket strategies)
+- [ ] Docker containerization and Ansible automation evaluation
+- [ ] CDN optimization with separate bucket strategies
 
-### Galleria Extraction Preparation
+#### Galleria Extraction Preparation  
+- [ ] Independence audit (remove parent project dependencies)
+- [ ] Technical debt cleanup (type hints, error handling, performance)
+- [ ] Evaluate shared schema package with NormPic
 
-- [ ] Galleria independence audit
-  - [ ] Ensure no parent project dependencies
-  - [ ] Verify self-contained module structure
-  - [ ] Create standalone pyproject.toml for Galleria
-  - [ ] Make sure the "Made with galleria" line is a link to the repo
-  - [ ] Document Galleria-only installation process
-- [ ] Galleria technical debt cleanup
-  - [ ] Add comprehensive type hints
-  - [ ] Improve error messages and logging
-  - [ ] Create development/debug mode
-  - [ ] Performance optimization and profiling
-- [ ] Test refactoring for maintainability
-  - [ ] Refactor large integration/e2e tests in galleria plugin system
-  - [ ] Extract common test fixtures for plugin interface testing
-  - [ ] Split unwieldy test methods into focused, composable test functions
-  - [ ] Create reusable mock plugin factories for consistent test data
-  - [ ] Implement parametrized tests for plugin contract validation
-  - [ ] Consider pytest fixtures for pipeline stage setup/teardown
-- [ ] Evaluate extracting schema definitions to shared package
-  - [ ] Assess whether NormPic and Galleria should share schema via tiny common package
-  - [ ] Consider maintenance overhead vs DRY benefits vs current code duplication
-  - [ ] Plan migration strategy if shared package approach is pursued
-
-### Long-term Considerations
-
-- [ ] Django integration for dynamic features
-- [ ] CMS integration (Wagtail evaluation)
+#### Long-term Considerations
+- [ ] Django/Wagtail integration for dynamic features
 - [ ] API endpoints for gallery data
-- [ ] Mobile app considerations
-- [ ] Galleria advanced features (post-extraction)
-  - [ ] Video support
-  - [ ] RAW file processing
-  - [ ] Cloud storage integration
-  - [ ] GUI configuration tool
-
-### Serve Command Future Enhancements
-
-- [ ] Smart rebuild feature for serve command (incremental rebuilds vs full rebuilds)
-- [ ] Configurable plugin/template paths + file watcher integration  
-- [ ] Document serve URL patterns for development vs production CDN routing
+- [ ] Galleria advanced features: video support, RAW processing, cloud storage, GUI tools
 
 ## Success Criteria
 
@@ -430,6 +357,14 @@ MVP is complete when:
 3. [ ] Site works without JavaScript
 4. [ ] Performance metrics are documented
 5. [ ] Build process is repeatable via script
+
+## Future Architecture Planning
+
+Post-MVP modularization strategy documented in [Future Architecture](future/). Key goals:
+- Extract Galleria as standalone project
+- Create SiteForge framework for static+dynamic sites  
+- Enable endpoint abstraction (same logic → static/FastAPI/HTMX/edge functions)
+- Transform this repo to configuration/deployment hub
 
 ## Notes
 

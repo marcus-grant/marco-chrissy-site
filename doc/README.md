@@ -22,6 +22,7 @@ The site orchestrates multiple tools to generate static content deployed to Bunn
 - [Configuration Guide](bconfiguration.md) - Config file formats and examples
 - [Commands](commands/) - Command system and workflow documentation
 - [Modules](modules/) - Module organization and structure
+- [Future Architecture](future/) - Post-MVP modularization strategy
 
 ### Component Documentation
 
