@@ -1,5 +1,25 @@
 # Changelog
 
+## 2025-12-17
+
+### Added
+
+- E2E test framework for shared component system in test/e2e/test_shared_components.py
+- Test coverage for shared asset management and template inclusion
+- Test verification for PicoCSS integration across Pelican and Galleria
+- Planning framework for unified navigation and responsive layout implementation
+- Shared asset manager in themes/shared/utils/asset_manager.py for external dependency management
+- PicoCSS download functionality with automatic directory creation and URL generation
+- Unit test coverage for asset manager with proper TDD implementation
+- Shared template loader system in themes/shared/utils/template_loader.py
+- Pelican and Galleria template search path configuration with proper precedence
+- Jinja2 template inclusion support across both systems with shared components
+- Comprehensive test coverage for template loading and precedence rules
+- New shared_theme_dirs fixture for consistent theme testing setup
+- Context adapter system for converting Pelican and Galleria contexts to shared format
+- Abstract base class pattern for template context standardization
+- Navigation configuration loading functionality
+
 ## 2025-12-16
 
 ### Added
