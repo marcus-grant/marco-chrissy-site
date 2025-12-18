@@ -106,6 +106,8 @@ class BasicTemplatePlugin(TemplatePlugin):
         """Generate HTML for a single page of photos."""
         # Check if theme path is configured
         theme_path = context.config.get("theme_path")
+        if not theme_path and "template" in context.config:
+            theme_path = context.config["template"].get("theme_path")
         if theme_path:
             return self._render_theme_template(
                 photos, collection_name, page_num, total_pages, context, theme_path
@@ -240,7 +242,11 @@ class BasicTemplatePlugin(TemplatePlugin):
         """Render HTML using theme template files."""
         from ..theme.loader import TemplateLoader
 
-        loader = TemplateLoader(theme_path)
+        # Get shared theme path from config
+        shared_theme_path = context.config.get("shared_theme_path")
+        if not shared_theme_path and "template" in context.config:
+            shared_theme_path = context.config["template"].get("shared_theme_path")
+        loader = TemplateLoader(theme_path, shared_theme_path)
 
         # Prepare photo data for template
         template_photos = []

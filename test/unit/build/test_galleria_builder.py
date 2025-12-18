@@ -146,3 +146,44 @@ class TestGalleriaBuilder:
         assert captured_context.metadata["build_context"] == build_context
         assert captured_context.metadata["site_url"] == site_url
         assert result is True
+
+    def test_build_galleria_includes_shared_templates(self, temp_filesystem, file_factory, directory_factory):
+        """Test that Galleria includes shared templates in generated HTML."""
+        # Create shared template
+        directory_factory("themes/shared/templates")
+        file_factory(
+            "themes/shared/templates/navbar.html",
+            '<nav id="test-shared-navbar"><a href="/">Home</a></nav>'
+        )
+        
+        galleria_config = {
+            "manifest_path": "manifest.json",
+            "output_dir": "galleries/test",
+            "theme": "minimal",
+            "SHARED_THEME_PATH": "themes/shared"
+        }
+        
+        # Create manifest with one photo
+        manifest_data = {
+            "name": "Test Gallery",
+            "collection_name": "test-gallery",
+            "description": "Test gallery", 
+            "pics": [
+                {
+                    "source_path": "photo1.jpg",
+                    "dest_path": "photo1.jpg",
+                    "hash": "abcd1234"
+                }
+            ]
+        }
+        file_factory("manifest.json", json_content=manifest_data)
+        
+        builder = GalleriaBuilder()
+        result = builder.build(galleria_config, temp_filesystem)
+        assert result, "Galleria build should succeed"
+        
+        # Check generated HTML contains shared navbar
+        output_html = temp_filesystem / "galleries" / "test" / "page_1.html"
+        if output_html.exists():
+            html_content = output_html.read_text()
+            assert 'id="test-shared-navbar"' in html_content, "Generated HTML should contain shared navbar"

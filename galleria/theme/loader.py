@@ -8,14 +8,16 @@ import jinja2
 class TemplateLoader:
     """Loads and renders Jinja2 templates from theme directories."""
 
-    def __init__(self, theme_path: str):
+    def __init__(self, theme_path: str, shared_theme_path: str = None):
         """Initialize template loader with theme path.
 
         Args:
             theme_path: Path to theme directory
+            shared_theme_path: Optional path to shared theme directory
         """
         self.theme_path = Path(theme_path)
         self.templates_dir = self.theme_path / "templates"
+        self.shared_templates_dir = Path(shared_theme_path) / "templates" if shared_theme_path else None
 
     def load_template(self, template_name: str) -> jinja2.Template:
         """Load Jinja2 template from theme directory.
@@ -29,9 +31,14 @@ class TemplateLoader:
         Raises:
             TemplateNotFoundError: If template file doesn't exist
         """
-        # Create Jinja2 environment with theme templates directory
+        # Build list of template search paths (theme first, then shared)
+        search_paths = [str(self.templates_dir)]
+        if self.shared_templates_dir and self.shared_templates_dir.exists():
+            search_paths.append(str(self.shared_templates_dir))
+            
+        # Create Jinja2 environment with theme and shared template directories
         env = jinja2.Environment(
-            loader=jinja2.FileSystemLoader(str(self.templates_dir)),
+            loader=jinja2.FileSystemLoader(search_paths),
             autoescape=jinja2.select_autoescape(['html', 'xml'])
         )
 

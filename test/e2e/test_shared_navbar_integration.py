@@ -75,7 +75,8 @@ This is the home page.
         "galleria": {
             "manifest_path": "output/pics/full/manifest.json",
             "output_dir": "output/galleries/wedding",
-            "theme": "minimal"
+            "theme": "minimal",
+            "SHARED_THEME_PATH": "themes/shared"
         }
     })
 

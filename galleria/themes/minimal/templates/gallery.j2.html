@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ collection_name }} - Page {{ page_num }}</title>
+    <link rel="stylesheet" href="gallery.css">
+</head>
+<body class="theme-minimal">
+    {% include 'navbar.html' ignore missing %}
+    <header>
+        <h1>{{ collection_name }}</h1>
+    </header>
+
+    <main class="gallery layout-grid">
+        {% for photo in photos %}
+            <div class="photo-item">
+                <a href="{{ photo.full_path }}">
+                    <img src="{{ photo.full_path }}" alt="Photo from {{ collection_name }}" loading="lazy">
+                </a>
+            </div>
+        {% endfor %}
+    </main>
+
+    {% if total_pages > 1 %}
+    <nav class="pagination">
+        {% if page_num > 1 %}
+            <a href="page_{{ page_num - 1 }}.html">&laquo; Previous</a>
+        {% endif %}
+        
+        <span>Page {{ page_num }} of {{ total_pages }}</span>
+        
+        {% if page_num < total_pages %}
+            <a href="page_{{ page_num + 1 }}.html">Next &raquo;</a>
+        {% endif %}
+    </nav>
+    {% endif %}
+
+    <footer>
+        <p>Generated with Galleria</p>
+    </footer>
+</body>
+</html>

@@ -21,6 +21,21 @@ class GalleriaBuilder:
         """Initialize GalleriaBuilder."""
         pass
 
+    def _get_theme_path(self, theme_name: str) -> str:
+        """Get the filesystem path to a Galleria theme.
+        
+        Args:
+            theme_name: Name of the theme
+            
+        Returns:
+            Absolute path to theme directory
+        """
+        from pathlib import Path
+        # Assuming themes are in galleria/themes/ relative to this file
+        galleria_root = Path(__file__).parent.parent / "galleria"
+        theme_path = galleria_root / "themes" / theme_name
+        return str(theme_path)
+
     def build(
         self, 
         galleria_config: dict, 
@@ -87,7 +102,9 @@ class GalleriaBuilder:
                     },
                     "template": {
                         "theme": galleria_config.get("theme", "minimal"),
-                        "title": "Gallery"
+                        "title": "Gallery",
+                        "theme_path": self._get_theme_path(galleria_config.get("theme", "minimal")),
+                        "shared_theme_path": str(base_dir / galleria_config["SHARED_THEME_PATH"]) if galleria_config.get("SHARED_THEME_PATH") else None
                     },
                     "css": {}
                 },
