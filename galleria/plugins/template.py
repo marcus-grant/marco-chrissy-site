@@ -265,6 +265,10 @@ class BasicTemplatePlugin(TemplatePlugin):
         css_files = context.input_data.get("css_files", [])
         shared_css_files = [f for f in css_files if f.get("type") == "shared"]
 
+        # If no shared CSS files from pipeline, read them directly from shared theme path
+        if not shared_css_files and shared_theme_path:
+            shared_css_files = self._read_shared_css_files_directly(shared_theme_path)
+
         # Load and render gallery template
         template = loader.load_template("gallery.j2.html")
         return template.render(
@@ -346,3 +350,36 @@ class BasicTemplatePlugin(TemplatePlugin):
     </footer>
 </body>
 </html>"""
+
+    def _read_shared_css_files_directly(self, shared_theme_path: str) -> list[dict]:
+        """Read CSS files directly from shared theme directory.
+
+        This allows template plugin to include shared CSS files
+        even when CSS plugin hasn't run yet (pipeline order fix).
+
+        Args:
+            shared_theme_path: Path to shared theme directory
+
+        Returns:
+            List of CSS file dictionaries with filename
+        """
+        from pathlib import Path
+
+        css_files = []
+        shared_css_dir = Path(shared_theme_path) / "static" / "css"
+
+        if not shared_css_dir.exists():
+            return css_files
+
+        # Read all shared CSS files
+        for css_file_path in shared_css_dir.glob("*.css"):
+            try:
+                css_files.append({
+                    "filename": css_file_path.name,
+                    "type": "shared"
+                })
+            except (OSError, UnicodeDecodeError):
+                # Skip files that can't be read
+                continue
+
+        return css_files

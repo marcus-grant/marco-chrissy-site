@@ -122,3 +122,66 @@ class TestBasicTemplatePluginURLBugs:
         assert 'src=""' not in html_content, "Found empty src attributes - should use placeholder"
         assert 'href="#missing-photo-path"' in html_content, "Should use placeholder for missing photo path"
         assert 'src="#missing-photo-path"' in html_content, "Should use placeholder for missing thumbnail path"
+
+    def test_template_includes_shared_css_when_shared_theme_configured(self, plugin_context_factory, temp_filesystem):
+        """Template plugin should directly read and link shared CSS files when shared_theme_path is configured.
+
+        This tests the pipeline order issue fix - template needs to include shared CSS
+        even when CSS plugin hasn't run yet.
+        """
+
+        # Create shared theme with CSS file
+        shared_dir = temp_filesystem / "themes" / "shared"
+        shared_css_dir = shared_dir / "static" / "css"
+        shared_css_dir.mkdir(parents=True)
+
+        shared_css_file = shared_css_dir / "shared.css"
+        shared_css_file.write_text("#shared-navbar { background: red; }")
+
+        # Create minimal theme directory and template
+        theme_dir = temp_filesystem / "galleria" / "themes" / "minimal" / "templates"
+        theme_dir.mkdir(parents=True)
+
+        # Create minimal gallery template that includes shared CSS
+        gallery_template = theme_dir / "gallery.j2.html"
+        gallery_template.write_text("""<!DOCTYPE html>
+<html>
+<head>
+    <title>{{ collection_name }}</title>
+    <link rel="stylesheet" href="gallery.css">
+    {% if shared_css_files %}{% for css_file in shared_css_files %}<link rel="stylesheet" href="{{ css_file.filename }}">
+    {% endfor %}{% endif %}
+</head>
+<body>
+    {% for photo in photos %}
+    <a href="{{ photo.photo_url }}"><img src="{{ photo.thumb_url }}"></a>
+    {% endfor %}
+</body>
+</html>""")
+
+        plugin = BasicTemplatePlugin()
+
+        context = plugin_context_factory(
+            photos=[
+                {
+                    "source_path": "/fake/source/wedding-photo.JPG",
+                    "thumbnail_path": "/fake/thumbnails/wedding-photo.webp",
+                    "dest_path": "wedding-photo.JPG",
+                }
+            ],
+            collection_name="wedding",
+            config={
+                "template": {
+                    "theme_path": str(temp_filesystem / "galleria" / "themes" / "minimal"),
+                    "shared_theme_path": str(shared_dir)
+                }
+            }
+        )
+
+        result = plugin.generate_html(context)
+        assert result.success
+        html_content = result.output_data["html_files"][0]["content"]
+
+        # Template should include shared CSS link
+        assert 'shared.css' in html_content, "Template should link to shared CSS file"
+        assert '<link rel="stylesheet" href="shared.css">' in html_content, "Template should have proper shared CSS link tag"
