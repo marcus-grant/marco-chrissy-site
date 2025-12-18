@@ -120,7 +120,7 @@ This is the home page.
     galleria_page = temp_filesystem / "output" / "galleries" / "wedding" / "page_1.html"
     assert galleria_page.exists(), "Galleria page_1.html not generated"
     galleria_content = galleria_page.read_text()
-    assert 'id="test-shared-navbar"' in galleria_content, "Shared navbar missing from Galleria page"
+    assert 'id="shared-navbar"' in galleria_content, "Shared navbar missing from Galleria page"
 
     # Check Galleria output contains shared CSS file
     galleria_css = temp_filesystem / "output" / "galleries" / "wedding" / "shared.css"

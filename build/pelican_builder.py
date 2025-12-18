@@ -60,7 +60,7 @@ class PelicanBuilder:
                 'SITEURL': override_site_url or pelican_config.get('site_url', ''),
                 'PATH': str(content_dir),
                 'OUTPUT_PATH': str(base_dir / site_config.get('output_dir', 'output')),
-                'THEME': pelican_config.get('theme', 'notmyidea'),
+                'THEME': str(base_dir / pelican_config.get('theme', 'notmyidea')),
                 
                 # Enable jinja2content plugin for template includes in Markdown
                 'PLUGINS': ['jinja2content'],

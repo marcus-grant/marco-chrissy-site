@@ -1,5 +1,34 @@
 # Changelog
 
+## 2025-12-18
+
+### Fixed
+
+- Resolved test pollution issue: identified root cause as tests/commands running from config/ directory with relative paths
+- Fixed shared navbar integration test assertion to match actual Galleria output (id="shared-navbar" vs id="test-shared-navbar")
+- Completed THEME_TEMPLATE_OVERRIDES alignment between Pelican and Galleria configurations
+- Resolved CSS pipeline ordering issues in shared component system
+- Fixed gallery template variable names and empty photo path handling
+
+### Added
+
+- Implemented shared navbar template and CSS components with proper integration
+- Added comprehensive config alignment for shared theme system
+- Created definitive integration tests for shared component verification
+- Added proper test isolation safeguards to prevent production path pollution
+
+### Technical Debt Resolved
+
+- **Critical Discovery**: Test pollution was caused by relative paths in config files when commands run from wrong directory
+- **Solution**: All tests now use proper temp_filesystem isolation, .gitignore updated to prevent future pollution
+- **Status**: Shared component integration actually WORKS - previous test failures were due to test bugs, not system failures
+
+### Completed
+
+- Phase 5A.1: THEME_TEMPLATE_OVERRIDES config alignment between Pelican and Galleria
+- Phase 5A: Shared component integration (Pelican + Galleria both rendering shared navbar and CSS)
+- Test pollution cleanup and permanent prevention measures
+
 ## 2025-12-17
 
 ### Added

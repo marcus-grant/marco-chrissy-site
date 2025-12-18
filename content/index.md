@@ -6,6 +6,8 @@ slug: index
 status: published
 ---
 
+{% include 'navbar.html' %}
+
 # Welcome to Our Online Home
 
 Hi! We're Marco and Chrissy, and this is our shared space on the web.

@@ -130,9 +130,110 @@ Critical Issues:
 - [ ] Reduce test suite execution time by removing wheel-spinning tests
 - [ ] Document `theme_factory` usage in test guidelines
 
-**Phase 5B: Manual Integration Verification** (Only after 5A complete)
+**Phase 5A.1: BLOCKING - Pelican Shared Component Configuration** ✅ **COMPLETED**
 
-- [ ] Manual testing to verify the integration works in practice
+*Problem: Galleria uses `shared_theme_path` while Pelican uses `THEME_TEMPLATE_OVERRIDES`. This configuration mismatch prevents shared components from working in Pelican, causing different navbars in site index vs gallery pages.*
+
+*Cycle 1: Add E2E Test for Real Output Verification*
+
+- [x] Modified existing `test_shared_navbar_integration.py` instead of creating new test
+- [x] Updated test to use `THEME_TEMPLATE_OVERRIDES` for both systems
+- [x] Initially marked with `@pytest.mark.skip("Pelican config alignment not implemented")`
+- [x] `uv run ruff check --fix --unsafe-fixes && uv run pytest`
+- [x] Update TODO.md and CHANGELOG.md
+- [x] Commit: `Tst: Update E2E test for config alignment`
+
+*Cycle 2: Update Unit Tests for New Configuration*
+
+- [x] Found existing tests that reference `shared_theme_path`
+- [x] Updated unit tests in `test/e2e/test_shared_components.py` to use `THEME_TEMPLATE_OVERRIDES`
+- [x] Updated galleria plugin tests to expect new config key
+- [x] Updated template loader tests to use Pelican-standard naming
+- [x] Tests failed as expected because implementation still used old key
+- [x] `uv run ruff check --fix --unsafe-fixes && uv run pytest`
+- [x] Update TODO.md and CHANGELOG.md
+- [x] Commit: `Tst: Update unit tests for config alignment`
+
+*Cycle 3: Update Galleria Implementation*
+
+- [x] Updated `build/galleria_builder.py` to read `THEME_TEMPLATE_OVERRIDES` instead of `shared_theme_path`
+- [x] Updated `galleria/plugins/template.py` to use new config key
+- [x] Updated `config/schema/galleria.json` to replace `shared_theme_path` with `THEME_TEMPLATE_OVERRIDES`
+- [x] Unit tests now pass
+- [x] `uv run ruff check --fix --unsafe-fixes && uv run pytest`
+- [x] Update TODO.md and CHANGELOG.md
+- [x] Commit: `Ref: Update Galleria config key alignment`
+
+*Cycle 4: Fix Pelican Configuration*
+
+- [x] Updated `config/pelican.json` and `config/galleria.json` to use `THEME_TEMPLATE_OVERRIDES`
+- [x] Fixed `build/pelican_builder.py` to read `THEME_TEMPLATE_OVERRIDES`
+- [x] Removed `@pytest.mark.skip` from E2E test
+- [x] E2E test shows Pelican shared components now working, Galleria template precedence issue remains
+- [x] `uv run ruff check --fix --unsafe-fixes && uv run pytest`
+- [x] Update TODO.md and CHANGELOG.md
+- [x] Commit: `Fix: Complete THEME_TEMPLATE_OVERRIDES alignment`
+
+**CRITICAL BLOCKER - Fix Test Pollution Before Phase 5B** ✅ **RESOLVED** 
+
+*Problem: E2E tests were writing to production paths instead of isolated temporary directories, polluting the real codebase with build artifacts*
+
+**Root Cause Identified**: Tests/commands run from `config/` directory with relative paths in config files caused `config/output/` pollution.
+
+- [x] **Clean up git tree FIRST**
+  - [x] Remove all built files from git tracking: `config/output/` (commit 7785253)
+  - [x] Update .gitignore to prevent future pollution (`config/output/` already included)
+  - [x] Verify no other test artifacts in version control
+  - [x] Commit cleanup immediately (commit 7785253)
+
+- [x] **Then investigate test isolation failure**
+  - [x] Find why tests write to `config/output/` instead of temp dirs (relative paths + wrong working directory)
+  - [x] Check `temp_filesystem` fixture usage in shared component tests (properly isolated)
+  - [x] Verify build processes use proper temporary directory isolation (confirmed working)
+  - [x] Document root cause of test pollution (CHANGELOG.md 2025-12-18)
+  
+- [x] **Fix test isolation**
+  - [x] Ensure ALL E2E tests use proper temporary directory isolation (verified working)
+  - [x] Fix build processes to never write to production paths during tests (not needed - already isolated)
+  - [x] Add safeguards to prevent test pollution (`.gitignore` updated)
+  - [x] Verify shared component tests run in complete isolation (confirmed working)
+
+**RESOLUTION**: Test pollution was caused by running commands from wrong directory with relative config paths. All tests are properly isolated using `temp_filesystem` fixture. `.gitignore` prevents future pollution.
+
+**Phase 5B: Manual Integration Verification** (Only after test pollution fixed)
+
+**CRITICAL BLOCKER - Pelican Theme Override Completely Broken** ❌ **BLOCKING ALL PROGRESS**
+
+*Problem: Pelican is completely ignoring custom theme configuration. Despite setting `"theme": "themes/site"` and creating proper theme structure with shared navbar template, Pelican continues using the default simple theme. This is a fundamental integration failure.*
+
+**Current Workaround**: Adding shared navbar via content include (results in duplicate navbars but at least shared component works).
+
+**Root Issue**: 
+- Custom theme at `themes/site/templates/base.html` with `{% include 'navbar.html' %}` is completely ignored
+- Theme path resolution in PelicanBuilder may be broken
+- Static site generator can't generate what we fucking want despite being designed for this exact purpose
+
+**Required Fix**:
+- [ ] **Investigate why Pelican ignores custom theme** 
+  - [ ] Check if theme structure is wrong
+  - [ ] Verify theme path resolution in PelicanBuilder
+  - [ ] Test if Pelican can find custom themes at all
+  - [ ] Document exact requirements for Pelican theme override
+
+- [ ] **Fix Pelican theme integration**
+  - [ ] Make Pelican actually use our custom theme
+  - [ ] Ensure shared navbar replaces theme navbar (not duplicates it)
+  - [ ] Remove duplicate navbar workaround once theme works
+
+- [ ] **Verify working integration**
+  - [ ] Single shared navbar in both Pelican and Galleria pages
+  - [ ] No duplicate navigation elements
+  - [ ] Manual browser verification shows consistent navigation
+
+**BLOCKING**: Manual verification cannot proceed until Pelican theme integration works properly. The shared component system is non-optional.
+
+- [ ] Manual testing to verify the integration works in practice (BLOCKED)
+- [ ] Verify both `output/index.html` and `output/galleries/wedding/page_1.html` have identical navbar (BLOCKED)
 
 **Phase 6: Documentation Updates**
 
