@@ -96,5 +96,6 @@ dev = [
     "pytest>=9.0.1",
     "pytest-timeout>=2.4.0",
     "pytest-xdist>=3.8.0",
+    "ruff>=0.14.6",
     "watchdog>=3.0.0", # For file watching in serve command
 ]

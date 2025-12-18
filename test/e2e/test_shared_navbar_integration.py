@@ -17,16 +17,16 @@ def test_shared_navbar_appears_in_both_systems(temp_filesystem, full_config_setu
         "themes/shared/templates/navbar.html",
         '<nav id="test-shared-navbar"><a href="/">Home</a><a href="/about/">About</a><a href="/galleries/wedding/">Gallery</a></nav>'
     )
-    
+
     # Create minimal base template that includes CSS_FILE
     file_factory(
-        "themes/shared/templates/base.html", 
+        "themes/shared/templates/base.html",
         """<!DOCTYPE html>
 <html><head><title>{{ SITENAME }}</title>
 {% if CSS_FILE %}<link rel="stylesheet" href="{{ SITEURL }}/{{ THEME_STATIC_DIR }}/css/{{ CSS_FILE }}" />{% endif %}
 </head><body>{% block content %}Content goes here{% endblock %}</body></html>"""
     )
-    
+
     file_factory("themes/shared/templates/article.html", """{% extends "base.html" %}
 {% block content %}{{ article.content }}{% endblock %}""")
     file_factory("themes/shared/templates/index.html", """{% extends "base.html" %}
@@ -111,7 +111,7 @@ This is the home page.
     assert pelican_css.exists(), f"Shared CSS file missing from Pelican output at {pelican_css}"
     pelican_css_content = pelican_css.read_text()
     assert 'background: #ff00ff' in pelican_css_content, "Shared CSS with ugly color missing from Pelican output"
-    
+
     # Check Pelican HTML links to shared CSS
     assert 'shared.css' in pelican_content, "Pelican HTML should reference shared CSS file"
 
@@ -126,7 +126,7 @@ This is the home page.
     assert galleria_css.exists(), f"Shared CSS file missing from Galleria output at {galleria_css}"
     galleria_css_content = galleria_css.read_text()
     assert 'background: #ff00ff' in galleria_css_content, "Shared CSS with ugly color missing from Galleria output"
-    
+
     # Check Galleria HTML links to shared CSS
     assert 'shared.css' in galleria_content, "Galleria HTML should reference shared CSS file"
 

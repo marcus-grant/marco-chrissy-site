@@ -483,21 +483,21 @@ body.theme-light {
 
     def _read_shared_css_files(self, shared_theme_path: str) -> list[dict]:
         """Read CSS files from shared theme directory.
-        
+
         Args:
             shared_theme_path: Path to shared theme directory
-            
+
         Returns:
             List of CSS file dictionaries
         """
         from pathlib import Path
-        
+
         css_files = []
         shared_css_dir = Path(shared_theme_path) / "static" / "css"
-        
+
         if not shared_css_dir.exists():
             return css_files
-        
+
         # Read all shared CSS files
         for css_file_path in shared_css_dir.glob("*.css"):
             try:
@@ -510,5 +510,5 @@ body.theme-light {
             except (OSError, UnicodeDecodeError):
                 # Skip files that can't be read
                 continue
-        
+
         return css_files

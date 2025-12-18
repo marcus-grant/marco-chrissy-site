@@ -92,3 +92,33 @@ class TestBasicTemplatePluginURLBugs:
 
         # This test should fail - we expect index.html but probably only get page_1.html
         assert "index.html" in filenames, f"Expected index.html in {filenames} for gallery directory access"
+
+    def test_empty_photo_paths_should_fail_gracefully(self, plugin_context_factory):
+        """Template plugin should handle empty dest_path and thumbnail_path gracefully.
+
+        This reproduces the regression where all thumbnail links are empty href=\"\"
+        because photo data contains empty strings instead of valid paths.
+        """
+        plugin = BasicTemplatePlugin()
+
+        # This simulates the actual bug - empty paths from broken photo processing
+        context = plugin_context_factory(
+            photos=[
+                {
+                    "source_path": "/fake/source/wedding-photo.JPG",
+                    "thumbnail_path": "",  # EMPTY - this is the bug
+                    "dest_path": "",       # EMPTY - this is the bug
+                }
+            ],
+            collection_name="wedding",
+        )
+
+        result = plugin.generate_html(context)
+        assert result.success
+        html_content = result.output_data["html_files"][0]["content"]
+
+        # Template should handle empty paths gracefully with placeholder
+        assert 'href=""' not in html_content, "Found empty href attributes - should use placeholder"
+        assert 'src=""' not in html_content, "Found empty src attributes - should use placeholder"
+        assert 'href="#missing-photo-path"' in html_content, "Should use placeholder for missing photo path"
+        assert 'src="#missing-photo-path"' in html_content, "Should use placeholder for missing thumbnail path"

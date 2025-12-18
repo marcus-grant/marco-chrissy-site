@@ -186,7 +186,8 @@ class BasicTemplatePlugin(TemplatePlugin):
             Full URL if BuildContext available, otherwise relative path
         """
         if not path:
-            return path
+            # Return placeholder for missing paths to avoid empty href/src attributes
+            return "#missing-photo-path"
 
         # Check if BuildContext is available in metadata
         build_context = context.metadata.get("build_context")

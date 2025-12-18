@@ -35,7 +35,7 @@ class TemplateLoader:
         search_paths = [str(self.templates_dir)]
         if self.shared_templates_dir and self.shared_templates_dir.exists():
             search_paths.append(str(self.shared_templates_dir))
-            
+
         # Create Jinja2 environment with theme and shared template directories
         env = jinja2.Environment(
             loader=jinja2.FileSystemLoader(search_paths),
