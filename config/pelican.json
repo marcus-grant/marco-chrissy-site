@@ -13,5 +13,5 @@
   "article_paths": [""],
   "page_paths": ["pages"],
   "default_pagination": false,
-  "SHARED_THEME_PATH": "themes/shared"
+  "THEME_TEMPLATE_OVERRIDES": "themes/shared"
 }
