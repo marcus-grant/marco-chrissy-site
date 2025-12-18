@@ -104,10 +104,10 @@ class GalleriaBuilder:
                         "theme": galleria_config.get("theme", "minimal"),
                         "title": "Gallery",
                         "theme_path": self._get_theme_path(galleria_config.get("theme", "minimal")),
-                        "shared_theme_path": str(base_dir / galleria_config["SHARED_THEME_PATH"]) if galleria_config.get("SHARED_THEME_PATH") else None
+                        "shared_theme_path": str(base_dir / "themes/shared") if (base_dir / "themes/shared").exists() else None
                     },
                     "css": {
-                        "shared_theme_path": str(base_dir / galleria_config["SHARED_THEME_PATH"]) if galleria_config.get("SHARED_THEME_PATH") else None
+                        "shared_theme_path": str(base_dir / "themes/shared") if (base_dir / "themes/shared").exists() else None
                     }
                 },
                 output_dir=output_dir,

@@ -260,6 +260,10 @@ class BasicTemplatePlugin(TemplatePlugin):
                 "collection_name": collection_name,
             })
 
+        # Get shared CSS files from context if available
+        css_files = context.input_data.get("css_files", [])
+        shared_css_files = [f for f in css_files if f.get("type") == "shared"]
+
         # Load and render gallery template
         template = loader.load_template("gallery.j2.html")
         return template.render(
@@ -267,6 +271,7 @@ class BasicTemplatePlugin(TemplatePlugin):
             photos=template_photos,
             page_num=page_num,
             total_pages=total_pages,
+            shared_css_files=shared_css_files,
         )
 
     def _generate_hardcoded_html(

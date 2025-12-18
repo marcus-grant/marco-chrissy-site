@@ -3,7 +3,7 @@
   "output_dir": "output/galleries/wedding",
   "thumbnail_size": 400,
   "photos_per_page": 20,
-  "theme": "elegant",
+  "theme": "minimal",
   "quality": 85,
   "layout": "grid"
 }

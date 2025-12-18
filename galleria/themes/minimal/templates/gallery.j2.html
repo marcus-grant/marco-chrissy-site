@@ -5,7 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{ collection_name }} - Page {{ page_num }}</title>
     <link rel="stylesheet" href="gallery.css">
-    <link rel="stylesheet" href="shared.css">
+    {% if shared_css_files %}{% for css_file in shared_css_files %}<link rel="stylesheet" href="{{ css_file.filename }}">
+    {% endfor %}{% endif %}
 </head>
 <body class="theme-minimal">
     {% include 'navbar.html' ignore missing %}
