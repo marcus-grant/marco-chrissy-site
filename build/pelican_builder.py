@@ -122,6 +122,18 @@ class PelicanBuilder:
                             if isinstance(existing_static_paths, str):
                                 existing_static_paths = [existing_static_paths]
                             pelican_settings_dict['THEME_STATIC_PATHS'] = existing_static_paths + [shared_static_path]
+                            
+                            # Auto-configure shared CSS files for HTML inclusion
+                            shared_css_dir = Path(shared_static_path) / 'css'
+                            if shared_css_dir.exists():
+                                css_files = list(shared_css_dir.glob('*.css'))
+                                if css_files:
+                                    # Use first shared CSS file as main theme CSS
+                                    css_filename = css_files[0].name
+                                    pelican_settings_dict['CSS_FILE'] = css_filename
+                                    # Also set the theme to use the shared templates
+                                    if absolute_template_dirs:
+                                        pelican_settings_dict['THEME'] = str(base_dir / pelican_config['SHARED_THEME_PATH'])
                 finally:
                     # Clean up temporary file
                     Path(temp_config_path).unlink(missing_ok=True)
