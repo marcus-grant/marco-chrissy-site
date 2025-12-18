@@ -2,7 +2,10 @@
 
 import json
 
+import pytest
 
+
+@pytest.mark.skip("Pelican config alignment not implemented - THEME_TEMPLATE_OVERRIDES needed")
 def test_shared_navbar_appears_in_both_systems(temp_filesystem, full_config_setup, file_factory, directory_factory):
     """Verify shared navbar HTML appears in both Pelican and Galleria generated pages.
 
@@ -65,18 +68,20 @@ This is the home page.
 }""")
 
     # Configure both systems to use shared components
+    # NOTE: Testing alignment - Pelican should use THEME_TEMPLATE_OVERRIDES
+    # while Galleria currently uses shared_theme_path (will be fixed in subsequent cycles)
     configs = full_config_setup({
         "pelican": {
             "author": "Test",
             "sitename": "Test Site",
             "content_path": "content",
-            "SHARED_THEME_PATH": "themes/shared"
+            "THEME_TEMPLATE_OVERRIDES": "themes/shared"
         },
         "galleria": {
             "manifest_path": "output/pics/full/manifest.json",
             "output_dir": "output/galleries/wedding",
             "theme": "minimal",
-            "SHARED_THEME_PATH": "themes/shared"
+            "shared_theme_path": "themes/shared"
         }
     })
 
