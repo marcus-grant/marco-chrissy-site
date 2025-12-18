@@ -43,6 +43,7 @@ htmlcov/
 
 # Project-specific
 output/
+config/output/
 *.log
 .cache/
 tmp/
