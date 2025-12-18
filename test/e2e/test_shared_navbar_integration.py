@@ -91,11 +91,14 @@ This is the home page.
     pelican_content = pelican_index.read_text()
     assert 'id="test-shared-navbar"' in pelican_content, "Shared navbar missing from Pelican page"
 
-    # Check Pelican output contains shared CSS
+    # Check Pelican output contains shared CSS file
     pelican_css = temp_filesystem / "output" / "theme" / "css" / "shared.css"
-    if pelican_css.exists():
-        pelican_css_content = pelican_css.read_text()
-        assert 'background: #ff00ff' in pelican_css_content, "Shared CSS with ugly color missing from Pelican output"
+    assert pelican_css.exists(), f"Shared CSS file missing from Pelican output at {pelican_css}"
+    pelican_css_content = pelican_css.read_text()
+    assert 'background: #ff00ff' in pelican_css_content, "Shared CSS with ugly color missing from Pelican output"
+    
+    # Check Pelican HTML links to shared CSS
+    assert 'shared.css' in pelican_content, "Pelican HTML should reference shared CSS file"
 
     # Check Galleria output contains shared navbar
     galleria_page = temp_filesystem / "output" / "galleries" / "wedding" / "page_1.html"
@@ -103,11 +106,14 @@ This is the home page.
     galleria_content = galleria_page.read_text()
     assert 'id="test-shared-navbar"' in galleria_content, "Shared navbar missing from Galleria page"
 
-    # Check Galleria output contains shared CSS
+    # Check Galleria output contains shared CSS file
     galleria_css = temp_filesystem / "output" / "galleries" / "wedding" / "shared.css"
-    if galleria_css.exists():
-        galleria_css_content = galleria_css.read_text()
-        assert 'background: #ff00ff' in galleria_css_content, "Shared CSS with ugly color missing from Galleria output"
+    assert galleria_css.exists(), f"Shared CSS file missing from Galleria output at {galleria_css}"
+    galleria_css_content = galleria_css.read_text()
+    assert 'background: #ff00ff' in galleria_css_content, "Shared CSS with ugly color missing from Galleria output"
+    
+    # Check Galleria HTML links to shared CSS
+    assert 'shared.css' in galleria_content, "Galleria HTML should reference shared CSS file"
 
     # Verify both have the same navigation links
     for content in [pelican_content, galleria_content]:

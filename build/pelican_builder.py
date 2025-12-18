@@ -113,6 +113,15 @@ class PelicanBuilder:
                         pelican_settings_dict['THEME_TEMPLATES_OVERRIDES'] = absolute_template_dirs
                         # Set template paths for jinja2content plugin (for includes in Markdown)
                         pelican_settings_dict['JINJA2CONTENT_TEMPLATES'] = absolute_template_dirs
+                        
+                        # Configure shared static paths for CSS/assets
+                        shared_static_path = str(base_dir / pelican_config['SHARED_THEME_PATH'] / 'static')
+                        if Path(shared_static_path).exists():
+                            # Add shared static path to THEME_STATIC_PATHS
+                            existing_static_paths = pelican_settings_dict.get('THEME_STATIC_PATHS', ['static'])
+                            if isinstance(existing_static_paths, str):
+                                existing_static_paths = [existing_static_paths]
+                            pelican_settings_dict['THEME_STATIC_PATHS'] = existing_static_paths + [shared_static_path]
                 finally:
                     # Clean up temporary file
                     Path(temp_config_path).unlink(missing_ok=True)

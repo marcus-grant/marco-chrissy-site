@@ -65,15 +65,76 @@ Critical Issues:
 - [x] `uv run ruff check --fix --unsafe-fixes && uv run pytest`
 - [x] Commit: `Fix: Update gallery links to point to actual gallery`
 
-**Phase 5: Manual Integration Verification**
+**BLOCKING ISSUE: Shared Component Integration Still Not Working**
 
-- [ ] **Manual Build Test**: Guide user through `uv run site build`
-  - [ ] Verify shared navigation appears in output HTML
-  - [ ] Check PicoCSS inclusion in generated pages
-  - [ ] Confirm `/galleries/wedding/` links work
-- [ ] **Manual Serve Test**: Guide user through `uv run site serve`
-  - [ ] Test navigation between Pelican and Galleria pages
-  - [ ] Verify consistent styling across page types
+❌ **CRITICAL:** The shared component integration that was supposed to be implemented in the previous PR and fixed in this PR still does not work. Manual testing shows shared navbar is missing from gallery pages, and the one real test that matters proves shared components are not appearing in either Pelican or Galleria generated pages.
+
+**Root Cause:** All existing "integration" and "E2E" tests are worthless - they test infrastructure mocking instead of actual HTML output. The real test (`test_shared_navbar_integration.py`) shows:
+1. Pelican builds successfully but `{% include 'navbar.html' %}` appears as literal text, not rendered HTML
+2. Galleria template system has no shared template support at all
+3. Hundreds of lines of existing tests verify nothing useful
+
+**Required Fix Before Any Manual Testing:**
+
+**Phase 5A: Fix Shared Component Integration (BLOCKING)**
+
+*Cycle 1: Create the ONE test that actually matters*
+
+- [ ] Fix `test_shared_navbar_integration.py` to be the definitive test:
+  - [ ] Mock shared CSS file with vibrant ugly color (e.g., `background: #ff00ff`)
+  - [ ] Mock shared navbar with clear ID attribute (e.g., `<nav id="test-shared-navbar">`)
+  - [ ] Use existing fixtures, add minimal missing pieces only
+  - [ ] Test builds both Pelican and Galleria successfully
+  - [ ] Assert generated HTML contains the ugly color CSS
+  - [ ] Assert generated HTML contains the navbar with test ID
+  - [ ] Assert both assertions pass for BOTH Pelican and Galleria pages
+- [ ] `uv run ruff check --fix --unsafe-fixes && uv run pytest test/e2e/test_shared_navbar_integration.py`
+- [ ] When test fails (it will), identify what unit tests are needed
+- [ ] Update TODO.md and CHANGELOG.md
+- [ ] Commit: `Tst: Add definitive shared component integration test`
+
+*Cycle 2: Fix Pelican Shared Template Integration*
+
+- [ ] Write unit test for Pelican template include processing that fails
+- [ ] Fix THEME_TEMPLATES_OVERRIDES or find correct Pelican shared template approach
+- [ ] Implement minimal code to make Pelican process `{% include 'navbar.html' %}`
+- [ ] Ensure shared templates are found and rendered in Pelican build
+- [ ] `uv run ruff check --fix --unsafe-fixes && uv run pytest`
+- [ ] Update TODO.md and CHANGELOG.md
+- [ ] Commit: `Fix: Pelican shared template include processing`
+
+*Cycle 3: Fix Galleria Shared Template Integration*
+
+- [ ] Write unit test for Galleria shared template inclusion that fails
+- [ ] Add shared template support to Galleria template generation system
+- [ ] Modify gallery page generation to include shared navbar
+- [ ] Ensure generated gallery pages include shared components
+- [ ] `uv run ruff check --fix --unsafe-fixes && uv run pytest`
+- [ ] Update TODO.md and CHANGELOG.md
+- [ ] Commit: `Fix: Galleria shared template integration`
+
+*Cycle 4: Verify Complete Integration*
+
+- [ ] Run `test_shared_navbar_integration.py` - it should pass completely
+- [ ] Remove `@pytest.mark.skip` from any remaining shared component tests
+- [ ] Delete worthless mock-based integration tests that don't verify HTML output
+- [ ] Verify all tests pass with complete integration working
+- [ ] `uv run ruff check --fix --unsafe-fixes && uv run pytest`
+- [ ] Update TODO.md and CHANGELOG.md
+- [ ] Commit: `Tst: Verify complete shared component integration`
+
+*Cycle 5: Clean Up Worthless Tests*
+
+- [ ] Identify and remove integration tests that don't test actual HTML output
+- [ ] Keep only tests that verify real functionality
+- [ ] Reduce test suite execution time by removing time-wasting mock tests
+- [ ] `uv run ruff check --fix --unsafe-fixes && uv run pytest`
+- [ ] Update TODO.md and CHANGELOG.md
+- [ ] Commit: `Tst: Remove worthless integration tests`
+
+**Phase 5B: Manual Integration Verification** (Only after 5A complete)
+
+- [ ] Manual testing to verify the integration works in practice
 
 **Phase 6: Documentation Updates**
 

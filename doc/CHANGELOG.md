@@ -17,11 +17,18 @@
 - Updated Pelican Jinja environment configuration to include both shared and theme-specific templates
 - Resolved shared component build integration issues through systematic TDD approach
 
+### Critical Issues Discovered
+
+**BLOCKING:** Shared component integration is fundamentally broken despite "passing" tests:
+- Pelican builds but `{% include 'navbar.html' %}` appears as literal text, not rendered
+- Galleria template system has no shared template support
+- All existing E2E/integration tests are worthless - they test mocks instead of actual HTML output
+- Created `test_shared_navbar_integration.py` - the ONLY test that matters for this feature
+- Manual testing confirms no shared navbar appears in gallery pages
+
 ### Completed
 
-- Removed @pytest.mark.skip decorators from real plugin integration test
-- Verified complete shared component integration with all 455 tests passing (8 skipped)
-- Confirmed shared navbar and CSS appear correctly in both Pelican and Galleria build outputs
+- Removed @pytest.mark.skip decorators from real plugin integration test  
 - Updated gallery navigation links from generic /galleries/ to actual /galleries/wedding/
 - Fixed content navigation to point to working gallery instead of empty directory
 - Verified gallery pagination works correctly with index.html redirecting to page_1.html

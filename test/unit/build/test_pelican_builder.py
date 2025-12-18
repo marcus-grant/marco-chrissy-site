@@ -195,3 +195,42 @@ Test content with navbar: {% include 'navbar.html' %}
                     call_args = mock_configure_shared.call_args[0]
                     assert call_args[0].endswith('.json'), "Should be called with a JSON config file"
                     assert result is True
+
+    def test_build_copies_shared_css_files_to_theme_output(self, temp_filesystem, file_factory, directory_factory):
+        """Test that Pelican copies shared CSS files from themes/shared/static/css/ to output/theme/css/."""
+        # Create shared CSS file
+        directory_factory("themes/shared/static/css")
+        file_factory(
+            "themes/shared/static/css/shared.css",
+            '.shared-nav { background: #ff00ff; color: #00ff00; }'
+        )
+        
+        # Create minimal content
+        directory_factory("content")
+        file_factory("content/test.md", """Title: Test CSS
+Date: 2023-01-01
+
+# Test Page
+Test content.
+""")
+        
+        site_config = {"output_dir": "output"}
+        pelican_config = {
+            "author": "Test Author",
+            "sitename": "Test Site", 
+            "content_path": "content",
+            "SHARED_THEME_PATH": "themes/shared",
+            "theme": "notmyidea"
+        }
+        
+        builder = PelicanBuilder()
+        result = builder.build(site_config, pelican_config, temp_filesystem)
+        assert result, "Pelican build should succeed"
+        
+        # Check that shared CSS file was copied to theme output
+        output_css = temp_filesystem / "output" / "theme" / "css" / "shared.css"
+        assert output_css.exists(), f"Shared CSS should be copied to {output_css}"
+        
+        css_content = output_css.read_text()
+        assert 'background: #ff00ff' in css_content, "CSS content should be preserved"
+
