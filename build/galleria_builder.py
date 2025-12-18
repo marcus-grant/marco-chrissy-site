@@ -106,7 +106,9 @@ class GalleriaBuilder:
                         "theme_path": self._get_theme_path(galleria_config.get("theme", "minimal")),
                         "shared_theme_path": str(base_dir / galleria_config["SHARED_THEME_PATH"]) if galleria_config.get("SHARED_THEME_PATH") else None
                     },
-                    "css": {}
+                    "css": {
+                        "shared_theme_path": str(base_dir / galleria_config["SHARED_THEME_PATH"]) if galleria_config.get("SHARED_THEME_PATH") else None
+                    }
                 },
                 output_dir=output_dir,
                 metadata=metadata

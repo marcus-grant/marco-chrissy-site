@@ -82,6 +82,12 @@ class BasicCSSPlugin(CSSPlugin):
                     }
                 )
 
+            # Shared CSS files if shared theme path is configured
+            shared_theme_path = css_config.get("shared_theme_path")
+            if shared_theme_path:
+                shared_css_files = self._read_shared_css_files(shared_theme_path)
+                css_files.extend(shared_css_files)
+
             # Responsive CSS if enabled
             if css_config.get("responsive", True):
                 responsive_css = self._generate_responsive_css(css_config)
@@ -473,4 +479,36 @@ body.theme-light {
                 # Skip files that can't be read
                 continue
 
+        return css_files
+
+    def _read_shared_css_files(self, shared_theme_path: str) -> list[dict]:
+        """Read CSS files from shared theme directory.
+        
+        Args:
+            shared_theme_path: Path to shared theme directory
+            
+        Returns:
+            List of CSS file dictionaries
+        """
+        from pathlib import Path
+        
+        css_files = []
+        shared_css_dir = Path(shared_theme_path) / "static" / "css"
+        
+        if not shared_css_dir.exists():
+            return css_files
+        
+        # Read all shared CSS files
+        for css_file_path in shared_css_dir.glob("*.css"):
+            try:
+                content = css_file_path.read_text(encoding='utf-8')
+                css_files.append({
+                    "filename": css_file_path.name,
+                    "content": content,
+                    "type": "shared"
+                })
+            except (OSError, UnicodeDecodeError):
+                # Skip files that can't be read
+                continue
+        
         return css_files
