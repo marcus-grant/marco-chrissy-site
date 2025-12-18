@@ -28,7 +28,7 @@ class TestSharedTemplateLoader:
             {
                 "SITENAME": "Test Site",
                 "THEME": str(pelican_templates.parent),
-                "SHARED_THEME_PATH": str(shared_templates.parent)
+                "THEME_TEMPLATE_OVERRIDES": str(shared_templates.parent)
             }
         )
 

@@ -173,7 +173,7 @@ class TestBasicTemplatePluginURLBugs:
             config={
                 "template": {
                     "theme_path": str(temp_filesystem / "galleria" / "themes" / "minimal"),
-                    "shared_theme_path": str(shared_dir)
+                    "THEME_TEMPLATE_OVERRIDES": str(shared_dir)
                 }
             }
         )

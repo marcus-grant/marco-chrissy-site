@@ -33,7 +33,7 @@ class TestSharedComponentSystem:
             {
                 "SITENAME": "Test Site",
                 "THEME": str(themes_dir / "site"),
-                "SHARED_THEME_PATH": str(shared_dir)
+                "THEME_TEMPLATE_OVERRIDES": str(shared_dir)
             }
         )
 
@@ -150,7 +150,7 @@ Test content with shared navbar:
                 "author": "Test Author",
                 "sitename": "Test Site",
                 "content_path": "content",
-                "SHARED_THEME_PATH": "themes/shared"
+                "THEME_TEMPLATE_OVERRIDES": "themes/shared"
             }
         })
 
@@ -248,7 +248,7 @@ Test content with shared navbar:
             "pelican": {
                 "author": "Test",
                 "sitename": "Test Site",
-                "SHARED_THEME_PATH": "themes/shared"
+                "THEME_TEMPLATE_OVERRIDES": "themes/shared"
             }
         })
 
@@ -258,8 +258,8 @@ Test content with shared navbar:
             pelican_config = config_manager.load_pelican_config()
 
             # Verify shared theme path is in the loaded config
-            assert "SHARED_THEME_PATH" in pelican_config
-            assert pelican_config["SHARED_THEME_PATH"] == "themes/shared"
+            assert "THEME_TEMPLATE_OVERRIDES" in pelican_config
+            assert pelican_config["THEME_TEMPLATE_OVERRIDES"] == "themes/shared"
 
             # Success - our shared component config is properly loaded
             print("✓ Shared component configuration successfully loaded by build system")
