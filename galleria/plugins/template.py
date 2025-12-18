@@ -244,10 +244,10 @@ class BasicTemplatePlugin(TemplatePlugin):
         from ..theme.loader import TemplateLoader
 
         # Get shared theme path from config
-        shared_theme_path = context.config.get("shared_theme_path")
-        if not shared_theme_path and "template" in context.config:
-            shared_theme_path = context.config["template"].get("shared_theme_path")
-        loader = TemplateLoader(theme_path, shared_theme_path)
+        theme_template_overrides = context.config.get("THEME_TEMPLATE_OVERRIDES")
+        if not theme_template_overrides and "template" in context.config:
+            theme_template_overrides = context.config["template"].get("THEME_TEMPLATE_OVERRIDES")
+        loader = TemplateLoader(theme_path, theme_template_overrides)
 
         # Prepare photo data for template
         template_photos = []
@@ -266,8 +266,8 @@ class BasicTemplatePlugin(TemplatePlugin):
         shared_css_files = [f for f in css_files if f.get("type") == "shared"]
 
         # If no shared CSS files from pipeline, read them directly from shared theme path
-        if not shared_css_files and shared_theme_path:
-            shared_css_files = self._read_shared_css_files_directly(shared_theme_path)
+        if not shared_css_files and theme_template_overrides:
+            shared_css_files = self._read_shared_css_files_directly(theme_template_overrides)
 
         # Load and render gallery template
         template = loader.load_template("gallery.j2.html")
@@ -351,14 +351,14 @@ class BasicTemplatePlugin(TemplatePlugin):
 </body>
 </html>"""
 
-    def _read_shared_css_files_directly(self, shared_theme_path: str) -> list[dict]:
+    def _read_shared_css_files_directly(self, theme_template_overrides: str) -> list[dict]:
         """Read CSS files directly from shared theme directory.
 
         This allows template plugin to include shared CSS files
         even when CSS plugin hasn't run yet (pipeline order fix).
 
         Args:
-            shared_theme_path: Path to shared theme directory
+            theme_template_overrides: Path to shared theme directory
 
         Returns:
             List of CSS file dictionaries with filename
@@ -366,7 +366,7 @@ class BasicTemplatePlugin(TemplatePlugin):
         from pathlib import Path
 
         css_files = []
-        shared_css_dir = Path(shared_theme_path) / "static" / "css"
+        shared_css_dir = Path(theme_template_overrides) / "static" / "css"
 
         if not shared_css_dir.exists():
             return css_files

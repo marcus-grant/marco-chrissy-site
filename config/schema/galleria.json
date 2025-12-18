@@ -47,7 +47,7 @@
       "enum": ["grid", "flex"],
       "description": "Gallery layout type"
     },
-    "shared_theme_path": {
+    "THEME_TEMPLATE_OVERRIDES": {
       "type": "string",
       "description": "Path to shared theme directory for cross-system components",
       "examples": ["themes/shared", "../shared-themes/default"]

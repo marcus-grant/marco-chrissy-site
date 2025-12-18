@@ -8,16 +8,16 @@ import jinja2
 class TemplateLoader:
     """Loads and renders Jinja2 templates from theme directories."""
 
-    def __init__(self, theme_path: str, shared_theme_path: str = None):
+    def __init__(self, theme_path: str, theme_template_overrides: str = None):
         """Initialize template loader with theme path.
 
         Args:
             theme_path: Path to theme directory
-            shared_theme_path: Optional path to shared theme directory
+            theme_template_overrides: Optional path to shared theme directory
         """
         self.theme_path = Path(theme_path)
         self.templates_dir = self.theme_path / "templates"
-        self.shared_templates_dir = Path(shared_theme_path) / "templates" if shared_theme_path else None
+        self.shared_templates_dir = Path(theme_template_overrides) / "templates" if theme_template_overrides else None
 
     def load_template(self, template_name: str) -> jinja2.Template:
         """Load Jinja2 template from theme directory.

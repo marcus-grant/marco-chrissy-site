@@ -12,5 +12,6 @@
   "static_paths": ["images"],
   "article_paths": [""],
   "page_paths": ["pages"],
-  "default_pagination": false
+  "default_pagination": false,
+  "SHARED_THEME_PATH": "themes/shared"
 }

@@ -83,9 +83,9 @@ class BasicCSSPlugin(CSSPlugin):
                 )
 
             # Shared CSS files if shared theme path is configured
-            shared_theme_path = css_config.get("shared_theme_path")
-            if shared_theme_path:
-                shared_css_files = self._read_shared_css_files(shared_theme_path)
+            theme_template_overrides = css_config.get("THEME_TEMPLATE_OVERRIDES")
+            if theme_template_overrides:
+                shared_css_files = self._read_shared_css_files(theme_template_overrides)
                 css_files.extend(shared_css_files)
 
             # Responsive CSS if enabled
@@ -481,11 +481,11 @@ body.theme-light {
 
         return css_files
 
-    def _read_shared_css_files(self, shared_theme_path: str) -> list[dict]:
+    def _read_shared_css_files(self, theme_template_overrides: str) -> list[dict]:
         """Read CSS files from shared theme directory.
 
         Args:
-            shared_theme_path: Path to shared theme directory
+            theme_template_overrides: Path to shared theme directory
 
         Returns:
             List of CSS file dictionaries
@@ -493,7 +493,7 @@ body.theme-light {
         from pathlib import Path
 
         css_files = []
-        shared_css_dir = Path(shared_theme_path) / "static" / "css"
+        shared_css_dir = Path(theme_template_overrides) / "static" / "css"
 
         if not shared_css_dir.exists():
             return css_files

@@ -24,8 +24,8 @@ def configure_pelican_shared_templates(config_path: str) -> list[str]:
     template_dirs = []
 
     # Add shared templates if configured, otherwise use defaults
-    if "SHARED_THEME_PATH" in config:
-        shared_templates = Path(config["SHARED_THEME_PATH"]) / "templates"
+    if "THEME_TEMPLATE_OVERRIDES" in config:
+        shared_templates = Path(config["THEME_TEMPLATE_OVERRIDES"]) / "templates"
         template_dirs.append(str(shared_templates))
     else:
         # Use default shared template paths
