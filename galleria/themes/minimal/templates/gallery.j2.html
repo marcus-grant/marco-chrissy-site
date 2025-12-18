@@ -17,8 +17,8 @@
     <main class="gallery layout-grid">
         {% for photo in photos %}
             <div class="photo-item">
-                <a href="{{ photo.full_path }}">
-                    <img src="{{ photo.full_path }}" alt="Photo from {{ collection_name }}" loading="lazy">
+                <a href="{{ photo.photo_url }}">
+                    <img src="{{ photo.thumb_url }}" alt="Photo from {{ collection_name }}" loading="lazy">
                 </a>
             </div>
         {% endfor %}
