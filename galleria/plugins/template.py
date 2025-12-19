@@ -223,7 +223,8 @@ class BasicTemplatePlugin(TemplatePlugin):
             return f"thumbnails/{filename}"
         elif "pics" in path or path.endswith((".jpg", ".jpeg", ".JPG", ".JPEG")):
             # For full-size photos, we want to link to the CDN or pics directory
-            return f"../pics/full/{filename}"
+            # Gallery pages are in /galleries/{collection}/ so need ../../ to reach root
+            return f"../../pics/full/{filename}"
         elif path.endswith((".webp", ".WEBP")):
             # For thumbnails (webp files), they should be in thumbnails directory
             return f"thumbnails/{filename}"
