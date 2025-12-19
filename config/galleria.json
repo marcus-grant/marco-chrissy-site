@@ -4,6 +4,7 @@
   "thumbnail_size": 400,
   "photos_per_page": 20,
   "theme": "minimal",
+  "theme_path": "galleria/themes/minimal",
   "quality": 85,
   "layout": "grid",
   "THEME_TEMPLATES_OVERRIDES": "themes/shared"

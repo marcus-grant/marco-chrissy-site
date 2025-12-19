@@ -212,54 +212,76 @@ Critical Issues:
 
 **Phase 2: TDD Implementation Cycles**
 
-*Cycle 1: Update Integration Test to Detect Issues*
-- [ ] Update test to use correct config setting name (`THEME_TEMPLATES_OVERRIDES` plural)
-- [ ] Add proper custom theme structure in test (`themes/site/templates/base.html`)
-- [ ] Remove content workaround (`{% include 'navbar.html' %}` from content files)
-- [ ] Add duplicate navbar detection (count occurrences of navbar ID)
-- [ ] Test should fail, proving it can detect the current broken implementation
+*Cycle 1: Update Integration Test to Detect Issues* ✅ **COMPLETED**
+- [x] Update test to use correct config setting name (`THEME_TEMPLATES_OVERRIDES` plural)
+- [x] Add proper custom theme structure in test (`themes/site/templates/base.html`)
+- [x] Remove content workaround (`{% include 'navbar.html' %}` from content files)
+- [x] Add duplicate navbar detection (count occurrences of navbar ID)
+- [x] Test should fail, proving it can detect the current broken implementation
+- [x] `uv run ruff check --fix --unsafe-fixes && uv run pytest`
+- [x] Update TODO.md and CHANGELOG.md
+- [x] Commit: `Tst: Update test for Pelican override issues`
+
+*Cycle 2: Fix Configuration Setting Name* ✅ **COMPLETED**
+- [x] Update `config/pelican.json`: `THEME_TEMPLATE_OVERRIDES` → `THEME_TEMPLATES_OVERRIDES`
+- [x] Update `config/galleria.json`: Same change for consistency
+- [x] Update `build/pelican_builder.py`: Check for correct plural setting name
+- [x] Tests should still fail due to theme override logic issues
+- [x] `uv run ruff check --fix --unsafe-fixes && uv run pytest`
+- [x] Update TODO.md and CHANGELOG.md
+- [x] Commit: `Fix: Use plural THEME_TEMPLATES_OVERRIDES setting`
+
+*Cycle 3: Fix PelicanBuilder Theme Override Logic* ✅ **COMPLETED**
+- [x] Remove line 136 that incorrectly overrides THEME setting
+- [x] Keep original `THEME = themes/site` setting preserved
+- [x] Set `THEME_TEMPLATES_OVERRIDES` as list for template search paths
+- [x] Copy shared CSS to theme static directory before build
+- [x] Pelican tests now pass - custom theme with shared navbar working!
+- [x] `uv run ruff check --fix --unsafe-fixes && uv run pytest`
+- [x] Update TODO.md and CHANGELOG.md
+- [x] Commit: `Fix: Preserve primary theme with overrides`
+
+*Cycle 4: Update Production Theme Structure* ✅ **COMPLETED**
+- [x] Update `themes/site/templates/base.html` to include shared navbar (already correct)
+- [x] Remove workaround `{% include 'navbar.html' %}` from `content/index.md`
+- [x] Ensure proper HTML structure matches test expectations
+- [x] `uv run ruff check --fix --unsafe-fixes && uv run pytest`
+- [x] Update TODO.md and CHANGELOG.md
+- [x] Commit: `Fix: Remove content navbar workarounds`
+
+*Cycle 5: Fix Configuration Schema Validation* ⚠️ **BLOCKING**
+- [ ] Update `config/schema/galleria.json`: Change `THEME_TEMPLATE_OVERRIDES` → `THEME_TEMPLATES_OVERRIDES`
+- [ ] Test config validation passes: `uv run site validate`
 - [ ] `uv run ruff check --fix --unsafe-fixes && uv run pytest`
 - [ ] Update TODO.md and CHANGELOG.md
-- [ ] Commit: `Tst: Update integration test to detect Pelican theme override issues`
+- [ ] Commit: `Fix: Update schema for plural THEME_TEMPLATES_OVERRIDES setting`
 
-*Cycle 2: Fix Configuration Setting Name*
-- [ ] Update `config/pelican.json`: `THEME_TEMPLATE_OVERRIDES` → `THEME_TEMPLATES_OVERRIDES`
-- [ ] Update `config/galleria.json`: Same change for consistency
-- [ ] Update `build/pelican_builder.py`: Check for correct plural setting name
-- [ ] Tests should still fail due to theme override logic issues
+*Cycle 6: Fix Galleria Shared Template Integration*
+- [ ] Debug why Galleria isn't showing shared navbar (test fails line 150)
+- [ ] Check Galleria template plugin and shared template loading
+- [ ] Fix Galleria `THEME_TEMPLATES_OVERRIDES` configuration
+- [ ] Integration test should pass completely (both Pelican AND Galleria)
 - [ ] `uv run ruff check --fix --unsafe-fixes && uv run pytest`
 - [ ] Update TODO.md and CHANGELOG.md
-- [ ] Commit: `Fix: Use correct THEME_TEMPLATES_OVERRIDES setting name`
+- [ ] Commit: `Fix: Complete Galleria shared template integration`
 
-*Cycle 3: Fix PelicanBuilder Theme Override Logic*
-- [ ] Remove line 136 that incorrectly overrides THEME setting
-- [ ] Keep original `THEME = themes/site` setting preserved
-- [ ] Set `THEME_TEMPLATES_OVERRIDES` as list for template search paths
-- [ ] Copy shared CSS to theme static directory before build
-- [ ] Tests should now pass with single navbar
-- [ ] `uv run ruff check --fix --unsafe-fixes && uv run pytest`
-- [ ] Update TODO.md and CHANGELOG.md
-- [ ] Commit: `Fix: Preserve primary theme with template overrides as search paths`
-
-*Cycle 4: Update Production Theme Structure*
-- [ ] Update `themes/site/templates/base.html` to include shared navbar
-- [ ] Remove workaround `{% include 'navbar.html' %}` from `content/index.md`
-- [ ] Ensure proper HTML structure matches test expectations
-- [ ] `uv run ruff check --fix --unsafe-fixes && uv run pytest`
-- [ ] Update TODO.md and CHANGELOG.md
-- [ ] Commit: `Fix: Remove content workarounds, use proper theme integration`
-
-**Phase 3: Integration & Documentation**
-- [ ] Manual build verification: `uv run site build`
-- [ ] Verify single navbar in both `output/index.html` and `output/galleries/wedding/page_1.html`
-- [ ] Update `doc/architecture.md` with shared component integration patterns
-- [ ] Update `doc/modules/galleria/themes.md` with corrected configuration
+**Phase 3: Comprehensive Manual Verification**
+- [ ] **Full build verification**: `uv run site build` (must succeed)
+- [ ] **Shared component verification**: 
+  - [ ] Identical shared navbar in both `/` and `/galleries/wedding/`
+  - [ ] Shared CSS consistent across both systems
+  - [ ] Exactly 1 navbar per page (no duplicates)
+- [ ] **Gallery functionality verification**:
+  - [ ] Gallery link `/galleries/wedding/` works from home
+  - [ ] Thumbnails display correctly in gallery grid
+  - [ ] Clicking thumbnails opens full-size images
+  - [ ] Gallery pagination works, navigation back to home works
+- [ ] **Full test suite passes**: Zero failing tests before manual verification
+- [ ] Update `doc/architecture.md` with corrected integration patterns
+- [ ] Update `doc/modules/galleria/themes.md` with proper configuration
 - [ ] `uv run ruff check --fix --unsafe-fixes && uv run pytest`
 - [ ] Update TODO.md and CHANGELOG.md
 - [ ] Commit: `Doc: Update shared component integration documentation`
-
-**Phase 4: Continue with Phase 6**
-- [ ] Resume original Phase 6: Documentation Updates for complete shared component system
 
 **Phase 6: Documentation Updates**
 
