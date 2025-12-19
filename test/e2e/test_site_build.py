@@ -9,11 +9,55 @@ from click.testing import CliRunner
 from cli.commands.build import build
 
 
+def setup_shared_theme_structure(directory_factory, file_factory):
+    """Create shared theme structure used by both tests."""
+    # Create theme directories
+    directory_factory("themes/site/templates")
+    directory_factory("themes/shared/templates")
+    
+    # Create shared navbar component
+    file_factory(
+        "themes/shared/templates/navbar.html",
+        '<nav id="test-shared-navbar"><a href="/">Home</a><a href="/about/">About</a><a href="/galleries/wedding/">Gallery</a></nav>'
+    )
+    
+    # Create custom site theme that includes shared navbar
+    file_factory(
+        "themes/site/templates/base.html",
+        """<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>{{ SITENAME }}</title>
+    {% if CSS_FILE %}<link rel="stylesheet" href="{{ SITEURL }}/{{ THEME_STATIC_DIR }}/css/{{ CSS_FILE }}" />{% endif %}
+</head>
+<body>
+    <header>
+        <h1><a href="{{ SITEURL }}/">{{ SITENAME }}</a></h1>
+        {% include 'navbar.html' %}
+    </header>
+    <main>{% block content %}{% endblock %}</main>
+</body>
+</html>"""
+    )
+    
+    file_factory(
+        "themes/site/templates/article.html",
+        """{% extends "base.html" %}
+{% block content %}{{ article.content }}{% endblock %}"""
+    )
+    
+    file_factory(
+        "themes/site/templates/index.html",
+        """{% extends "base.html" %}
+{% block content %}{% for article in articles %}{{ article.content }}{% endfor %}{% endblock %}"""
+    )
+
+
 class TestSiteBuild:
     """Test the site build command functionality."""
 
     def test_build_uses_orchestrator_pattern(
-        self, temp_filesystem, full_config_setup, fake_image_factory
+        self, temp_filesystem, full_config_setup, fake_image_factory, directory_factory, file_factory
     ):
         """Test complete build workflow: organize → galleria → pelican with idempotency."""
 
@@ -22,8 +66,9 @@ class TestSiteBuild:
         fake_image_factory("IMG_002.jpg", directory="source_photos", use_raw_bytes=True)
         fake_image_factory("IMG_003.jpg", directory="source_photos", use_raw_bytes=True)
 
-        # Setup: Create content directory for Pelican
-        (temp_filesystem / "content").mkdir(exist_ok=True)
+        # Setup: Create content and theme structure
+        directory_factory("content")
+        setup_shared_theme_structure(directory_factory, file_factory)
 
         # Setup: Configure complete pipeline
         full_config_setup(
@@ -48,10 +93,12 @@ class TestSiteBuild:
                     "quality": 85,
                 },
                 "pelican": {
-                    "theme": "notmyidea",
-                    "site_url": "https://example.com",
+                    "theme": "themes/site",
+                    "site_url": "https://example.com", 
                     "author": "Test Author",
                     "sitename": "Test Site",
+                    "content_path": "content",
+                    "THEME_TEMPLATES_OVERRIDES": "themes/shared"
                 },
             }
         )
@@ -149,17 +196,16 @@ class TestSiteBuild:
         ), "Should show success"
 
     def test_build_handles_pelican_file_conflicts_gracefully(
-        self, temp_filesystem, full_config_setup, fake_image_factory
+        self, temp_filesystem, full_config_setup, fake_image_factory, directory_factory, file_factory
     ):
         """Test build doesn't fail when Pelican tries to overwrite existing index.html."""
 
         # Setup: Create source directory with test photos
         fake_image_factory("IMG_001.jpg", directory="source_photos", use_raw_bytes=True)
 
-        # Setup: Create content with index page that will create index.html
-        content_dir = temp_filesystem / "content"
-        content_dir.mkdir(exist_ok=True)
-        (content_dir / "index.md").write_text("""---
+        # Setup: Create content and theme structure
+        setup_shared_theme_structure(directory_factory, file_factory)
+        file_factory("content/index.md", """---
 title: Test Site
 date: 2025-12-02
 status: published
@@ -193,10 +239,12 @@ This is the main site page.
                     "quality": 85,
                 },
                 "pelican": {
-                    "theme": "notmyidea",
-                    "site_url": "https://example.com",
+                    "theme": "themes/site",
+                    "site_url": "https://example.com", 
                     "author": "Test Author",
                     "sitename": "Test Site",
+                    "content_path": "content",
+                    "THEME_TEMPLATES_OVERRIDES": "themes/shared"
                 },
             }
         )

@@ -206,7 +206,7 @@ class TestSiteServeE2E:
 
         # Create sample pelican content
         (temp_filesystem / "output" / "index.html").write_text(
-            "<html>Site Homepage</html>"
+            "<html>Site Homepage from Pelican</html>"
         )
         (temp_filesystem / "output" / "about.html").write_text(
             "<html>About Page</html>"
