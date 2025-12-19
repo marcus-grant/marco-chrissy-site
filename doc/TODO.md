@@ -202,38 +202,64 @@ Critical Issues:
 
 **Phase 5B: Manual Integration Verification** (Only after test pollution fixed)
 
-**CRITICAL BLOCKER - Pelican Theme Override Completely Broken** ❌ **BLOCKING ALL PROGRESS**
+#### Task 5.1.1: Fix Pelican Theme Override Configuration (Branch: fix/shared-components)
 
-*Problem: Pelican is completely ignoring custom theme configuration. Despite setting `"theme": "themes/site"` and creating proper theme structure with shared navbar template, Pelican continues using the default simple theme. This is a fundamental integration failure.*
+*Problem Statement: Pelican completely ignores custom theme configuration despite proper setup. The builder incorrectly replaces the primary theme with shared template override path, causing shared component integration failure and duplicate navbars.*
 
-**Current Workaround**: Adding shared navbar via content include (results in duplicate navbars but at least shared component works).
+**Phase 1: Setup & E2E Definition** ✅ **COMPLETED**
+- [x] E2E test exists in `test/e2e/test_shared_navbar_integration.py`
+- [x] Test currently passes due to workarounds, needs updating to detect the real issues
 
-**Root Issue**: 
-- Custom theme at `themes/site/templates/base.html` with `{% include 'navbar.html' %}` is completely ignored
-- Theme path resolution in PelicanBuilder may be broken
-- Static site generator can't generate what we fucking want despite being designed for this exact purpose
+**Phase 2: TDD Implementation Cycles**
 
-**Required Fix**:
-- [ ] **Investigate why Pelican ignores custom theme** 
-  - [ ] Check if theme structure is wrong
-  - [ ] Verify theme path resolution in PelicanBuilder
-  - [ ] Test if Pelican can find custom themes at all
-  - [ ] Document exact requirements for Pelican theme override
+*Cycle 1: Update Integration Test to Detect Issues*
+- [ ] Update test to use correct config setting name (`THEME_TEMPLATES_OVERRIDES` plural)
+- [ ] Add proper custom theme structure in test (`themes/site/templates/base.html`)
+- [ ] Remove content workaround (`{% include 'navbar.html' %}` from content files)
+- [ ] Add duplicate navbar detection (count occurrences of navbar ID)
+- [ ] Test should fail, proving it can detect the current broken implementation
+- [ ] `uv run ruff check --fix --unsafe-fixes && uv run pytest`
+- [ ] Update TODO.md and CHANGELOG.md
+- [ ] Commit: `Tst: Update integration test to detect Pelican theme override issues`
 
-- [ ] **Fix Pelican theme integration**
-  - [ ] Make Pelican actually use our custom theme
-  - [ ] Ensure shared navbar replaces theme navbar (not duplicates it)
-  - [ ] Remove duplicate navbar workaround once theme works
+*Cycle 2: Fix Configuration Setting Name*
+- [ ] Update `config/pelican.json`: `THEME_TEMPLATE_OVERRIDES` → `THEME_TEMPLATES_OVERRIDES`
+- [ ] Update `config/galleria.json`: Same change for consistency
+- [ ] Update `build/pelican_builder.py`: Check for correct plural setting name
+- [ ] Tests should still fail due to theme override logic issues
+- [ ] `uv run ruff check --fix --unsafe-fixes && uv run pytest`
+- [ ] Update TODO.md and CHANGELOG.md
+- [ ] Commit: `Fix: Use correct THEME_TEMPLATES_OVERRIDES setting name`
 
-- [ ] **Verify working integration**
-  - [ ] Single shared navbar in both Pelican and Galleria pages
-  - [ ] No duplicate navigation elements
-  - [ ] Manual browser verification shows consistent navigation
+*Cycle 3: Fix PelicanBuilder Theme Override Logic*
+- [ ] Remove line 136 that incorrectly overrides THEME setting
+- [ ] Keep original `THEME = themes/site` setting preserved
+- [ ] Set `THEME_TEMPLATES_OVERRIDES` as list for template search paths
+- [ ] Copy shared CSS to theme static directory before build
+- [ ] Tests should now pass with single navbar
+- [ ] `uv run ruff check --fix --unsafe-fixes && uv run pytest`
+- [ ] Update TODO.md and CHANGELOG.md
+- [ ] Commit: `Fix: Preserve primary theme with template overrides as search paths`
 
-**BLOCKING**: Manual verification cannot proceed until Pelican theme integration works properly. The shared component system is non-optional.
+*Cycle 4: Update Production Theme Structure*
+- [ ] Update `themes/site/templates/base.html` to include shared navbar
+- [ ] Remove workaround `{% include 'navbar.html' %}` from `content/index.md`
+- [ ] Ensure proper HTML structure matches test expectations
+- [ ] `uv run ruff check --fix --unsafe-fixes && uv run pytest`
+- [ ] Update TODO.md and CHANGELOG.md
+- [ ] Commit: `Fix: Remove content workarounds, use proper theme integration`
 
-- [ ] Manual testing to verify the integration works in practice (BLOCKED)
-- [ ] Verify both `output/index.html` and `output/galleries/wedding/page_1.html` have identical navbar (BLOCKED)
+**Phase 3: Integration & Documentation**
+- [ ] Manual build verification: `uv run site build`
+- [ ] Verify single navbar in both `output/index.html` and `output/galleries/wedding/page_1.html`
+- [ ] Update `doc/architecture.md` with shared component integration patterns
+- [ ] Update `doc/modules/galleria/themes.md` with corrected configuration
+- [ ] `uv run ruff check --fix --unsafe-fixes && uv run pytest`
+- [ ] Update TODO.md and CHANGELOG.md
+- [ ] Commit: `Doc: Update shared component integration documentation`
+
+**Phase 4: Continue with Phase 6**
+- [ ] Resume original Phase 6: Documentation Updates for complete shared component system
 
 **Phase 6: Documentation Updates**
 

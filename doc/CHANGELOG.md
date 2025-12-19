@@ -1,5 +1,13 @@
 # Changelog
 
+## 2025-12-19
+
+### Updated
+
+- Restructured TODO.md to follow PLANNING.md template with proper phase/cycle organization
+- Enhanced integration test to detect Pelican theme override configuration issues
+- Added duplicate navbar detection to verify single shared navbar in both systems
+
 ## 2025-12-18
 
 ### Fixed

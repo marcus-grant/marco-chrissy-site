@@ -39,13 +39,13 @@ def test_shared_navbar_appears_in_both_systems(temp_filesystem, full_config_setu
         '.test-shared-nav { background: #ff00ff; color: #00ff00; font-size: 24px; }'
     )
 
-    # Create minimal content for Pelican that includes shared navbar
+    # Create minimal content for Pelican WITHOUT shared navbar include
+    # The navbar should come from the theme template, not content includes
     file_factory("content/index.md", """Title: Home
 Date: 2023-01-01
 
 # Home Page
-{% include 'navbar.html' %}
-This is the home page.
+This is the home page content.
 """)
 
     # Create test photo manifest for Galleria
@@ -64,20 +64,53 @@ This is the home page.
     ]
 }""")
 
-    # Configure both systems to use shared components
-    # NOTE: Both systems now use THEME_TEMPLATE_OVERRIDES for config alignment
+    # Create custom theme that includes shared navbar in base template
+    directory_factory("themes/site/templates")
+    file_factory(
+        "themes/site/templates/base.html",
+        """<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>{{ SITENAME }}</title>
+    {% if CSS_FILE %}<link rel="stylesheet" href="{{ SITEURL }}/{{ THEME_STATIC_DIR }}/css/{{ CSS_FILE }}" />{% endif %}
+</head>
+<body>
+    <header>
+        <h1><a href="{{ SITEURL }}/">{{ SITENAME }}</a></h1>
+        {% include 'navbar.html' %}
+    </header>
+    <main>{% block content %}{% endblock %}</main>
+</body>
+</html>"""
+    )
+
+    file_factory(
+        "themes/site/templates/article.html",
+        """{% extends "base.html" %}
+{% block content %}{{ article.content }}{% endblock %}"""
+    )
+
+    file_factory(
+        "themes/site/templates/index.html",
+        """{% extends "base.html" %}
+{% block content %}{% for article in articles %}{{ article.content }}{% endfor %}{% endblock %}"""
+    )
+
+    # Configure both systems to use shared components with correct setting name
+    # NOTE: Using THEME_TEMPLATES_OVERRIDES (plural) per Pelican documentation
     configs = full_config_setup({
         "pelican": {
             "author": "Test",
             "sitename": "Test Site",
+            "theme": "themes/site",  # Use custom theme as primary
             "content_path": "content",
-            "THEME_TEMPLATE_OVERRIDES": "themes/shared"
+            "THEME_TEMPLATES_OVERRIDES": "themes/shared"  # Correct plural setting name
         },
         "galleria": {
             "manifest_path": "output/pics/full/manifest.json",
             "output_dir": "output/galleries/wedding",
             "theme": "minimal",
-            "THEME_TEMPLATE_OVERRIDES": "themes/shared"
+            "THEME_TEMPLATES_OVERRIDES": "themes/shared"  # Correct plural setting name
         }
     })
 
@@ -107,6 +140,10 @@ This is the home page.
     pelican_content = pelican_index.read_text()
     assert 'id="test-shared-navbar"' in pelican_content, "Shared navbar missing from Pelican page"
 
+    # CRITICAL: Verify NO duplicate navbars in Pelican output
+    navbar_count = pelican_content.count('id="test-shared-navbar"')
+    assert navbar_count == 1, f"Expected exactly 1 shared navbar, found {navbar_count} in Pelican output. Duplicate navbars detected!"
+
     # Check Pelican output contains shared CSS file
     pelican_css = temp_filesystem / "output" / "theme" / "css" / "shared.css"
     assert pelican_css.exists(), f"Shared CSS file missing from Pelican output at {pelican_css}"
@@ -121,6 +158,10 @@ This is the home page.
     assert galleria_page.exists(), "Galleria page_1.html not generated"
     galleria_content = galleria_page.read_text()
     assert 'id="shared-navbar"' in galleria_content, "Shared navbar missing from Galleria page"
+
+    # CRITICAL: Verify NO duplicate navbars in Galleria output
+    galleria_navbar_count = galleria_content.count('id="shared-navbar"')
+    assert galleria_navbar_count == 1, f"Expected exactly 1 shared navbar, found {galleria_navbar_count} in Galleria output. Duplicate navbars detected!"
 
     # Check Galleria output contains shared CSS file
     galleria_css = temp_filesystem / "output" / "galleries" / "wedding" / "shared.css"
