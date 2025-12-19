@@ -63,7 +63,7 @@ class ServeOrchestrator:
                         if k not in ["manifest_path", "output_dir"]
                     },
                 }
-                self.galleria_builder.build(builder_config, config_path.parent)
+                self.galleria_builder.build(builder_config, Path.cwd())
 
             # output_dir and manifest_path already extracted from config above
 
