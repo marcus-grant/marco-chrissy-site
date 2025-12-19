@@ -27,6 +27,8 @@ The site orchestrates multiple tools to generate static content deployed to Bunn
 ### Component Documentation
 
 - [Galleria Documentation](../galleria/doc/README.md) - Gallery generator
+- [Shared Component System](modules/shared/README.md) - Unified theme and component architecture
+- [Pelican Integration](modules/pelican/README.md) - Static site generator integration patterns
 
 ## Quick Links
 

@@ -12,6 +12,8 @@ This project follows functional module organization with clear separation of con
 - [Build System](build/) - Site build orchestration and coordination
 - [Galleria Structure](galleria-structure.md) - Gallery generator overview
 - [Galleria Modules](galleria/) - Detailed Galleria module documentation
+- [Shared Component System](shared/) - Unified component architecture
+- [Pelican Integration](pelican/) - Static site generator integration patterns
 
 ## Key Principles
 

@@ -192,13 +192,15 @@ For detailed planning guidance, templates, and examples, see: **[`PLANNING.md`](
 
 ## Testing Infrastructure
 
-* **Use shared fixtures** (see [testing.md](testing.md)):
+* **CRITICAL: All tests MUST use isolated temporary filesystems - NEVER touch real project files**
+* **Use shared fixtures** (see [testing.md](testing.md) for complete guide):
   * `temp_filesystem` - Isolated temporary directories
   * `file_factory` - Create files with content (text or JSON)
   * `config_file_factory` - Config files with sensible defaults
   * `full_config_setup` - Complete config environment
-* **Real filesystem tests** - Prefer actual files over mocks for integration tests
-* **Temporary filesystem isolation** - E2E tests use subprocess calls in temp directories
+  * `theme_factory` - Complete theme structures for testing
+* **Real filesystem tests** - Use actual files in temp directories, not mocks
+* **Test isolation** - All operations must run in isolated temp directories
 
 ## Documentation Management
 
