@@ -106,6 +106,8 @@ class BasicTemplatePlugin(TemplatePlugin):
         """Generate HTML for a single page of photos."""
         # Check if theme path is configured
         theme_path = context.config.get("theme_path")
+        if not theme_path and "template" in context.config:
+            theme_path = context.config["template"].get("theme_path")
         if theme_path:
             return self._render_theme_template(
                 photos, collection_name, page_num, total_pages, context, theme_path
@@ -184,7 +186,8 @@ class BasicTemplatePlugin(TemplatePlugin):
             Full URL if BuildContext available, otherwise relative path
         """
         if not path:
-            return path
+            # Return placeholder for missing paths to avoid empty href/src attributes
+            return "#missing-photo-path"
 
         # Check if BuildContext is available in metadata
         build_context = context.metadata.get("build_context")
@@ -220,7 +223,8 @@ class BasicTemplatePlugin(TemplatePlugin):
             return f"thumbnails/{filename}"
         elif "pics" in path or path.endswith((".jpg", ".jpeg", ".JPG", ".JPEG")):
             # For full-size photos, we want to link to the CDN or pics directory
-            return f"../pics/full/{filename}"
+            # Gallery pages are in /galleries/{collection}/ so need ../../ to reach root
+            return f"../../pics/full/{filename}"
         elif path.endswith((".webp", ".WEBP")):
             # For thumbnails (webp files), they should be in thumbnails directory
             return f"thumbnails/{filename}"
@@ -240,7 +244,11 @@ class BasicTemplatePlugin(TemplatePlugin):
         """Render HTML using theme template files."""
         from ..theme.loader import TemplateLoader
 
-        loader = TemplateLoader(theme_path)
+        # Get shared theme path from config
+        theme_template_overrides = context.config.get("THEME_TEMPLATES_OVERRIDES")
+        if not theme_template_overrides and "template" in context.config:
+            theme_template_overrides = context.config["template"].get("THEME_TEMPLATES_OVERRIDES")
+        loader = TemplateLoader(theme_path, theme_template_overrides)
 
         # Prepare photo data for template
         template_photos = []
@@ -254,6 +262,14 @@ class BasicTemplatePlugin(TemplatePlugin):
                 "collection_name": collection_name,
             })
 
+        # Get shared CSS files from context if available
+        css_files = context.input_data.get("css_files", [])
+        shared_css_files = [f for f in css_files if f.get("type") == "shared"]
+
+        # If no shared CSS files from pipeline, read them directly from shared theme path
+        if not shared_css_files and theme_template_overrides:
+            shared_css_files = self._read_shared_css_files_directly(theme_template_overrides)
+
         # Load and render gallery template
         template = loader.load_template("gallery.j2.html")
         return template.render(
@@ -261,6 +277,7 @@ class BasicTemplatePlugin(TemplatePlugin):
             photos=template_photos,
             page_num=page_num,
             total_pages=total_pages,
+            shared_css_files=shared_css_files,
         )
 
     def _generate_hardcoded_html(
@@ -334,3 +351,36 @@ class BasicTemplatePlugin(TemplatePlugin):
     </footer>
 </body>
 </html>"""
+
+    def _read_shared_css_files_directly(self, theme_template_overrides: str) -> list[dict]:
+        """Read CSS files directly from shared theme directory.
+
+        This allows template plugin to include shared CSS files
+        even when CSS plugin hasn't run yet (pipeline order fix).
+
+        Args:
+            theme_template_overrides: Path to shared theme directory
+
+        Returns:
+            List of CSS file dictionaries with filename
+        """
+        from pathlib import Path
+
+        css_files = []
+        shared_css_dir = Path(theme_template_overrides) / "static" / "css"
+
+        if not shared_css_dir.exists():
+            return css_files
+
+        # Read all shared CSS files
+        for css_file_path in shared_css_dir.glob("*.css"):
+            try:
+                css_files.append({
+                    "filename": css_file_path.name,
+                    "type": "shared"
+                })
+            except (OSError, UnicodeDecodeError):
+                # Skip files that can't be read
+                continue
+
+        return css_files

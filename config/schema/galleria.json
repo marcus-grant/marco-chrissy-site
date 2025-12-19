@@ -34,6 +34,11 @@
       "description": "Gallery theme name",
       "examples": ["minimal", "elegant", "modern"]
     },
+    "theme_path": {
+      "type": "string",
+      "description": "Path to theme directory containing templates",
+      "examples": ["galleria/themes/minimal", "themes/custom"]
+    },
     "quality": {
       "type": "integer",
       "minimum": 10,
@@ -46,6 +51,11 @@
       "default": "grid",
       "enum": ["grid", "flex"],
       "description": "Gallery layout type"
+    },
+    "THEME_TEMPLATES_OVERRIDES": {
+      "type": "string",
+      "description": "Path to shared theme directory for cross-system components",
+      "examples": ["themes/shared", "../shared-themes/default"]
     }
   },
   "required": ["manifest_path", "output_dir"],

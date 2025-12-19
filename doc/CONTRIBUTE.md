@@ -30,8 +30,11 @@ For detailed planning guidance, templates, and examples, see: **[`PLANNING.md`](
 * This is a `**uv**`` managed project
   * **Test Command**: Use `uv run pytest` to run tests
     * **NOT**: `python -m pytest`
+    * Also add the args/flags that only show failed test paths/modules/funcs first.
+      * We don't need to waste context on passing tests in code quality checks
   * Prefer timeouts and multithreading with a command like this:
     * `uv run pytest -vv --timeout=20 -n auto`
+      * Don't use -vv unless trying to understand failures.
 * **ALWAYS run ruff first**: `uv run ruff check --fix --unsafe-fixes` before testing
 * **ALWAYS run full test suite**: Before every single commit
 * **Specific Test Files**:
@@ -189,13 +192,15 @@ For detailed planning guidance, templates, and examples, see: **[`PLANNING.md`](
 
 ## Testing Infrastructure
 
-* **Use shared fixtures** (see [testing.md](testing.md)):
+* **CRITICAL: All tests MUST use isolated temporary filesystems - NEVER touch real project files**
+* **Use shared fixtures** (see [testing.md](testing.md) for complete guide):
   * `temp_filesystem` - Isolated temporary directories
   * `file_factory` - Create files with content (text or JSON)
   * `config_file_factory` - Config files with sensible defaults
   * `full_config_setup` - Complete config environment
-* **Real filesystem tests** - Prefer actual files over mocks for integration tests
-* **Temporary filesystem isolation** - E2E tests use subprocess calls in temp directories
+  * `theme_factory` - Complete theme structures for testing
+* **Real filesystem tests** - Use actual files in temp directories, not mocks
+* **Test isolation** - All operations must run in isolated temp directories
 
 ## Documentation Management
 

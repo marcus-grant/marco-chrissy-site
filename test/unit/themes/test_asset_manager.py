@@ -157,3 +157,72 @@ class TestAssetManager:
 
         js_url = asset_manager.get_asset_url("pico", "js")
         assert js_url == "/js/pico.min.js"
+
+    def test_get_shared_css_files_finds_css_files(self, temp_filesystem):
+        """Test get_shared_css_files finds CSS files from default paths."""
+        from themes.shared.utils.asset_manager import AssetManager
+
+        output_dir = temp_filesystem / "output"
+        output_dir.mkdir()
+
+        # Create shared CSS directory with test files
+        shared_css_dir = temp_filesystem / "themes" / "shared" / "css"
+        shared_css_dir.mkdir(parents=True)
+
+        # Create test CSS files
+        (shared_css_dir / "shared.css").write_text(".shared { color: blue; }")
+        (shared_css_dir / "navigation.css").write_text(".nav { background: red; }")
+        (shared_css_dir / "ignore.txt").write_text("Not CSS")  # Should be ignored
+
+        # Mock defaults to use our test directory
+        with patch('themes.shared.utils.asset_manager.get_shared_css_paths') as mock_paths:
+            mock_paths.return_value = [shared_css_dir]
+
+            asset_manager = AssetManager(output_dir)
+            css_files = asset_manager.get_shared_css_files()
+
+        assert len(css_files) == 2
+        css_names = [f.name for f in css_files]
+        assert "shared.css" in css_names
+        assert "navigation.css" in css_names
+        assert "ignore.txt" not in css_names
+
+    def test_copy_shared_css_files_copies_to_output(self, temp_filesystem):
+        """Test copy_shared_css_files copies CSS files to output directory."""
+        from themes.shared.utils.asset_manager import AssetManager
+
+        output_dir = temp_filesystem / "output"
+        output_dir.mkdir()
+
+        # Create shared CSS directory with test files
+        shared_css_dir = temp_filesystem / "themes" / "shared" / "css"
+        shared_css_dir.mkdir(parents=True)
+
+        # Create test CSS files
+        (shared_css_dir / "shared.css").write_text(".shared-nav { color: blue; background: red; }")
+        (shared_css_dir / "components.css").write_text(".button { padding: 10px; }")
+
+        # Mock defaults to use our test directory
+        with patch('themes.shared.utils.asset_manager.get_shared_css_paths') as mock_paths:
+            mock_paths.return_value = [shared_css_dir]
+
+            asset_manager = AssetManager(output_dir)
+            copied_files = asset_manager.copy_shared_css_files()
+
+        # Verify files were copied
+        assert len(copied_files) == 2
+
+        # Check output files exist and have correct content
+        output_shared_css = output_dir / "css" / "shared.css"
+        output_components_css = output_dir / "css" / "components.css"
+
+        assert output_shared_css.exists()
+        assert output_components_css.exists()
+
+        assert output_shared_css.read_text() == ".shared-nav { color: blue; background: red; }"
+        assert output_components_css.read_text() == ".button { padding: 10px; }"
+
+        # Verify returned paths are correct
+        copied_names = [f.name for f in copied_files]
+        assert "shared.css" in copied_names
+        assert "components.css" in copied_names

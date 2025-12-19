@@ -28,7 +28,7 @@ class TestSharedTemplateLoader:
             {
                 "SITENAME": "Test Site",
                 "THEME": str(pelican_templates.parent),
-                "SHARED_THEME_PATH": str(shared_templates.parent)
+                "THEME_TEMPLATES_OVERRIDES": str(shared_templates.parent)
             }
         )
 
@@ -37,7 +37,9 @@ class TestSharedTemplateLoader:
 
         # Verify shared templates directory is included
         assert str(shared_templates) in template_dirs
-        assert str(pelican_templates) in template_dirs
+        # NOTE: Pelican automatically adds primary theme templates to search path
+        # THEME_TEMPLATES_OVERRIDES should only contain override paths
+        assert str(pelican_templates) not in template_dirs
 
     def test_galleria_template_loader_includes_shared_paths(self, shared_theme_dirs):
         """Test Galleria template system includes shared template directories."""

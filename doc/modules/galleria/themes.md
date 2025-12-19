@@ -159,6 +159,7 @@ themes/
 
 ```json
 {
+  "theme_path": "themes/shared",
   "theme": {
     "name": "minimal",
     "external_templates": [
@@ -171,6 +172,8 @@ themes/
   }
 }
 ```
+
+**Note**: The `theme_path` property points to the shared component directory and enables Galleria to use shared templates and assets alongside theme-specific templates.
 
 ### Pelican Theme Configuration
 

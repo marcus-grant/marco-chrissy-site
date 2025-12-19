@@ -508,53 +508,55 @@ Each schema defines:
 
 ### Shared Component System
 
-The shared component system enables unified theme and asset management between Pelican and Galleria without tight coupling, preserving Galleria's extractability for future modularization.
+The shared component system enables unified theme and asset management between Pelican and Galleria through template overrides and external template integration, preserving Galleria's extractability for future modularization.
 
 #### Component Architecture
 
-**Shared Asset Manager** (`themes/shared/utils/asset_manager.py`):
-- Downloads external dependencies (PicoCSS) to `output/css/` directory
-- Automatic directory creation and URL generation (`/css/pico.min.css`)
-- Provides consistent asset URLs across both systems
-- Designed for future version pinning and integrity validation
+**Pelican Template Override System**:
+- Uses `THEME_TEMPLATES_OVERRIDES` setting to replace default theme templates
+- Override templates located in `themes/shared/templates/`
+- Includes shared navigation, CSS, and page structure
+- Eliminates duplicate navbars and inconsistent styling
 
-**Template Search Paths** (`themes/shared/utils/template_loader.py`):
-- Enables both Pelican and Galleria to include shared Jinja2 templates
-- Template precedence: Theme-specific templates override shared templates
-- `configure_pelican_shared_templates()` configures Pelican Jinja2 loader
-- `GalleriaSharedTemplateLoader` provides shared template support for Galleria
+**Galleria External Template Integration**:
+- Uses `theme_path` configuration to access shared component directory
+- Template loader searches shared templates alongside theme-specific templates
+- Enables consistent navigation and styling with Galleria galleries
+- Maintains plugin-based architecture for future extraction
 
-**Context Adapters** (`themes/shared/utils/context_adapters.py`):
-- Standardizes Pelican and Galleria contexts for shared templates
-- Abstract base class pattern with concrete implementations
-- Converts system-specific data to unified format
-- Enables shared templates to work with both systems seamlessly
+**Shared Template Components**:
+- `themes/shared/templates/base.html` - Main page structure with shared CSS
+- `themes/shared/templates/shared/header.html` - Navigation component
+- `themes/shared/static/css/shared.css` - Unified styling
+- Template overrides for both systems using identical shared components
 
 #### Integration Flow
 
 ```
 Shared Components System
-├── Asset Manager
-│   ├── External dependencies (PicoCSS) → output/css/
-│   └── Consistent URLs (/css/pico.min.css) → Both systems
-├── Template Loader
-│   ├── themes/shared/templates/ → Shared template search path
-│   ├── Pelican Jinja2 loader ← configure_pelican_shared_templates()
-│   └── Galleria template system ← GalleriaSharedTemplateLoader
-└── Context Adapters
-    ├── PelicanContextAdapter → Unified shared context
-    └── GalleriaContextAdapter → Unified shared context
+├── Template Override System
+│   ├── Pelican: THEME_TEMPLATES_OVERRIDES → themes/shared/templates/
+│   ├── Galleria: theme_path → themes/shared/
+│   └── Shared templates: base.html, shared/header.html
+├── CSS Integration
+│   ├── themes/shared/static/css/shared.css → Unified styling
+│   ├── Pelican build process → Copies to output/theme/css/
+│   └── Galleria build process → References shared CSS
+└── Navigation Consistency
+    ├── shared/header.html → Same navigation component
+    ├── Both systems include identical navbar HTML
+    └── Eliminates duplicate navigation and styling inconsistencies
 ```
 
 #### Architecture Benefits
 
-**Loose Coupling**: Shared components work through well-defined interfaces without requiring changes to core Pelican or Galleria systems.
+**Template Override Integration**: Uses native Pelican template override system (`THEME_TEMPLATES_OVERRIDES`) and Galleria external template configuration (`theme_path`) without modifying core systems.
 
-**Extraction Compatibility**: System designed to support Galleria extraction - shared components can be packaged independently or integrated into host projects.
+**Extraction Compatibility**: Galleria's shared template integration designed to support future extraction - no tight coupling with parent project.
 
-**Template Consistency**: Both systems can include shared navigation, components, and styling through the same template inclusion patterns.
+**Navigation Consistency**: Both systems use identical shared navigation component, eliminating duplicate navbars and styling inconsistencies.
 
-**Asset Management**: External dependencies downloaded once and referenced consistently across all generated pages.
+**Configuration-Driven**: Integration enabled through standard configuration settings, no code modifications required.
 
 #### Future Considerations
 

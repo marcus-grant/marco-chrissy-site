@@ -146,3 +146,115 @@ class TestGalleriaBuilder:
         assert captured_context.metadata["build_context"] == build_context
         assert captured_context.metadata["site_url"] == site_url
         assert result is True
+
+    def test_build_galleria_includes_shared_templates(self, temp_filesystem, file_factory, directory_factory):
+        """Test that Galleria includes shared templates in generated HTML."""
+        # Create shared template
+        directory_factory("themes/shared/templates")
+        file_factory(
+            "themes/shared/templates/navbar.html",
+            '<nav id="test-shared-navbar"><a href="/">Home</a></nav>'
+        )
+        
+        galleria_config = {
+            "manifest_path": "manifest.json",
+            "output_dir": "galleries/test",
+            "theme": "minimal",
+            "SHARED_THEME_PATH": "themes/shared"
+        }
+        
+        # Create manifest with one photo
+        manifest_data = {
+            "name": "Test Gallery",
+            "collection_name": "test-gallery",
+            "description": "Test gallery", 
+            "pics": [
+                {
+                    "source_path": "photo1.jpg",
+                    "dest_path": "photo1.jpg",
+                    "hash": "abcd1234"
+                }
+            ]
+        }
+        file_factory("manifest.json", json_content=manifest_data)
+        
+        builder = GalleriaBuilder()
+        result = builder.build(galleria_config, temp_filesystem)
+        assert result, "Galleria build should succeed"
+        
+        # Check generated HTML contains shared navbar
+        output_html = temp_filesystem / "galleries" / "test" / "page_1.html"
+        if output_html.exists():
+            html_content = output_html.read_text()
+            assert 'id="test-shared-navbar"' in html_content, "Generated HTML should contain shared navbar"
+
+    def test_build_galleria_includes_shared_css(self, temp_filesystem, file_factory, directory_factory):
+        """Test that Galleria copies and links shared CSS files."""
+        # Create shared CSS file
+        directory_factory("themes/shared/static/css")
+        file_factory(
+            "themes/shared/static/css/shared.css",
+            '.shared-nav { background: #ff00ff; color: #00ff00; }'
+        )
+        
+        galleria_config = {
+            "manifest_path": "manifest.json",
+            "output_dir": "galleries/test",
+            "theme": "minimal",
+            "SHARED_THEME_PATH": "themes/shared"
+        }
+        
+        # Create manifest with one photo
+        manifest_data = {
+            "name": "Test Gallery",
+            "collection_name": "test-gallery",
+            "pics": [{"source_path": "photo1.jpg", "dest_path": "photo1.jpg", "hash": "abcd1234"}]
+        }
+        file_factory("manifest.json", json_content=manifest_data)
+        
+        builder = GalleriaBuilder()
+        result = builder.build(galleria_config, temp_filesystem)
+        assert result, "Galleria build should succeed"
+        
+        # Check CSS file was copied to output
+        output_css = temp_filesystem / "galleries" / "test" / "shared.css"
+        assert output_css.exists(), f"Shared CSS should be copied to {output_css}"
+        
+        css_content = output_css.read_text()
+        assert 'background: #ff00ff' in css_content, "CSS content should be preserved"
+        
+        # Check HTML references shared CSS
+        output_html = temp_filesystem / "galleries" / "test" / "page_1.html"
+        if output_html.exists():
+            html_content = output_html.read_text()
+            assert 'shared.css' in html_content, "Generated HTML should reference shared.css"
+
+    def test_build_auto_detects_shared_themes(self, temp_filesystem, file_factory, directory_factory):
+        """Test that Galleria auto-detects shared themes without explicit config."""
+        # Create shared template and CSS (standard location)
+        directory_factory("themes/shared/templates")
+        file_factory("themes/shared/templates/navbar.html", '<nav id="auto-detected">Auto</nav>')
+        
+        directory_factory("themes/shared/static/css")  
+        file_factory("themes/shared/static/css/auto.css", '.auto { color: red; }')
+        
+        galleria_config = {
+            "manifest_path": "manifest.json",
+            "output_dir": "galleries/test", 
+            "theme": "minimal"
+            # No SHARED_THEME_PATH specified
+        }
+        
+        manifest_data = {"name": "Test", "collection_name": "test", "pics": [{"source_path": "photo.jpg", "dest_path": "photo.jpg", "hash": "123"}]}
+        file_factory("manifest.json", json_content=manifest_data)
+        
+        builder = GalleriaBuilder()
+        result = builder.build(galleria_config, temp_filesystem)
+        assert result, "Build should succeed"
+        
+        # Should auto-detect and include shared components
+        output_html = temp_filesystem / "galleries" / "test" / "page_1.html"
+        if output_html.exists():
+            html_content = output_html.read_text()
+            assert 'id="auto-detected"' in html_content, "Should auto-detect shared navbar"
+            assert 'auto.css' in html_content, "Should auto-detect shared CSS"

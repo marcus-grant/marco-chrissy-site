@@ -59,7 +59,8 @@ Configures Galleria gallery generator:
   "thumbnail_size": 400,
   "photos_per_page": 60,
   "theme": "minimal",
-  "quality": 85
+  "quality": 85,
+  "theme_path": "themes/shared"
 }
 ```
 
@@ -72,6 +73,7 @@ Configures Galleria gallery generator:
 - `photos_per_page`: Photos per gallery page (default: 60)  
 - `theme`: Gallery theme name (default: "minimal")
 - `quality`: JPEG quality 1-100 (default: 85)
+- `theme_path`: Path to shared component directory (enables shared template integration)
 
 ### Site Generation - `config/pelican.json`
 
@@ -82,7 +84,8 @@ Configures Pelican static site generator:
   "theme": "minimal",
   "site_url": "https://example.com",
   "author": "Author Name", 
-  "sitename": "Site Title"
+  "sitename": "Site Title",
+  "theme_templates_overrides": "themes/shared/templates"
 }
 ```
 
@@ -97,6 +100,7 @@ Configures Pelican static site generator:
 - `default_pagination`: Enable pagination (default: false)
 - `timezone`: Site timezone (default: "UTC")
 - `default_lang`: Default language (default: "en")
+- `theme_templates_overrides`: Path to directory containing template override files (enables shared component integration)
 
 ## Content Configuration
 

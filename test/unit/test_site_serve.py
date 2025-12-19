@@ -10,12 +10,18 @@ from unittest.mock import Mock, patch
 class TestSiteServeCommand:
     """Unit tests for site serve CLI command."""
 
+    @patch('cli.commands.serve.get_output_dir')
     @patch('cli.commands.serve.ServeOrchestrator')
-    def test_serve_command_prints_complete_url(self, mock_orchestrator_class):
+    def test_serve_command_prints_complete_url(self, mock_orchestrator_class, mock_get_output_dir):
         """Test serve command prints complete HTTP URL for proxy server."""
         from click.testing import CliRunner
 
         from cli.commands.serve import serve
+
+        # Arrange: Mock get_output_dir to return an existing directory (to skip build)
+        mock_output_dir = Mock()
+        mock_output_dir.exists.return_value = True  # Directory exists, skip build
+        mock_get_output_dir.return_value = mock_output_dir
 
         # Arrange: Mock orchestrator to prevent actual server startup
         mock_orchestrator = Mock()
@@ -30,16 +36,23 @@ class TestSiteServeCommand:
         assert result.exit_code == 0
         assert "Starting site serve proxy at http://127.0.0.1:8000" in result.output
 
+    @patch('cli.commands.serve.build')
+    @patch('cli.commands.serve.get_output_dir')
     @patch('cli.commands.serve.ServeOrchestrator')
-    @patch('os.path.exists')
-    def test_serve_fails_when_build_cannot_create_output_dir(self, mock_exists, mock_orchestrator_class):
+    def test_serve_fails_when_build_cannot_create_output_dir(self, mock_orchestrator_class, mock_get_output_dir, mock_build):
         """Test serve command fails when build completes but output directory still missing."""
         from click.testing import CliRunner
 
         from cli.commands.serve import serve
 
         # Arrange: Mock output directory never exists, even after build
-        mock_exists.side_effect = lambda path: path != "output"
+        mock_output_dir = Mock()
+        mock_output_dir.exists.return_value = False  # Directory never exists
+        mock_get_output_dir.return_value = mock_output_dir
+
+        # Mock build to succeed but directory still doesn't exist
+        mock_build.return_value = None
+
         mock_orchestrator = Mock()
         mock_orchestrator_class.return_value = mock_orchestrator
 
@@ -53,9 +66,10 @@ class TestSiteServeCommand:
         # Orchestrator should not have been called
         mock_orchestrator.start.assert_not_called()
 
+    @patch('cli.commands.serve.build')
+    @patch('cli.commands.serve.get_output_dir')
     @patch('cli.commands.serve.ServeOrchestrator')
-    @patch('os.path.exists')
-    def test_serve_auto_calls_build_when_output_missing(self, mock_exists, mock_orchestrator_class):
+    def test_serve_auto_calls_build_when_output_missing(self, mock_orchestrator_class, mock_get_output_dir, mock_build):
         """Test serve command automatically calls build when output directory missing."""
         from unittest.mock import Mock
 
@@ -64,16 +78,20 @@ class TestSiteServeCommand:
         from cli.commands.serve import serve
 
         # Arrange: Mock that output directory doesn't exist initially but build creates it
+        mock_output_dir = Mock()
         call_count = 0
-        def exists_side_effect(path):
+        def exists_side_effect():
             nonlocal call_count
-            if path == "output":
-                call_count += 1
-                # First call: output doesn't exist, second call: output exists after build
-                return call_count > 1
-            return True
+            call_count += 1
+            # First call: output doesn't exist, second call: output exists after build
+            return call_count > 1
 
-        mock_exists.side_effect = exists_side_effect
+        mock_output_dir.exists.side_effect = exists_side_effect
+        mock_get_output_dir.return_value = mock_output_dir
+
+        # Mock build to succeed
+        mock_build.return_value = None
+
         mock_orchestrator = Mock()
         mock_orchestrator_class.return_value = mock_orchestrator
         mock_orchestrator.start.side_effect = KeyboardInterrupt()  # Exit immediately
@@ -104,12 +122,18 @@ class TestSiteServeCommand:
         #     assert result.exit_code == 0
         #     mock_echo.assert_any_call("Starting site serve proxy at http://127.0.0.1:8000")
 
+    @patch('cli.commands.serve.get_output_dir')
     @patch('cli.commands.serve.ServeOrchestrator')
-    def test_serve_function_starts_orchestrator(self, mock_orchestrator_class):
+    def test_serve_function_starts_orchestrator(self, mock_orchestrator_class, mock_get_output_dir):
         """Test serve function creates and starts ServeOrchestrator."""
         from click.testing import CliRunner
 
         from cli.commands.serve import serve
+
+        # Arrange: Mock get_output_dir to return an existing directory (to skip build)
+        mock_output_dir = Mock()
+        mock_output_dir.exists.return_value = True  # Directory exists, skip build
+        mock_get_output_dir.return_value = mock_output_dir
 
         # Arrange: Mock orchestrator
         mock_orchestrator = Mock()
@@ -130,12 +154,18 @@ class TestSiteServeCommand:
         )
         assert result.exit_code == 0
 
+    @patch('cli.commands.serve.get_output_dir')
     @patch('cli.commands.serve.ServeOrchestrator')
-    def test_serve_function_with_no_generate_flag(self, mock_orchestrator_class):
+    def test_serve_function_with_no_generate_flag(self, mock_orchestrator_class, mock_get_output_dir):
         """Test serve function passes --no-generate flag to orchestrator."""
         from click.testing import CliRunner
 
         from cli.commands.serve import serve
+
+        # Arrange: Mock get_output_dir to return an existing directory (to skip build)
+        mock_output_dir = Mock()
+        mock_output_dir.exists.return_value = True  # Directory exists, skip build
+        mock_get_output_dir.return_value = mock_output_dir
 
         # Arrange: Mock orchestrator
         mock_orchestrator = Mock()

@@ -4,6 +4,8 @@ from pathlib import Path
 
 import jinja2
 
+from defaults import get_shared_template_paths
+
 
 def configure_pelican_shared_templates(config_path: str) -> list[str]:
     """Configure Pelican Jinja2 environment to include shared template paths.
@@ -21,15 +23,18 @@ def configure_pelican_shared_templates(config_path: str) -> list[str]:
 
     template_dirs = []
 
-    # Add shared templates if configured
-    if "SHARED_THEME_PATH" in config:
-        shared_templates = Path(config["SHARED_THEME_PATH"]) / "templates"
+    # Add shared templates if configured, otherwise use defaults
+    if "THEME_TEMPLATES_OVERRIDES" in config:
+        shared_templates = Path(config["THEME_TEMPLATES_OVERRIDES"]) / "templates"
         template_dirs.append(str(shared_templates))
+    else:
+        # Use default shared template paths
+        default_paths = [str(path) for path in get_shared_template_paths()]
+        template_dirs.extend(default_paths)
 
-    # Add theme-specific templates
-    if "THEME" in config:
-        theme_templates = Path(config["THEME"]) / "templates"
-        template_dirs.append(str(theme_templates))
+    # NOTE: Do NOT add theme-specific templates here
+    # Pelican's THEME_TEMPLATES_OVERRIDES should only contain override paths
+    # Pelican automatically adds the primary theme templates to search path
 
     return template_dirs
 
@@ -56,7 +61,12 @@ class GalleriaSharedTemplateLoader:
 
         # 2. External/shared templates (lower precedence)
         external_templates = config.get("theme", {}).get("external_templates", [])
-        search_paths.extend(external_templates)
+        if external_templates:
+            search_paths.extend(external_templates)
+        else:
+            # Use default shared template paths if no external templates configured
+            default_paths = [str(path) for path in get_shared_template_paths()]
+            search_paths.extend(default_paths)
 
         # Create Jinja2 environment with search paths
         loader = jinja2.FileSystemLoader(search_paths)

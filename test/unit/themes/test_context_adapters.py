@@ -33,7 +33,7 @@ class TestContextAdapters:
             'MENUITEMS': [
                 ('Home', '/'),
                 ('About', '/about/'),
-                ('Galleries', '/galleries/')
+                ('Gallery', '/galleries/wedding/')
             ]
         }
 
@@ -47,7 +47,7 @@ class TestContextAdapters:
         assert shared_context['navigation_items'] == [
             {'title': 'Home', 'url': '/'},
             {'title': 'About', 'url': '/about/'},
-            {'title': 'Galleries', 'url': '/galleries/'}
+            {'title': 'Gallery', 'url': '/galleries/wedding/'}
         ]
 
     def test_galleria_context_adapter(self):
@@ -87,7 +87,7 @@ class TestContextAdapters:
                 "primary": [
                     {"title": "Home", "url": "/"},
                     {"title": "About", "url": "/about/"},
-                    {"title": "Galleries", "url": "/galleries/"}
+                    {"title": "Gallery", "url": "/galleries/wedding/"}
                 ]
             }
         )

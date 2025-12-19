@@ -1,6 +1,5 @@
 """Integration tests for theme system with plugin pipeline."""
 
-import pytest
 
 
 class TestThemeSystemIntegration:
@@ -134,14 +133,3 @@ class TestThemeSystemIntegration:
         assert ".gallery { display: grid; }" in theme_css_file["content"]
         assert ".photo { border: 1px solid #ccc; }" in theme_css_file["content"]
 
-    @pytest.mark.skip("Theme system not implemented")
-    def test_theme_validation_with_missing_files(self, temp_filesystem):
-        """Test theme validation when required theme files are missing."""
-        # Should test proper error handling for incomplete theme directories
-        raise AssertionError("Theme validation not yet implemented")
-
-    @pytest.mark.skip("Theme system not implemented")
-    def test_pico_css_integration_in_theme_templates(self, temp_filesystem):
-        """Test PicoCSS integration through theme template system."""
-        # Should test PicoCSS inclusion via theme templates
-        raise AssertionError("PicoCSS theme integration not yet implemented")

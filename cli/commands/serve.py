@@ -1,9 +1,9 @@
 """Site serve command with proxy routing functionality."""
 
-import os
 
 import click
 
+from defaults import get_output_dir
 from serve.orchestrator import ServeOrchestrator
 
 from .build import build
@@ -168,7 +168,7 @@ def serve(host: str, port: int, galleria_port: int, pelican_port: int, no_genera
     click.echo(f"Pelican server will run on port {pelican_port}")
 
     # Check if output directory exists, auto-call build if missing
-    if not os.path.exists("output"):
+    if not get_output_dir().exists():
         click.echo("Output directory missing - running build pipeline...")
         ctx = click.get_current_context()
         result = ctx.invoke(build)
@@ -178,7 +178,7 @@ def serve(host: str, port: int, galleria_port: int, pelican_port: int, no_genera
             ctx.exit(1)
 
         # Verify build created output directory
-        if not os.path.exists("output"):
+        if not get_output_dir().exists():
             click.echo("✗ Build completed but output directory still missing", err=True)
             ctx.exit(1)
 

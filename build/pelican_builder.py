@@ -5,8 +5,11 @@ import tempfile
 from pathlib import Path
 
 import pelican
+import jinja2
 from pelican.settings import DEFAULT_CONFIG, configure_settings
 from .exceptions import PelicanError
+from defaults import get_shared_template_paths
+from themes.shared.utils.template_loader import configure_pelican_shared_templates
 
 
 class PelicanBuilder:
@@ -57,7 +60,10 @@ class PelicanBuilder:
                 'SITEURL': override_site_url or pelican_config.get('site_url', ''),
                 'PATH': str(content_dir),
                 'OUTPUT_PATH': str(base_dir / site_config.get('output_dir', 'output')),
-                'THEME': pelican_config.get('theme', 'notmyidea'),
+                'THEME': str(base_dir / pelican_config.get('theme', 'notmyidea')),
+                
+                # Enable jinja2content plugin for template includes in Markdown
+                'PLUGINS': ['jinja2content'],
 
                 # File handling settings - allow overwriting existing files  
                 'DELETE_OUTPUT_DIRECTORY': False,
@@ -81,7 +87,57 @@ class PelicanBuilder:
                 'DIRECT_TEMPLATES': ['index', 'archives', 'tags', 'categories'],
                 'INDEX_SAVE_AS': '' if has_index_content else 'index.html',
             })
-
+            
+            # Configure shared template paths only when explicitly provided
+            if 'THEME_TEMPLATES_OVERRIDES' in pelican_config:
+                # Create temporary config file for configure_pelican_shared_templates
+                import json
+                with tempfile.NamedTemporaryFile(mode='w', suffix='.json', delete=False) as temp_config:
+                    json.dump(pelican_config, temp_config)
+                    temp_config_path = temp_config.name
+                
+                try:
+                    # Use configure_pelican_shared_templates for proper template precedence
+                    template_dirs = configure_pelican_shared_templates(temp_config_path)
+                    if template_dirs:
+                        # Convert relative paths to absolute paths for proper resolution
+                        absolute_template_dirs = []
+                        for template_dir in template_dirs:
+                            if not Path(template_dir).is_absolute():
+                                absolute_path = str(base_dir / template_dir)
+                            else:
+                                absolute_path = template_dir
+                            absolute_template_dirs.append(absolute_path)
+                        
+                        # Set template paths for theme templates
+                        pelican_settings_dict['THEME_TEMPLATES_OVERRIDES'] = absolute_template_dirs
+                        # Set template paths for jinja2content plugin (for includes in Markdown)
+                        pelican_settings_dict['JINJA2CONTENT_TEMPLATES'] = absolute_template_dirs
+                        
+                        # Copy shared CSS files to primary theme static directory
+                        # This ensures shared CSS is available within the active theme
+                        shared_static_path = base_dir / pelican_config['THEME_TEMPLATES_OVERRIDES'] / 'static'
+                        if shared_static_path.exists():
+                            primary_theme_path = base_dir / pelican_config.get('theme', 'notmyidea')
+                            primary_theme_static = primary_theme_path / 'static' / 'css'
+                            primary_theme_static.mkdir(parents=True, exist_ok=True)
+                            
+                            shared_css_dir = shared_static_path / 'css'
+                            if shared_css_dir.exists():
+                                css_files = list(shared_css_dir.glob('*.css'))
+                                for css_file in css_files:
+                                    # Copy shared CSS to primary theme static directory
+                                    import shutil
+                                    dest_css = primary_theme_static / css_file.name
+                                    shutil.copy2(css_file, dest_css)
+                                    
+                                    # Set first CSS file as main theme CSS
+                                    if css_files and css_file == css_files[0]:
+                                        pelican_settings_dict['CSS_FILE'] = css_file.name
+                finally:
+                    # Clean up temporary file
+                    Path(temp_config_path).unlink(missing_ok=True)
+            
             # Remove any existing index.html that would conflict with Pelican
             output_path = base_dir / site_config.get('output_dir', 'output')
             index_path = output_path / 'index.html'

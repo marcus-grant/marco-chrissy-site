@@ -10,6 +10,8 @@ from typing import Literal
 
 import requests
 
+from defaults import get_shared_css_paths
+
 AssetType = Literal["css", "js"]
 AssetName = Literal["pico"]
 
@@ -99,3 +101,34 @@ class AssetManager:
 
         filename = f"{asset_name}.min.{file_type}"
         return f"/{file_type}/{filename}"
+
+    def get_shared_css_files(self) -> list[Path]:
+        """Get list of all shared CSS files from default paths.
+
+        Returns:
+            List of Path objects for shared CSS files
+        """
+        css_files = []
+
+        for css_dir in get_shared_css_paths():
+            if css_dir.exists() and css_dir.is_dir():
+                # Find all CSS files in the directory
+                css_files.extend(css_dir.glob("*.css"))
+
+        return css_files
+
+    def copy_shared_css_files(self) -> list[Path]:
+        """Copy shared CSS files to output directory.
+
+        Returns:
+            List of Path objects for copied CSS files in output directory
+        """
+        copied_files = []
+        self.css_dir.mkdir(parents=True, exist_ok=True)
+
+        for css_file in self.get_shared_css_files():
+            target_path = self.css_dir / css_file.name
+            target_path.write_text(css_file.read_text())
+            copied_files.append(target_path)
+
+        return copied_files
