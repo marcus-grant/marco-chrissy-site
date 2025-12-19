@@ -14,13 +14,13 @@ def setup_shared_theme_structure(directory_factory, file_factory):
     # Create theme directories
     directory_factory("themes/site/templates")
     directory_factory("themes/shared/templates")
-    
+
     # Create shared navbar component
     file_factory(
         "themes/shared/templates/navbar.html",
         '<nav id="test-shared-navbar"><a href="/">Home</a><a href="/about/">About</a><a href="/galleries/wedding/">Gallery</a></nav>'
     )
-    
+
     # Create custom site theme that includes shared navbar
     file_factory(
         "themes/site/templates/base.html",
@@ -39,13 +39,13 @@ def setup_shared_theme_structure(directory_factory, file_factory):
 </body>
 </html>"""
     )
-    
+
     file_factory(
         "themes/site/templates/article.html",
         """{% extends "base.html" %}
 {% block content %}{{ article.content }}{% endblock %}"""
     )
-    
+
     file_factory(
         "themes/site/templates/index.html",
         """{% extends "base.html" %}
@@ -94,7 +94,7 @@ class TestSiteBuild:
                 },
                 "pelican": {
                     "theme": "themes/site",
-                    "site_url": "https://example.com", 
+                    "site_url": "https://example.com",
                     "author": "Test Author",
                     "sitename": "Test Site",
                     "content_path": "content",
@@ -240,7 +240,7 @@ This is the main site page.
                 },
                 "pelican": {
                     "theme": "themes/site",
-                    "site_url": "https://example.com", 
+                    "site_url": "https://example.com",
                     "author": "Test Author",
                     "sitename": "Test Site",
                     "content_path": "content",

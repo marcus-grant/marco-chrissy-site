@@ -76,3 +76,4 @@ scratch/
 
 # Cleanup files
 *[Dd][Ee][Ll][Ee][Tt][Ee][Mm][Ee]*
+pytest-slow-first.json

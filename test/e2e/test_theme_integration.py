@@ -1,6 +1,5 @@
 """Integration tests for theme system with plugin pipeline."""
 
-import pytest
 
 
 class TestThemeSystemIntegration:
