@@ -34,6 +34,11 @@
       "description": "Gallery theme name",
       "examples": ["minimal", "elegant", "modern"]
     },
+    "theme_path": {
+      "type": "string",
+      "description": "Path to theme directory containing templates",
+      "examples": ["galleria/themes/minimal", "themes/custom"]
+    },
     "quality": {
       "type": "integer",
       "minimum": 10,
