@@ -266,22 +266,45 @@ Critical Issues:
 - [ ] Commit: `Fix: Complete Galleria shared template integration`
 
 **Phase 3: Comprehensive Manual Verification**
-- [ ] **Full build verification**: `uv run site build` (must succeed)
-- [ ] **Shared component verification**: 
-  - [ ] Identical shared navbar in both `/` and `/galleries/wedding/`
-  - [ ] Shared CSS consistent across both systems
-  - [ ] Exactly 1 navbar per page (no duplicates)
-- [ ] **Gallery functionality verification**:
-  - [ ] Gallery link `/galleries/wedding/` works from home
-  - [ ] Thumbnails display correctly in gallery grid
-  - [ ] Clicking thumbnails opens full-size images
-  - [ ] Gallery pagination works, navigation back to home works
-- [ ] **Full test suite passes**: Zero failing tests before manual verification
+- [x] **Full build verification**: `uv run site build` (must succeed)
+- [x] **Shared component verification**: 
+  - [ ] Identical shared navbar in both `/` and `/galleries/wedding/` (Pelican still has `<hgroup>` site title)
+  - [x] Shared CSS consistent across both systems
+  - [x] Exactly 1 navbar per page (no duplicates)
+- [x] **Gallery functionality verification**:
+  - [x] Gallery link `/galleries/wedding/` works from home
+  - [x] Thumbnails display correctly in gallery grid
+  - [x] Clicking thumbnails opens full-size images (fixed photo URL paths)
+  - [x] Gallery pagination works, navigation back to home works
+- [ ] **Full test suite passes**: 5 failing tests remain (related to config/schema changes)
+- [ ] **Fix header inconsistency**: Remove `<hgroup>` site title from Pelican theme to match Galleria
 - [ ] Update `doc/architecture.md` with corrected integration patterns
 - [ ] Update `doc/modules/galleria/themes.md` with proper configuration
 - [ ] `uv run ruff check --fix --unsafe-fixes && uv run pytest`
 - [ ] Update TODO.md and CHANGELOG.md
 - [ ] Commit: `Doc: Update shared component integration documentation`
+
+**SHARED COMPONENT INTEGRATION STATUS**
+
+**Key Achievements:**
+- Both Pelican and Galleria use identical shared navbar (`themes/shared/templates/navbar.html`)
+- Both systems include shared CSS (`themes/shared/static/css/shared.css`) 
+- Schema validation updated for `THEME_TEMPLATES_OVERRIDES` (plural)
+- Path resolution fixed for proper manifest loading
+- Gallery photo links fixed (relative paths corrected)
+- Gallery functionality fully working (thumbnails, full images, pagination)
+
+**Issues Fixed:**
+- Schema validation: Added `theme_path` property, fixed plural setting name
+- Path resolution: `galleria/orchestrator/serve.py` uses project root instead of config dir
+- Photo URLs: Fixed relative paths from `../pics/full/` to `../../pics/full/`
+- CSS integration: Added shared CSS link to Pelican theme templates
+- Template loading: Galleria properly uses `theme_path` config
+
+**Remaining Issues:**
+- Header inconsistency: Pelican shows site title + navbar, Galleria shows only navbar
+- 5 failed tests need updating for new config/schema/implementation
+- Documentation updates needed
 
 **Phase 6: Documentation Updates**
 
