@@ -114,26 +114,26 @@ class PelicanBuilder:
                         # Set template paths for jinja2content plugin (for includes in Markdown)
                         pelican_settings_dict['JINJA2CONTENT_TEMPLATES'] = absolute_template_dirs
                         
-                        # Configure shared static paths for CSS/assets
-                        shared_static_path = str(base_dir / pelican_config['THEME_TEMPLATES_OVERRIDES'] / 'static')
-                        if Path(shared_static_path).exists():
-                            # Add shared static path to THEME_STATIC_PATHS
-                            existing_static_paths = pelican_settings_dict.get('THEME_STATIC_PATHS', ['static'])
-                            if isinstance(existing_static_paths, str):
-                                existing_static_paths = [existing_static_paths]
-                            pelican_settings_dict['THEME_STATIC_PATHS'] = existing_static_paths + [shared_static_path]
+                        # Copy shared CSS files to primary theme static directory
+                        # This ensures shared CSS is available within the active theme
+                        shared_static_path = base_dir / pelican_config['THEME_TEMPLATES_OVERRIDES'] / 'static'
+                        if shared_static_path.exists():
+                            primary_theme_path = base_dir / pelican_config.get('theme', 'notmyidea')
+                            primary_theme_static = primary_theme_path / 'static' / 'css'
+                            primary_theme_static.mkdir(parents=True, exist_ok=True)
                             
-                            # Auto-configure shared CSS files for HTML inclusion
-                            shared_css_dir = Path(shared_static_path) / 'css'
+                            shared_css_dir = shared_static_path / 'css'
                             if shared_css_dir.exists():
                                 css_files = list(shared_css_dir.glob('*.css'))
-                                if css_files:
-                                    # Use first shared CSS file as main theme CSS
-                                    css_filename = css_files[0].name
-                                    pelican_settings_dict['CSS_FILE'] = css_filename
-                                    # Also set the theme to use the shared templates
-                                    if absolute_template_dirs:
-                                        pelican_settings_dict['THEME'] = str(base_dir / pelican_config['THEME_TEMPLATES_OVERRIDES'])
+                                for css_file in css_files:
+                                    # Copy shared CSS to primary theme static directory
+                                    import shutil
+                                    dest_css = primary_theme_static / css_file.name
+                                    shutil.copy2(css_file, dest_css)
+                                    
+                                    # Set first CSS file as main theme CSS
+                                    if css_files and css_file == css_files[0]:
+                                        pelican_settings_dict['CSS_FILE'] = css_file.name
                 finally:
                     # Clean up temporary file
                     Path(temp_config_path).unlink(missing_ok=True)

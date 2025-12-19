@@ -32,10 +32,9 @@ def configure_pelican_shared_templates(config_path: str) -> list[str]:
         default_paths = [str(path) for path in get_shared_template_paths()]
         template_dirs.extend(default_paths)
 
-    # Add theme-specific templates
-    if "THEME" in config:
-        theme_templates = Path(config["THEME"]) / "templates"
-        template_dirs.append(str(theme_templates))
+    # NOTE: Do NOT add theme-specific templates here
+    # Pelican's THEME_TEMPLATES_OVERRIDES should only contain override paths
+    # Pelican automatically adds the primary theme templates to search path
 
     return template_dirs
 

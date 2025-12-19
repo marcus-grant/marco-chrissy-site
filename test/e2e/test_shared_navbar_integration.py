@@ -18,19 +18,9 @@ def test_shared_navbar_appears_in_both_systems(temp_filesystem, full_config_setu
         '<nav id="test-shared-navbar"><a href="/">Home</a><a href="/about/">About</a><a href="/galleries/wedding/">Gallery</a></nav>'
     )
 
-    # Create minimal base template that includes CSS_FILE
-    file_factory(
-        "themes/shared/templates/base.html",
-        """<!DOCTYPE html>
-<html><head><title>{{ SITENAME }}</title>
-{% if CSS_FILE %}<link rel="stylesheet" href="{{ SITEURL }}/{{ THEME_STATIC_DIR }}/css/{{ CSS_FILE }}" />{% endif %}
-</head><body>{% block content %}Content goes here{% endblock %}</body></html>"""
-    )
-
-    file_factory("themes/shared/templates/article.html", """{% extends "base.html" %}
-{% block content %}{{ article.content }}{% endblock %}""")
-    file_factory("themes/shared/templates/index.html", """{% extends "base.html" %}
-{% block content %}{% for article in articles %}{{ article.content }}{% endfor %}{% endblock %}""")
+    # NOTE: Do NOT create shared base.html, article.html, index.html
+    # These structural templates should come from the primary theme
+    # Shared templates should only contain components like navbar.html
 
     # Create shared CSS with vibrant ugly color for easy detection
     directory_factory("themes/shared/static/css")

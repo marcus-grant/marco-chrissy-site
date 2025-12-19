@@ -12,7 +12,11 @@
 
 - Updated all config files and code to use correct THEME_TEMPLATES_OVERRIDES (plural) setting name
 - Aligned Pelican, Galleria, and test configurations to use proper Pelican setting convention
-- Test still fails proving shared theme override logic is broken (as expected)
+- **MAJOR FIX**: Corrected Pelican theme override logic to preserve primary theme
+- Removed problematic line that replaced THEME setting with shared templates path
+- Fixed template precedence - shared templates now work as overrides, not primary theme
+- Updated template loader to return only override paths, not primary theme paths
+- Pelican now correctly uses custom theme with shared navbar integration
 
 ## 2025-12-18
 
