@@ -2,31 +2,49 @@
 
 ## 2025-12-19
 
-### Completed - Shared Component Integration
+### Completed - Shared Component Integration (PR #17)
 
+**MAJOR MILESTONE**: Shared component integration successfully completed and merged.
+
+#### Core Integration Fixes
 - **Header consistency achieved**: Both Pelican and Galleria use identical shared navbar
-- **Template override system**: Successfully implemented Pelican theme override mechanism
+- **Template override system**: Successfully implemented Pelican theme override mechanism using `THEME_TEMPLATES_OVERRIDES`
+- **External template integration**: Galleria now uses `theme_path` to access shared components
 - **Clean HTML output**: Eliminated Pelican automatic title generation and duplicate headings
 - **Modern semantic structure**: Removed `<hgroup>` elements, content uses proper H1 for titles
 - **Template files created**: `themes/shared/templates/` with base.html, index.html, article.html overrides
 
-### Updated
+#### Test Suite Fixes (13 of 16 resolved)
+- Fixed shared theme configuration tests (removed hardcoded "notmyidea" theme)
+- Fixed template URL path expectations with relative path changes
+- Fixed orchestrator working directory issues (config dir → project root)
+- Removed 2 obsolete skipped theme tests
+- Added pytest multithreading by default for faster test execution
+- Updated .gitignore to include pytest-slow-first.json cache file
+
+#### Configuration Updates
+- Updated `config/schema/galleria.json` to include `theme_path` property
+- Fixed `THEME_TEMPLATES_OVERRIDES` (plural) setting name throughout codebase
+- Updated `config/galleria.json` and `config/pelican.json` with proper shared component paths
+
+#### Documentation (Comprehensive)
+- Created `doc/modules/pelican/` directory with README.md, theme-overrides.md, quirks.md
+- Created `doc/modules/shared/` directory with README.md, external-integration.md
+- Updated existing documentation (configuration.md, architecture.md, galleria/themes.md)
+- Updated navigation hierarchy following CONTRIBUTE.md adjacency rules
+
+#### Build System Integration
+- Updated GalleriaBuilder to use `theme_path` configuration
+- Updated PelicanBuilder template override logic
+- Both systems now correctly include shared navigation and CSS
+
+**Result**: Shared component integration now functionally complete with consistent navigation and styling across all pages.
+
+### Earlier Work (Dec 19)
 
 - Restructured TODO.md to follow PLANNING.md template with proper phase/cycle organization
 - Enhanced integration test to detect Pelican theme override configuration issues
 - Added duplicate navbar detection to verify single shared navbar in both systems
-
-### Fixed
-
-- Updated all config files and code to use correct THEME_TEMPLATES_OVERRIDES (plural) setting name
-- Aligned Pelican, Galleria, and test configurations to use proper Pelican setting convention
-- **MAJOR FIX**: Corrected Pelican theme override logic to preserve primary theme
-- Removed problematic line that replaced THEME setting with shared templates path
-- Fixed template precedence - shared templates now work as overrides, not primary theme
-- Updated template loader to return only override paths, not primary theme paths
-- Pelican now correctly uses custom theme with shared navbar integration
-- Removed duplicate navbar workaround from content/index.md
-- Navigation now comes from theme template, not content includes
 
 ## 2025-12-18
 

@@ -12,116 +12,11 @@ For detailed planning guidance, templates, and examples, see: **[`PLANNING.md`](
 
 ## MVP Roadmap
 
-### Phase 5: Site Navigation & Layout Integration
+### Phase 5.2: Test Suite Cleanup and Fixes
 
-#### Task 5.1: Fix Shared Component Integration (Branch: fix/shared-components)
+**Priority: Fix remaining test failures and clean up test suite**
 
-*Problem Statement: Shared component infrastructure exists but build systems don't use it, resulting in missing navigation and inconsistent styling between Pelican and Galleria pages.*
-
-**❌ INTEGRATION FAILURES - Infrastructure Built But Not Connected**
-
-Root Cause: Shared component infrastructure exists and tests pass, but build systems were never configured to use the shared components.
-
-Critical Issues:
-
-- [ ] **Build Integration**: Galleria and Pelican builds don't use shared theme system
-- [ ] **Missing Navigation**: Neither system renders navigation components
-- [ ] **Gallery URL Routing**: Links point to `/galleries/` (empty) not `/galleries/wedding/` (actual gallery)
-- [ ] **Config Processing**: `galleria/config.py` doesn't handle `theme.external_templates` properly
-
-**Phase 3: TDD Implementation Cycles**
-
-*Cycle 5: Add True Shared Component Integration Tests*
-
-- [x] Write E2E test that verifies shared components appear in both Pelican and Galleria HTML output
-- [x] Create mock shared navbar template: `<nav class="shared-nav">Test Navbar</nav>`
-- [x] Create mock shared CSS file: `.shared-nav { color: blue; background: red; }`
-- [x] Test that `uv run site build` includes shared navbar HTML in both system outputs
-- [x] Test that shared CSS file is copied to output and referenced in both HTML outputs
-- [x] Assert "Test Navbar" text appears in generated Pelican pages
-- [x] Assert "Test Navbar" text appears in generated Galleria pages
-- [x] Assert CSS rule `.shared-nav { color: blue; background: red; }` exists in output
-- [x] `uv run ruff check --fix --unsafe-fixes && uv run pytest`
-- [x] Update TODO.md and CHANGELOG.md
-- [x] Commit: `Tst: Add integration test for shared component build verification`
-
-*Cycle 6: Remove All Skip Decorators and Verify Complete Integration*
-
-- [x] Remove `@pytest.mark.skip` from real plugin integration test in `test_real_plugin_integration.py`
-- [x] Update real plugin test to expect 3 files (including index.html redirect)
-- [x] Remove any remaining skip decorators from serve command tests (if not done in Cycle 3)
-- [x] Run full test suite and verify all 455 tests pass with 8 skipped
-- [x] If any tests fail, add unit tests to fix the underlying integration issues
-- [x] Verify shared navbar appears in both Pelican and Galleria build outputs
-- [x] Verify shared CSS is included in both system outputs
-- [x] `uv run ruff check --fix --unsafe-fixes && uv run pytest`
-- [x] Update TODO.md and CHANGELOG.md
-- [x] Commit: `Tst: Remove all skip decorators and verify complete integration`
-
-**Phase 4: Production URL Fix**
-
-- [x] Find all hardcoded `/galleries/` links in templates/code
-- [x] Replace with `/galleries/wedding/` links
-- [x] `uv run ruff check --fix --unsafe-fixes && uv run pytest`
-- [x] Commit: `Fix: Update gallery links to point to actual gallery`
-
-#### Remaining Shared Component Tasks
-
-- [ ] **DELETE worthless mock-based integration tests** that don't verify actual HTML output
-- [ ] **REFACTOR existing tests** to use `theme_factory` fixture for consistency  
-- [ ] Keep only tests that verify real functionality (shared components in builder outputs)
-- [ ] Reduce test suite execution time by removing wheel-spinning tests
-- [ ] Document `theme_factory` usage in test guidelines
-
-#### Remaining Integration Tasks
-
-- [x] **Examine failing tests and fix out-of-date specs**: 13 of 16 test failures resolved
-  - [x] Fixed shared theme configuration tests (removed hardcoded "notmyidea" theme)
-  - [x] Fixed template URL path expectations (relative paths changed with shared components)
-  - [x] Fixed orchestrator working directory issues (config dir → project root)
-  - [x] Removed 2 obsolete skipped theme tests (functionality now covered by comprehensive shared component tests)
-  - [x] Identified 3 remaining failures as existing technical debt (see Post-PR Tasks below)
-- [x] Update `config/schema/galleria.json`: Change `THEME_TEMPLATE_OVERRIDES` → `THEME_TEMPLATES_OVERRIDES`
-- [x] Test config validation passes: `uv run site validate`
-- [x] **Shared component test fixes completed**: All failures caused by our changes resolved
-- [ ] Update `doc/architecture.md` with corrected integration patterns
-- [ ] Update `doc/modules/galleria/themes.md` with proper configuration
-
-
-**Phase 6: Documentation Updates**
-
-- [ ] Update existing documents:
-  - [ ] `doc/modules/galleria/themes.md` - External template configuration
-  - [ ] `doc/configuration.md` - Shared theme configuration options and `THEME_TEMPLATES_OVERRIDES` format
-  - [ ] `doc/architecture.md` - Shared component integration patterns
-- [ ] Create missing documents:
-  - [ ] `doc/modules/shared/README.md` - Shared theme system overview
-  - [ ] `doc/modules/shared/external-integration.md` - External project compatibility
-  - [ ] `doc/modules/pelican/README.md` - Pelican integration patterns and quirks
-  - [ ] `doc/modules/pelican/theme-overrides.md` - Template override system documentation
-  - [ ] `doc/modules/pelican/quirks.md` - Pelican automatic title generation, hgroup elements, and workarounds
-- [ ] Update documentation navigation following CONTRIBUTE.md adjacency rules:
-  - [ ] Update `doc/README.md` to link to new `doc/modules/shared/README.md` and `doc/modules/pelican/README.md`
-  - [ ] Update `doc/modules/README.md` (if exists) to link to shared and pelican subdirs
-  - [ ] Create `doc/modules/README.md` if missing, link shared/ and pelican/ subdirs
-  - [ ] Ensure `doc/modules/shared/README.md` links to `external-integration.md` (peer doc)
-  - [ ] Ensure `doc/modules/pelican/README.md` links to `theme-overrides.md` and `quirks.md` (peer docs)
-  - [ ] Verify no deep linking violations (higher-level READMEs must not link directly to subdocuments)
-- [ ] Update schema documentation:
-  - [ ] `doc/configuration.md` - Document `theme_path` property in Galleria config
-  - [ ] Document `THEME_TEMPLATES_OVERRIDES` as string (not list) in current implementation
-- [ ] Update navigation in `doc/README.md` to include shared theme and Pelican docs
-- [ ] `uv run ruff check --fix --unsafe-fixes && uv run pytest`
-- [ ] Update TODO.md and CHANGELOG.md
-- [ ] Commit: `Doc: Add shared component integration documentation`
-
-**Phase 7: PR Creation**
-
-- [ ] `gh pr create --title "Fix: Integrate shared components into build systems" --body "Fixes integration failures from previous shared components PR by ensuring build systems actually use shared navigation and CSS components"`
-
-### Post-PR Tasks: Resolve Remaining Test Failures
-
-**3 remaining test failures are existing technical debt, not caused by shared component changes:**
+#### Current Test Issues (3 remaining failures from existing technical debt)
 
 - [ ] **Fix serve routing test**: `test_site_serve_routing` serves directory listing instead of Pelican content
   - Issue: Pelican server not serving index.html properly, returns file browser instead
@@ -130,6 +25,14 @@ Critical Issues:
   - Issue: Tests expect `elegant` theme but template doesn't exist in theme directory
   - Root cause: Theme structure mismatch, tests assume templates that were never created
   - Affected: `test_serve_static_file_serving`, `test_serve_orchestrator_integration`
+
+#### Test Suite Optimization
+
+- [ ] **DELETE worthless mock-based integration tests** that don't verify actual HTML output
+- [ ] **REFACTOR existing tests** to use `theme_factory` fixture for consistency  
+- [ ] Keep only tests that verify real functionality (shared components in builder outputs)
+- [ ] Reduce test suite execution time by removing wheel-spinning tests
+- [ ] Document `theme_factory` usage in test guidelines
 
 ### Phase 6: Performance Baseline
 
