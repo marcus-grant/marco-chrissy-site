@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{% block content %}
+{{ article.content }}
+<footer>
+  <p>Published: <time datetime="{{ article.date.isoformat() }}">
+    {{ article.locale_date }}
+  </time></p>
+  {% if article.author %}
+    <address>
+      By {{ article.author }}
+    </address>
+  {% endif %}
+  {% if article.category %}
+    <p>
+      Category: <a href="{{ SITEURL }}/{{ article.category.url }}">{{ article.category }}</a>
+    </p>
+  {% endif %}
+</footer>
+{% endblock content %}

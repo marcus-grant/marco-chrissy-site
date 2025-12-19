@@ -219,3 +219,8 @@ This is the home page content.
         assert '<a href="/">Home</a>' in content, "Home link missing from navbar"
         assert '<a href="/about/">About</a>' in content, "About link missing from navbar"
         assert '<a href="/galleries/wedding/">Gallery</a>' in content, "Gallery link missing from navbar"
+
+    # Verify header consistency: NO Pelican-specific hgroup elements in either system
+    # Both systems should use only shared navbar, not separate site title structures
+    assert '<hgroup>' not in pelican_content, "Pelican output contains <hgroup> element - creates header inconsistency with Galleria"
+    assert '<hgroup>' not in galleria_content, "Galleria output contains <hgroup> element - should not have Pelican-specific structures"
