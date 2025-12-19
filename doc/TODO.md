@@ -456,6 +456,15 @@ Critical Issues:
 - [ ] WebP compression optimization
 - [ ] Dark mode toggle (CSS variables + minimal JS)
 
+### Shared Component Enhancements
+
+- [ ] **Context-Aware Shared Header**: Replace separate site titles with smart shared header that adapts based on system context
+  - **Pattern**: `{% if collection_name %}Gallery: {{ collection_name }}{% elif SITENAME %}{{ SITENAME }}{% endif %}`  
+  - **Pelican context**: `SITENAME`, `SITEURL`, `article.title`
+  - **Galleria context**: `collection_name`, `page_num`, `total_pages`, `photos|length`
+  - **Location**: Create `themes/shared/templates/header.html`, replace both systems' headers
+  - **Result**: Consistent header styling with appropriate context (site name vs gallery name)
+
 ### Code Quality
 
 - [ ] Comprehensive error handling for plugin failures
