@@ -17,6 +17,8 @@
 - Fixed template precedence - shared templates now work as overrides, not primary theme
 - Updated template loader to return only override paths, not primary theme paths
 - Pelican now correctly uses custom theme with shared navbar integration
+- Removed duplicate navbar workaround from content/index.md
+- Navigation now comes from theme template, not content includes
 
 ## 2025-12-18
 
