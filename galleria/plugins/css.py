@@ -83,7 +83,7 @@ class BasicCSSPlugin(CSSPlugin):
                 )
 
             # Shared CSS files if shared theme path is configured
-            theme_template_overrides = css_config.get("THEME_TEMPLATE_OVERRIDES")
+            theme_template_overrides = css_config.get("THEME_TEMPLATES_OVERRIDES")
             if theme_template_overrides:
                 shared_css_files = self._read_shared_css_files(theme_template_overrides)
                 css_files.extend(shared_css_files)

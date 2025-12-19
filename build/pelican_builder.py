@@ -89,7 +89,7 @@ class PelicanBuilder:
             })
             
             # Configure shared template paths only when explicitly provided
-            if 'THEME_TEMPLATE_OVERRIDES' in pelican_config:
+            if 'THEME_TEMPLATES_OVERRIDES' in pelican_config:
                 # Create temporary config file for configure_pelican_shared_templates
                 import json
                 with tempfile.NamedTemporaryFile(mode='w', suffix='.json', delete=False) as temp_config:
@@ -115,7 +115,7 @@ class PelicanBuilder:
                         pelican_settings_dict['JINJA2CONTENT_TEMPLATES'] = absolute_template_dirs
                         
                         # Configure shared static paths for CSS/assets
-                        shared_static_path = str(base_dir / pelican_config['THEME_TEMPLATE_OVERRIDES'] / 'static')
+                        shared_static_path = str(base_dir / pelican_config['THEME_TEMPLATES_OVERRIDES'] / 'static')
                         if Path(shared_static_path).exists():
                             # Add shared static path to THEME_STATIC_PATHS
                             existing_static_paths = pelican_settings_dict.get('THEME_STATIC_PATHS', ['static'])
@@ -133,7 +133,7 @@ class PelicanBuilder:
                                     pelican_settings_dict['CSS_FILE'] = css_filename
                                     # Also set the theme to use the shared templates
                                     if absolute_template_dirs:
-                                        pelican_settings_dict['THEME'] = str(base_dir / pelican_config['THEME_TEMPLATE_OVERRIDES'])
+                                        pelican_settings_dict['THEME'] = str(base_dir / pelican_config['THEME_TEMPLATES_OVERRIDES'])
                 finally:
                     # Clean up temporary file
                     Path(temp_config_path).unlink(missing_ok=True)

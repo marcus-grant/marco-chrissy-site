@@ -6,5 +6,5 @@
   "theme": "minimal",
   "quality": 85,
   "layout": "grid",
-  "THEME_TEMPLATE_OVERRIDES": "themes/shared"
+  "THEME_TEMPLATES_OVERRIDES": "themes/shared"
 }

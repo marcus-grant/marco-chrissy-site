@@ -8,6 +8,12 @@
 - Enhanced integration test to detect Pelican theme override configuration issues
 - Added duplicate navbar detection to verify single shared navbar in both systems
 
+### Fixed
+
+- Updated all config files and code to use correct THEME_TEMPLATES_OVERRIDES (plural) setting name
+- Aligned Pelican, Galleria, and test configurations to use proper Pelican setting convention
+- Test still fails proving shared theme override logic is broken (as expected)
+
 ## 2025-12-18
 
 ### Fixed

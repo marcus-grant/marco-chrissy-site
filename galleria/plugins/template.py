@@ -244,9 +244,9 @@ class BasicTemplatePlugin(TemplatePlugin):
         from ..theme.loader import TemplateLoader
 
         # Get shared theme path from config
-        theme_template_overrides = context.config.get("THEME_TEMPLATE_OVERRIDES")
+        theme_template_overrides = context.config.get("THEME_TEMPLATES_OVERRIDES")
         if not theme_template_overrides and "template" in context.config:
-            theme_template_overrides = context.config["template"].get("THEME_TEMPLATE_OVERRIDES")
+            theme_template_overrides = context.config["template"].get("THEME_TEMPLATES_OVERRIDES")
         loader = TemplateLoader(theme_path, theme_template_overrides)
 
         # Prepare photo data for template
