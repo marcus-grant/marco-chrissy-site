@@ -12,28 +12,6 @@ For detailed planning guidance, templates, and examples, see: **[`PLANNING.md`](
 
 ## MVP Roadmap
 
-### Phase 5.2: Test Suite Cleanup and Fixes
-
-**Priority: Fix remaining test failures and clean up test suite**
-
-#### Current Test Issues (3 remaining failures from existing technical debt)
-
-- [ ] **Fix serve routing test**: `test_site_serve_routing` serves directory listing instead of Pelican content
-  - Issue: Pelican server not serving index.html properly, returns file browser instead
-  - Root cause: Serve proxy or Pelican server configuration issue
-- [ ] **Fix missing galleria template**: Two galleria serve E2E tests fail with `gallery.j2.html` not found
-  - Issue: Tests expect `elegant` theme but template doesn't exist in theme directory
-  - Root cause: Theme structure mismatch, tests assume templates that were never created
-  - Affected: `test_serve_static_file_serving`, `test_serve_orchestrator_integration`
-
-#### Test Suite Optimization
-
-- [ ] **DELETE worthless mock-based integration tests** that don't verify actual HTML output
-- [ ] **REFACTOR existing tests** to use `theme_factory` fixture for consistency  
-- [ ] Keep only tests that verify real functionality (shared components in builder outputs)
-- [ ] Reduce test suite execution time by removing wheel-spinning tests
-- [ ] Document `theme_factory` usage in test guidelines
-
 ### Phase 6: Deploy Command & Guided Real-World Deployment
 
 - [ ] Plan rest of this step, needs much more detail

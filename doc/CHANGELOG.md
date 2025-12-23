@@ -1,5 +1,35 @@
 # Changelog
 
+## 2025-12-23
+
+### Completed - Phase 5.2: Test Suite Cleanup and Fixes
+
+#### Fixed Test Failures
+- **Fixed remaining test failure**: Resolved `Path.cwd()` issue in galleria serve orchestrator
+  - Use config file's parent directory as base_dir instead of Path.cwd()
+  - Prevents FileNotFoundError when working directory is cleaned up in test isolation
+  - Updated unit tests to reflect new behavior
+
+#### Test Suite Optimization
+- **Deleted worthless mock-based integration tests**: Removed 2 tests that only asserted mock calls without verifying actual functionality
+  - Removed `test_shared_components_integration_without_subprocess` from test_shared_components.py
+  - Removed `test_refactored_serve_architecture` from test_site_serve.py
+  - Kept `test_serve_orchestrator_graceful_shutdown_on_signal` as it tests real signal handling behavior
+  - Test suite now: **456 passed, 6 skipped** (down from 458 passed)
+  - Reduced test suite execution time by removing wheel-spinning tests
+
+#### Test Infrastructure Improvements  
+- **Added shared theme_factory fixture**: Enhanced test consistency and reduced duplication
+  - Moved theme_factory from local pelican builder test to shared test/conftest.py
+  - Enhanced to support both pelican and galleria theme types
+  - Refactored existing tests to use shared fixture for consistent theme creation patterns
+  - Removed local theme_factory definitions in favor of shared implementation
+
+#### Results
+- **All tests passing**: No failures remaining from the original 3 test failures identified in TODO
+- **Clean test suite**: Ready for Phase 6 (Performance Baseline) and final MVP preparation
+- **Improved test maintainability**: Consistent theme creation patterns across all tests
+
 ## 2025-12-19
 
 ### Completed - Shared Component Integration (PR #17)
