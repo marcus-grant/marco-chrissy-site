@@ -72,7 +72,7 @@ class TestServeOrchestrator:
             "output_dir": "/test/output",
         }
         mock_galleria_builder.build.assert_called_once_with(
-            expected_builder_config, Path.cwd()
+            expected_builder_config, config_path.parent
         )
 
     @patch("galleria.orchestrator.serve.ConfigManager")
@@ -254,8 +254,8 @@ class TestServeOrchestrator:
             "output_dir": "/test/output",
         }
         expected_calls = [
-            call(expected_builder_config, Path.cwd()),
-            call(expected_builder_config, Path.cwd()),
+            call(expected_builder_config, config_path.parent),
+            call(expected_builder_config, config_path.parent),
         ]
         mock_galleria_builder.build.assert_has_calls(expected_calls)
 
