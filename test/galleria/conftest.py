@@ -430,6 +430,8 @@ def complete_serving_scenario(
     manifest_factory,
     gallery_output_factory,
     galleria_image_factory,
+    file_factory,
+    directory_factory,
     free_port,
 ):
     """Create a complete serving scenario with all required components."""
