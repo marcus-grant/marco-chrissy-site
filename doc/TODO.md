@@ -34,7 +34,12 @@ For detailed planning guidance, templates, and examples, see: **[`PLANNING.md`](
 - [ ] Reduce test suite execution time by removing wheel-spinning tests
 - [ ] Document `theme_factory` usage in test guidelines
 
-### Phase 6: Performance Baseline
+### Phase 6: Deploy Command & Guided Real-World Deployment
+
+- [ ] Plan rest of this step, needs much more detail
+- [ ] Set up dual CDN deployment strategy (photos vs site content)
+
+### Phase 7: Performance Baseline
 
 - [ ] Measure initial performance metrics
   - [ ] Pipeline timing: validate, organize (16s), build (6m4s), deploy step durations
@@ -49,29 +54,6 @@ For detailed planning guidance, templates, and examples, see: **[`PLANNING.md`](
   - [ ] Compare CDN manifest with local manifest to determine upload needs
   - [ ] Photo collections: lazy upload (only changed files)
   - [ ] Site content: always upload (smaller transfer, less optimization needed)
-
-### 6: Verify Content Pages & Output Structure
-
-- [ ] E2E test: Full site generation with proper output structure (`test/e2e/`)
-- [ ] Unit tests: Output directory management and CDN coordination (`test/unit/build/`)
-- [ ] Create Pelican content structure:
-  - [ ] Gallery index page (`/galleries/`) - lists available galleries
-  - [ ] About page (`/about/`) - personal content
-- [ ] Configure output directory structure:
-
-  ```
-  output/
-  ├── pics/           # Full photos → Photos CDN bucket
-  ├── galleries/      # Gallery pages + thumbs → Site CDN
-  │   └── wedding/    # URL: /galleries/wedding/page1
-  ├── about/          # Pelican pages → Site CDN
-  └── index.html      # Site root → Site CDN
-  ```
-
-### Phase 7: Deploy Command & Guided Real-World Deployment
-
-- [ ] Plan rest of this step, needs much more detail
-- [ ] Set up dual CDN deployment strategy (photos vs site content)
 
 ## MVP 0.1.0 Release Preparation
 
