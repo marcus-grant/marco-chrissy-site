@@ -234,60 +234,13 @@ Test content.
         css_content = output_css.read_text()
         assert 'background: #ff00ff' in css_content, "CSS content should be preserved"
 
-    @pytest.fixture
-    def theme_factory(self, directory_factory, file_factory):
-        """Factory for creating theme structures."""
-        def _create_theme(
-            theme_name: str = "test-theme", 
-            css_files: dict[str, str] | None = None,
-            templates: dict[str, str] | None = None
-        ):
-            """Create a complete theme structure.
-            
-            Args:
-                theme_name: Name of the theme directory
-                css_files: Dict of {filename: content} for CSS files
-                templates: Dict of {filename: content} for template files
-                
-            Returns:
-                Path to theme directory
-            """
-            theme_dir = directory_factory(f"themes/{theme_name}")
-            
-            # Create static/css structure
-            css_dir = directory_factory(f"themes/{theme_name}/static/css")
-            if css_files:
-                for filename, content in css_files.items():
-                    file_factory(f"themes/{theme_name}/static/css/{filename}", content)
-            
-            # Create templates structure  
-            template_dir = directory_factory(f"themes/{theme_name}/templates")
-            if templates:
-                for filename, content in templates.items():
-                    file_factory(f"themes/{theme_name}/templates/{filename}", content)
-            else:
-                # Create minimal base template that uses CSS_FILE
-                file_factory(f"themes/{theme_name}/templates/base.html", """<!DOCTYPE html>
-<html>
-<head>
-    <title>{{ SITENAME }}</title>
-    {% if CSS_FILE %}
-    <link rel="stylesheet" href="{{ SITEURL }}/{{ THEME_STATIC_DIR }}/css/{{ CSS_FILE }}" />
-    {% endif %}
-</head>
-<body>
-    {% block content %}{{ article.content }}{% endblock %}
-</body>
-</html>""")
-                file_factory(f"themes/{theme_name}/templates/article.html", """{% extends "base.html" %}""")
-            
-            return theme_dir
-            
-        return _create_theme
 
     def test_build_configures_css_file_for_shared_css(self, temp_filesystem, file_factory, directory_factory, theme_factory):
         """Test that Pelican configures CSS_FILE when shared CSS exists."""
-        # Create shared theme with CSS
+        # Create main theme (required for Pelican to work)
+        theme_factory("notmyidea")
+        
+        # Create shared theme with CSS  
         theme_factory("shared", css_files={"shared.css": ".shared-nav { background: #ff00ff; }"})
         
         # Create content
@@ -302,7 +255,8 @@ Test content.""")
             "author": "Test Author",
             "sitename": "Test Site", 
             "content_path": "content",
-            "SHARED_THEME_PATH": "themes/shared"
+            "theme": "themes/notmyidea",
+            "THEME_TEMPLATES_OVERRIDES": "themes/shared"
         }
         
         builder = PelicanBuilder()

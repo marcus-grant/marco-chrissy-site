@@ -109,23 +109,16 @@ class TestSharedComponentSystem:
         pass
 
 
-    def test_shared_components_end_to_end_minimal(self, temp_filesystem, full_config_setup, file_factory, directory_factory):
+    def test_shared_components_end_to_end_minimal(self, temp_filesystem, full_config_setup, file_factory, directory_factory, theme_factory):
         """Minimal test to verify shared components work with actual build orchestrator."""
 
         from build.config_manager import ConfigManager
 
-        # Create minimal shared components
-        directory_factory("themes/shared/templates")
-        directory_factory("themes/shared/css")
-
-        file_factory(
-            "themes/shared/templates/test.html",
-            '<div class="shared-test">Shared Component Works</div>'
-        )
-
-        file_factory(
-            "themes/shared/css/test.css",
-            '.shared-test { background: blue; }'
+        # Create minimal shared components using theme_factory
+        theme_factory(
+            "shared",
+            css_files={"test.css": '.shared-test { background: blue; }'},
+            templates={"test.html": '<div class="shared-test">Shared Component Works</div>'}
         )
 
         # Create minimal configs
