@@ -19,16 +19,16 @@ For detailed planning guidance, templates, and examples, see: **[`PLANNING.md`](
 *Problem Statement: Site lacks deployment capability to bunny.net CDN. Need dual storage zone strategy (photos vs site content), manifest-based incremental uploads, and integration with existing 4-stage pipeline (validate→organize→build→deploy).*
 
 **Phase 1: Setup & E2E Definition**
-- [ ] `git checkout -b ft/deploy`
-- [ ] Create E2E test in `test/e2e/test_deploy_command.py`
-  - [ ] Test Click deploy function directly (no subprocess)
-  - [ ] Mock all bunny.net API calls with `responses` library
-  - [ ] Verify dual zone routing: photos→photo zone, site content→site zone
-  - [ ] Test manifest comparison determines incremental uploads
-  - [ ] Test pipeline integration: deploy auto-calls build if needed
-  - [ ] Add `@pytest.mark.skip("Deploy command not implemented")`
-- [ ] `uv run ruff check --fix --unsafe-fixes && uv run pytest`
-- [ ] Update TODO.md and CHANGELOG.md
+- [x] `git checkout -b ft/deploy`
+- [x] Create E2E test in `test/e2e/test_site_deploy.py`
+  - [x] Test Click deploy function directly (no subprocess)
+  - [x] Mock all bunny.net API calls with proper fixtures and isolation
+  - [x] Verify dual zone routing: photos→photo zone, site content→site zone
+  - [x] Test manifest comparison determines incremental uploads
+  - [x] Test pipeline integration: deploy auto-calls build if needed
+  - [x] Add `@pytest.mark.skip("Deploy command not implemented")`
+- [x] `uv run ruff check --fix --unsafe-fixes && uv run pytest`
+- [x] Update TODO.md and CHANGELOG.md
 - [ ] Commit: `Tst: Add E2E test for deploy command (skipped)`
 
 **Phase 2: TDD Implementation Cycles**

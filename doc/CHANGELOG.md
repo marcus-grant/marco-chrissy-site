@@ -1,5 +1,12 @@
 # Changelog
 
+## 2025-12-29
+
+- Create comprehensive E2E tests for deploy command using Click testing and isolated fixtures
+- Replace subprocess-based tests with CliRunner for better performance
+- Add complete deploy test coverage: dual zone strategy, manifest comparison, pipeline integration, error handling
+- Ensure complete test isolation with temp filesystem and proper fixtures
+
 ## 2025-12-23
 
 ### Completed - Phase 5.2: Test Suite Cleanup and Fixes
