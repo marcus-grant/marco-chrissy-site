@@ -29,13 +29,13 @@ For detailed planning guidance, templates, and examples, see: **[`PLANNING.md`](
   - [x] Add `@pytest.mark.skip("Deploy command not implemented")`
 - [x] `uv run ruff check --fix --unsafe-fixes && uv run pytest`
 - [x] Update TODO.md and CHANGELOG.md
-- [ ] Commit: `Tst: Add E2E test for deploy command (skipped)`
+- [x] Commit: `Tst: Add E2E test for deploy command (skipped)`
 
 **Phase 2: TDD Implementation Cycles**
 
 *Cycle 1: Bunny.net API Client Foundation*
-- [ ] Create stub `deploy/bunnynet_client.py` with `BunnyNetClient` class
-- [ ] Write unit test for authentication validation (NEVER read/inspect env vars)
+- [x] Create stub `deploy/bunnynet_client.py` with `BunnyNetClient` class
+- [x] Write unit test for authentication validation (NEVER read/inspect env vars)
 - [ ] Implement basic auth using BUNNYNET_STORAGE_PASSWORD env var
 - [ ] Write unit test for file upload with proper headers that fails
 - [ ] Implement file upload using requests PUT

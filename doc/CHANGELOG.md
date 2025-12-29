@@ -6,6 +6,8 @@
 - Replace subprocess-based tests with CliRunner for better performance
 - Add complete deploy test coverage: dual zone strategy, manifest comparison, pipeline integration, error handling
 - Ensure complete test isolation with temp filesystem and proper fixtures
+- Create BunnyNetClient stub with authentication validation and environment variable handling
+- Add comprehensive unit tests for client initialization and region configuration (with security warnings)
 
 ## 2025-12-23
 
