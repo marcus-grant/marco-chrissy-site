@@ -14,8 +14,111 @@ For detailed planning guidance, templates, and examples, see: **[`PLANNING.md`](
 
 ### Phase 6: Deploy Command & Guided Real-World Deployment
 
-- [ ] Plan rest of this step, needs much more detail
-- [ ] Set up dual CDN deployment strategy (photos vs site content)
+#### Task 6.1: Deploy Command Implementation (Branch: ft/deploy)
+
+*Problem Statement: Site lacks deployment capability to bunny.net CDN. Need dual storage zone strategy (photos vs site content), manifest-based incremental uploads, and integration with existing 4-stage pipeline (validate→organize→build→deploy).*
+
+**Phase 1: Setup & E2E Definition**
+- [ ] `git checkout -b ft/deploy`
+- [ ] Create E2E test in `test/e2e/test_deploy_command.py`
+  - [ ] Test Click deploy function directly (no subprocess)
+  - [ ] Mock all bunny.net API calls with `responses` library
+  - [ ] Verify dual zone routing: photos→photo zone, site content→site zone
+  - [ ] Test manifest comparison determines incremental uploads
+  - [ ] Test pipeline integration: deploy auto-calls build if needed
+  - [ ] Add `@pytest.mark.skip("Deploy command not implemented")`
+- [ ] `uv run ruff check --fix --unsafe-fixes && uv run pytest`
+- [ ] Update TODO.md and CHANGELOG.md
+- [ ] Commit: `Tst: Add E2E test for deploy command (skipped)`
+
+**Phase 2: TDD Implementation Cycles**
+
+*Cycle 1: Bunny.net API Client Foundation*
+- [ ] Create stub `deploy/bunnynet_client.py` with `BunnyNetClient` class
+- [ ] Write unit test for authentication validation (NEVER read/inspect env vars)
+- [ ] Implement basic auth using BUNNYNET_STORAGE_PASSWORD env var
+- [ ] Write unit test for file upload with proper headers that fails
+- [ ] Implement file upload using requests PUT
+- [ ] Write unit test for manifest download that fails  
+- [ ] Implement file download for manifest retrieval
+- [ ] Write unit test for HTTP error handling that fails
+- [ ] Add comprehensive error handling for API failures
+- [ ] `uv run ruff check --fix --unsafe-fixes && uv run pytest`
+- [ ] Update TODO.md and CHANGELOG.md
+- [ ] Commit: `Ft: Add BunnyNet API client with upload/download`
+
+*Cycle 2: Manifest Comparison Logic*
+- [ ] Create stub `deploy/manifest_comparator.py` with comparison functions
+- [ ] Write unit test for file hash comparison that fails
+- [ ] Implement local vs remote manifest diff logic
+- [ ] Write unit test for missing remote manifest handling that fails
+- [ ] Handle missing/corrupted remote manifest edge cases
+- [ ] `uv run ruff check --fix --unsafe-fixes && uv run pytest`
+- [ ] Update TODO.md and CHANGELOG.md  
+- [ ] Commit: `Ft: Add manifest comparison logic for incremental uploads`
+
+*Cycle 3: Deploy Orchestrator & Zone Routing*
+- [ ] Create stub `deploy/orchestrator.py` with `DeployOrchestrator` class
+- [ ] Write unit test for file routing logic that fails
+- [ ] Implement photo zone routing (/output/pics/* → photo zone)
+- [ ] Write unit test for photo deployment that fails
+- [ ] Implement full photo upload (manifest-based) + thumbnail upload (always)
+- [ ] Write unit test for site content deployment that fails
+- [ ] Implement site content zone deployment (everything except pics/)
+- [ ] Write unit test for partial failure rollback that fails
+- [ ] Add rollback logic on deployment failures
+- [ ] `uv run ruff check --fix --unsafe-fixes && uv run pytest`
+- [ ] Update TODO.md and CHANGELOG.md
+- [ ] Commit: `Ft: Add deploy orchestrator with dual zone strategy`
+
+*Cycle 4: CLI Command Integration*
+- [ ] Create stub `cli/commands/deploy.py` following existing command patterns
+- [ ] Write unit test for argument parsing that fails
+- [ ] Implement deploy command CLI interface
+- [ ] Write unit test for orchestrator integration that fails
+- [ ] Connect CLI to deploy orchestrator
+- [ ] Write unit test for pipeline cascading that fails
+- [ ] Implement auto-call to build command (cascading pattern)
+- [ ] `uv run ruff check --fix --unsafe-fixes && uv run pytest`
+- [ ] Update TODO.md and CHANGELOG.md
+- [ ] Commit: `Ft: Add deploy CLI command with pipeline integration`
+
+**Phase 3: Interactive Bunny.net Setup & Documentation**
+- [ ] Guide user through photo storage zone creation → Document in `doc/bunnynet.md`
+- [ ] Guide user through site storage zone creation → Document in `doc/bunnynet.md`
+- [ ] Guide user through finding storage passwords → Document (with NEVER inspect env vars warning)
+- [ ] Guide user through environment variable setup → Document (with security warnings)
+- [ ] Test basic API connectivity with user → Document verification steps
+- [ ] Remove `@pytest.mark.skip` from E2E test
+- [ ] Verify E2E test passes (if not, return to Phase 2)
+- [ ] Update `doc/README.md` to link to `doc/bunnynet.md`
+- [ ] Update `doc/commands/deploy.md` with usage examples
+- [ ] `uv run ruff check --fix --unsafe-fixes && uv run pytest`
+- [ ] Update TODO.md and CHANGELOG.md
+- [ ] Commit: `Doc: Add bunny.net setup guide and deploy command documentation`
+
+**Phase 4: Integration Testing & PR Creation**
+- [ ] Test complete validate→organize→build→deploy pipeline end-to-end
+- [ ] Verify dual zone deployment works correctly
+- [ ] Verify incremental upload behavior (manifest comparison)
+- [ ] Test error handling and rollback scenarios
+- [ ] `uv run ruff check --fix --unsafe-fixes && uv run pytest`
+- [ ] Update TODO.md and CHANGELOG.md
+- [ ] Commit: `Tst: Verify complete deploy pipeline integration`
+- [ ] `gh pr create --title "Ft: Implement bunny.net deploy command" --body "Adds deploy command with dual storage zone strategy, manifest-based incremental uploads, and integration with existing build pipeline"`
+
+**Environment Variables Required:**
+- `BUNNYNET_STORAGE_PASSWORD` - Storage zone password (NEVER inspect/print)
+- `BUNNYNET_PHOTO_ZONE_NAME` - Photo storage zone name
+- `BUNNYNET_SITE_ZONE_NAME` - Site content storage zone name  
+- `BUNNYNET_REGION` - Storage region (optional, defaults to Frankfurt)
+
+**Success Criteria:**
+- [ ] Wedding gallery deploys successfully to bunny.net
+- [ ] Incremental uploads work (only changed files uploaded)
+- [ ] Dual zone strategy separates photos from site content
+- [ ] Deploy integrates seamlessly with existing pipeline
+- [ ] Documentation guides user through complete setup
 
 ### Phase 7: Performance Baseline
 
