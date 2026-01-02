@@ -101,7 +101,10 @@ class TestBunnyNetClient:
         mock_put.assert_called_once_with(
             "https://uk.storage.bunnycdn.com/my-zone/photos/test.jpg",
             data=b"test-content",
-            headers={"AccessKey": "test-password"}
+            headers={
+                "AccessKey": "test-password",
+                "Content-Type": "application/octet-stream"
+            }
         )
 
     @patch("requests.put")
@@ -129,7 +132,10 @@ class TestBunnyNetClient:
         mock_put.assert_called_once_with(
             "https://storage.bunnycdn.com/my-zone/photos/test.jpg",
             data=b"test-content",
-            headers={"AccessKey": "test-password"}
+            headers={
+                "AccessKey": "test-password",
+                "Content-Type": "application/octet-stream"
+            }
         )
 
     @patch("requests.get")

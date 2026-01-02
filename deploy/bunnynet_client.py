@@ -38,7 +38,10 @@ class BunnyNetClient:
             True if upload successful, False otherwise
         """
         url = f"{self.base_url}/{zone_name}/{remote_path}"
-        headers = {"AccessKey": self.storage_password}
+        headers = {
+            "AccessKey": self.storage_password,
+            "Content-Type": "application/octet-stream"
+        }
 
         try:
             with open(local_path, "rb") as file:
