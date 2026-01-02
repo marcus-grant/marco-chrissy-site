@@ -45,17 +45,26 @@ For detailed planning guidance, templates, and examples, see: **[`PLANNING.md`](
 - [x] Add comprehensive error handling for API failures
 - [x] `uv run ruff check --fix --unsafe-fixes && uv run pytest`
 - [x] Update TODO.md and CHANGELOG.md
-- [ ] Commit: `Ft: Add BunnyNet API client with upload/download`
+- [x] Commit: `Ft: Add BunnyNet API client with upload/download`
 
-*Cycle 2: Manifest Comparison Logic*
-- [ ] Create stub `deploy/manifest_comparator.py` with comparison functions
-- [ ] Write unit test for file hash comparison that fails
-- [ ] Implement local vs remote manifest diff logic
+*Cycle 2: Deployment Manifest Comparison Logic*
+
+**Architecture Decision:** Deploy uses deployment manifests (simple file→hash mapping) separate from normpic manifests (rich photo metadata). This supports dual-zone strategy: photos (output/pics/full/) → photo zone, site content (output/ excluding pics/) → site zone.
+
+- [ ] Create stub `deploy/manifest_comparator.py` with comparison functions  
+- [ ] Write unit test for file hash calculation that fails
+- [ ] Implement SHA-256 file hashing with chunked reading
+- [ ] Write unit test for local manifest generation that fails
+- [ ] Implement directory scanning (exclude manifest.json files)
+- [ ] Write unit test for manifest comparison logic that fails
+- [ ] Implement manifest diff logic (new/changed files detection)
+- [ ] Write unit test for JSON serialization that fails
+- [ ] Implement manifest JSON load/save functions
 - [ ] Write unit test for missing remote manifest handling that fails
 - [ ] Handle missing/corrupted remote manifest edge cases
 - [ ] `uv run ruff check --fix --unsafe-fixes && uv run pytest`
 - [ ] Update TODO.md and CHANGELOG.md  
-- [ ] Commit: `Ft: Add manifest comparison logic for incremental uploads`
+- [ ] Commit: `Ft: Add deployment manifest comparison for incremental uploads`
 
 *Cycle 3: Deploy Orchestrator & Zone Routing*
 - [ ] Create stub `deploy/orchestrator.py` with `DeployOrchestrator` class
