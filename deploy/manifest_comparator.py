@@ -1,9 +1,7 @@
 """Manifest comparison logic for incremental deploy operations."""
 
 import hashlib
-import json
 from pathlib import Path
-from typing import Dict, List, Set
 
 
 class ManifestComparator:
@@ -13,7 +11,7 @@ class ManifestComparator:
         """Initialize manifest comparator."""
         pass
 
-    def generate_local_manifest(self, directory: Path) -> Dict[str, str]:
+    def generate_local_manifest(self, directory: Path) -> dict[str, str]:
         """Generate manifest of local files with their hashes.
 
         Args:
@@ -23,20 +21,20 @@ class ManifestComparator:
             Dictionary mapping file paths to their SHA-256 hashes
         """
         manifest = {}
-        
+
         try:
             for file_path in directory.rglob("*"):
                 if file_path.is_file() and file_path.name != "manifest.json":
                     # Use relative path from the directory as key
                     relative_path = file_path.relative_to(directory)
                     manifest[str(relative_path)] = self.calculate_file_hash(file_path)
-                    
+
             return manifest
-            
+
         except Exception:
             return {}
 
-    def compare_manifests(self, local_manifest: Dict[str, str], remote_manifest: Dict[str, str]) -> Set[str]:
+    def compare_manifests(self, local_manifest: dict[str, str], remote_manifest: dict[str, str]) -> set[str]:
         """Compare local and remote manifests to find files needing upload.
 
         Args:
@@ -46,10 +44,18 @@ class ManifestComparator:
         Returns:
             Set of file paths that need to be uploaded (new or changed files)
         """
-        # Stub implementation - will be implemented in TDD cycle
-        raise NotImplementedError("Manifest comparison not implemented yet")
+        files_to_upload = set()
 
-    def load_manifest_from_json(self, manifest_content: bytes) -> Dict[str, str]:
+        for file_path, local_hash in local_manifest.items():
+            remote_hash = remote_manifest.get(file_path)
+
+            # Upload if file is new (not in remote) or changed (different hash)
+            if remote_hash is None or remote_hash != local_hash:
+                files_to_upload.add(file_path)
+
+        return files_to_upload
+
+    def load_manifest_from_json(self, manifest_content: bytes) -> dict[str, str]:
         """Load manifest from JSON bytes (downloaded from remote).
 
         Args:
@@ -61,7 +67,7 @@ class ManifestComparator:
         # Stub implementation - will be implemented in TDD cycle
         raise NotImplementedError("JSON manifest loading not implemented yet")
 
-    def save_manifest_to_json(self, manifest: Dict[str, str]) -> bytes:
+    def save_manifest_to_json(self, manifest: dict[str, str]) -> bytes:
         """Save manifest to JSON bytes for upload.
 
         Args:
@@ -83,13 +89,13 @@ class ManifestComparator:
             SHA-256 hash as hex string
         """
         hash_algo = hashlib.sha256()
-        
+
         try:
             with open(file_path, "rb") as f:
                 for chunk in iter(lambda: f.read(8192), b""):
                     hash_algo.update(chunk)
             return hash_algo.hexdigest()
-            
+
         except Exception:
             # Return empty hash for files that cannot be read
             return ""
