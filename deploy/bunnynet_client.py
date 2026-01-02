@@ -3,6 +3,8 @@
 import os
 from pathlib import Path
 
+import requests
+
 
 class BunnyNetClient:
     """Minimal Bunny.net storage API client for deployment operations."""
@@ -35,8 +37,18 @@ class BunnyNetClient:
         Returns:
             True if upload successful, False otherwise
         """
-        # Stub implementation - will be implemented in TDD cycle
-        raise NotImplementedError("Upload functionality not implemented yet")
+        url = f"{self.base_url}/{zone_name}/{remote_path}"
+        headers = {"AccessKey": self.storage_password}
+
+        try:
+            with open(local_path, "rb") as file:
+                file_data = file.read()
+
+            response = requests.put(url, data=file_data, headers=headers)
+            return response.status_code == 201
+
+        except Exception:
+            return False
 
     def download_file(self, remote_path: str, zone_name: str) -> bytes | None:
         """Download a file from bunny.net storage zone.
@@ -48,8 +60,17 @@ class BunnyNetClient:
         Returns:
             File contents as bytes, or None if not found/error
         """
-        # Stub implementation - will be implemented in TDD cycle
-        raise NotImplementedError("Download functionality not implemented yet")
+        url = f"{self.base_url}/{zone_name}/{remote_path}"
+        headers = {"AccessKey": self.storage_password}
+
+        try:
+            response = requests.get(url, headers=headers)
+            if response.status_code == 200:
+                return response.content
+            return None
+
+        except Exception:
+            return None
 
     def list_directory(self, remote_path: str, zone_name: str) -> list[str] | None:
         """List files in a storage zone directory.

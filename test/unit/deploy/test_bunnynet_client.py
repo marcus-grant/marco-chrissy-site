@@ -1,9 +1,11 @@
 """Unit tests for BunnyNet API client."""
 
 import os
-from unittest.mock import patch
+from pathlib import Path
+from unittest.mock import Mock, patch
 
 import pytest
+import requests
 
 from deploy.bunnynet_client import BunnyNetClient, create_client_from_env
 
@@ -67,23 +69,141 @@ class TestBunnyNetClient:
             with pytest.raises(ValueError, match="Missing BUNNYNET_STORAGE_PASSWORD"):
                 create_client_from_env()
 
-    def test_upload_file_not_implemented(self):
-        """Test upload_file raises NotImplementedError (stub implementation)."""
-        client = BunnyNetClient("test-password", "")
-
-        with pytest.raises(NotImplementedError, match="Upload functionality not implemented"):
-            client.upload_file("local.jpg", "remote.jpg", "test-zone")
-
-    def test_download_file_not_implemented(self):
-        """Test download_file raises NotImplementedError (stub implementation)."""
-        client = BunnyNetClient("test-password", "")
-
-        with pytest.raises(NotImplementedError, match="Download functionality not implemented"):
-            client.download_file("remote.jpg", "test-zone")
-
     def test_list_directory_not_implemented(self):
         """Test list_directory raises NotImplementedError (stub implementation)."""
         client = BunnyNetClient("test-password", "")
 
         with pytest.raises(NotImplementedError, match="Directory listing not implemented"):
             client.list_directory("remote/path", "test-zone")
+
+    @patch("requests.put")
+    def test_upload_file_success(self, mock_put):
+        """Test file upload sends correct request and returns True on success."""
+        # Setup
+        mock_response = Mock()
+        mock_response.status_code = 201
+        mock_put.return_value = mock_response
+
+        client = BunnyNetClient("test-password", "uk")
+        local_path = Path("/tmp/test.jpg")
+
+        # Mock file content
+        with patch("builtins.open", create=True) as mock_open:
+            mock_file = Mock()
+            mock_file.read.return_value = b"test-content"
+            mock_open.return_value.__enter__.return_value = mock_file
+
+            # Execute
+            result = client.upload_file(local_path, "photos/test.jpg", "my-zone")
+
+        # Verify
+        assert result is True
+        mock_put.assert_called_once_with(
+            "https://uk.storage.bunnycdn.com/my-zone/photos/test.jpg",
+            data=b"test-content",
+            headers={"AccessKey": "test-password"}
+        )
+
+    @patch("requests.put")
+    def test_upload_file_failure(self, mock_put):
+        """Test file upload returns False on HTTP error."""
+        # Setup
+        mock_response = Mock()
+        mock_response.status_code = 400
+        mock_put.return_value = mock_response
+
+        client = BunnyNetClient("test-password", "")
+        local_path = Path("/tmp/test.jpg")
+
+        # Mock file content
+        with patch("builtins.open", create=True) as mock_open:
+            mock_file = Mock()
+            mock_file.read.return_value = b"test-content"
+            mock_open.return_value.__enter__.return_value = mock_file
+
+            # Execute
+            result = client.upload_file(local_path, "photos/test.jpg", "my-zone")
+
+        # Verify
+        assert result is False
+        mock_put.assert_called_once_with(
+            "https://storage.bunnycdn.com/my-zone/photos/test.jpg",
+            data=b"test-content",
+            headers={"AccessKey": "test-password"}
+        )
+
+    @patch("requests.get")
+    def test_download_file_success(self, mock_get):
+        """Test file download returns content on success."""
+        # Setup
+        mock_response = Mock()
+        mock_response.status_code = 200
+        mock_response.content = b"manifest-content"
+        mock_get.return_value = mock_response
+
+        client = BunnyNetClient("test-password", "ny")
+
+        # Execute
+        result = client.download_file("manifest.json", "my-zone")
+
+        # Verify
+        assert result == b"manifest-content"
+        mock_get.assert_called_once_with(
+            "https://ny.storage.bunnycdn.com/my-zone/manifest.json",
+            headers={"AccessKey": "test-password"}
+        )
+
+    @patch("requests.get")
+    def test_download_file_not_found(self, mock_get):
+        """Test file download returns None on 404."""
+        # Setup
+        mock_response = Mock()
+        mock_response.status_code = 404
+        mock_get.return_value = mock_response
+
+        client = BunnyNetClient("test-password", "")
+
+        # Execute
+        result = client.download_file("missing.json", "my-zone")
+
+        # Verify
+        assert result is None
+        mock_get.assert_called_once_with(
+            "https://storage.bunnycdn.com/my-zone/missing.json",
+            headers={"AccessKey": "test-password"}
+        )
+
+    @patch("requests.put")
+    def test_upload_file_network_error(self, mock_put):
+        """Test file upload returns False on network/connection error."""
+        # Setup - raise requests exception
+        mock_put.side_effect = requests.ConnectionError("Network error")
+
+        client = BunnyNetClient("test-password", "")
+        local_path = Path("/tmp/test.jpg")
+
+        # Mock file content
+        with patch("builtins.open", create=True) as mock_open:
+            mock_file = Mock()
+            mock_file.read.return_value = b"test-content"
+            mock_open.return_value.__enter__.return_value = mock_file
+
+            # Execute
+            result = client.upload_file(local_path, "photos/test.jpg", "my-zone")
+
+        # Verify
+        assert result is False
+
+    @patch("requests.get")
+    def test_download_file_network_error(self, mock_get):
+        """Test file download returns None on network/connection error."""
+        # Setup - raise requests exception
+        mock_get.side_effect = requests.ConnectionError("Network error")
+
+        client = BunnyNetClient("test-password", "")
+
+        # Execute
+        result = client.download_file("manifest.json", "my-zone")
+
+        # Verify
+        assert result is None

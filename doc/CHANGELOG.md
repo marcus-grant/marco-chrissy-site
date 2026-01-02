@@ -8,6 +8,9 @@
 - Ensure complete test isolation with temp filesystem and proper fixtures
 - Create BunnyNetClient stub with authentication validation and environment variable handling
 - Add comprehensive unit tests for client initialization and region configuration (with security warnings)
+- Implement complete BunnyNet API client with HTTP upload/download functionality using requests
+- Add comprehensive unit tests for file upload/download with proper mocking and error handling
+- Ensure secure implementation that never inspects environment variable values during testing
 
 ## 2025-12-23
 

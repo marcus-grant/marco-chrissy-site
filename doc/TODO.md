@@ -36,15 +36,15 @@ For detailed planning guidance, templates, and examples, see: **[`PLANNING.md`](
 *Cycle 1: Bunny.net API Client Foundation*
 - [x] Create stub `deploy/bunnynet_client.py` with `BunnyNetClient` class
 - [x] Write unit test for authentication validation (NEVER read/inspect env vars)
-- [ ] Implement basic auth using BUNNYNET_STORAGE_PASSWORD env var
-- [ ] Write unit test for file upload with proper headers that fails
-- [ ] Implement file upload using requests PUT
-- [ ] Write unit test for manifest download that fails  
-- [ ] Implement file download for manifest retrieval
-- [ ] Write unit test for HTTP error handling that fails
-- [ ] Add comprehensive error handling for API failures
-- [ ] `uv run ruff check --fix --unsafe-fixes && uv run pytest`
-- [ ] Update TODO.md and CHANGELOG.md
+- [x] Implement basic auth using BUNNYNET_STORAGE_PASSWORD env var
+- [x] Write unit test for file upload with proper headers that fails
+- [x] Implement file upload using requests PUT
+- [x] Write unit test for manifest download that fails  
+- [x] Implement file download for manifest retrieval
+- [x] Write unit test for HTTP error handling that fails
+- [x] Add comprehensive error handling for API failures
+- [x] `uv run ruff check --fix --unsafe-fixes && uv run pytest`
+- [x] Update TODO.md and CHANGELOG.md
 - [ ] Commit: `Ft: Add BunnyNet API client with upload/download`
 
 *Cycle 2: Manifest Comparison Logic*
