@@ -1,0 +1,179 @@
+# Bunny.net CDN Deployment Setup
+
+**Note**: This documentation is based on initial implementation and contains known issues that will be fixed. See TODO.md for current blocking issues and planned updates.
+
+This guide covers setting up dual-zone deployment to Bunny.net CDN with separate storage zones for photos and site content.
+
+## Overview
+
+The deploy command uses a **dual storage zone strategy**:
+
+- **Photo Zone**: Stores all images (`/output/pics/*`) with manifest-based incremental uploads
+- **Site Zone**: Stores all other content (HTML, CSS, etc.) with full uploads
+
+This separation optimizes deployment speed and CDN performance by treating photos differently from site content.
+
+## Prerequisites
+
+- Bunny.net account with CDN enabled
+- Two storage zones created (see Setup Guide below)
+- Environment variables configured with storage zone passwords
+
+## Bunny.net Control Panel Setup
+
+### 1. Create Photo Storage Zone
+
+1. Log into [Bunny.net Dashboard](https://panel.bunny.net/)
+2. Navigate to **Storage** → **Storage Zones**
+3. Click **Add Storage Zone**
+4. Configure:
+   - **Name**: `your-site-pics` (e.g., `marco-chrissy-site-pics`)
+   - **Region**: Frankfurt (default) or your preferred region
+   - **Replication**: Optional (can add later)
+5. Click **Create**
+6. **Important**: Note the **Storage Password** from the zone details
+
+### 2. Create Site Content Storage Zone
+
+1. Click **Add Storage Zone** again
+2. Configure:
+   - **Name**: `your-site` (e.g., `marco-chrissy-site`)
+   - **Region**: Your preferred region (can differ from photo zone)
+   - **Replication**: Recommended for production (e.g., Stockholm + NY)
+5. Click **Create**
+6. **Important**: Note the **Storage Password** from the zone details
+
+### 3. Configure Environment Variables
+
+Each storage zone has its own unique password. Set environment variables:
+
+```bash
+# Photo zone password
+export BUNNYNET_PASS_PICS="your-photo-zone-password"
+
+# Site content zone password  
+export BUNNYNET_PASS_SITE="your-site-zone-password"
+
+# Optional: Set region if not using Frankfurt default
+export BUNNYNET_REGION=""  # empty for Frankfurt, "uk" for London, "ny" for NY
+```
+
+**Security Note**: Never commit these passwords to version control. Add them to your shell profile or deployment environment.
+
+## Deployment Process
+
+### Basic Deployment
+
+```bash
+# Deploy complete site (automatically runs build first)
+uv run site deploy
+```
+
+The deploy command:
+1. **Runs build pipeline**: Automatically calls `build` → `organize` → `validate`
+2. **Routes files by type**:
+   - `output/pics/*` → Photo storage zone
+   - Everything else → Site content storage zone
+3. **Uploads incrementally**: Only changed photos uploaded (based on manifest comparison)
+4. **Uploads site content**: Always uploads all site files (smaller transfer)
+
+### Manual Build + Deploy
+
+```bash
+# Build first (if you want separate steps)
+uv run site build
+
+# Then deploy the built content
+uv run site deploy
+```
+
+## How Dual Zone Routing Works
+
+The deploy orchestrator automatically routes files based on path:
+
+```
+output/
+├── pics/                    → Photo Zone (incremental)
+│   ├── full/               → High-res images
+│   └── thumb/              → Thumbnails
+├── index.html              → Site Zone (full upload)
+├── galleries/              → Site Zone (full upload)
+└── static/                 → Site Zone (full upload)
+```
+
+### Photo Zone Strategy
+- **Incremental uploads**: Only uploads changed/new photos
+- **Manifest tracking**: Uses SHA-256 hashes to detect changes
+- **Optimized for large files**: Reduces deployment time for photo-heavy sites
+
+### Site Zone Strategy
+- **Full uploads**: Always uploads all site content
+- **Optimized for small files**: HTML/CSS files are small, less optimization needed
+- **Ensures consistency**: Guarantees all site files are current
+
+## Troubleshooting
+
+### Environment Variable Issues
+
+**Problem**: `Missing BUNNYNET_STORAGE_PASSWORD environment variable`
+
+**Solution**: The current implementation expects `BUNNYNET_STORAGE_PASSWORD`. Set it temporarily:
+```bash
+export BUNNYNET_STORAGE_PASSWORD="$BUNNYNET_PASS_PICS"
+```
+
+**Note**: This will be updated to support dual-zone configuration in future versions.
+
+### API Connection Issues
+
+**Test connectivity**:
+```bash
+python3 -c "from deploy.bunnynet_client import create_client_from_env; client = create_client_from_env(); print('Connected to:', client.base_url)"
+```
+
+**Common issues**:
+- Wrong password → Check storage zone password in Bunny.net dashboard
+- Wrong zone name → Verify exact zone name (case-sensitive)
+- Network issues → Check firewall/proxy settings
+
+### Build Directory Missing
+
+**Error**: `Output directory not found - run build first`
+
+**Solution**: 
+```bash
+uv run site build  # This will create the output/ directory
+uv run site deploy
+```
+
+## Performance Considerations
+
+### Photo Optimization
+- Large photo collections benefit most from incremental uploads
+- Initial deployment uploads all photos
+- Subsequent deployments only upload changed photos
+
+### Site Content
+- HTML/CSS files are always uploaded (full sync)
+- Small file size makes full upload acceptable
+- Ensures consistency across deployments
+
+## Security Best Practices
+
+1. **Never log storage passwords**: Code never inspects environment variable values
+2. **Use separate zones**: Isolates photo and site content permissions
+3. **Rotate passwords regularly**: Update storage zone passwords periodically
+4. **Monitor access logs**: Check Bunny.net dashboard for unexpected access
+
+## Future Enhancements
+
+- **Dual password configuration**: Native support for separate zone passwords
+- **Configurable routing rules**: Custom file type → zone mappings
+- **Rollback functionality**: Automated rollback on partial deployment failures
+- **Progress indicators**: Real-time upload progress for large deployments
+
+## Related Documentation
+
+- [Deploy Command Usage](commands/deploy.md)
+- [Build Pipeline](commands/build.md)
+- [Site Configuration](config/)
