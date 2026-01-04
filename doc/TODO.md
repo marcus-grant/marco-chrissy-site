@@ -98,12 +98,17 @@ For detailed planning guidance, templates, and examples, see: **[`PLANNING.md`](
 - [x] Guide user through finding storage passwords → DISCOVERED: Each zone has unique password
 - [x] **CRITICAL: Fix deploy config architecture** - implement flat config with env var names
 - [x] **CRITICAL: Fix BunnyNetClient instantiation** - currently missing required password parameter
-- [ ] Test basic API connectivity with updated config approach
-- [ ] Document dual-zone setup with config-driven env vars in `doc/bunnynet.md`
+- [x] Test basic API connectivity with updated config approach
+- [ ] Document dual-zone setup with config-driven env vars in `doc/bunnynet.md` - NEEDS UPDATE after blocking fixes
+- [ ] **BLOCKING: Fix orchestrator API method calls** - missing zone_name parameter causes deployment failure
+- [ ] **BLOCKING: Fix zone name typo** - code uses "marco-chrissy-site" but actual zone is "marco-crissy-site"  
+- [ ] **BLOCKING: Add dual client architecture** - need zone-specific passwords for photo/site zones
+- [ ] **BLOCKING: Add ManifestComparator stub** - orchestrator tries to import missing module
 - [ ] Remove `@pytest.mark.skip` from E2E test 
 - [ ] Verify E2E test passes (if not, return to Phase 2)
 - [ ] Update `doc/README.md` to link to `doc/bunnynet.md`
 - [ ] Update `doc/commands/deploy.md` with usage examples
+- [ ] Update `doc/bunnynet.md` with correct zone names, dual client architecture, and remove temporary workarounds
 
 **DISCOVERED ISSUES FROM INTERACTIVE SETUP:**
 - [ ] **Test filesystem pollution**: Tests writing to `PROJECT_ROOT/output/galleries` instead of isolated temp dirs
@@ -113,8 +118,14 @@ For detailed planning guidance, templates, and examples, see: **[`PLANNING.md`](
 
 **Real-world Setup Results:**
 - Photo Zone: `marco-chrissy-site-pics` (Frankfurt)
-- Site Zone: `marco-chrissy-site` (Stockholm + NY replication) 
+- Site Zone: `marco-crissy-site` (Stockholm + NY replication) 
 - Password Env Vars: `BUNNYNET_PASS_MC_PICS`, `BUNNYNET_PASS_MC_SITE`
+
+**BLOCKING ISSUES DISCOVERED DURING REAL-WORLD TESTING:**
+- **API Method Signature Mismatch**: Orchestrator calls `upload_file(str(relative_path), file_content)` with 2 arguments, but BunnyNet client expects `upload_file(local_path, remote_path, zone_name)` with 3 arguments
+- **Zone Name Typo**: Code references "marco-chrissy-site" but actual zone is "marco-crissy-site" (missing 'h')
+- **Single Client Architecture**: Current code uses single `BUNNYNET_STORAGE_PASSWORD`, but real deployment needs zone-specific passwords
+- **Missing ManifestComparator**: Orchestrator tries to instantiate `ManifestComparator` but module doesn't exist
 
 **Phase 4: Integration Testing & PR Creation**
 - [ ] Test complete validate→organize→build→deploy pipeline end-to-end
