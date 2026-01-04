@@ -195,6 +195,35 @@ class TestSiteDeploy:
         assert "build failed" in result.output.lower()
         mock_orchestrator.deploy.assert_not_called()
 
+    @patch("cli.commands.deploy.create_client_from_env")
+    @patch("cli.commands.deploy.build")
+    def test_deploy_instantiates_bunnynet_client_correctly(self, mock_build, mock_create_client, deploy_test_setup):
+        """Test that deploy command instantiates BunnyNetClient with proper config."""
+        # Mock build success
+        mock_build.return_value = Mock(exit_code=0)
+
+        # Mock client creation - this should succeed
+        mock_client = Mock()
+        mock_create_client.return_value = mock_client
+
+        # Mock orchestrator and comparator to focus on client instantiation
+        with patch("cli.commands.deploy.ManifestComparator") as mock_comparator_class, \
+             patch("cli.commands.deploy.DeployOrchestrator") as mock_orchestrator_class:
+            mock_comparator = Mock()
+            mock_comparator_class.return_value = mock_comparator
+            mock_orchestrator = Mock()
+            mock_orchestrator_class.return_value = mock_orchestrator
+            mock_orchestrator.execute_deployment.return_value = True
+
+            runner = CliRunner()
+            result = runner.invoke(deploy)
+
+        # Should succeed with correct client instantiation
+        assert result.exit_code == 0
+        mock_create_client.assert_called_once()
+        mock_orchestrator_class.assert_called_once_with(mock_client, mock_comparator)
+        mock_orchestrator.execute_deployment.assert_called_once()
+
     @pytest.mark.skip(reason="Deploy command functionality not yet implemented")
     @patch("cli.commands.deploy.DeployOrchestrator")
     @patch("cli.commands.deploy.build")

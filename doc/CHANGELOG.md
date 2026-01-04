@@ -1,5 +1,12 @@
 # Changelog
 
+## 2025-01-04
+
+- Fix BunnyNetClient instantiation issue in deploy command by using create_client_from_env factory
+- Update all deploy unit tests to mock create_client_from_env instead of direct BunnyNetClient class
+- Add test for correct BunnyNetClient instantiation pattern to prevent regression
+- Resolve critical blocking issue preventing deploy command from working with environment variables
+
 ## 2025-12-29
 
 - Create comprehensive E2E tests for deploy command using Click testing and isolated fixtures

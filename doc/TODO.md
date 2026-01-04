@@ -93,18 +93,28 @@ For detailed planning guidance, templates, and examples, see: **[`PLANNING.md`](
 - [ ] Commit: `Ft: Add deploy CLI command with pipeline integration`
 
 **Phase 3: Interactive Bunny.net Setup & Documentation**
-- [ ] Guide user through photo storage zone creation → Document in `doc/bunnynet.md`
-- [ ] Guide user through site storage zone creation → Document in `doc/bunnynet.md`
-- [ ] Guide user through finding storage passwords → Document (with NEVER inspect env vars warning)
-- [ ] Guide user through environment variable setup → Document (with security warnings)
-- [ ] Test basic API connectivity with user → Document verification steps
-- [ ] Remove `@pytest.mark.skip` from E2E test
+- [x] Guide user through photo storage zone creation → COMPLETED: zone `marco-chrissy-site-pics` 
+- [x] Guide user through site storage zone creation → COMPLETED: zone `marco-chrissy-site`
+- [x] Guide user through finding storage passwords → DISCOVERED: Each zone has unique password
+- [x] **CRITICAL: Fix deploy config architecture** - implement flat config with env var names
+- [x] **CRITICAL: Fix BunnyNetClient instantiation** - currently missing required password parameter
+- [ ] Test basic API connectivity with updated config approach
+- [ ] Document dual-zone setup with config-driven env vars in `doc/bunnynet.md`
+- [ ] Remove `@pytest.mark.skip` from E2E test 
 - [ ] Verify E2E test passes (if not, return to Phase 2)
 - [ ] Update `doc/README.md` to link to `doc/bunnynet.md`
 - [ ] Update `doc/commands/deploy.md` with usage examples
-- [ ] `uv run ruff check --fix --unsafe-fixes && uv run pytest`
-- [ ] Update TODO.md and CHANGELOG.md
-- [ ] Commit: `Doc: Add bunny.net setup guide and deploy command documentation`
+
+**DISCOVERED ISSUES FROM INTERACTIVE SETUP:**
+- [ ] **Test filesystem pollution**: Tests writing to `PROJECT_ROOT/output/galleries` instead of isolated temp dirs
+- [x] **Config architecture**: Need flat config approach with configurable env var names for dual passwords
+- [x] **Dual password reality**: Each storage zone requires separate password (not shared)
+- [x] **Deploy client creation**: `BunnyNetClient()` called without required password parameter
+
+**Real-world Setup Results:**
+- Photo Zone: `marco-chrissy-site-pics` (Frankfurt)
+- Site Zone: `marco-chrissy-site` (Stockholm + NY replication) 
+- Password Env Vars: `BUNNYNET_PASS_MC_PICS`, `BUNNYNET_PASS_MC_SITE`
 
 **Phase 4: Integration Testing & PR Creation**
 - [ ] Test complete validate→organize→build→deploy pipeline end-to-end

@@ -64,8 +64,24 @@ class ManifestComparator:
         Returns:
             Dictionary mapping file paths to their hashes
         """
-        # Stub implementation - will be implemented in TDD cycle
-        raise NotImplementedError("JSON manifest loading not implemented yet")
+        import json
+
+        try:
+            json_str = manifest_content.decode("utf-8")
+            manifest_data = json.loads(json_str)
+
+            # Validate that it's a dict with string keys and values
+            if not isinstance(manifest_data, dict):
+                return {}
+
+            for key, value in manifest_data.items():
+                if not isinstance(key, str) or not isinstance(value, str):
+                    return {}
+
+            return manifest_data
+
+        except (json.JSONDecodeError, UnicodeDecodeError):
+            return {}
 
     def save_manifest_to_json(self, manifest: dict[str, str]) -> bytes:
         """Save manifest to JSON bytes for upload.
@@ -76,8 +92,16 @@ class ManifestComparator:
         Returns:
             JSON manifest content as bytes
         """
-        # Stub implementation - will be implemented in TDD cycle
-        raise NotImplementedError("JSON manifest saving not implemented yet")
+        import json
+
+        try:
+            # Create compact JSON without extra whitespace for efficient upload
+            json_str = json.dumps(manifest, separators=(',', ':'), sort_keys=True)
+            return json_str.encode("utf-8")
+
+        except (TypeError, ValueError):
+            # Return empty JSON object as fallback
+            return b'{}'
 
     def calculate_file_hash(self, file_path: Path) -> str:
         """Calculate SHA-256 hash of a file.

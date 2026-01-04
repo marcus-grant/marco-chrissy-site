@@ -4,8 +4,6 @@ import json
 from pathlib import Path
 from unittest.mock import mock_open, patch
 
-import pytest
-
 from deploy.manifest_comparator import ManifestComparator
 
 
@@ -85,8 +83,9 @@ class TestManifestComparator:
         manifest_data = {"file1.txt": "hash1", "file2.txt": "hash2"}
         json_bytes = json.dumps(manifest_data).encode("utf-8")
 
-        with pytest.raises(NotImplementedError, match="JSON manifest loading not implemented"):
-            comparator.load_manifest_from_json(json_bytes)
+        result = comparator.load_manifest_from_json(json_bytes)
+
+        assert result == manifest_data
 
     def test_save_manifest_to_json_success(self):
         """Test saving manifest to JSON bytes."""
@@ -94,8 +93,11 @@ class TestManifestComparator:
 
         manifest = {"file1.txt": "hash1", "file2.txt": "hash2"}
 
-        with pytest.raises(NotImplementedError, match="JSON manifest saving not implemented"):
-            comparator.save_manifest_to_json(manifest)
+        result = comparator.save_manifest_to_json(manifest)
+
+        # Should return JSON bytes that can be parsed back to original data
+        parsed = json.loads(result.decode("utf-8"))
+        assert parsed == manifest
 
     def test_compare_manifests_empty_remote(self):
         """Test manifest comparison when remote manifest is empty (first deploy)."""
@@ -108,7 +110,7 @@ class TestManifestComparator:
         remote_manifest = {}
 
         result = comparator.compare_manifests(local_manifest, remote_manifest)
-        
+
         assert result == {"file1.txt", "file2.txt"}  # All files should be uploaded on first deploy
 
     def test_load_manifest_from_json_invalid(self):
@@ -117,5 +119,26 @@ class TestManifestComparator:
 
         invalid_json = b"invalid json content"
 
-        with pytest.raises(NotImplementedError, match="JSON manifest loading not implemented"):
-            comparator.load_manifest_from_json(invalid_json)
+        result = comparator.load_manifest_from_json(invalid_json)
+
+        # Should return empty dict for invalid JSON instead of raising
+        assert result == {}
+
+    def test_load_manifest_from_json_empty(self):
+        """Test loading manifest handles empty bytes gracefully."""
+        comparator = ManifestComparator()
+
+        result = comparator.load_manifest_from_json(b"")
+
+        assert result == {}
+
+    def test_load_manifest_from_json_wrong_type(self):
+        """Test loading manifest handles non-dict JSON gracefully."""
+        comparator = ManifestComparator()
+
+        # Valid JSON but not a dict
+        json_bytes = json.dumps(["not", "a", "dict"]).encode("utf-8")
+
+        result = comparator.load_manifest_from_json(json_bytes)
+
+        assert result == {}
