@@ -93,8 +93,8 @@ class TestDeployOrchestrator:
 
         self.mock_manifest_comparator.generate_local_manifest.return_value = local_manifest
         self.mock_manifest_comparator.compare_manifests.return_value = files_to_upload
-        self.mock_bunnynet_client.upload_file.return_value = True
-        self.mock_bunnynet_client.download_manifest.return_value = b'{"full/photo2.jpg": "hash2"}'
+        self.mock_photo_client.upload_file.return_value = True
+        self.mock_photo_client.download_file.return_value = b'{"full/photo2.jpg": "hash2"}'
         self.mock_manifest_comparator.load_manifest_from_json.return_value = remote_manifest
         self.mock_manifest_comparator.save_manifest_to_json.return_value = b'{"full/photo1.jpg": "hash1", "full/photo2.jpg": "hash2"}'
 
@@ -103,27 +103,25 @@ class TestDeployOrchestrator:
 
         # Verify manifest comparison was used
         self.mock_manifest_comparator.generate_local_manifest.assert_called_once_with(output_dir / "pics")
-        self.mock_bunnynet_client.download_manifest.assert_called_once_with("manifest.json")
+        self.mock_photo_client.download_file.assert_called_once_with("manifest.json")
         self.mock_manifest_comparator.compare_manifests.assert_called_once_with(local_manifest, remote_manifest)
 
         # Verify only photo1 was uploaded (incremental upload) + manifest
         expected_upload_calls = 2  # photo1 + manifest
-        assert self.mock_bunnynet_client.upload_file.call_count == expected_upload_calls
+        assert self.mock_photo_client.upload_file.call_count == expected_upload_calls
 
         # Verify photo1 was uploaded with correct signature
-        self.mock_bunnynet_client.upload_file.assert_any_call(
+        self.mock_photo_client.upload_file.assert_any_call(
             photo_file1,  # local_path
-            "full/photo1.jpg",  # remote_path (relative to pics dir)
-            "test-photos"  # zone_name
+            "full/photo1.jpg"  # remote_path (relative to pics dir, zone in client)
         )
 
         # Verify manifest was uploaded with correct signature
         # Note: manifest file is created in pics directory during upload
         manifest_path = output_dir / "pics" / "manifest.json"
-        self.mock_bunnynet_client.upload_file.assert_any_call(
+        self.mock_photo_client.upload_file.assert_any_call(
             manifest_path,  # local_path
-            "manifest.json",  # remote_path
-            "test-photos"  # zone_name
+            "manifest.json"  # remote_path (zone stored in client)
         )
 
         assert result is True
@@ -138,30 +136,27 @@ class TestDeployOrchestrator:
         site_files = [index_file, gallery_file, css_file]
 
         # Mock successful uploads
-        self.mock_bunnynet_client.upload_file.return_value = True
+        self.mock_site_client.upload_file.return_value = True
 
         # Execute site content deployment
         result = self.orchestrator.deploy_site_content(site_files, output_dir)
 
         # Verify all site files were uploaded (no manifest comparison for site content)
         expected_upload_calls = 3  # All 3 site files
-        assert self.mock_bunnynet_client.upload_file.call_count == expected_upload_calls
+        assert self.mock_site_client.upload_file.call_count == expected_upload_calls
 
-        # Verify correct file paths and zone names
-        self.mock_bunnynet_client.upload_file.assert_any_call(
+        # Verify correct file paths - note: new dual client architecture doesn't pass zone names
+        self.mock_site_client.upload_file.assert_any_call(
             index_file,  # local_path
-            "index.html",  # remote_path
-            "test-site"  # zone_name
+            "index.html"  # remote_path (zone stored in client)
         )
-        self.mock_bunnynet_client.upload_file.assert_any_call(
+        self.mock_site_client.upload_file.assert_any_call(
             gallery_file,  # local_path
-            "galleries/wedding/page_1.html",  # remote_path
-            "test-site"  # zone_name
+            "galleries/wedding/page_1.html"  # remote_path
         )
-        self.mock_bunnynet_client.upload_file.assert_any_call(
+        self.mock_site_client.upload_file.assert_any_call(
             css_file,  # local_path
-            "static/style.css",  # remote_path
-            "test-site"  # zone_name
+            "static/style.css"  # remote_path
         )
 
         assert result is True
@@ -171,18 +166,18 @@ class TestDeployOrchestrator:
         deployed_files = ["full/photo1.jpg", "full/photo2.jpg"]
 
         # Mock successful file deletions
-        self.mock_bunnynet_client.delete_file.return_value = True
+        self.mock_photo_client.delete_file.return_value = True
 
         # Execute rollback
         result = self.orchestrator.rollback_deployment(deployed_files, "photo")
 
         # Verify all deployed files were deleted
         expected_delete_calls = 2
-        assert self.mock_bunnynet_client.delete_file.call_count == expected_delete_calls
+        assert self.mock_photo_client.delete_file.call_count == expected_delete_calls
 
         # Verify correct files were deleted
-        self.mock_bunnynet_client.delete_file.assert_any_call("full/photo1.jpg")
-        self.mock_bunnynet_client.delete_file.assert_any_call("full/photo2.jpg")
+        self.mock_photo_client.delete_file.assert_any_call("full/photo1.jpg")
+        self.mock_photo_client.delete_file.assert_any_call("full/photo2.jpg")
 
         assert result is True
 
@@ -191,27 +186,24 @@ class TestDeployOrchestrator:
         deployed_files = ["full/photo1.jpg", "full/photo2.jpg"]
 
         # Mock mixed deletion results - first succeeds, second fails
-        self.mock_bunnynet_client.delete_file.side_effect = [True, False]
+        self.mock_photo_client.delete_file.side_effect = [True, False]
 
         # Execute rollback
         result = self.orchestrator.rollback_deployment(deployed_files, "photo")
 
         # Should continue trying to delete all files even if some fail
-        assert self.mock_bunnynet_client.delete_file.call_count == 2
+        assert self.mock_photo_client.delete_file.call_count == 2
 
         # Should return False if any deletions failed
         assert result is False
 
     def test_orchestrator_accepts_zone_names_and_passes_to_upload_calls(self, temp_filesystem, file_factory):
         """Test orchestrator accepts zone names and passes them to upload_file calls."""
-        # Setup orchestrator with test zone names
-        photo_zone_name = "test-photo-zone"
-        site_zone_name = "test-site-zone"
+        # Setup orchestrator with dual clients
         orchestrator = DeployOrchestrator(
-            self.mock_bunnynet_client,
-            self.mock_manifest_comparator,
-            photo_zone_name=photo_zone_name,
-            site_zone_name=site_zone_name
+            self.mock_photo_client,
+            self.mock_site_client,
+            self.mock_manifest_comparator
         )
 
         # Create output directory with photo and site files
@@ -220,59 +212,57 @@ class TestDeployOrchestrator:
         site_file = file_factory(output_dir / "index.html", content="<html>home</html>")
 
         # Mock successful uploads
-        self.mock_bunnynet_client.upload_file.return_value = True
+        self.mock_photo_client.upload_file.return_value = True
 
         # Mock manifest operations for photo deployment
         local_manifest = {"full/photo1.jpg": "hash1"}
         self.mock_manifest_comparator.generate_local_manifest.return_value = local_manifest
         self.mock_manifest_comparator.compare_manifests.return_value = {"full/photo1.jpg"}
-        self.mock_bunnynet_client.download_manifest.return_value = b'{}'
+        self.mock_photo_client.download_manifest.return_value = b'{}'
         self.mock_manifest_comparator.load_manifest_from_json.return_value = {}
         self.mock_manifest_comparator.save_manifest_to_json.return_value = b'{"full/photo1.jpg": "hash1"}'
 
         # Execute deployment
         result = orchestrator.execute_deployment(output_dir)
 
-        # Verify photo upload calls include zone_name
-        self.mock_bunnynet_client.upload_file.assert_any_call(
+        # Verify photo upload calls (zone stored in photo_client)
+        self.mock_photo_client.upload_file.assert_any_call(
             photo_file,  # local_path
-            "full/photo1.jpg",  # remote_path
-            photo_zone_name  # zone_name
+            "full/photo1.jpg"  # remote_path
         )
 
-        # Verify photo manifest upload includes zone_name
-        self.mock_bunnynet_client.upload_file.assert_any_call(
+        # Verify photo manifest upload
+        self.mock_photo_client.upload_file.assert_any_call(
             output_dir / "pics" / "manifest.json",  # local_path (will need to be created)
-            "manifest.json",  # remote_path
-            photo_zone_name  # zone_name
+            "manifest.json"  # remote_path
         )
 
-        # Verify site file upload includes zone_name
-        self.mock_bunnynet_client.upload_file.assert_any_call(
+        # Verify site file upload (should use site_client, not photo_client)
+        self.mock_site_client.upload_file.assert_any_call(
             site_file,  # local_path
-            "index.html",  # remote_path
-            site_zone_name  # zone_name
+            "index.html"  # remote_path
         )
 
         assert result is True
 
-    def test_zone_names_are_passed_through_constructor(self):
-        """Test that zone names are correctly stored from constructor parameters."""
-        # Use isolated test values - NEVER production zone names
-        test_photo_zone = "test-photo-zone-name"
-        test_site_zone = "test-site-zone-name"
+    def test_dual_clients_are_stored_correctly(self):
+        """Test that dual clients are correctly stored from constructor parameters."""
+        # Use isolated test clients
+        mock_photo_client = Mock()
+        mock_site_client = Mock()
+        mock_manifest_comparator = Mock()
 
-        # Create orchestrator with test zone names
+        # Create orchestrator with dual clients
         orchestrator = DeployOrchestrator(
-            self.mock_bunnynet_client,
-            self.mock_manifest_comparator,
-            photo_zone_name=test_photo_zone,
-            site_zone_name=test_site_zone
+            mock_photo_client,
+            mock_site_client,
+            mock_manifest_comparator
         )
 
-        # Verify zone names are stored correctly
-        assert orchestrator.photo_zone_name == "test-photo-zone-name"
-        assert orchestrator.site_zone_name == "test-site-zone-name"
+        # Verify clients are stored correctly
+        assert orchestrator.photo_client == mock_photo_client
+        assert orchestrator.site_client == mock_site_client
+        assert orchestrator.manifest_comparator == mock_manifest_comparator
 
     def test_execute_deployment_coordinates_dual_zone_strategy(self, temp_filesystem, file_factory):
         """Test execute_deployment coordinates photo and site deployment."""

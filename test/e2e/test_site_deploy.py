@@ -195,23 +195,33 @@ class TestSiteDeploy:
         assert "build failed" in result.output.lower()
         mock_orchestrator.deploy.assert_not_called()
 
-    @patch("cli.commands.deploy.create_client_from_env")
+    @patch("cli.commands.deploy.create_clients_from_config")
     @patch("cli.commands.deploy.build")
-    def test_deploy_instantiates_bunnynet_client_correctly(self, mock_build, mock_create_client, deploy_test_setup):
-        """Test that deploy command instantiates BunnyNetClient with proper config."""
+    def test_deploy_instantiates_bunnynet_clients_correctly(self, mock_build, mock_create_clients, deploy_test_setup):
+        """Test that deploy command creates dual BunnyNetClients with proper config."""
         # Mock build success
         mock_build.return_value = Mock(exit_code=0)
 
-        # Mock client creation - this should succeed
-        mock_client = Mock()
-        mock_create_client.return_value = mock_client
+        # Mock dual client creation - this should succeed
+        mock_photo_client = Mock()
+        mock_site_client = Mock()
+        mock_create_clients.return_value = (mock_photo_client, mock_site_client)
 
-        # Mock orchestrator and comparator to focus on client instantiation
+        # Mock config loading, orchestrator and comparator to focus on client instantiation
         with patch("cli.commands.deploy.ManifestComparator") as mock_comparator_class, \
              patch("cli.commands.deploy.DeployOrchestrator") as mock_orchestrator_class, \
-             patch("cli.commands.deploy.os.getenv") as mock_getenv:
-            # Mock getenv for zone names
-            mock_getenv.side_effect = lambda var: {"BUNNYNET_PHOTO_ZONE_NAME": "test-photos", "BUNNYNET_SITE_ZONE_NAME": "test-site"}.get(var)
+             patch("cli.commands.deploy.ConfigManager") as mock_config_manager_class:
+            # Mock config loading
+            mock_config_manager = Mock()
+            mock_config_manager_class.return_value = mock_config_manager
+            deploy_config = {
+                "photo_password_env_var": "TEST_PHOTO_PASSWORD",
+                "site_password_env_var": "TEST_SITE_PASSWORD",
+                "photo_zone_name": "test-photo-zone",
+                "site_zone_name": "test-site-zone",
+                "region": ""
+            }
+            mock_config_manager.get_deploy_config.return_value = deploy_config
 
             mock_comparator = Mock()
             mock_comparator_class.return_value = mock_comparator
@@ -222,14 +232,13 @@ class TestSiteDeploy:
             runner = CliRunner()
             result = runner.invoke(deploy)
 
-        # Should succeed with correct client instantiation
+        # Should succeed with correct dual client instantiation
         assert result.exit_code == 0
-        mock_create_client.assert_called_once()
+        mock_create_clients.assert_called_once_with(deploy_config)
         mock_orchestrator_class.assert_called_once_with(
-            mock_client,
-            mock_comparator,
-            photo_zone_name="test-photos",
-            site_zone_name="test-site"
+            mock_photo_client,
+            mock_site_client,
+            mock_comparator
         )
         mock_orchestrator.execute_deployment.assert_called_once()
 

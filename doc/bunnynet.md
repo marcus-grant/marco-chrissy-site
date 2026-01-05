@@ -1,6 +1,5 @@
 # Bunny.net CDN Deployment Setup
 
-**Note**: This documentation is based on initial implementation and contains known issues that will be fixed. See TODO.md for current blocking issues and planned updates.
 
 This guide covers setting up dual-zone deployment to Bunny.net CDN with separate storage zones for photos and site content.
 
@@ -45,17 +44,21 @@ This separation optimizes deployment speed and CDN performance by treating photo
 
 ### 3. Configure Environment Variables
 
-Each storage zone has its own unique password. Set environment variables:
+Each storage zone has its own unique password. The deploy configuration system reads environment variable names from `config/deploy.json`, allowing you to customize variable names:
 
 ```bash
-# Photo zone password
-export BUNNYNET_PASS_PICS="your-photo-zone-password"
+# Configure your environment variables based on config/deploy.json settings
+# Default configuration expects:
+export BUNNYNET_PASS_MC_PICS="your-photo-zone-password"
+export BUNNYNET_PASS_MC_SITE="your-site-zone-password"
 
-# Site content zone password  
-export BUNNYNET_PASS_SITE="your-site-zone-password"
-
-# Optional: Set region if not using Frankfurt default
-export BUNNYNET_REGION=""  # empty for Frankfurt, "uk" for London, "ny" for NY
+# The deploy config determines which env vars to read:
+# config/deploy.json:
+# {
+#   "photo_password_env_var": "BUNNYNET_PASS_MC_PICS",
+#   "site_password_env_var": "BUNNYNET_PASS_MC_SITE",
+#   "region": ""  # empty for Frankfurt, "uk" for London, "ny" for NY
+# }
 ```
 
 **Security Note**: Never commit these passwords to version control. Add them to your shell profile or deployment environment.
@@ -111,24 +114,52 @@ output/
 - **Optimized for small files**: HTML/CSS files are small, less optimization needed
 - **Ensures consistency**: Guarantees all site files are current
 
+## Configuration System
+
+### Deploy Configuration (`config/deploy.json`)
+
+The deploy system uses a flat configuration structure that specifies environment variable names and zone settings:
+
+```json
+{
+  "photo_password_env_var": "BUNNYNET_PASS_MC_PICS",
+  "site_password_env_var": "BUNNYNET_PASS_MC_SITE",
+  "photo_zone_name": "marco-crissy-site-pics",
+  "site_zone_name": "marco-crissy-site",
+  "region": ""
+}
+```
+
+### Dual Client Architecture
+
+The deploy system creates two separate BunnyNetClient instances:
+- **Photo Client**: Configured for the photo storage zone
+- **Site Client**: Configured for the site content storage zone
+
+Each client contains its zone name and uses the appropriate password from the environment variables specified in the configuration.
+
 ## Troubleshooting
 
 ### Environment Variable Issues
 
-**Problem**: `Missing BUNNYNET_STORAGE_PASSWORD environment variable`
+**Problem**: `Missing [ENV_VAR_NAME] environment variable`
 
-**Solution**: The current implementation expects `BUNNYNET_STORAGE_PASSWORD`. Set it temporarily:
+**Solution**: Check your `config/deploy.json` and ensure the specified environment variables are set:
+
 ```bash
-export BUNNYNET_STORAGE_PASSWORD="$BUNNYNET_PASS_PICS"
-```
+# Check current config
+cat config/deploy.json
 
-**Note**: This will be updated to support dual-zone configuration in future versions.
+# Set the variables it expects
+export BUNNYNET_PASS_MC_PICS="your-photo-password"
+export BUNNYNET_PASS_MC_SITE="your-site-password"
+```
 
 ### API Connection Issues
 
 **Test connectivity**:
 ```bash
-python3 -c "from deploy.bunnynet_client import create_client_from_env; client = create_client_from_env(); print('Connected to:', client.base_url)"
+python3 -c "from deploy.bunnynet_client import create_clients_from_config; import json; config = json.load(open('config/deploy.json')); photo_client, site_client = create_clients_from_config(config); print('Photo zone:', photo_client.base_url); print('Site zone:', site_client.base_url)"
 ```
 
 **Common issues**:
@@ -167,10 +198,10 @@ uv run site deploy
 
 ## Future Enhancements
 
-- **Dual password configuration**: Native support for separate zone passwords
 - **Configurable routing rules**: Custom file type → zone mappings
 - **Rollback functionality**: Automated rollback on partial deployment failures
 - **Progress indicators**: Real-time upload progress for large deployments
+- **Multiple region support**: Deploy to different regions per zone
 
 ## Related Documentation
 

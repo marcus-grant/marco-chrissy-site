@@ -16,24 +16,27 @@ class TestBunnyNetClient:
     def test_client_initialization_frankfurt_region(self):
         """Test client initializes with Frankfurt region (default)."""
         # NEVER inspect env var values during testing
-        client = BunnyNetClient("test-password", "")
+        client = BunnyNetClient("test-password", "test-zone", "")
 
         assert client.base_url == "https://storage.bunnycdn.com"
         assert client.region == ""
+        assert client.zone_name == "test-zone"
 
     def test_client_initialization_london_region(self):
         """Test client initializes with London region."""
-        client = BunnyNetClient("test-password", "uk")
+        client = BunnyNetClient("test-password", "test-zone", "uk")
 
         assert client.base_url == "https://uk.storage.bunnycdn.com"
         assert client.region == "uk"
+        assert client.zone_name == "test-zone"
 
     def test_client_initialization_new_york_region(self):
         """Test client initializes with New York region."""
-        client = BunnyNetClient("test-password", "ny")
+        client = BunnyNetClient("test-password", "test-zone", "ny")
 
         assert client.base_url == "https://ny.storage.bunnycdn.com"
         assert client.region == "ny"
+        assert client.zone_name == "test-zone"
 
     def test_create_clients_from_config_with_region(self):
         """Test creating dual clients from config with specified region."""
@@ -41,6 +44,8 @@ class TestBunnyNetClient:
         deploy_config = {
             "photo_password_env_var": "TEST_PHOTO_PASSWORD",
             "site_password_env_var": "TEST_SITE_PASSWORD",
+            "photo_zone_name": "test-photo-zone",
+            "site_zone_name": "test-site-zone",
             "region": "uk"
         }
 
@@ -63,7 +68,9 @@ class TestBunnyNetClient:
         """Test creating dual clients with default region when not specified."""
         deploy_config = {
             "photo_password_env_var": "TEST_PHOTO_PASSWORD",
-            "site_password_env_var": "TEST_SITE_PASSWORD"
+            "site_password_env_var": "TEST_SITE_PASSWORD",
+            "photo_zone_name": "test-photo-zone",
+            "site_zone_name": "test-site-zone"
             # region not specified - should default to ""
         }
 
@@ -95,7 +102,7 @@ class TestBunnyNetClient:
         mock_response.status_code = 201
         mock_put.return_value = mock_response
 
-        client = BunnyNetClient("test-password", "uk")
+        client = BunnyNetClient("test-password", "my-zone", "uk")
         local_path = Path("/tmp/test.jpg")
 
         # Mock file content
@@ -105,7 +112,7 @@ class TestBunnyNetClient:
             mock_open.return_value.__enter__.return_value = mock_file
 
             # Execute
-            result = client.upload_file(local_path, "photos/test.jpg", "my-zone")
+            result = client.upload_file(local_path, "photos/test.jpg")
 
         # Verify
         assert result is True
@@ -126,7 +133,7 @@ class TestBunnyNetClient:
         mock_response.status_code = 400
         mock_put.return_value = mock_response
 
-        client = BunnyNetClient("test-password", "")
+        client = BunnyNetClient("test-password", "my-zone", "")
         local_path = Path("/tmp/test.jpg")
 
         # Mock file content
@@ -136,7 +143,7 @@ class TestBunnyNetClient:
             mock_open.return_value.__enter__.return_value = mock_file
 
             # Execute
-            result = client.upload_file(local_path, "photos/test.jpg", "my-zone")
+            result = client.upload_file(local_path, "photos/test.jpg")
 
         # Verify
         assert result is False
@@ -158,10 +165,10 @@ class TestBunnyNetClient:
         mock_response.content = b"manifest-content"
         mock_get.return_value = mock_response
 
-        client = BunnyNetClient("test-password", "ny")
+        client = BunnyNetClient("test-password", "my-zone", "ny")
 
         # Execute
-        result = client.download_file("manifest.json", "my-zone")
+        result = client.download_file("manifest.json")
 
         # Verify
         assert result == b"manifest-content"
@@ -178,10 +185,10 @@ class TestBunnyNetClient:
         mock_response.status_code = 404
         mock_get.return_value = mock_response
 
-        client = BunnyNetClient("test-password", "")
+        client = BunnyNetClient("test-password", "my-zone", "")
 
         # Execute
-        result = client.download_file("missing.json", "my-zone")
+        result = client.download_file("missing.json")
 
         # Verify
         assert result is None
@@ -196,7 +203,7 @@ class TestBunnyNetClient:
         # Setup - raise requests exception
         mock_put.side_effect = requests.ConnectionError("Network error")
 
-        client = BunnyNetClient("test-password", "")
+        client = BunnyNetClient("test-password", "my-zone", "")
         local_path = Path("/tmp/test.jpg")
 
         # Mock file content
@@ -206,7 +213,7 @@ class TestBunnyNetClient:
             mock_open.return_value.__enter__.return_value = mock_file
 
             # Execute
-            result = client.upload_file(local_path, "photos/test.jpg", "my-zone")
+            result = client.upload_file(local_path, "photos/test.jpg")
 
         # Verify
         assert result is False
@@ -217,10 +224,10 @@ class TestBunnyNetClient:
         # Setup - raise requests exception
         mock_get.side_effect = requests.ConnectionError("Network error")
 
-        client = BunnyNetClient("test-password", "")
+        client = BunnyNetClient("test-password", "my-zone", "")
 
         # Execute
-        result = client.download_file("manifest.json", "my-zone")
+        result = client.download_file("manifest.json")
 
         # Verify
         assert result is None

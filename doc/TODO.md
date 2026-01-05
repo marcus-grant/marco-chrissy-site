@@ -147,13 +147,15 @@ For detailed planning guidance, templates, and examples, see: **[`PLANNING.md`](
 - [x] Commit: `Ref: Update orchestrator to use dual client architecture`
 
 *Sub-cycle 3D: Refactor All Tests Using Old create_client_from_env*
-- [ ] Update `test/unit/deploy/test_bunnynet_client.py` - replace 3 old client tests with dual client config tests
-- [ ] Update `test/unit/cli/test_deploy.py` - update 7 mocks to expect dual client creation calls
-- [ ] Update `test/e2e/test_site_deploy.py` - update 1 mock for new client creation pattern
-- [ ] All tests use arbitrary env var names (TEST_PHOTO_PASS, TEST_SITE_PASS) and mock config loading
-- [ ] `uv run ruff check --fix --unsafe-fixes && uv run pytest`
-- [ ] Update TODO.md and CHANGELOG.md
-- [ ] Commit: `Tst: Refactor all tests to use configurable dual client architecture`
+- [x] Add documentation tasks to Sub-cycle 3D first: Update doc/bunnynet.md, create doc/commands/deploy.md
+- [x] Update `test/unit/deploy/test_bunnynet_client.py` - replace 3 old client tests with dual client config tests
+- [x] Update `test/unit/cli/test_deploy.py` - update 7 mocks to expect dual client creation calls
+- [x] Update `test/e2e/test_site_deploy.py` - update 1 mock for new client creation pattern
+- [x] All tests use arbitrary env var names (TEST_PHOTO_PASS, TEST_SITE_PASS) and mock config loading
+- [x] Fix orchestrator implementation to match dual client architecture
+- [x] `uv run ruff check --fix --unsafe-fixes && uv run pytest`
+- [x] Update TODO.md and CHANGELOG.md
+- [x] Commit: `Tst: Refactor all tests to use configurable dual client architecture`
 
 *Sub-cycle 3E: Update CLI Command Integration*
 - [ ] Write unit tests for CLI config loading that fail

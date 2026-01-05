@@ -2,6 +2,7 @@
 
 ## 2025-01-05
 
+- Refactor all deploy tests to use configurable dual client architecture (Sub-cycle 3D)
 - Fix orchestrator API method signature mismatch for upload_file calls
 - Update DeployOrchestrator to accept photo_zone_name and site_zone_name parameters
 - Fix deploy_photos and deploy_site_content to call upload_file with required zone_name parameter

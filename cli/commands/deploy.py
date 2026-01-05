@@ -1,11 +1,11 @@
 """Deploy command implementation."""
 
-import os
 from pathlib import Path
 
 import click
 
-from deploy.bunnynet_client import create_client_from_env
+from build.config_manager import ConfigManager
+from deploy.bunnynet_client import create_clients_from_config
 from deploy.manifest_comparator import ManifestComparator
 from deploy.orchestrator import DeployOrchestrator
 
@@ -29,27 +29,18 @@ def deploy():
     # Execute deployment using orchestrator
     click.echo("Uploading to CDN with dual zone strategy...")
     try:
+        # Load deploy configuration
+        config_manager = ConfigManager()
+        deploy_config = config_manager.get_deploy_config()
+
         # Initialize deployment components
-        bunnynet_client = create_client_from_env()
+        photo_client, site_client = create_clients_from_config(deploy_config)
         manifest_comparator = ManifestComparator()
 
-        # Read zone names from environment variables
-        photo_zone_name = os.getenv("BUNNYNET_PHOTO_ZONE_NAME")
-        site_zone_name = os.getenv("BUNNYNET_SITE_ZONE_NAME")
-
-        if not photo_zone_name:
-            click.echo("✗ Missing BUNNYNET_PHOTO_ZONE_NAME environment variable")
-            ctx.exit(1)
-
-        if not site_zone_name:
-            click.echo("✗ Missing BUNNYNET_SITE_ZONE_NAME environment variable")
-            ctx.exit(1)
-
         orchestrator = DeployOrchestrator(
-            bunnynet_client,
-            manifest_comparator,
-            photo_zone_name=photo_zone_name,
-            site_zone_name=site_zone_name
+            photo_client,
+            site_client,
+            manifest_comparator
         )
 
         # Execute deployment

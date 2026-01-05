@@ -12,15 +12,23 @@ class TestDeployCommand:
 
     @patch("cli.commands.deploy.build")
     @patch("cli.commands.deploy.DeployOrchestrator")
-    @patch("cli.commands.deploy.create_client_from_env")
+    @patch("cli.commands.deploy.create_clients_from_config")
     @patch("cli.commands.deploy.ManifestComparator")
     @patch("cli.commands.deploy.Path")
-    @patch("cli.commands.deploy.os.getenv")
-    def test_deploy_calls_build_cascade(self, mock_getenv, mock_path_class, mock_manifest_comp_class,
+    @patch("cli.commands.deploy.ConfigManager")
+    def test_deploy_calls_build_cascade(self, mock_config_manager_class, mock_path_class, mock_manifest_comp_class,
                                       mock_client_factory, mock_orchestrator_class, mock_build):
         """Test that deploy calls build (which calls organize and validate)."""
-        # Mock getenv for zone names
-        mock_getenv.side_effect = lambda var: {"BUNNYNET_PHOTO_ZONE_NAME": "test-photos", "BUNNYNET_SITE_ZONE_NAME": "test-site"}.get(var)
+        # Mock config loading
+        mock_config_manager = Mock()
+        mock_config_manager_class.return_value = mock_config_manager
+        deploy_config = {"test": "config"}
+        mock_config_manager.get_deploy_config.return_value = deploy_config
+
+        # Mock dual client creation
+        mock_photo_client = Mock()
+        mock_site_client = Mock()
+        mock_client_factory.return_value = (mock_photo_client, mock_site_client)
 
         # Mock build success
         mock_build.return_value = Mock(exit_code=0)
@@ -44,21 +52,26 @@ class TestDeployCommand:
 
     @patch("cli.commands.deploy.build")
     @patch("cli.commands.deploy.DeployOrchestrator")
-    @patch("cli.commands.deploy.create_client_from_env")
+    @patch("cli.commands.deploy.create_clients_from_config")
     @patch("cli.commands.deploy.ManifestComparator")
     @patch("cli.commands.deploy.Path")
-    @patch.dict("os.environ", {
-        "BUNNYNET_PHOTO_ZONE_NAME": "test-photos",
-        "BUNNYNET_SITE_ZONE_NAME": "test-site"
-    })
-    def test_deploy_fails_if_build_fails(self, mock_path_class, mock_manifest_comp_class,
+    @patch("cli.commands.deploy.ConfigManager")
+    def test_deploy_fails_if_build_fails(self, mock_config_manager_class, mock_path_class, mock_manifest_comp_class,
                                        mock_client_factory, mock_orchestrator_class, mock_build):
         """Test that deploy fails if build step fails."""
+        # Mock config loading
+        mock_config_manager = Mock()
+        mock_config_manager_class.return_value = mock_config_manager
+        mock_config_manager.get_deploy_config.return_value = {"test": "config"}
+
         mock_build.return_value = Mock(exit_code=1)
 
         # Orchestrator should not be called if build fails
         mock_orchestrator = Mock()
         mock_orchestrator_class.return_value = mock_orchestrator
+
+        # Mock dual client creation
+        mock_client_factory.return_value = (Mock(), Mock())
 
         runner = CliRunner()
         result = runner.invoke(deploy)
@@ -69,16 +82,21 @@ class TestDeployCommand:
 
     @patch("cli.commands.deploy.build")
     @patch("cli.commands.deploy.DeployOrchestrator")
-    @patch("cli.commands.deploy.create_client_from_env")
+    @patch("cli.commands.deploy.create_clients_from_config")
     @patch("cli.commands.deploy.ManifestComparator")
     @patch("cli.commands.deploy.Path")
-    @patch.dict("os.environ", {
-        "BUNNYNET_PHOTO_ZONE_NAME": "test-photos",
-        "BUNNYNET_SITE_ZONE_NAME": "test-site"
-    })
-    def test_deploy_fails_if_output_missing(self, mock_path_class, mock_manifest_comp_class,
+    @patch("cli.commands.deploy.ConfigManager")
+    def test_deploy_fails_if_output_missing(self, mock_config_manager_class, mock_path_class, mock_manifest_comp_class,
                                           mock_client_factory, mock_orchestrator_class, mock_build):
         """Test that deploy fails if output directory doesn't exist."""
+        # Mock config loading
+        mock_config_manager = Mock()
+        mock_config_manager_class.return_value = mock_config_manager
+        mock_config_manager.get_deploy_config.return_value = {"test": "config"}
+
+        # Mock dual client creation
+        mock_client_factory.return_value = (Mock(), Mock())
+
         mock_build.return_value = Mock(exit_code=0)
 
         # Mock output directory doesn't exist
@@ -98,18 +116,20 @@ class TestDeployCommand:
 
     @patch("cli.commands.deploy.build")
     @patch("cli.commands.deploy.DeployOrchestrator")
-    @patch("cli.commands.deploy.create_client_from_env")
+    @patch("cli.commands.deploy.create_clients_from_config")
     @patch("cli.commands.deploy.ManifestComparator")
     @patch("cli.commands.deploy.Path")
-    @patch.dict("os.environ", {
-        "BUNNYNET_PHOTO_ZONE_NAME": "test-photos",
-        "BUNNYNET_SITE_ZONE_NAME": "test-site"
-    })
-    def test_deploy_creates_orchestrator_with_dependencies(self, mock_path_class,
+    @patch("cli.commands.deploy.ConfigManager")
+    def test_deploy_creates_orchestrator_with_dependencies(self, mock_config_manager_class, mock_path_class,
                                                          mock_manifest_comp_class,
                                                          mock_client_factory,
                                                          mock_orchestrator_class, mock_build):
         """Test that deploy creates orchestrator with proper dependencies."""
+        # Mock config loading
+        mock_config_manager = Mock()
+        mock_config_manager_class.return_value = mock_config_manager
+        mock_config_manager.get_deploy_config.return_value = {"test": "config"}
+
         mock_build.return_value = Mock(exit_code=0)
 
         # Mock output directory exists
@@ -117,9 +137,10 @@ class TestDeployCommand:
         mock_output_dir.exists.return_value = True
         mock_path_class.return_value = mock_output_dir
 
-        # Mock component creation
-        mock_client = Mock()
-        mock_client_factory.return_value = mock_client
+        # Mock dual client creation
+        mock_photo_client = Mock()
+        mock_site_client = Mock()
+        mock_client_factory.return_value = (mock_photo_client, mock_site_client)
         mock_manifest_comp = Mock()
         mock_manifest_comp_class.return_value = mock_manifest_comp
 
@@ -135,26 +156,30 @@ class TestDeployCommand:
         # Verify components were created
         mock_client_factory.assert_called_once()
         mock_manifest_comp_class.assert_called_once()
-        # Verify orchestrator was created with dependencies and zone names
+        # Verify orchestrator was created with dual clients and manifest comparator
         mock_orchestrator_class.assert_called_once_with(
-            mock_client,
-            mock_manifest_comp,
-            photo_zone_name="test-photos",
-            site_zone_name="test-site"
+            mock_photo_client,
+            mock_site_client,
+            mock_manifest_comp
         )
 
     @patch("cli.commands.deploy.build")
     @patch("cli.commands.deploy.DeployOrchestrator")
-    @patch("cli.commands.deploy.create_client_from_env")
+    @patch("cli.commands.deploy.create_clients_from_config")
     @patch("cli.commands.deploy.ManifestComparator")
     @patch("cli.commands.deploy.Path")
-    @patch.dict("os.environ", {
-        "BUNNYNET_PHOTO_ZONE_NAME": "test-photos",
-        "BUNNYNET_SITE_ZONE_NAME": "test-site"
-    })
-    def test_deploy_fails_if_orchestrator_fails(self, mock_path_class, mock_manifest_comp_class,
+    @patch("cli.commands.deploy.ConfigManager")
+    def test_deploy_fails_if_orchestrator_fails(self, mock_config_manager_class, mock_path_class, mock_manifest_comp_class,
                                                mock_client_factory, mock_orchestrator_class, mock_build):
         """Test that deploy fails if orchestrator deployment fails."""
+        # Mock config loading
+        mock_config_manager = Mock()
+        mock_config_manager_class.return_value = mock_config_manager
+        mock_config_manager.get_deploy_config.return_value = {"test": "config"}
+
+        # Mock dual client creation
+        mock_client_factory.return_value = (Mock(), Mock())
+
         mock_build.return_value = Mock(exit_code=0)
 
         # Mock output directory exists
@@ -175,16 +200,21 @@ class TestDeployCommand:
 
     @patch("cli.commands.deploy.build")
     @patch("cli.commands.deploy.DeployOrchestrator")
-    @patch("cli.commands.deploy.create_client_from_env")
+    @patch("cli.commands.deploy.create_clients_from_config")
     @patch("cli.commands.deploy.ManifestComparator")
     @patch("cli.commands.deploy.Path")
-    @patch.dict("os.environ", {
-        "BUNNYNET_PHOTO_ZONE_NAME": "test-photos",
-        "BUNNYNET_SITE_ZONE_NAME": "test-site"
-    })
-    def test_deploy_handles_exceptions(self, mock_path_class, mock_manifest_comp_class,
+    @patch("cli.commands.deploy.ConfigManager")
+    def test_deploy_handles_exceptions(self, mock_config_manager_class, mock_path_class, mock_manifest_comp_class,
                                      mock_client_factory, mock_orchestrator_class, mock_build):
         """Test that deploy handles exceptions gracefully."""
+        # Mock config loading
+        mock_config_manager = Mock()
+        mock_config_manager_class.return_value = mock_config_manager
+        mock_config_manager.get_deploy_config.return_value = {"test": "config"}
+
+        # Mock dual client creation
+        mock_client_factory.return_value = (Mock(), Mock())
+
         mock_build.return_value = Mock(exit_code=0)
 
         # Mock output directory exists
@@ -206,16 +236,21 @@ class TestDeployCommand:
 
     @patch("cli.commands.deploy.build")
     @patch("cli.commands.deploy.DeployOrchestrator")
-    @patch("cli.commands.deploy.create_client_from_env")
+    @patch("cli.commands.deploy.create_clients_from_config")
     @patch("cli.commands.deploy.ManifestComparator")
     @patch("cli.commands.deploy.Path")
-    @patch.dict("os.environ", {
-        "BUNNYNET_PHOTO_ZONE_NAME": "test-photos",
-        "BUNNYNET_SITE_ZONE_NAME": "test-site"
-    })
-    def test_deploy_shows_progress_output(self, mock_path_class, mock_manifest_comp_class,
+    @patch("cli.commands.deploy.ConfigManager")
+    def test_deploy_shows_progress_output(self, mock_config_manager_class, mock_path_class, mock_manifest_comp_class,
                                         mock_client_factory, mock_orchestrator_class, mock_build):
         """Test that deploy shows progress information to user."""
+        # Mock config loading
+        mock_config_manager = Mock()
+        mock_config_manager_class.return_value = mock_config_manager
+        mock_config_manager.get_deploy_config.return_value = {"test": "config"}
+
+        # Mock dual client creation
+        mock_client_factory.return_value = (Mock(), Mock())
+
         mock_build.return_value = Mock(exit_code=0)
 
         # Mock output directory exists
@@ -240,21 +275,24 @@ class TestDeployCommand:
 
     @patch("cli.commands.deploy.build")
     @patch("cli.commands.deploy.DeployOrchestrator")
-    @patch("cli.commands.deploy.create_client_from_env")
+    @patch("cli.commands.deploy.create_clients_from_config")
     @patch("cli.commands.deploy.ManifestComparator")
     @patch("cli.commands.deploy.Path")
-    @patch("cli.commands.deploy.os.getenv")
-    def test_deploy_reads_zone_names_from_environment(self, mock_getenv, mock_path_class, mock_manifest_comp_class,
+    @patch("cli.commands.deploy.ConfigManager")
+    def test_deploy_loads_config_and_creates_dual_clients(self, mock_config_manager_class, mock_path_class, mock_manifest_comp_class,
                                                      mock_client_factory, mock_orchestrator_class, mock_build):
-        """Test that deploy reads zone names from environment variables and passes to orchestrator."""
-        # Mock os.getenv to return our test values
-        def mock_getenv_side_effect(var_name):
-            if var_name == "BUNNYNET_PHOTO_ZONE_NAME":
-                return "mocked-photo-zone"
-            elif var_name == "BUNNYNET_SITE_ZONE_NAME":
-                return "mocked-site-zone"
-            return None
-        mock_getenv.side_effect = mock_getenv_side_effect
+        """Test that deploy loads config and creates dual clients."""
+        # Mock config loading with specific deploy config
+        mock_config_manager = Mock()
+        mock_config_manager_class.return_value = mock_config_manager
+        deploy_config = {
+            "photo_password_env_var": "TEST_PHOTO_PASS",
+            "site_password_env_var": "TEST_SITE_PASS",
+            "photo_zone_name": "test-photo-zone",
+            "site_zone_name": "test-site-zone",
+            "region": "uk"
+        }
+        mock_config_manager.get_deploy_config.return_value = deploy_config
 
         mock_build.return_value = Mock(exit_code=0)
 
@@ -263,9 +301,10 @@ class TestDeployCommand:
         mock_output_dir.exists.return_value = True
         mock_path_class.return_value = mock_output_dir
 
-        # Mock component creation
-        mock_client = Mock()
-        mock_client_factory.return_value = mock_client
+        # Mock dual client creation
+        mock_photo_client = Mock()
+        mock_site_client = Mock()
+        mock_client_factory.return_value = (mock_photo_client, mock_site_client)
         mock_manifest_comp = Mock()
         mock_manifest_comp_class.return_value = mock_manifest_comp
 
@@ -279,24 +318,31 @@ class TestDeployCommand:
 
         assert result.exit_code == 0
 
-        # Verify os.getenv was called for the zone names
-        mock_getenv.assert_any_call("BUNNYNET_PHOTO_ZONE_NAME")
-        mock_getenv.assert_any_call("BUNNYNET_SITE_ZONE_NAME")
+        # Verify config was loaded
+        mock_config_manager.get_deploy_config.assert_called_once()
 
-        # Verify orchestrator was created with mocked zone names
+        # Verify clients were created from config
+        mock_client_factory.assert_called_once_with(deploy_config)
+
+        # Verify orchestrator was created with dual clients
         mock_orchestrator_class.assert_called_once_with(
-            mock_client,
-            mock_manifest_comp,
-            photo_zone_name="mocked-photo-zone",
-            site_zone_name="mocked-site-zone"
+            mock_photo_client,
+            mock_site_client,
+            mock_manifest_comp
         )
 
     @patch("cli.commands.deploy.build")
-    @patch("cli.commands.deploy.os.getenv")
-    def test_deploy_fails_if_missing_zone_env_vars(self, mock_getenv, mock_build):
-        """Test that deploy fails if zone environment variables are missing."""
-        # Mock getenv to return None for zone names
-        mock_getenv.return_value = None
+    @patch("cli.commands.deploy.create_clients_from_config")
+    @patch("cli.commands.deploy.ConfigManager")
+    def test_deploy_fails_if_client_creation_fails(self, mock_config_manager_class, mock_client_factory, mock_build):
+        """Test that deploy fails gracefully if client creation fails."""
+        # Mock config loading
+        mock_config_manager = Mock()
+        mock_config_manager_class.return_value = mock_config_manager
+        mock_config_manager.get_deploy_config.return_value = {"test": "config"}
+
+        # Mock client creation failure (e.g., missing env vars)
+        mock_client_factory.side_effect = ValueError("Missing TEST_PASSWORD environment variable")
 
         mock_build.return_value = Mock(exit_code=0)
 
@@ -304,7 +350,7 @@ class TestDeployCommand:
         result = runner.invoke(deploy)
 
         assert result.exit_code != 0
-        assert "missing bunnynet_photo_zone_name" in result.output.lower()
+        assert "missing test_password" in result.output.lower()
 
-        # Verify getenv was called for photo zone name
-        mock_getenv.assert_called_with("BUNNYNET_PHOTO_ZONE_NAME")
+        # Verify client factory was called
+        mock_client_factory.assert_called_once()

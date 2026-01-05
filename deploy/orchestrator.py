@@ -69,7 +69,10 @@ class DeployOrchestrator:
             # Download remote manifest to compare
             try:
                 remote_manifest_bytes = self.photo_client.download_file("manifest.json")
-                remote_manifest = self.manifest_comparator.load_manifest_from_json(remote_manifest_bytes)
+                if remote_manifest_bytes:
+                    remote_manifest = self.manifest_comparator.load_manifest_from_json(remote_manifest_bytes)
+                else:
+                    remote_manifest = {}
             except Exception:
                 # First deployment or manifest unavailable - upload all files
                 remote_manifest = {}
@@ -137,14 +140,27 @@ class DeployOrchestrator:
             True if rollback successful, False otherwise
         """
         try:
+            # Select appropriate client based on zone type
+            if zone_type == "photo":
+                client = self.photo_client
+            elif zone_type == "site":
+                client = self.site_client
+            else:
+                return False
+                
             # Attempt to delete all deployed files
             all_deletions_successful = True
 
             for file_path in deployed_files:
                 try:
-                    if not self.bunnynet_client.delete_file(file_path):
+                    # Note: delete_file method needs to be implemented in client
+                    if hasattr(client, 'delete_file'):
+                        if not client.delete_file(file_path):
+                            all_deletions_successful = False
+                            # Continue trying to delete other files even if one fails
+                    else:
+                        # delete_file not implemented yet - return False
                         all_deletions_successful = False
-                        # Continue trying to delete other files even if one fails
                 except Exception:
                     all_deletions_successful = False
                     # Continue trying to delete other files even if one fails
