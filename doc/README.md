@@ -20,6 +20,7 @@ The site orchestrates multiple tools to generate static content deployed to Bunn
 - [Architecture](architecture.md) - System design and integration patterns
 - [Provider Architecture](provider-architecture.md) - Plugin-based photo collection providers
 - [Configuration Guide](bconfiguration.md) - Config file formats and examples
+- [Bunny.net Setup](bunnynet.md) - CDN deployment with dual zone strategy
 - [Commands](commands/) - Command system and workflow documentation
 - [Modules](modules/) - Module organization and structure
 - [Future Architecture](future/) - Post-MVP modularization strategy

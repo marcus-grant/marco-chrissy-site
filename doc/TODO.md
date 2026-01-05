@@ -12,13 +12,11 @@ For detailed planning guidance, templates, and examples, see: **[`PLANNING.md`](
 
 ## MVP Roadmap
 
-### Phase 6: Deploy Command & Guided Real-World Deployment
-
-#### Task 6.1: Deploy Command Implementation (Branch: ft/deploy)
+### Deploy Command Implementation (Branch: ft/deploy)
 
 *Problem Statement: Site lacks deployment capability to bunny.net CDN. Need dual storage zone strategy (photos vs site content), manifest-based incremental uploads, and integration with existing 4-stage pipeline (validate→organize→build→deploy).*
 
-**Phase 1: Setup & E2E Definition**
+**Initial Setup & E2E Test Definition**
 - [x] `git checkout -b ft/deploy`
 - [x] Create E2E test in `test/e2e/test_site_deploy.py`
   - [x] Test Click deploy function directly (no subprocess)
@@ -31,7 +29,7 @@ For detailed planning guidance, templates, and examples, see: **[`PLANNING.md`](
 - [x] Update TODO.md and CHANGELOG.md
 - [x] Commit: `Tst: Add E2E test for deploy command (skipped)`
 
-**Phase 2: TDD Implementation Cycles**
+**TDD Implementation Cycles**
 
 *Cycle 1: Bunny.net API Client Foundation*
 - [x] Create stub `deploy/bunnynet_client.py` with `BunnyNetClient` class
@@ -92,9 +90,9 @@ For detailed planning guidance, templates, and examples, see: **[`PLANNING.md`](
 - [ ] Update TODO.md and CHANGELOG.md
 - [ ] Commit: `Ft: Add deploy CLI command with pipeline integration`
 
-**Phase 3A: Critical Implementation Fixes (TDD Cycles)**
+**Critical Implementation Fixes (TDD Cycles)**
 
-*Problem Statement: Four blocking issues prevent bunny.net deployment functionality, discovered during real-world testing with 697 site files. These must be resolved before Phase 3 guided testing can proceed.*
+*Problem Statement: Four blocking issues prevent bunny.net deployment functionality, discovered during real-world testing with 697 site files. These must be resolved before real-world testing can proceed.*
 
 *TDD Cycle 1: Fix Orchestrator API Method Signatures*
 - [x] Write unit test for correct `upload_file()` calls with 3 arguments (zone_name parameter)
@@ -167,26 +165,26 @@ For detailed planning guidance, templates, and examples, see: **[`PLANNING.md`](
 - [x] Commit: `Ft: Update deploy CLI to use configurable dual client system`
 
 *TDD Cycle 4: Verify ManifestComparator Import*
-- [ ] Write integration test importing ManifestComparator in orchestrator context
-- [ ] Verify import works (file exists at `deploy/manifest_comparator.py`)
-- [ ] If needed, fix import paths or missing dependencies
-- [ ] `uv run ruff check --fix --unsafe-fixes && uv run pytest`
-- [ ] Update TODO.md and CHANGELOG.md
-- [ ] Commit any fixes with: `Fix: Resolve ManifestComparator import issues`
+- [x] Write integration test importing ManifestComparator in orchestrator context
+- [x] Verify import works (file exists at `deploy/manifest_comparator.py`)
+- [x] If needed, fix import paths or missing dependencies
+- [x] `uv run ruff check --fix --unsafe-fixes && uv run pytest`
+- [x] Update TODO.md and CHANGELOG.md
+- [x] Commit any fixes with: `Fix: Resolve ManifestComparator import issues`
 
-**Phase 3: Interactive Bunny.net Setup & Documentation** *(BLOCKED until Phase 3A complete)*
+**Deploy Implementation Complete - Ready for Real-World Testing**
 - [x] Guide user through photo storage zone creation → COMPLETED: zone `marco-crissy-site-pics` 
 - [x] Guide user through site storage zone creation → COMPLETED: zone `marco-crissy-site`
 - [x] Guide user through finding storage passwords → DISCOVERED: Each zone has unique password
-- [x] **CRITICAL: Fix deploy config architecture** - implement flat config with env var names
-- [x] **CRITICAL: Fix BunnyNetClient instantiation** - currently missing required password parameter
+- [x] Fix deploy config architecture - implement flat config with env var names
+- [x] Fix BunnyNetClient instantiation - currently missing required password parameter
 - [x] Test basic API connectivity with updated config approach
-- [ ] Document dual-zone setup with config-driven env vars in `doc/bunnynet.md` - NEEDS UPDATE after blocking fixes
-- [ ] Remove `@pytest.mark.skip` from E2E test 
-- [ ] Verify E2E test passes (if not, return to Phase 2)
-- [ ] Update `doc/README.md` to link to `doc/bunnynet.md`
-- [ ] Update `doc/commands/deploy.md` with usage examples
-- [ ] Update `doc/bunnynet.md` with correct zone names, dual client architecture, and remove temporary workarounds
+- [x] Document dual-zone setup with config-driven env vars in `doc/bunnynet.md`
+- [x] Remove `@pytest.mark.skip` from E2E test 
+- [x] Verify E2E test passes (all 508 tests passing)
+- [x] Update `doc/README.md` to link to `doc/bunnynet.md`
+- [x] Update `doc/commands/deploy.md` with usage examples
+- [x] Update `doc/bunnynet.md` with correct zone names, dual client architecture, and remove temporary workarounds
 
 **DISCOVERED ISSUES FROM INTERACTIVE SETUP:**
 - [ ] **Test filesystem pollution**: Tests writing to `PROJECT_ROOT/output/galleries` instead of isolated temp dirs
@@ -205,7 +203,7 @@ For detailed planning guidance, templates, and examples, see: **[`PLANNING.md`](
 - **Single Client Architecture**: Current code uses single `BUNNYNET_STORAGE_PASSWORD`, but real deployment needs zone-specific passwords
 - **Missing ManifestComparator**: Orchestrator tries to instantiate `ManifestComparator` but module doesn't exist
 
-**Phase 4: Integration Testing & PR Creation**
+**Integration Testing & PR Creation**
 - [ ] Test complete validate→organize→build→deploy pipeline end-to-end
 - [ ] Verify dual zone deployment works correctly
 - [ ] Verify incremental upload behavior (manifest comparison)
@@ -293,7 +291,7 @@ For detailed planning guidance, templates, and examples, see: **[`PLANNING.md`](
 
 *Problem Statement: Site lacks mobile optimization with poor touch targets, non-responsive gallery grid, and inconsistent mobile experience across page types.*
 
-**Phase 1: Setup & E2E Definition**
+**Initial Setup & E2E Test Definition**
 
 - [ ] `git checkout -b ft/responsive-layout`
 - [ ] Create E2E test in `test/e2e/test_responsive_layout.py`
@@ -306,7 +304,7 @@ For detailed planning guidance, templates, and examples, see: **[`PLANNING.md`](
 - [ ] Update TODO.md and CHANGELOG.md
 - [ ] Commit: `Tst: Add E2E test for responsive layout (skipped)`
 
-**Phase 2: TDD Implementation Cycles**
+**TDD Implementation Cycles**
 
 *Cycle 1: Implement Mobile-First Gallery Grid*
 
