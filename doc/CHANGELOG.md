@@ -12,6 +12,10 @@
 - Update deploy command to read BUNNYNET_PHOTO_ZONE_NAME and BUNNYNET_SITE_ZONE_NAME
 - Add proper mocking of os.getenv in tests to avoid using real environment variables
 - Update all deployment tests to use isolated test values instead of production configs
+- Add configurable deploy configuration system with flat structure supporting environment variable name specification
+- Create config/deploy.json with photo_password_env_var and site_password_env_var fields for dual client architecture
+- Add load_deploy_config() method to ConfigManager following existing config loading patterns
+- Implement proper test isolation using arbitrary test environment variable names instead of production values
 
 ## 2025-01-04
 

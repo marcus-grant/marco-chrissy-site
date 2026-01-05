@@ -1,0 +1,7 @@
+{
+  "photo_password_env_var": "BUNNYNET_PASS_MC_PICS",
+  "site_password_env_var": "BUNNYNET_PASS_MC_SITE",
+  "photo_zone_name": "marco-crissy-site-pics",
+  "site_zone_name": "marco-crissy-site",
+  "region": ""
+}

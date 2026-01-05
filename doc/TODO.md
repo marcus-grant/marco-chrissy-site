@@ -114,16 +114,55 @@ For detailed planning guidance, templates, and examples, see: **[`PLANNING.md`](
 - [x] Write unit test for CLI reading zone names from environment variables
 - [x] Fix deploy CLI command to read zone names from env vars and pass to orchestrator
 - [x] `uv run ruff check --fix --unsafe-fixes && uv run pytest`
-- [ ] Update TODO.md and CHANGELOG.md
-- [ ] Commit: `Fix: Add zone name env var support to deploy CLI command`
+- [x] Update TODO.md and CHANGELOG.md
+- [x] Commit: `Fix: Add zone name env var support to deploy CLI command`
 
 *TDD Cycle 3: Implement Dual Client Architecture*
-- [ ] Write unit tests for zone-specific client creation
-- [ ] Update orchestrator to accept separate photo/site clients
-- [ ] Update client factory to support dual password configuration
+
+*Sub-cycle 3A: Create Deploy Configuration System*
+- [x] Write unit test for deploy config loading that fails
+- [x] Create `config/deploy.json` with flat config structure
+- [x] Add deploy config loading to `build/config_manager.py`
+- [x] Test config specifies env var names (not hardcoded production values)
+- [x] `uv run ruff check --fix --unsafe-fixes && uv run pytest`
+- [x] Update TODO.md and CHANGELOG.md
+- [x] Commit: `Ft: Add configurable deploy configuration system`
+
+*Sub-cycle 3B: Replace create_client_from_env with Dual Client Creation*
+- [ ] Write unit tests for `create_clients_from_config()` that fail
+- [ ] Remove `create_client_from_env()` function entirely
+- [ ] Implement `create_clients_from_config()` returning (photo_client, site_client)
+- [ ] Function reads env var names from config, then calls `os.getenv(config_specified_name)`
 - [ ] `uv run ruff check --fix --unsafe-fixes && uv run pytest`
 - [ ] Update TODO.md and CHANGELOG.md
-- [ ] Commit: `Ft: Add dual client architecture for zone-specific passwords`
+- [ ] Commit: `Ft: Replace single client creation with configurable dual clients`
+
+*Sub-cycle 3C: Update DeployOrchestrator for Dual Clients*
+- [ ] Write unit tests for dual client constructor that fail
+- [ ] Change orchestrator constructor to accept photo_client, site_client (not single client + zone names)
+- [ ] Update upload calls to use appropriate client directly (remove zone_name parameters)
+- [ ] Remove zone name storage from orchestrator (clients contain zone info)
+- [ ] `uv run ruff check --fix --unsafe-fixes && uv run pytest`
+- [ ] Update TODO.md and CHANGELOG.md
+- [ ] Commit: `Ref: Update orchestrator to use dual client architecture`
+
+*Sub-cycle 3D: Refactor All Tests Using Old create_client_from_env*
+- [ ] Update `test/unit/deploy/test_bunnynet_client.py` - replace 3 old client tests with dual client config tests
+- [ ] Update `test/unit/cli/test_deploy.py` - update 7 mocks to expect dual client creation calls
+- [ ] Update `test/e2e/test_site_deploy.py` - update 1 mock for new client creation pattern
+- [ ] All tests use arbitrary env var names (TEST_PHOTO_PASS, TEST_SITE_PASS) and mock config loading
+- [ ] `uv run ruff check --fix --unsafe-fixes && uv run pytest`
+- [ ] Update TODO.md and CHANGELOG.md
+- [ ] Commit: `Tst: Refactor all tests to use configurable dual client architecture`
+
+*Sub-cycle 3E: Update CLI Command Integration*
+- [ ] Write unit tests for CLI config loading that fail
+- [ ] Update CLI to load deploy config using ConfigManager
+- [ ] Replace `create_client_from_env()` call with `create_clients_from_config(deploy_config)`
+- [ ] Pass dual clients to orchestrator (remove zone name parameters)
+- [ ] `uv run ruff check --fix --unsafe-fixes && uv run pytest`
+- [ ] Update TODO.md and CHANGELOG.md
+- [ ] Commit: `Ft: Update deploy CLI to use configurable dual client system`
 
 *TDD Cycle 4: Verify ManifestComparator Import*
 - [ ] Write integration test importing ManifestComparator in orchestrator context

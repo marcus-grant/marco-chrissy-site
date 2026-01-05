@@ -85,3 +85,18 @@ class ConfigManager:
             return self.loader.load_config(config_path)
         except (ConfigLoadError, ConfigValidationError) as e:
             raise ConfigError(f"Failed to load normpic configuration: {e}") from e
+
+    def load_deploy_config(self) -> dict:
+        """Load deploy configuration from deploy.json.
+        
+        Returns:
+            Deploy configuration data with env var names and zone settings
+            
+        Raises:
+            ConfigError: If config cannot be loaded or is invalid
+        """
+        config_path = self.config_dir / "deploy.json"
+        try:
+            return self.loader.load_config(config_path)
+        except (ConfigLoadError, ConfigValidationError) as e:
+            raise ConfigError(f"Failed to load deploy configuration: {e}") from e

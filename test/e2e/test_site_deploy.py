@@ -212,7 +212,7 @@ class TestSiteDeploy:
              patch("cli.commands.deploy.os.getenv") as mock_getenv:
             # Mock getenv for zone names
             mock_getenv.side_effect = lambda var: {"BUNNYNET_PHOTO_ZONE_NAME": "test-photos", "BUNNYNET_SITE_ZONE_NAME": "test-site"}.get(var)
-            
+
             mock_comparator = Mock()
             mock_comparator_class.return_value = mock_comparator
             mock_orchestrator = Mock()
@@ -226,7 +226,7 @@ class TestSiteDeploy:
         assert result.exit_code == 0
         mock_create_client.assert_called_once()
         mock_orchestrator_class.assert_called_once_with(
-            mock_client, 
+            mock_client,
             mock_comparator,
             photo_zone_name="test-photos",
             site_zone_name="test-site"

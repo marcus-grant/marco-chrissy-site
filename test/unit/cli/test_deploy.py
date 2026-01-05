@@ -21,7 +21,7 @@ class TestDeployCommand:
         """Test that deploy calls build (which calls organize and validate)."""
         # Mock getenv for zone names
         mock_getenv.side_effect = lambda var: {"BUNNYNET_PHOTO_ZONE_NAME": "test-photos", "BUNNYNET_SITE_ZONE_NAME": "test-site"}.get(var)
-        
+
         # Mock build success
         mock_build.return_value = Mock(exit_code=0)
 
@@ -255,7 +255,7 @@ class TestDeployCommand:
                 return "mocked-site-zone"
             return None
         mock_getenv.side_effect = mock_getenv_side_effect
-        
+
         mock_build.return_value = Mock(exit_code=0)
 
         # Mock output directory exists
@@ -278,11 +278,11 @@ class TestDeployCommand:
         result = runner.invoke(deploy)
 
         assert result.exit_code == 0
-        
+
         # Verify os.getenv was called for the zone names
         mock_getenv.assert_any_call("BUNNYNET_PHOTO_ZONE_NAME")
         mock_getenv.assert_any_call("BUNNYNET_SITE_ZONE_NAME")
-        
+
         # Verify orchestrator was created with mocked zone names
         mock_orchestrator_class.assert_called_once_with(
             mock_client,
@@ -297,14 +297,14 @@ class TestDeployCommand:
         """Test that deploy fails if zone environment variables are missing."""
         # Mock getenv to return None for zone names
         mock_getenv.return_value = None
-        
+
         mock_build.return_value = Mock(exit_code=0)
-        
+
         runner = CliRunner()
         result = runner.invoke(deploy)
-        
+
         assert result.exit_code != 0
         assert "missing bunnynet_photo_zone_name" in result.output.lower()
-        
+
         # Verify getenv was called for photo zone name
         mock_getenv.assert_called_with("BUNNYNET_PHOTO_ZONE_NAME")
