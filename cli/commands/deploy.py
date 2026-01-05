@@ -1,5 +1,6 @@
 """Deploy command implementation."""
 
+import os
 from pathlib import Path
 
 import click
@@ -31,7 +32,25 @@ def deploy():
         # Initialize deployment components
         bunnynet_client = create_client_from_env()
         manifest_comparator = ManifestComparator()
-        orchestrator = DeployOrchestrator(bunnynet_client, manifest_comparator)
+
+        # Read zone names from environment variables
+        photo_zone_name = os.getenv("BUNNYNET_PHOTO_ZONE_NAME")
+        site_zone_name = os.getenv("BUNNYNET_SITE_ZONE_NAME")
+
+        if not photo_zone_name:
+            click.echo("✗ Missing BUNNYNET_PHOTO_ZONE_NAME environment variable")
+            ctx.exit(1)
+
+        if not site_zone_name:
+            click.echo("✗ Missing BUNNYNET_SITE_ZONE_NAME environment variable")
+            ctx.exit(1)
+
+        orchestrator = DeployOrchestrator(
+            bunnynet_client,
+            manifest_comparator,
+            photo_zone_name=photo_zone_name,
+            site_zone_name=site_zone_name
+        )
 
         # Execute deployment
         output_dir = Path("output")

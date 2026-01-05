@@ -183,9 +183,9 @@ class TestDeployOrchestrator:
 
     def test_orchestrator_accepts_zone_names_and_passes_to_upload_calls(self, temp_filesystem, file_factory):
         """Test orchestrator accepts zone names and passes them to upload_file calls."""
-        # Setup orchestrator with zone names
-        photo_zone_name = "marco-crissy-site-pics"
-        site_zone_name = "marco-crissy-site"
+        # Setup orchestrator with test zone names
+        photo_zone_name = "test-photo-zone"
+        site_zone_name = "test-site-zone"
         orchestrator = DeployOrchestrator(
             self.mock_bunnynet_client,
             self.mock_manifest_comparator,
@@ -234,6 +234,24 @@ class TestDeployOrchestrator:
         )
 
         assert result is True
+
+    def test_zone_names_are_passed_through_constructor(self):
+        """Test that zone names are correctly stored from constructor parameters."""
+        # Use isolated test values - NEVER production zone names
+        test_photo_zone = "test-photo-zone-name"
+        test_site_zone = "test-site-zone-name"
+
+        # Create orchestrator with test zone names
+        orchestrator = DeployOrchestrator(
+            self.mock_bunnynet_client,
+            self.mock_manifest_comparator,
+            photo_zone_name=test_photo_zone,
+            site_zone_name=test_site_zone
+        )
+
+        # Verify zone names are stored correctly
+        assert orchestrator.photo_zone_name == "test-photo-zone-name"
+        assert orchestrator.site_zone_name == "test-site-zone-name"
 
     def test_execute_deployment_coordinates_dual_zone_strategy(self, temp_filesystem, file_factory):
         """Test execute_deployment coordinates photo and site deployment."""

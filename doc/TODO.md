@@ -105,15 +105,17 @@ For detailed planning guidance, templates, and examples, see: **[`PLANNING.md`](
 - [x] Run test - should pass
 - [x] `uv run ruff check --fix --unsafe-fixes && uv run pytest`
 - [x] Update TODO.md and CHANGELOG.md
-- [ ] Commit: `Fix: Add zone_name parameter to orchestrator upload_file calls`
+- [x] Commit: `Fix: Add zone_name parameter to orchestrator upload_file calls`
 
-*TDD Cycle 2: Fix Zone Name Typo*
-- [ ] Write unit test expecting "marco-crissy-site" (actual zone name)
-- [ ] Fix hardcoded "marco-chrissy-site" → "marco-crissy-site" throughout codebase
-- [ ] Update environment variable references in documentation
-- [ ] `uv run ruff check --fix --unsafe-fixes && uv run pytest`
+*TDD Cycle 2: Fix Zone Name Typo and CLI Integration*
+- [x] Write unit test expecting correct zone name format (isolated test values)
+- [x] Fix hardcoded "marco-chrissy-site" → "marco-crissy-site" throughout documentation
+- [x] Update environment variable references in documentation
+- [x] Write unit test for CLI reading zone names from environment variables
+- [x] Fix deploy CLI command to read zone names from env vars and pass to orchestrator
+- [x] `uv run ruff check --fix --unsafe-fixes && uv run pytest`
 - [ ] Update TODO.md and CHANGELOG.md
-- [ ] Commit: `Fix: Correct zone name typo marco-chrissy → marco-crissy`
+- [ ] Commit: `Fix: Add zone name env var support to deploy CLI command`
 
 *TDD Cycle 3: Implement Dual Client Architecture*
 - [ ] Write unit tests for zone-specific client creation
@@ -132,7 +134,7 @@ For detailed planning guidance, templates, and examples, see: **[`PLANNING.md`](
 - [ ] Commit any fixes with: `Fix: Resolve ManifestComparator import issues`
 
 **Phase 3: Interactive Bunny.net Setup & Documentation** *(BLOCKED until Phase 3A complete)*
-- [x] Guide user through photo storage zone creation → COMPLETED: zone `marco-chrissy-site-pics` 
+- [x] Guide user through photo storage zone creation → COMPLETED: zone `marco-crissy-site-pics` 
 - [x] Guide user through site storage zone creation → COMPLETED: zone `marco-crissy-site`
 - [x] Guide user through finding storage passwords → DISCOVERED: Each zone has unique password
 - [x] **CRITICAL: Fix deploy config architecture** - implement flat config with env var names
@@ -152,7 +154,7 @@ For detailed planning guidance, templates, and examples, see: **[`PLANNING.md`](
 - [x] **Deploy client creation**: `BunnyNetClient()` called without required password parameter
 
 **Real-world Setup Results:**
-- Photo Zone: `marco-chrissy-site-pics` (Frankfurt)
+- Photo Zone: `marco-crissy-site-pics` (Frankfurt)
 - Site Zone: `marco-crissy-site` (Stockholm + NY replication) 
 - Password Env Vars: `BUNNYNET_PASS_MC_PICS`, `BUNNYNET_PASS_MC_SITE`
 

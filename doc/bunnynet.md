@@ -27,7 +27,7 @@ This separation optimizes deployment speed and CDN performance by treating photo
 2. Navigate to **Storage** → **Storage Zones**
 3. Click **Add Storage Zone**
 4. Configure:
-   - **Name**: `your-site-pics` (e.g., `marco-chrissy-site-pics`)
+   - **Name**: `your-site-pics` (e.g., `marco-crissy-site-pics`)
    - **Region**: Frankfurt (default) or your preferred region
    - **Replication**: Optional (can add later)
 5. Click **Create**
@@ -37,7 +37,7 @@ This separation optimizes deployment speed and CDN performance by treating photo
 
 1. Click **Add Storage Zone** again
 2. Configure:
-   - **Name**: `your-site` (e.g., `marco-chrissy-site`)
+   - **Name**: `your-site` (e.g., `marco-crissy-site`)
    - **Region**: Your preferred region (can differ from photo zone)
    - **Replication**: Recommended for production (e.g., Stockholm + NY)
 5. Click **Create**

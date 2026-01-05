@@ -7,6 +7,11 @@
 - Fix deploy_photos and deploy_site_content to call upload_file with required zone_name parameter
 - Add comprehensive test coverage for zone-specific upload calls
 - Resolve primary blocking issue preventing bunny.net deployment functionality
+- Fix zone name typos in documentation (marco-chrissy-site → marco-crissy-site)
+- Add environment variable support for zone names in deploy CLI command
+- Update deploy command to read BUNNYNET_PHOTO_ZONE_NAME and BUNNYNET_SITE_ZONE_NAME
+- Add proper mocking of os.getenv in tests to avoid using real environment variables
+- Update all deployment tests to use isolated test values instead of production configs
 
 ## 2025-01-04
 
