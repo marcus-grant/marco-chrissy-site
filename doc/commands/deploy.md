@@ -43,18 +43,18 @@ The deploy command routes files to separate storage zones:
 1. **Deploy Configuration** (`config/deploy.json`):
    ```json
    {
-     "photo_password_env_var": "BUNNYNET_PASS_MC_PICS",
-     "site_password_env_var": "BUNNYNET_PASS_MC_SITE", 
-     "photo_zone_name": "marco-crissy-site-pics",
-     "site_zone_name": "marco-crissy-site",
+     "photo_password_env_var": "BUNNYNET_PHOTO_PASSWORD",
+     "site_password_env_var": "BUNNYNET_SITE_PASSWORD", 
+     "photo_zone_name": "your-site-photos",
+     "site_zone_name": "your-site-content",
      "region": ""
    }
    ```
 
 2. **Environment Variables**:
    ```bash
-   export BUNNYNET_PASS_MC_PICS="your-photo-zone-password"
-   export BUNNYNET_PASS_MC_SITE="your-site-zone-password"
+   export BUNNYNET_PHOTO_PASSWORD="your-photo-zone-password"
+   export BUNNYNET_SITE_PASSWORD="your-site-zone-password"
    ```
 
 ### Customizing Environment Variable Names
@@ -102,6 +102,8 @@ Available regions:
 - `"uk"`: London
 - `"ny"`: New York
 
+**Note**: This affects the primary storage region. Zone replication (multiple regions per zone) is configured separately in the Bunny.net dashboard and doesn't require code changes.
+
 ## Output
 
 The deploy command shows progress information:
@@ -121,7 +123,7 @@ Uploading to CDN with dual zone strategy...
 ### Missing Environment Variables
 
 ```
-✗ Missing BUNNYNET_PASS_MC_PICS environment variable
+✗ Missing BUNNYNET_PHOTO_PASSWORD environment variable
 ```
 
 **Solution**: Set the environment variable specified in your `config/deploy.json`.
@@ -149,6 +151,8 @@ Uploading to CDN with dual zone strategy...
 - **First deploy**: Uploads all photos (can be slow for large collections)
 - **Subsequent deploys**: Only uploads changed photos (much faster)
 - **Manifest tracking**: Uses SHA-256 hashes to detect changes efficiently
+
+**Build Behavior**: The build step currently regenerates all site content even when source files haven't changed, causing site content to be re-uploaded on every deploy. This affects deployment time but not correctness.
 
 ### Site Content
 

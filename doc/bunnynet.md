@@ -26,7 +26,7 @@ This separation optimizes deployment speed and CDN performance by treating photo
 2. Navigate to **Storage** → **Storage Zones**
 3. Click **Add Storage Zone**
 4. Configure:
-   - **Name**: `your-site-pics` (e.g., `marco-crissy-site-pics`)
+   - **Name**: `your-site-photos` (e.g., `mycompany-site-photos`)
    - **Region**: Frankfurt (default) or your preferred region
    - **Replication**: Optional (can add later)
 5. Click **Create**
@@ -36,7 +36,7 @@ This separation optimizes deployment speed and CDN performance by treating photo
 
 1. Click **Add Storage Zone** again
 2. Configure:
-   - **Name**: `your-site` (e.g., `marco-crissy-site`)
+   - **Name**: `your-site-content` (e.g., `mycompany-site-content`)
    - **Region**: Your preferred region (can differ from photo zone)
    - **Replication**: Recommended for production (e.g., Stockholm + NY)
 5. Click **Create**
@@ -48,17 +48,27 @@ Each storage zone has its own unique password. The deploy configuration system r
 
 ```bash
 # Configure your environment variables based on config/deploy.json settings
-# Default configuration expects:
-export BUNNYNET_PASS_MC_PICS="your-photo-zone-password"
-export BUNNYNET_PASS_MC_SITE="your-site-zone-password"
+# Example configuration:
+export BUNNYNET_PHOTO_PASSWORD="your-photo-zone-password"
+export BUNNYNET_SITE_PASSWORD="your-site-zone-password"
 
 # The deploy config determines which env vars to read:
 # config/deploy.json:
 # {
-#   "photo_password_env_var": "BUNNYNET_PASS_MC_PICS",
-#   "site_password_env_var": "BUNNYNET_PASS_MC_SITE",
+#   "photo_password_env_var": "BUNNYNET_PHOTO_PASSWORD",
+#   "site_password_env_var": "BUNNYNET_SITE_PASSWORD",
+#   "photo_zone_name": "your-site-photos",
+#   "site_zone_name": "your-site-content",
 #   "region": ""  # empty for Frankfurt, "uk" for London, "ny" for NY
 # }
+```
+
+**Important**: When adding to shell profiles (`.bashrc`, `.zshrc`), use `export` to make variables available to child processes:
+
+```bash
+# In your shell profile
+export BUNNYNET_PHOTO_PASSWORD="your-password"
+export BUNNYNET_SITE_PASSWORD="your-password"
 ```
 
 **Security Note**: Never commit these passwords to version control. Add them to your shell profile or deployment environment.
@@ -79,6 +89,8 @@ The deploy command:
    - Everything else → Site content storage zone
 3. **Uploads incrementally**: Only changed photos uploaded (based on manifest comparison)
 4. **Uploads site content**: Always uploads all site files (smaller transfer)
+
+**Note**: Due to build system behavior, deployments currently rebuild and re-upload site content even when source files haven't changed. Photo incremental uploads work correctly. This affects deployment speed but not functionality.
 
 ### Manual Build + Deploy
 
@@ -122,10 +134,10 @@ The deploy system uses a flat configuration structure that specifies environment
 
 ```json
 {
-  "photo_password_env_var": "BUNNYNET_PASS_MC_PICS",
-  "site_password_env_var": "BUNNYNET_PASS_MC_SITE",
-  "photo_zone_name": "marco-crissy-site-pics",
-  "site_zone_name": "marco-crissy-site",
+  "photo_password_env_var": "BUNNYNET_PHOTO_PASSWORD",
+  "site_password_env_var": "BUNNYNET_SITE_PASSWORD",
+  "photo_zone_name": "your-site-photos",
+  "site_zone_name": "your-site-content",
   "region": ""
 }
 ```
@@ -151,8 +163,8 @@ Each client contains its zone name and uses the appropriate password from the en
 cat config/deploy.json
 
 # Set the variables it expects
-export BUNNYNET_PASS_MC_PICS="your-photo-password"
-export BUNNYNET_PASS_MC_SITE="your-site-password"
+export BUNNYNET_PHOTO_PASSWORD="your-photo-password"
+export BUNNYNET_SITE_PASSWORD="your-site-password"
 ```
 
 ### API Connection Issues
