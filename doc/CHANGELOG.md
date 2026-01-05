@@ -16,6 +16,11 @@
 - Create config/deploy.json with photo_password_env_var and site_password_env_var fields for dual client architecture
 - Add load_deploy_config() method to ConfigManager following existing config loading patterns
 - Implement proper test isolation using arbitrary test environment variable names instead of production values
+- Replace create_client_from_env() with configurable create_clients_from_config() for dual client architecture
+- Remove hardcoded BUNNYNET_STORAGE_PASSWORD dependency in favor of config-specified environment variable names
+- Implement dual client creation returning separate photo_client and site_client instances with zone-specific passwords
+- Add comprehensive test coverage for dual client creation with arbitrary test environment variable names
+- Breaking change: All callers of create_client_from_env() must migrate to config-driven dual client approach
 
 ## 2025-01-04
 

@@ -89,19 +89,34 @@ class BunnyNetClient:
         raise NotImplementedError("Directory listing not implemented yet")
 
 
-def create_client_from_env() -> BunnyNetClient:
-    """Create client from environment variables.
+def create_clients_from_config(config: dict) -> tuple[BunnyNetClient, BunnyNetClient]:
+    """Create dual clients from deploy configuration.
+
+    Args:
+        config: Deploy configuration dict with env var names and zone settings
 
     Returns:
-        Configured BunnyNetClient
+        Tuple of (photo_client, site_client) configured for their zones
 
     Raises:
         ValueError: If required environment variables are missing
     """
-    storage_password = os.getenv("BUNNYNET_STORAGE_PASSWORD")
-    if not storage_password:
-        raise ValueError("Missing BUNNYNET_STORAGE_PASSWORD environment variable")
+    # Read environment variable names from config
+    photo_password_env_var = config["photo_password_env_var"]
+    site_password_env_var = config["site_password_env_var"]
+    region = config.get("region", "")
 
-    region = os.getenv("BUNNYNET_REGION", "")
+    # Get actual passwords from environment using config-specified names
+    photo_password = os.getenv(photo_password_env_var)
+    if not photo_password:
+        raise ValueError(f"Missing {photo_password_env_var} environment variable")
 
-    return BunnyNetClient(storage_password, region)
+    site_password = os.getenv(site_password_env_var)
+    if not site_password:
+        raise ValueError(f"Missing {site_password_env_var} environment variable")
+
+    # Create separate clients for each zone
+    photo_client = BunnyNetClient(photo_password, region)
+    site_client = BunnyNetClient(site_password, region)
+
+    return photo_client, site_client

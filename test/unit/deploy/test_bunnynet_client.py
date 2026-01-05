@@ -7,7 +7,7 @@ from unittest.mock import Mock, patch
 import pytest
 import requests
 
-from deploy.bunnynet_client import BunnyNetClient, create_client_from_env
+from deploy.bunnynet_client import BunnyNetClient, create_clients_from_config
 
 
 class TestBunnyNetClient:
@@ -35,39 +35,50 @@ class TestBunnyNetClient:
         assert client.base_url == "https://ny.storage.bunnycdn.com"
         assert client.region == "ny"
 
-    def test_create_client_from_env_success(self):
-        """Test creating client from environment variables succeeds."""
-        # NEVER inspect these env var values - just test they work
+    def test_create_clients_from_config_with_region(self):
+        """Test creating dual clients from config with specified region."""
+        # Use arbitrary test env var names - NEVER production names
+        deploy_config = {
+            "photo_password_env_var": "TEST_PHOTO_PASSWORD",
+            "site_password_env_var": "TEST_SITE_PASSWORD",
+            "region": "uk"
+        }
+
+        # Mock environment variables with test values
         with patch.dict(os.environ, {
-            "BUNNYNET_STORAGE_PASSWORD": "test-password",
-            "BUNNYNET_REGION": "uk"
+            "TEST_PHOTO_PASSWORD": "test-photo-pass",
+            "TEST_SITE_PASSWORD": "test-site-pass"
         }):
-            client = create_client_from_env()
+            photo_client, site_client = create_clients_from_config(deploy_config)
 
-            assert isinstance(client, BunnyNetClient)
-            assert client.region == "uk"
-            assert client.base_url == "https://uk.storage.bunnycdn.com"
+            # Verify both clients are properly configured with UK region
+            assert isinstance(photo_client, BunnyNetClient)
+            assert isinstance(site_client, BunnyNetClient)
+            assert photo_client.region == "uk"
+            assert site_client.region == "uk"
+            assert photo_client.base_url == "https://uk.storage.bunnycdn.com"
+            assert site_client.base_url == "https://uk.storage.bunnycdn.com"
 
-    def test_create_client_from_env_default_region(self):
-        """Test creating client with default region when BUNNYNET_REGION not set."""
+    def test_create_clients_from_config_default_region(self):
+        """Test creating dual clients with default region when not specified."""
+        deploy_config = {
+            "photo_password_env_var": "TEST_PHOTO_PASSWORD",
+            "site_password_env_var": "TEST_SITE_PASSWORD"
+            # region not specified - should default to ""
+        }
+
         with patch.dict(os.environ, {
-            "BUNNYNET_STORAGE_PASSWORD": "test-password"
+            "TEST_PHOTO_PASSWORD": "test-photo-pass",
+            "TEST_SITE_PASSWORD": "test-site-pass"
         }, clear=True):
-            client = create_client_from_env()
+            photo_client, site_client = create_clients_from_config(deploy_config)
 
-            assert isinstance(client, BunnyNetClient)
-            assert client.region == ""
-            assert client.base_url == "https://storage.bunnycdn.com"
-
-    def test_create_client_from_env_missing_password_fails(self):
-        """Test creating client fails when BUNNYNET_STORAGE_PASSWORD missing."""
-        # Clear all BUNNYNET env vars to test missing password
-        env_vars_to_clear = {k: v for k, v in os.environ.items()
-                           if not k.startswith("BUNNYNET")}
-
-        with patch.dict(os.environ, env_vars_to_clear, clear=True):
-            with pytest.raises(ValueError, match="Missing BUNNYNET_STORAGE_PASSWORD"):
-                create_client_from_env()
+            assert isinstance(photo_client, BunnyNetClient)
+            assert isinstance(site_client, BunnyNetClient)
+            assert photo_client.region == ""
+            assert site_client.region == ""
+            assert photo_client.base_url == "https://storage.bunnycdn.com"
+            assert site_client.base_url == "https://storage.bunnycdn.com"
 
     def test_list_directory_not_implemented(self):
         """Test list_directory raises NotImplementedError (stub implementation)."""
@@ -213,3 +224,71 @@ class TestBunnyNetClient:
 
         # Verify
         assert result is None
+
+    def test_create_clients_from_config_returns_dual_clients(self):
+        """Test creating dual clients from config with arbitrary env var names."""
+        # Use arbitrary test env var names - NEVER production names
+        deploy_config = {
+            "photo_password_env_var": "TEST_PHOTO_PASSWORD",
+            "site_password_env_var": "TEST_SITE_PASSWORD",
+            "photo_zone_name": "test-photo-zone",
+            "site_zone_name": "test-site-zone",
+            "region": "uk"
+        }
+
+        # Mock environment variables with test values
+        with patch.dict(os.environ, {
+            "TEST_PHOTO_PASSWORD": "test-photo-pass",
+            "TEST_SITE_PASSWORD": "test-site-pass"
+        }):
+            from deploy.bunnynet_client import create_clients_from_config
+
+            photo_client, site_client = create_clients_from_config(deploy_config)
+
+            # Verify both clients are BunnyNetClient instances
+            assert isinstance(photo_client, BunnyNetClient)
+            assert isinstance(site_client, BunnyNetClient)
+
+            # Verify both clients use the same region from config
+            assert photo_client.region == "uk"
+            assert site_client.region == "uk"
+            assert photo_client.base_url == "https://uk.storage.bunnycdn.com"
+            assert site_client.base_url == "https://uk.storage.bunnycdn.com"
+
+    def test_create_clients_from_config_missing_photo_password_fails(self):
+        """Test that missing photo password env var raises ValueError."""
+        deploy_config = {
+            "photo_password_env_var": "MISSING_PHOTO_PASSWORD",
+            "site_password_env_var": "TEST_SITE_PASSWORD",
+            "photo_zone_name": "test-photo-zone",
+            "site_zone_name": "test-site-zone",
+            "region": ""
+        }
+
+        # Only set site password, not photo password
+        with patch.dict(os.environ, {
+            "TEST_SITE_PASSWORD": "test-site-pass"
+        }, clear=True):
+            from deploy.bunnynet_client import create_clients_from_config
+
+            with pytest.raises(ValueError, match="Missing.*MISSING_PHOTO_PASSWORD"):
+                create_clients_from_config(deploy_config)
+
+    def test_create_clients_from_config_missing_site_password_fails(self):
+        """Test that missing site password env var raises ValueError."""
+        deploy_config = {
+            "photo_password_env_var": "TEST_PHOTO_PASSWORD",
+            "site_password_env_var": "MISSING_SITE_PASSWORD",
+            "photo_zone_name": "test-photo-zone",
+            "site_zone_name": "test-site-zone",
+            "region": ""
+        }
+
+        # Only set photo password, not site password
+        with patch.dict(os.environ, {
+            "TEST_PHOTO_PASSWORD": "test-photo-pass"
+        }, clear=True):
+            from deploy.bunnynet_client import create_clients_from_config
+
+            with pytest.raises(ValueError, match="Missing.*MISSING_SITE_PASSWORD"):
+                create_clients_from_config(deploy_config)

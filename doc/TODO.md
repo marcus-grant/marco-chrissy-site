@@ -129,13 +129,13 @@ For detailed planning guidance, templates, and examples, see: **[`PLANNING.md`](
 - [x] Commit: `Ft: Add configurable deploy configuration system`
 
 *Sub-cycle 3B: Replace create_client_from_env with Dual Client Creation*
-- [ ] Write unit tests for `create_clients_from_config()` that fail
-- [ ] Remove `create_client_from_env()` function entirely
-- [ ] Implement `create_clients_from_config()` returning (photo_client, site_client)
-- [ ] Function reads env var names from config, then calls `os.getenv(config_specified_name)`
-- [ ] `uv run ruff check --fix --unsafe-fixes && uv run pytest`
-- [ ] Update TODO.md and CHANGELOG.md
-- [ ] Commit: `Ft: Replace single client creation with configurable dual clients`
+- [x] Write unit tests for `create_clients_from_config()` that fail
+- [x] Remove `create_client_from_env()` function entirely
+- [x] Implement `create_clients_from_config()` returning (photo_client, site_client)
+- [x] Function reads env var names from config, then calls `os.getenv(config_specified_name)`
+- [x] `uv run ruff check --fix --unsafe-fixes && uv run pytest`
+- [x] Update TODO.md and CHANGELOG.md
+- [x] Commit: `Ft: Replace single client creation with configurable dual clients`
 
 *Sub-cycle 3C: Update DeployOrchestrator for Dual Clients*
 - [ ] Write unit tests for dual client constructor that fail
