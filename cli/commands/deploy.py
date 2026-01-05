@@ -31,7 +31,7 @@ def deploy():
     try:
         # Load deploy configuration
         config_manager = ConfigManager()
-        deploy_config = config_manager.get_deploy_config()
+        deploy_config = config_manager.load_deploy_config()
 
         # Initialize deployment components
         photo_client, site_client = create_clients_from_config(deploy_config)

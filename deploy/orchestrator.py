@@ -147,7 +147,7 @@ class DeployOrchestrator:
                 client = self.site_client
             else:
                 return False
-                
+
             # Attempt to delete all deployed files
             all_deletions_successful = True
 

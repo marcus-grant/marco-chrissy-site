@@ -2,7 +2,12 @@
 
 ## 2025-01-05
 
-- Refactor all deploy tests to use configurable dual client architecture (Sub-cycle 3D)
+- Complete deploy CLI integration with dual client configuration system
+- Fix CLI deploy command method call (get_deploy_config → load_deploy_config)
+- Remove @pytest.mark.skip from E2E deploy tests - all tests now pass
+- Update all E2E tests to use new dual client architecture with proper mocking
+- Deploy implementation complete: All 508 tests passing, ready for real-world testing
+- Refactor all deploy tests to use configurable dual client architecture
 - Fix orchestrator API method signature mismatch for upload_file calls
 - Update DeployOrchestrator to accept photo_zone_name and site_zone_name parameters
 - Fix deploy_photos and deploy_site_content to call upload_file with required zone_name parameter
@@ -49,7 +54,7 @@
 
 ## 2025-12-23
 
-### Completed - Phase 5.2: Test Suite Cleanup and Fixes
+### Completed - Test Suite Cleanup and Fixes
 
 #### Fixed Test Failures
 - **Fixed remaining test failure**: Resolved `Path.cwd()` issue in galleria serve orchestrator

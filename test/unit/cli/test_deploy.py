@@ -23,7 +23,7 @@ class TestDeployCommand:
         mock_config_manager = Mock()
         mock_config_manager_class.return_value = mock_config_manager
         deploy_config = {"test": "config"}
-        mock_config_manager.get_deploy_config.return_value = deploy_config
+        mock_config_manager.load_deploy_config.return_value = deploy_config
 
         # Mock dual client creation
         mock_photo_client = Mock()
@@ -62,7 +62,7 @@ class TestDeployCommand:
         # Mock config loading
         mock_config_manager = Mock()
         mock_config_manager_class.return_value = mock_config_manager
-        mock_config_manager.get_deploy_config.return_value = {"test": "config"}
+        mock_config_manager.load_deploy_config.return_value = {"test": "config"}
 
         mock_build.return_value = Mock(exit_code=1)
 
@@ -92,7 +92,7 @@ class TestDeployCommand:
         # Mock config loading
         mock_config_manager = Mock()
         mock_config_manager_class.return_value = mock_config_manager
-        mock_config_manager.get_deploy_config.return_value = {"test": "config"}
+        mock_config_manager.load_deploy_config.return_value = {"test": "config"}
 
         # Mock dual client creation
         mock_client_factory.return_value = (Mock(), Mock())
@@ -128,7 +128,7 @@ class TestDeployCommand:
         # Mock config loading
         mock_config_manager = Mock()
         mock_config_manager_class.return_value = mock_config_manager
-        mock_config_manager.get_deploy_config.return_value = {"test": "config"}
+        mock_config_manager.load_deploy_config.return_value = {"test": "config"}
 
         mock_build.return_value = Mock(exit_code=0)
 
@@ -175,7 +175,7 @@ class TestDeployCommand:
         # Mock config loading
         mock_config_manager = Mock()
         mock_config_manager_class.return_value = mock_config_manager
-        mock_config_manager.get_deploy_config.return_value = {"test": "config"}
+        mock_config_manager.load_deploy_config.return_value = {"test": "config"}
 
         # Mock dual client creation
         mock_client_factory.return_value = (Mock(), Mock())
@@ -210,7 +210,7 @@ class TestDeployCommand:
         # Mock config loading
         mock_config_manager = Mock()
         mock_config_manager_class.return_value = mock_config_manager
-        mock_config_manager.get_deploy_config.return_value = {"test": "config"}
+        mock_config_manager.load_deploy_config.return_value = {"test": "config"}
 
         # Mock dual client creation
         mock_client_factory.return_value = (Mock(), Mock())
@@ -246,7 +246,7 @@ class TestDeployCommand:
         # Mock config loading
         mock_config_manager = Mock()
         mock_config_manager_class.return_value = mock_config_manager
-        mock_config_manager.get_deploy_config.return_value = {"test": "config"}
+        mock_config_manager.load_deploy_config.return_value = {"test": "config"}
 
         # Mock dual client creation
         mock_client_factory.return_value = (Mock(), Mock())
@@ -292,7 +292,7 @@ class TestDeployCommand:
             "site_zone_name": "test-site-zone",
             "region": "uk"
         }
-        mock_config_manager.get_deploy_config.return_value = deploy_config
+        mock_config_manager.load_deploy_config.return_value = deploy_config
 
         mock_build.return_value = Mock(exit_code=0)
 
@@ -319,7 +319,7 @@ class TestDeployCommand:
         assert result.exit_code == 0
 
         # Verify config was loaded
-        mock_config_manager.get_deploy_config.assert_called_once()
+        mock_config_manager.load_deploy_config.assert_called_once()
 
         # Verify clients were created from config
         mock_client_factory.assert_called_once_with(deploy_config)
@@ -339,7 +339,7 @@ class TestDeployCommand:
         # Mock config loading
         mock_config_manager = Mock()
         mock_config_manager_class.return_value = mock_config_manager
-        mock_config_manager.get_deploy_config.return_value = {"test": "config"}
+        mock_config_manager.load_deploy_config.return_value = {"test": "config"}
 
         # Mock client creation failure (e.g., missing env vars)
         mock_client_factory.side_effect = ValueError("Missing TEST_PASSWORD environment variable")

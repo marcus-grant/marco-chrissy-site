@@ -158,13 +158,13 @@ For detailed planning guidance, templates, and examples, see: **[`PLANNING.md`](
 - [x] Commit: `Tst: Refactor all tests to use configurable dual client architecture`
 
 *Sub-cycle 3E: Update CLI Command Integration*
-- [ ] Write unit tests for CLI config loading that fail
-- [ ] Update CLI to load deploy config using ConfigManager
-- [ ] Replace `create_client_from_env()` call with `create_clients_from_config(deploy_config)`
-- [ ] Pass dual clients to orchestrator (remove zone name parameters)
-- [ ] `uv run ruff check --fix --unsafe-fixes && uv run pytest`
-- [ ] Update TODO.md and CHANGELOG.md
-- [ ] Commit: `Ft: Update deploy CLI to use configurable dual client system`
+- [x] Write unit tests for CLI config loading that fail
+- [x] Update CLI to load deploy config using ConfigManager
+- [x] Replace `create_client_from_env()` call with `create_clients_from_config(deploy_config)`
+- [x] Pass dual clients to orchestrator (remove zone name parameters)
+- [x] `uv run ruff check --fix --unsafe-fixes && uv run pytest`
+- [x] Update TODO.md and CHANGELOG.md
+- [x] Commit: `Ft: Update deploy CLI to use configurable dual client system`
 
 *TDD Cycle 4: Verify ManifestComparator Import*
 - [ ] Write integration test importing ManifestComparator in orchestrator context
