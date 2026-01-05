@@ -92,18 +92,53 @@ For detailed planning guidance, templates, and examples, see: **[`PLANNING.md`](
 - [ ] Update TODO.md and CHANGELOG.md
 - [ ] Commit: `Ft: Add deploy CLI command with pipeline integration`
 
-**Phase 3: Interactive Bunny.net Setup & Documentation**
+**Phase 3A: Critical Implementation Fixes (TDD Cycles)**
+
+*Problem Statement: Four blocking issues prevent bunny.net deployment functionality, discovered during real-world testing with 697 site files. These must be resolved before Phase 3 guided testing can proceed.*
+
+*TDD Cycle 1: Fix Orchestrator API Method Signatures*
+- [x] Write unit test for correct `upload_file()` calls with 3 arguments (zone_name parameter)
+- [x] Run test - should fail due to current 2-argument calls
+- [x] Update `DeployOrchestrator.__init__()` to accept photo/site zone names  
+- [x] Fix `deploy_photos():84,92` to call `upload_file(local_path, remote_path, photo_zone_name)`
+- [x] Fix `deploy_site_content():119` to call `upload_file(local_path, remote_path, site_zone_name)`
+- [x] Run test - should pass
+- [x] `uv run ruff check --fix --unsafe-fixes && uv run pytest`
+- [x] Update TODO.md and CHANGELOG.md
+- [ ] Commit: `Fix: Add zone_name parameter to orchestrator upload_file calls`
+
+*TDD Cycle 2: Fix Zone Name Typo*
+- [ ] Write unit test expecting "marco-crissy-site" (actual zone name)
+- [ ] Fix hardcoded "marco-chrissy-site" → "marco-crissy-site" throughout codebase
+- [ ] Update environment variable references in documentation
+- [ ] `uv run ruff check --fix --unsafe-fixes && uv run pytest`
+- [ ] Update TODO.md and CHANGELOG.md
+- [ ] Commit: `Fix: Correct zone name typo marco-chrissy → marco-crissy`
+
+*TDD Cycle 3: Implement Dual Client Architecture*
+- [ ] Write unit tests for zone-specific client creation
+- [ ] Update orchestrator to accept separate photo/site clients
+- [ ] Update client factory to support dual password configuration
+- [ ] `uv run ruff check --fix --unsafe-fixes && uv run pytest`
+- [ ] Update TODO.md and CHANGELOG.md
+- [ ] Commit: `Ft: Add dual client architecture for zone-specific passwords`
+
+*TDD Cycle 4: Verify ManifestComparator Import*
+- [ ] Write integration test importing ManifestComparator in orchestrator context
+- [ ] Verify import works (file exists at `deploy/manifest_comparator.py`)
+- [ ] If needed, fix import paths or missing dependencies
+- [ ] `uv run ruff check --fix --unsafe-fixes && uv run pytest`
+- [ ] Update TODO.md and CHANGELOG.md
+- [ ] Commit any fixes with: `Fix: Resolve ManifestComparator import issues`
+
+**Phase 3: Interactive Bunny.net Setup & Documentation** *(BLOCKED until Phase 3A complete)*
 - [x] Guide user through photo storage zone creation → COMPLETED: zone `marco-chrissy-site-pics` 
-- [x] Guide user through site storage zone creation → COMPLETED: zone `marco-chrissy-site`
+- [x] Guide user through site storage zone creation → COMPLETED: zone `marco-crissy-site`
 - [x] Guide user through finding storage passwords → DISCOVERED: Each zone has unique password
 - [x] **CRITICAL: Fix deploy config architecture** - implement flat config with env var names
 - [x] **CRITICAL: Fix BunnyNetClient instantiation** - currently missing required password parameter
 - [x] Test basic API connectivity with updated config approach
 - [ ] Document dual-zone setup with config-driven env vars in `doc/bunnynet.md` - NEEDS UPDATE after blocking fixes
-- [ ] **BLOCKING: Fix orchestrator API method calls** - missing zone_name parameter causes deployment failure
-- [ ] **BLOCKING: Fix zone name typo** - code uses "marco-chrissy-site" but actual zone is "marco-crissy-site"  
-- [ ] **BLOCKING: Add dual client architecture** - need zone-specific passwords for photo/site zones
-- [ ] **BLOCKING: Add ManifestComparator stub** - orchestrator tries to import missing module
 - [ ] Remove `@pytest.mark.skip` from E2E test 
 - [ ] Verify E2E test passes (if not, return to Phase 2)
 - [ ] Update `doc/README.md` to link to `doc/bunnynet.md`

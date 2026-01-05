@@ -1,5 +1,13 @@
 # Changelog
 
+## 2025-01-05
+
+- Fix orchestrator API method signature mismatch for upload_file calls
+- Update DeployOrchestrator to accept photo_zone_name and site_zone_name parameters
+- Fix deploy_photos and deploy_site_content to call upload_file with required zone_name parameter
+- Add comprehensive test coverage for zone-specific upload calls
+- Resolve primary blocking issue preventing bunny.net deployment functionality
+
 ## 2025-01-04
 
 - Fix BunnyNetClient instantiation issue in deploy command by using create_client_from_env factory

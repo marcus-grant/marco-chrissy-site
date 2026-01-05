@@ -15,7 +15,9 @@ class TestDeployOrchestrator:
         self.mock_manifest_comparator = Mock()
         self.orchestrator = DeployOrchestrator(
             self.mock_bunnynet_client,
-            self.mock_manifest_comparator
+            self.mock_manifest_comparator,
+            photo_zone_name="test-photos",
+            site_zone_name="test-site"
         )
 
     def test_route_files_to_zones_separates_photos_and_site(self, temp_filesystem, file_factory):
@@ -87,16 +89,20 @@ class TestDeployOrchestrator:
         expected_upload_calls = 2  # photo1 + manifest
         assert self.mock_bunnynet_client.upload_file.call_count == expected_upload_calls
 
-        # Verify photo1 was uploaded
+        # Verify photo1 was uploaded with correct signature
         self.mock_bunnynet_client.upload_file.assert_any_call(
-            "full/photo1.jpg",  # relative to pics dir
-            photo_file1.read_bytes()
+            photo_file1,  # local_path
+            "full/photo1.jpg",  # remote_path (relative to pics dir)
+            "test-photos"  # zone_name
         )
 
-        # Verify manifest was uploaded
+        # Verify manifest was uploaded with correct signature
+        # Note: manifest file is created in pics directory during upload
+        manifest_path = output_dir / "pics" / "manifest.json"
         self.mock_bunnynet_client.upload_file.assert_any_call(
-            "manifest.json",
-            self.mock_manifest_comparator.save_manifest_to_json.return_value
+            manifest_path,  # local_path
+            "manifest.json",  # remote_path
+            "test-photos"  # zone_name
         )
 
         assert result is True
@@ -120,18 +126,21 @@ class TestDeployOrchestrator:
         expected_upload_calls = 3  # All 3 site files
         assert self.mock_bunnynet_client.upload_file.call_count == expected_upload_calls
 
-        # Verify correct file paths and content
+        # Verify correct file paths and zone names
         self.mock_bunnynet_client.upload_file.assert_any_call(
-            "index.html",
-            index_file.read_bytes()
+            index_file,  # local_path
+            "index.html",  # remote_path
+            "test-site"  # zone_name
         )
         self.mock_bunnynet_client.upload_file.assert_any_call(
-            "galleries/wedding/page_1.html",
-            gallery_file.read_bytes()
+            gallery_file,  # local_path
+            "galleries/wedding/page_1.html",  # remote_path
+            "test-site"  # zone_name
         )
         self.mock_bunnynet_client.upload_file.assert_any_call(
-            "static/style.css",
-            css_file.read_bytes()
+            css_file,  # local_path
+            "static/style.css",  # remote_path
+            "test-site"  # zone_name
         )
 
         assert result is True
@@ -171,6 +180,60 @@ class TestDeployOrchestrator:
 
         # Should return False if any deletions failed
         assert result is False
+
+    def test_orchestrator_accepts_zone_names_and_passes_to_upload_calls(self, temp_filesystem, file_factory):
+        """Test orchestrator accepts zone names and passes them to upload_file calls."""
+        # Setup orchestrator with zone names
+        photo_zone_name = "marco-crissy-site-pics"
+        site_zone_name = "marco-crissy-site"
+        orchestrator = DeployOrchestrator(
+            self.mock_bunnynet_client,
+            self.mock_manifest_comparator,
+            photo_zone_name=photo_zone_name,
+            site_zone_name=site_zone_name
+        )
+
+        # Create output directory with photo and site files
+        output_dir = temp_filesystem / "output"
+        photo_file = file_factory(output_dir / "pics" / "full" / "photo1.jpg", content="photo1")
+        site_file = file_factory(output_dir / "index.html", content="<html>home</html>")
+
+        # Mock successful uploads
+        self.mock_bunnynet_client.upload_file.return_value = True
+
+        # Mock manifest operations for photo deployment
+        local_manifest = {"full/photo1.jpg": "hash1"}
+        self.mock_manifest_comparator.generate_local_manifest.return_value = local_manifest
+        self.mock_manifest_comparator.compare_manifests.return_value = {"full/photo1.jpg"}
+        self.mock_bunnynet_client.download_manifest.return_value = b'{}'
+        self.mock_manifest_comparator.load_manifest_from_json.return_value = {}
+        self.mock_manifest_comparator.save_manifest_to_json.return_value = b'{"full/photo1.jpg": "hash1"}'
+
+        # Execute deployment
+        result = orchestrator.execute_deployment(output_dir)
+
+        # Verify photo upload calls include zone_name
+        self.mock_bunnynet_client.upload_file.assert_any_call(
+            photo_file,  # local_path
+            "full/photo1.jpg",  # remote_path
+            photo_zone_name  # zone_name
+        )
+
+        # Verify photo manifest upload includes zone_name
+        self.mock_bunnynet_client.upload_file.assert_any_call(
+            output_dir / "pics" / "manifest.json",  # local_path (will need to be created)
+            "manifest.json",  # remote_path
+            photo_zone_name  # zone_name
+        )
+
+        # Verify site file upload includes zone_name
+        self.mock_bunnynet_client.upload_file.assert_any_call(
+            site_file,  # local_path
+            "index.html",  # remote_path
+            site_zone_name  # zone_name
+        )
+
+        assert result is True
 
     def test_execute_deployment_coordinates_dual_zone_strategy(self, temp_filesystem, file_factory):
         """Test execute_deployment coordinates photo and site deployment."""
