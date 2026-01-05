@@ -21,6 +21,11 @@
 - Implement dual client creation returning separate photo_client and site_client instances with zone-specific passwords
 - Add comprehensive test coverage for dual client creation with arbitrary test environment variable names
 - Breaking change: All callers of create_client_from_env() must migrate to config-driven dual client approach
+- Update BunnyNetClient constructor to accept zone_name parameter, removing zone_name from upload_file() calls
+- Refactor DeployOrchestrator to accept separate photo_client and site_client instead of single client + zone names
+- Update orchestrator upload methods to use photo_client and site_client directly with zone-specific routing
+- Remove zone name storage from orchestrator (clients contain zone information internally)
+- Add comprehensive test for dual client orchestrator constructor with proper client isolation
 
 ## 2025-01-04
 

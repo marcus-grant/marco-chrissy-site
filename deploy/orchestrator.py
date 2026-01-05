@@ -10,19 +10,17 @@ class DeployOrchestrator:
     site content zone deployment (everything except pics/).
     """
 
-    def __init__(self, bunnynet_client, manifest_comparator, photo_zone_name: str, site_zone_name: str):
+    def __init__(self, photo_client, site_client, manifest_comparator):
         """Initialize deploy orchestrator.
 
         Args:
-            bunnynet_client: BunnyNet API client for uploads
+            photo_client: BunnyNet API client for photo zone uploads
+            site_client: BunnyNet API client for site content zone uploads
             manifest_comparator: Manifest comparison logic
-            photo_zone_name: Name of the photo storage zone
-            site_zone_name: Name of the site content storage zone
         """
-        self.bunnynet_client = bunnynet_client
+        self.photo_client = photo_client
+        self.site_client = site_client
         self.manifest_comparator = manifest_comparator
-        self.photo_zone_name = photo_zone_name
-        self.site_zone_name = site_zone_name
 
     def route_files_to_zones(self, output_dir: Path) -> tuple[list[Path], list[Path]]:
         """Route files to appropriate storage zones based on path.
@@ -70,7 +68,7 @@ class DeployOrchestrator:
 
             # Download remote manifest to compare
             try:
-                remote_manifest_bytes = self.bunnynet_client.download_manifest("manifest.json")
+                remote_manifest_bytes = self.photo_client.download_file("manifest.json")
                 remote_manifest = self.manifest_comparator.load_manifest_from_json(remote_manifest_bytes)
             except Exception:
                 # First deployment or manifest unavailable - upload all files
@@ -84,7 +82,7 @@ class DeployOrchestrator:
             for file_to_upload in files_to_upload:
                 file_path = pics_dir / file_to_upload
                 if file_path.exists() and file_path.is_file():
-                    if self.bunnynet_client.upload_file(file_path, file_to_upload, self.photo_zone_name):
+                    if self.photo_client.upload_file(file_path, file_to_upload):
                         uploaded_files.append(file_to_upload)
                     else:
                         # Upload failed - rollback if needed
@@ -94,7 +92,7 @@ class DeployOrchestrator:
             manifest_bytes = self.manifest_comparator.save_manifest_to_json(local_manifest)
             manifest_path = pics_dir / "manifest.json"
             manifest_path.write_bytes(manifest_bytes)
-            if not self.bunnynet_client.upload_file(manifest_path, "manifest.json", self.photo_zone_name):
+            if not self.photo_client.upload_file(manifest_path, "manifest.json"):
                 return False
 
             return True
@@ -120,7 +118,7 @@ class DeployOrchestrator:
                     relative_path = site_file.relative_to(output_dir)
 
                     # Upload to site zone using relative path as key
-                    if not self.bunnynet_client.upload_file(site_file, str(relative_path), self.site_zone_name):
+                    if not self.site_client.upload_file(site_file, str(relative_path)):
                         return False
 
             return True

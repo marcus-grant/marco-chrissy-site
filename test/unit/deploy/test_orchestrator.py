@@ -11,14 +11,35 @@ class TestDeployOrchestrator:
 
     def setup_method(self):
         """Set up test fixtures."""
-        self.mock_bunnynet_client = Mock()
+        self.mock_photo_client = Mock()
+        self.mock_site_client = Mock()
         self.mock_manifest_comparator = Mock()
         self.orchestrator = DeployOrchestrator(
-            self.mock_bunnynet_client,
-            self.mock_manifest_comparator,
-            photo_zone_name="test-photos",
-            site_zone_name="test-site"
+            photo_client=self.mock_photo_client,
+            site_client=self.mock_site_client,
+            manifest_comparator=self.mock_manifest_comparator
         )
+
+    def test_dual_client_constructor_accepts_separate_clients(self):
+        """Test that orchestrator constructor accepts separate photo and site clients."""
+        mock_photo_client = Mock()
+        mock_site_client = Mock()
+        mock_manifest_comparator = Mock()
+
+        # New dual client constructor - should not require zone names
+        orchestrator = DeployOrchestrator(
+            photo_client=mock_photo_client,
+            site_client=mock_site_client,
+            manifest_comparator=mock_manifest_comparator
+        )
+
+        # Verify clients are stored correctly
+        assert orchestrator.photo_client is mock_photo_client
+        assert orchestrator.site_client is mock_site_client
+        assert orchestrator.manifest_comparator is mock_manifest_comparator
+        # Zone names should not be stored (clients contain zone info)
+        assert not hasattr(orchestrator, 'photo_zone_name')
+        assert not hasattr(orchestrator, 'site_zone_name')
 
     def test_route_files_to_zones_separates_photos_and_site(self, temp_filesystem, file_factory):
         """Test file routing separates photos from site content."""

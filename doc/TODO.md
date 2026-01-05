@@ -138,13 +138,13 @@ For detailed planning guidance, templates, and examples, see: **[`PLANNING.md`](
 - [x] Commit: `Ft: Replace single client creation with configurable dual clients`
 
 *Sub-cycle 3C: Update DeployOrchestrator for Dual Clients*
-- [ ] Write unit tests for dual client constructor that fail
-- [ ] Change orchestrator constructor to accept photo_client, site_client (not single client + zone names)
-- [ ] Update upload calls to use appropriate client directly (remove zone_name parameters)
-- [ ] Remove zone name storage from orchestrator (clients contain zone info)
-- [ ] `uv run ruff check --fix --unsafe-fixes && uv run pytest`
-- [ ] Update TODO.md and CHANGELOG.md
-- [ ] Commit: `Ref: Update orchestrator to use dual client architecture`
+- [x] Write unit tests for dual client constructor that fail
+- [x] Change orchestrator constructor to accept photo_client, site_client (not single client + zone names)
+- [x] Update upload calls to use appropriate client directly (remove zone_name parameters)
+- [x] Remove zone name storage from orchestrator (clients contain zone info)
+- [x] `uv run ruff check --fix --unsafe-fixes && uv run pytest`
+- [x] Update TODO.md and CHANGELOG.md
+- [x] Commit: `Ref: Update orchestrator to use dual client architecture`
 
 *Sub-cycle 3D: Refactor All Tests Using Old create_client_from_env*
 - [ ] Update `test/unit/deploy/test_bunnynet_client.py` - replace 3 old client tests with dual client config tests
