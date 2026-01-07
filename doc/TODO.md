@@ -10,6 +10,84 @@ Tasks in this file follow the systematic planning approach defined in [`PLANNING
 
 For detailed planning guidance, templates, and examples, see: **[`PLANNING.md`](PLANNING.md)**
 
+## Blocking Issues
+
+#### Task: Switch to Relative URLs with Edge Rules Routing (Branch: main)
+
+*Problem Statement: Current system uses absolute CDN URLs in templates, making it inflexible for domain changes and requiring dual CDN logic in code. Switch to relative URLs (`/pics/full/`, `/galleries/`) and use Bunny Edge Rules to route `/pics/full/*` to photos storage zone.*
+
+**Phase 1: Setup & E2E Definition**
+- [ ] Create E2E test in `test/e2e/test_relative_url_generation.py`
+  - [ ] Test that gallery HTML contains relative URLs (`/pics/full/`, `/galleries/`)
+  - [ ] Test that URLs work with single base domain configuration
+  - [ ] Add `@pytest.mark.skip("Relative URL generation not implemented")`
+- [ ] `uv run ruff check --fix --unsafe-fixes && uv run pytest`
+- [ ] Update TODO.md and CHANGELOG.md
+- [ ] Commit: `Tst: Add E2E test for relative URL generation (skipped)`
+
+**Phase 2: TDD Implementation Cycles**
+
+*Cycle 1: Update URL Generation Tests*
+- [ ] Update existing URL generation unit tests to expect relative URLs
+- [ ] Modify tests in `test/galleria/unit/plugins/test_template_urls.py`
+- [ ] Update tests in `test/galleria/unit/test_template_filters.py`
+- [ ] Run tests to verify they fail as expected
+- [ ] `uv run ruff check --fix --unsafe-fixes && uv run pytest`
+- [ ] Update TODO.md and CHANGELOG.md  
+- [ ] Commit: `Tst: Update URL generation tests to expect relative URLs`
+
+*Cycle 2: Update Template Filter Logic*
+- [ ] Modify `galleria/template/filters.py` to generate relative URLs
+- [ ] Update `full_url()` function to return paths starting with `/`
+- [ ] Remove absolute URL construction logic
+- [ ] `uv run ruff check --fix --unsafe-fixes && uv run pytest`
+- [ ] Update TODO.md and CHANGELOG.md
+- [ ] Commit: `Ft: Implement relative URL generation in template filters`
+
+*Cycle 3: Update Template Plugin*  
+- [ ] Modify `galleria/plugins/template.py` for relative URL support
+- [ ] Update `_make_url()` method to use relative path generation
+- [ ] Simplify CDN URL handling to single base URL
+- [ ] `uv run ruff check --fix --unsafe-fixes && uv run pytest` 
+- [ ] Update TODO.md and CHANGELOG.md
+- [ ] Commit: `Ft: Update template plugin for relative URL generation`
+
+*Cycle 4: Update Configuration Schema*
+- [ ] Update `config/site.json` structure to use single base URL
+- [ ] Remove dual CDN configuration, keep single `base_url`
+- [ ] Update configuration documentation and examples
+- [ ] `uv run ruff check --fix --unsafe-fixes && uv run pytest`
+- [ ] Update TODO.md and CHANGELOG.md
+- [ ] Commit: `Ft: Simplify CDN configuration to single base URL`
+
+**Phase 3: Integration & Documentation**
+- [ ] Remove `@pytest.mark.skip` from E2E test
+- [ ] Verify E2E test passes (if not, return to Phase 2)
+- [ ] Update `doc/bunnynet.md` with Edge Rules setup guide
+- [ ] Document Edge Rules configuration for `/pics/full/*` routing
+- [ ] Update configuration documentation for new single URL structure
+- [ ] `uv run ruff check --fix --unsafe-fixes && uv run pytest`
+- [ ] Update TODO.md and CHANGELOG.md
+- [ ] Commit: `Doc: Update documentation for relative URLs and Edge Rules`
+
+**Phase 4: Bunny.net Edge Rules Setup**
+- [ ] Create guided setup documentation for Edge Rules configuration
+- [ ] Document Edge Rule: Trigger path `*/pics/*` → Redirect to photos storage zone with path components removed
+- [ ] Configure redirect rule (302 temporary during testing) for photos CDN routing
+- [ ] Test Edge Rules configuration with deployed site using test link pattern: `/pics/full/wedding-*.JPG`
+- [ ] Verify photos and thumbnails load correctly through Edge Rules routing
+- [ ] Change Edge Rules redirect status from 302 (temporary) to 301 (permanent)
+- [ ] Update TODO.md and CHANGELOG.md
+- [ ] Commit: `Doc: Add Edge Rules setup guide and verify routing`
+
+#### Task: Fix Shared Components Styling Inconsistency
+
+*Problem Statement: Shared components (navbar, CSS) appear differently between Pelican pages and Galleria pages on production, but work correctly when served locally. This suggests an issue with how shared assets are deployed or referenced.*
+
+- [ ] Compare local vs production shared component rendering between Pelican and Galleria pages
+- [ ] Investigate shared asset deployment and referencing inconsistencies  
+- [ ] Fix deployment or reference issues to ensure consistent styling across page types
+
 ## MVP Roadmap
 
 ### Phase 7: Performance Baseline
@@ -66,17 +144,9 @@ For detailed planning guidance, templates, and examples, see: **[`PLANNING.md`](
 
 ## Post-MVP Enhancements
 
-### Priority Issues
+#### Task: Add CDN Cache Purge Command
 
-- [ ] **Build Idempotency**: Build regenerates all output files even when source unchanged, breaking incremental deploy
-  - [ ] Build should only regenerate files when source files actually change
-  - [ ] Preserve timestamps/hashes when content hasn't changed
-  - [ ] Enable true incremental deploys (seconds instead of minutes for unchanged source)
-  - [ ] Consider build manifest or file dependency tracking
-- [ ] **Galleria Performance**: Optimize large photo collection processing (645+ photos cause CPU hang)
-- [ ] **Eliminate Hardcoded Paths**: Create PathConfig class for dependency injection, remove `os.chdir()` calls
-- [ ] **Plugin Output Validation**: Use structured types (Pydantic) instead of defensive CLI validation
-- [ ] **E2E Test Performance**: Fix 16+ second subprocess startup time, consolidate tests
+- [ ] Implement `uv run site purge` command to clear Bunny.net CDN cache after deployments
 
 #### Task 5.2: Mobile-First Responsive Layout (Branch: ft/responsive-layout)
 
@@ -145,9 +215,10 @@ For detailed planning guidance, templates, and examples, see: **[`PLANNING.md`](
 ### Performance Optimizations  
 
 - [ ] Gallery lazy loading with JS progressive enhancement
+- [ ] Basic
 - [ ] Parallel thumbnail processing and incremental generation
-- [ ] WebP compression optimization
 - [ ] Dark mode toggle (CSS variables + minimal JS)
+- [ ] WebP compression optimization
 
 ### Shared Component Enhancements
 
@@ -157,6 +228,18 @@ For detailed planning guidance, templates, and examples, see: **[`PLANNING.md`](
   - **Galleria context**: `collection_name`, `page_num`, `total_pages`, `photos|length`
   - **Location**: Create `themes/shared/templates/header.html`, replace both systems' headers
   - **Result**: Consistent header styling with appropriate context (site name vs gallery name)
+
+### Post-Frontend Enhancements Priority Issues
+
+- [ ] **Build Idempotency**: Build regenerates all output files even when source unchanged, breaking incremental deploy
+  - [ ] Build should only regenerate files when source files actually change
+  - [ ] Preserve timestamps/hashes when content hasn't changed
+  - [ ] Enable true incremental deploys (seconds instead of minutes for unchanged source)
+  - [ ] Consider build manifest or file dependency tracking
+- [ ] **Galleria Performance**: Optimize large photo collection processing (645+ photos cause CPU hang)
+- [ ] **Eliminate Hardcoded Paths**: Create PathConfig class for dependency injection, remove `os.chdir()` calls
+- [ ] **Plugin Output Validation**: Use structured types (Pydantic) instead of defensive CLI validation
+- [ ] **E2E Test Performance**: Fix 16+ second subprocess startup time, consolidate tests
 
 ### Code Quality
 
@@ -202,19 +285,9 @@ For detailed planning guidance, templates, and examples, see: **[`PLANNING.md`](
 
 #### Long-term Considerations
 
-- [ ] Django/Wagtail integration for dynamic features
+- [ ] FastAPI/Django/Wagtail integration for dynamic features
 - [ ] API endpoints for gallery data
 - [ ] Galleria advanced features: video support, RAW processing, cloud storage, GUI tools
-
-## Success Criteria
-
-MVP is complete when:
-
-1. [ ] Wedding gallery is live on Bunny CDN
-2. [ ] Gallery index and about pages are live
-3. [ ] Site works without JavaScript
-4. [ ] Performance metrics are documented
-5. [ ] Build process is repeatable via script
 
 ## Future Architecture Planning
 
