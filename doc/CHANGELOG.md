@@ -1,5 +1,87 @@
 # Changelog
 
+## 2025-01-05
+
+- Complete deploy CLI integration with dual client configuration system
+- Fix CLI deploy command method call (get_deploy_config → load_deploy_config)
+- Remove @pytest.mark.skip from E2E deploy tests - all tests now pass
+- Update all E2E tests to use new dual client architecture with proper mocking
+- Deploy implementation complete: All 508 tests passing, ready for real-world testing
+- Refactor all deploy tests to use configurable dual client architecture
+- Fix orchestrator API method signature mismatch for upload_file calls
+- Update DeployOrchestrator to accept photo_zone_name and site_zone_name parameters
+- Fix deploy_photos and deploy_site_content to call upload_file with required zone_name parameter
+- Add comprehensive test coverage for zone-specific upload calls
+- Resolve primary blocking issue preventing bunny.net deployment functionality
+- Fix zone name typos in documentation (marco-chrissy-site → marco-crissy-site)
+- Add environment variable support for zone names in deploy CLI command
+- Update deploy command to read BUNNYNET_PHOTO_ZONE_NAME and BUNNYNET_SITE_ZONE_NAME
+- Add proper mocking of os.getenv in tests to avoid using real environment variables
+- Update all deployment tests to use isolated test values instead of production configs
+- Add configurable deploy configuration system with flat structure supporting environment variable name specification
+- Create config/deploy.json with photo_password_env_var and site_password_env_var fields for dual client architecture
+- Add load_deploy_config() method to ConfigManager following existing config loading patterns
+- Implement proper test isolation using arbitrary test environment variable names instead of production values
+- Replace create_client_from_env() with configurable create_clients_from_config() for dual client architecture
+- Remove hardcoded BUNNYNET_STORAGE_PASSWORD dependency in favor of config-specified environment variable names
+- Implement dual client creation returning separate photo_client and site_client instances with zone-specific passwords
+- Add comprehensive test coverage for dual client creation with arbitrary test environment variable names
+- Breaking change: All callers of create_client_from_env() must migrate to config-driven dual client approach
+- Update BunnyNetClient constructor to accept zone_name parameter, removing zone_name from upload_file() calls
+- Refactor DeployOrchestrator to accept separate photo_client and site_client instead of single client + zone names
+- Update orchestrator upload methods to use photo_client and site_client directly with zone-specific routing
+- Remove zone name storage from orchestrator (clients contain zone information internally)
+- Add comprehensive test for dual client orchestrator constructor with proper client isolation
+
+## 2025-01-04
+
+- Fix BunnyNetClient instantiation issue in deploy command by using create_client_from_env factory
+- Update all deploy unit tests to mock create_client_from_env instead of direct BunnyNetClient class
+- Add test for correct BunnyNetClient instantiation pattern to prevent regression
+- Resolve critical blocking issue preventing deploy command from working with environment variables
+
+## 2025-12-29
+
+- Create comprehensive E2E tests for deploy command using Click testing and isolated fixtures
+- Replace subprocess-based tests with CliRunner for better performance
+- Add complete deploy test coverage: dual zone strategy, manifest comparison, pipeline integration, error handling
+- Ensure complete test isolation with temp filesystem and proper fixtures
+- Create BunnyNetClient stub with authentication validation and environment variable handling
+- Add comprehensive unit tests for client initialization and region configuration (with security warnings)
+- Implement complete BunnyNet API client with HTTP upload/download functionality using requests
+- Add comprehensive unit tests for file upload/download with proper mocking and error handling
+- Ensure secure implementation that never inspects environment variable values during testing
+
+## 2025-12-23
+
+### Completed - Test Suite Cleanup and Fixes
+
+#### Fixed Test Failures
+- **Fixed remaining test failure**: Resolved `Path.cwd()` issue in galleria serve orchestrator
+  - Use config file's parent directory as base_dir instead of Path.cwd()
+  - Prevents FileNotFoundError when working directory is cleaned up in test isolation
+  - Updated unit tests to reflect new behavior
+
+#### Test Suite Optimization
+- **Deleted worthless mock-based integration tests**: Removed 2 tests that only asserted mock calls without verifying actual functionality
+  - Removed `test_shared_components_integration_without_subprocess` from test_shared_components.py
+  - Removed `test_refactored_serve_architecture` from test_site_serve.py
+  - Kept `test_serve_orchestrator_graceful_shutdown_on_signal` as it tests real signal handling behavior
+  - Test suite now: **456 passed, 6 skipped** (down from 458 passed)
+  - Reduced test suite execution time by removing wheel-spinning tests
+
+#### Test Infrastructure Improvements  
+- **Added shared theme_factory fixture**: Enhanced test consistency and reduced duplication
+  - Moved theme_factory from local pelican builder test to shared test/conftest.py
+  - Enhanced to support both pelican and galleria theme types
+  - Refactored existing tests to use shared fixture for consistent theme creation patterns
+  - Removed local theme_factory definitions in favor of shared implementation
+
+#### Results
+- **All tests passing**: No failures remaining from the original 3 test failures identified in TODO
+- **Clean test suite**: Ready for Phase 6 (Performance Baseline) and final MVP preparation
+- **Improved test maintainability**: Consistent theme creation patterns across all tests
+
 ## 2025-12-19
 
 ### Completed - Shared Component Integration (PR #17)

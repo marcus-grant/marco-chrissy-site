@@ -258,3 +258,71 @@ def shared_theme_dirs(directory_factory):
         }
 
     return _create_theme_dirs
+
+
+@pytest.fixture
+def theme_factory(directory_factory, file_factory):
+    """Factory for creating complete theme structures with consistent layout."""
+
+    def _create_theme(
+        theme_name: str = "test-theme",
+        css_files: dict[str, str] | None = None,
+        templates: dict[str, str] | None = None,
+        theme_type: str = "pelican"  # "pelican" or "galleria"
+    ) -> Path:
+        """Create a complete theme structure.
+
+        Args:
+            theme_name: Name of the theme directory
+            css_files: Dict of {filename: content} for CSS files
+            templates: Dict of {filename: content} for template files
+            theme_type: Type of theme ("pelican" or "galleria")
+
+        Returns:
+            Path to theme directory
+        """
+        if theme_type == "galleria":
+            base_path = f"galleria/themes/{theme_name}"
+        else:
+            base_path = f"themes/{theme_name}"
+
+        theme_dir = directory_factory(base_path)
+
+        # Create CSS files
+        if css_files:
+            directory_factory(f"{base_path}/static/css")
+            for filename, content in css_files.items():
+                file_factory(f"{base_path}/static/css/{filename}", content=content)
+
+        # Create template files
+        if templates:
+            directory_factory(f"{base_path}/templates")
+            for filename, content in templates.items():
+                file_factory(f"{base_path}/templates/{filename}", content=content)
+        else:
+            # Create default Pelican templates if none provided and it's a pelican theme
+            if theme_type == "pelican":
+                directory_factory(f"{base_path}/templates")
+
+                # Default base.html template
+                base_template = """<!DOCTYPE html>
+<html>
+<head>
+    <title>{{ SITENAME }}</title>
+    {% if CSS_FILE %}
+    <link rel="stylesheet" href="{{ SITEURL }}/{{ THEME_STATIC_DIR }}/css/{{ CSS_FILE }}" />
+    {% endif %}
+</head>
+<body>
+    {% block content %}{{ article.content }}{% endblock %}
+</body>
+</html>"""
+                file_factory(f"{base_path}/templates/base.html", content=base_template)
+
+                # Default article.html template
+                article_template = """{% extends "base.html" %}"""
+                file_factory(f"{base_path}/templates/article.html", content=article_template)
+
+        return theme_dir
+
+    return _create_theme

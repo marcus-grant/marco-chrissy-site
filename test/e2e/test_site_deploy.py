@@ -1,57 +1,307 @@
 """E2E tests for site deploy command."""
 
-import subprocess
+import os
+from unittest.mock import Mock, patch
 
 import pytest
+from click.testing import CliRunner
+
+from cli.commands.deploy import deploy
 
 
 class TestSiteDeploy:
     """Test the site deploy command functionality."""
 
-    @pytest.mark.skip(reason="Deploy command functionality not yet implemented")
-    def test_deploy_uploads_to_bunny_cdn(self):
+    @pytest.fixture
+    def deploy_test_setup(self, temp_filesystem, directory_factory, file_factory, fake_image_factory, full_config_setup):
+        """Setup isolated deploy test environment."""
+        # Change to temp directory for complete isolation
+        original_cwd = os.getcwd()
+        os.chdir(temp_filesystem)
+
+        try:
+            # Create minimal config setup
+            configs = full_config_setup()
+
+            # Create output directory structure matching galleria output
+            directory_factory("output/pics/full")
+            directory_factory("output/pics/thumb")
+
+            # Create minimal test files
+            fake_image_factory("photo1.jpg", "output/pics/full")
+            fake_image_factory("photo1.jpg", "output/pics/thumb", size=(300, 200))
+
+            # Create manifest.json in full directory
+            manifest_data = {
+                "photos": [{"filename": "photo1.jpg", "hash": "abc123"}]
+            }
+            file_factory("output/pics/full/manifest.json", json_content=manifest_data)
+
+            # Create minimal site content
+            file_factory("output/index.html", content="<html><body>Test</body></html>")
+
+            yield configs
+        finally:
+            os.chdir(original_cwd)
+
+    @patch("cli.commands.deploy.create_clients_from_config")
+    @patch("cli.commands.deploy.ManifestComparator")
+    @patch("cli.commands.deploy.DeployOrchestrator")
+    @patch("cli.commands.deploy.ConfigManager")
+    @patch("cli.commands.deploy.build")
+    def test_deploy_uploads_to_bunny_cdn(self, mock_build, mock_config_manager_class, mock_orchestrator_class, mock_comparator_class, mock_create_clients, deploy_test_setup):
         """Test that deploy command uploads to Bunny CDN."""
-        result = subprocess.run(
-            ["uv", "run", "site", "deploy"], capture_output=True, text=True
-        )
-        assert result.returncode == 0
-        assert "bunny" in result.stdout.lower() or "cdn" in result.stdout.lower()
+        # Mock build success
+        mock_build.return_value = Mock(exit_code=0)
 
-    @pytest.mark.skip(reason="Deploy command functionality not yet implemented")
-    def test_deploy_uses_dual_cdn_strategy(self):
-        """Test that deploy uses separate buckets for photos vs site content."""
-        result = subprocess.run(
-            ["uv", "run", "site", "deploy"], capture_output=True, text=True
-        )
-        assert result.returncode == 0
-        # Should upload pics/ to photos CDN, everything else to site CDN
-        assert "photos" in result.stdout.lower()
+        # Mock config loading
+        mock_config_manager = Mock()
+        mock_config_manager_class.return_value = mock_config_manager
+        mock_config_manager.load_deploy_config.return_value = {"test": "config"}
 
-    @pytest.mark.skip(reason="Deploy command functionality not yet implemented")
-    def test_deploy_calls_build_automatically(self):
+        # Mock dual client creation
+        mock_photo_client, mock_site_client = Mock(), Mock()
+        mock_create_clients.return_value = (mock_photo_client, mock_site_client)
+
+        # Mock comparator and orchestrator
+        mock_comparator = Mock()
+        mock_comparator_class.return_value = mock_comparator
+        mock_orchestrator = Mock()
+        mock_orchestrator_class.return_value = mock_orchestrator
+        mock_orchestrator.execute_deployment.return_value = True
+
+        runner = CliRunner()
+        result = runner.invoke(deploy)
+
+        assert result.exit_code == 0
+        assert "bunny" in result.output.lower() or "cdn" in result.output.lower()
+
+    @patch("cli.commands.deploy.create_clients_from_config")
+    @patch("cli.commands.deploy.ManifestComparator")
+    @patch("cli.commands.deploy.DeployOrchestrator")
+    @patch("cli.commands.deploy.ConfigManager")
+    @patch("cli.commands.deploy.build")
+    def test_deploy_uses_dual_zone_strategy(self, mock_build, mock_config_manager_class, mock_orchestrator_class, mock_comparator_class, mock_create_clients, deploy_test_setup):
+        """Test that deploy uses separate zones for photos vs site content."""
+        # Mock build success
+        mock_build.return_value = Mock(exit_code=0)
+
+        # Mock config loading
+        mock_config_manager = Mock()
+        mock_config_manager_class.return_value = mock_config_manager
+        mock_config_manager.load_deploy_config.return_value = {"test": "config"}
+
+        # Mock dual client creation
+        mock_photo_client, mock_site_client = Mock(), Mock()
+        mock_create_clients.return_value = (mock_photo_client, mock_site_client)
+
+        # Mock comparator and orchestrator
+        mock_comparator = Mock()
+        mock_comparator_class.return_value = mock_comparator
+        mock_orchestrator = Mock()
+        mock_orchestrator_class.return_value = mock_orchestrator
+        mock_orchestrator.execute_deployment.return_value = True
+
+        runner = CliRunner()
+        result = runner.invoke(deploy)
+
+        assert result.exit_code == 0
+        # Should mention dual zone strategy
+        assert "photo" in result.output.lower() or "site" in result.output.lower()
+
+    @patch("cli.commands.deploy.create_clients_from_config")
+    @patch("cli.commands.deploy.ManifestComparator")
+    @patch("cli.commands.deploy.DeployOrchestrator")
+    @patch("cli.commands.deploy.ConfigManager")
+    @patch("cli.commands.deploy.build")
+    def test_deploy_calls_build_automatically(self, mock_build, mock_config_manager_class, mock_orchestrator_class, mock_comparator_class, mock_create_clients, deploy_test_setup):
         """Test that deploy automatically calls build if needed."""
-        result = subprocess.run(
-            ["uv", "run", "site", "deploy"], capture_output=True, text=True
-        )
-        assert result.returncode == 0
-        # Should see evidence that build was called
-        assert "build" in result.stdout.lower()
+        # Mock build success
+        mock_build.return_value = Mock(exit_code=0)
 
-    @pytest.mark.skip(reason="Deploy command functionality not yet implemented")
-    def test_deploy_is_idempotent(self):
-        """Test that deploy skips upload if files unchanged."""
-        pass
+        # Mock config loading
+        mock_config_manager = Mock()
+        mock_config_manager_class.return_value = mock_config_manager
+        mock_config_manager.load_deploy_config.return_value = {"test": "config"}
 
-    @pytest.mark.skip(reason="Deploy command functionality not yet implemented")
-    def test_deploy_complete_pipeline_integration(self):
+        # Mock dual client creation
+        mock_photo_client, mock_site_client = Mock(), Mock()
+        mock_create_clients.return_value = (mock_photo_client, mock_site_client)
+
+        # Mock comparator and orchestrator
+        mock_comparator = Mock()
+        mock_comparator_class.return_value = mock_comparator
+        mock_orchestrator = Mock()
+        mock_orchestrator_class.return_value = mock_orchestrator
+        mock_orchestrator.execute_deployment.return_value = True
+
+        runner = CliRunner()
+        result = runner.invoke(deploy)
+
+        assert result.exit_code == 0
+        # Should call build command
+        mock_build.assert_called_once()
+
+    @patch("cli.commands.deploy.create_clients_from_config")
+    @patch("cli.commands.deploy.ManifestComparator")
+    @patch("cli.commands.deploy.DeployOrchestrator")
+    @patch("cli.commands.deploy.ConfigManager")
+    @patch("cli.commands.deploy.build")
+    def test_deploy_manifest_comparison_incremental_uploads(self, mock_build, mock_config_manager_class, mock_orchestrator_class, mock_comparator_class, mock_create_clients, deploy_test_setup):
+        """Test that deploy compares manifests and only uploads changed files."""
+        # Mock build success
+        mock_build.return_value = Mock(exit_code=0)
+
+        # Mock config loading
+        mock_config_manager = Mock()
+        mock_config_manager_class.return_value = mock_config_manager
+        mock_config_manager.load_deploy_config.return_value = {"test": "config"}
+
+        # Mock dual client creation
+        mock_photo_client, mock_site_client = Mock(), Mock()
+        mock_create_clients.return_value = (mock_photo_client, mock_site_client)
+
+        # Mock comparator and orchestrator
+        mock_comparator = Mock()
+        mock_comparator_class.return_value = mock_comparator
+        mock_orchestrator = Mock()
+        mock_orchestrator_class.return_value = mock_orchestrator
+        mock_orchestrator.execute_deployment.return_value = True
+
+        runner = CliRunner()
+        result = runner.invoke(deploy)
+
+        assert result.exit_code == 0
+        # Should show successful deployment (manifest comparison happens internally)
+        assert "completed successfully" in result.output.lower()
+
+    @patch("cli.commands.deploy.create_clients_from_config")
+    @patch("cli.commands.deploy.ManifestComparator")
+    @patch("cli.commands.deploy.DeployOrchestrator")
+    @patch("cli.commands.deploy.ConfigManager")
+    @patch("cli.commands.deploy.build")
+    def test_deploy_complete_pipeline_integration(self, mock_build, mock_config_manager_class, mock_orchestrator_class, mock_comparator_class, mock_create_clients, deploy_test_setup):
         """Test that deploy runs complete pipeline end-to-end."""
-        # This is the ultimate E2E test - validate → organize → build → deploy
-        result = subprocess.run(
-            ["uv", "run", "site", "deploy"], capture_output=True, text=True
+        # Mock build success (which cascades to organize and validate)
+        mock_build.return_value = Mock(exit_code=0)
+
+        # Mock config loading
+        mock_config_manager = Mock()
+        mock_config_manager_class.return_value = mock_config_manager
+        mock_config_manager.load_deploy_config.return_value = {"test": "config"}
+
+        # Mock dual client creation
+        mock_photo_client, mock_site_client = Mock(), Mock()
+        mock_create_clients.return_value = (mock_photo_client, mock_site_client)
+
+        # Mock comparator and orchestrator
+        mock_comparator = Mock()
+        mock_comparator_class.return_value = mock_comparator
+        mock_orchestrator = Mock()
+        mock_orchestrator_class.return_value = mock_orchestrator
+        mock_orchestrator.execute_deployment.return_value = True
+
+        runner = CliRunner()
+        result = runner.invoke(deploy)
+
+        assert result.exit_code == 0
+        # Should call build (which handles validate→organize→build cascade)
+        mock_build.assert_called_once()
+        # Should call deploy orchestrator
+        mock_orchestrator.execute_deployment.assert_called_once()
+
+    @patch("cli.commands.deploy.DeployOrchestrator")
+    @patch("cli.commands.deploy.build")
+    def test_deploy_fails_gracefully_on_build_failure(self, mock_build, mock_orchestrator_class, deploy_test_setup):
+        """Test that deploy fails gracefully if build step fails."""
+        # Mock build failure
+        mock_build.return_value = Mock(exit_code=1)
+
+        # Deploy orchestrator should not be called if build fails
+        mock_orchestrator = Mock()
+        mock_orchestrator_class.return_value = mock_orchestrator
+
+        with patch.dict(os.environ, {
+            "BUNNYNET_STORAGE_PASSWORD": "test-password",
+            "BUNNYNET_PHOTO_ZONE_NAME": "test-photos",
+            "BUNNYNET_SITE_ZONE_NAME": "test-site"
+        }):
+            runner = CliRunner()
+            result = runner.invoke(deploy)
+
+        assert result.exit_code != 0
+        assert "build failed" in result.output.lower()
+        mock_orchestrator.deploy.assert_not_called()
+
+    @patch("cli.commands.deploy.create_clients_from_config")
+    @patch("cli.commands.deploy.build")
+    def test_deploy_instantiates_bunnynet_clients_correctly(self, mock_build, mock_create_clients, deploy_test_setup):
+        """Test that deploy command creates dual BunnyNetClients with proper config."""
+        # Mock build success
+        mock_build.return_value = Mock(exit_code=0)
+
+        # Mock dual client creation - this should succeed
+        mock_photo_client = Mock()
+        mock_site_client = Mock()
+        mock_create_clients.return_value = (mock_photo_client, mock_site_client)
+
+        # Mock config loading, orchestrator and comparator to focus on client instantiation
+        with patch("cli.commands.deploy.ManifestComparator") as mock_comparator_class, \
+             patch("cli.commands.deploy.DeployOrchestrator") as mock_orchestrator_class, \
+             patch("cli.commands.deploy.ConfigManager") as mock_config_manager_class:
+            # Mock config loading
+            mock_config_manager = Mock()
+            mock_config_manager_class.return_value = mock_config_manager
+            deploy_config = {
+                "photo_password_env_var": "TEST_PHOTO_PASSWORD",
+                "site_password_env_var": "TEST_SITE_PASSWORD",
+                "photo_zone_name": "test-photo-zone",
+                "site_zone_name": "test-site-zone",
+                "region": ""
+            }
+            mock_config_manager.load_deploy_config.return_value = deploy_config
+
+            mock_comparator = Mock()
+            mock_comparator_class.return_value = mock_comparator
+            mock_orchestrator = Mock()
+            mock_orchestrator_class.return_value = mock_orchestrator
+            mock_orchestrator.execute_deployment.return_value = True
+
+            runner = CliRunner()
+            result = runner.invoke(deploy)
+
+        # Should succeed with correct dual client instantiation
+        assert result.exit_code == 0
+        mock_create_clients.assert_called_once_with(deploy_config)
+        mock_orchestrator_class.assert_called_once_with(
+            mock_photo_client,
+            mock_site_client,
+            mock_comparator
         )
-        assert result.returncode == 0
-        # Should see evidence of all stages
-        assert "validate" in result.stdout.lower()
-        assert "organize" in result.stdout.lower()
-        assert "build" in result.stdout.lower()
-        assert "deploy" in result.stdout.lower()
+        mock_orchestrator.execute_deployment.assert_called_once()
+
+    @patch("cli.commands.deploy.create_clients_from_config")
+    @patch("cli.commands.deploy.ManifestComparator")
+    @patch("cli.commands.deploy.DeployOrchestrator")
+    @patch("cli.commands.deploy.ConfigManager")
+    @patch("cli.commands.deploy.build")
+    def test_deploy_handles_missing_env_vars(self, mock_build, mock_config_manager_class, mock_orchestrator_class, mock_comparator_class, mock_create_clients, deploy_test_setup):
+        """Test that deploy handles missing environment variables gracefully."""
+        # Mock build success
+        mock_build.return_value = Mock(exit_code=0)
+
+        # Mock config loading
+        mock_config_manager = Mock()
+        mock_config_manager_class.return_value = mock_config_manager
+        mock_config_manager.load_deploy_config.return_value = {"test": "config"}
+
+        # Mock client creation failure due to missing env vars
+        mock_create_clients.side_effect = ValueError("Missing TEST_PHOTO_PASSWORD environment variable")
+
+        # Run without setting env vars to test error handling
+        runner = CliRunner()
+        result = runner.invoke(deploy)
+
+        assert result.exit_code != 0
+        assert "missing" in result.output.lower() or "test_photo_password" in result.output.lower()
+

@@ -12,29 +12,7 @@ For detailed planning guidance, templates, and examples, see: **[`PLANNING.md`](
 
 ## MVP Roadmap
 
-### Phase 5.2: Test Suite Cleanup and Fixes
-
-**Priority: Fix remaining test failures and clean up test suite**
-
-#### Current Test Issues (3 remaining failures from existing technical debt)
-
-- [ ] **Fix serve routing test**: `test_site_serve_routing` serves directory listing instead of Pelican content
-  - Issue: Pelican server not serving index.html properly, returns file browser instead
-  - Root cause: Serve proxy or Pelican server configuration issue
-- [ ] **Fix missing galleria template**: Two galleria serve E2E tests fail with `gallery.j2.html` not found
-  - Issue: Tests expect `elegant` theme but template doesn't exist in theme directory
-  - Root cause: Theme structure mismatch, tests assume templates that were never created
-  - Affected: `test_serve_static_file_serving`, `test_serve_orchestrator_integration`
-
-#### Test Suite Optimization
-
-- [ ] **DELETE worthless mock-based integration tests** that don't verify actual HTML output
-- [ ] **REFACTOR existing tests** to use `theme_factory` fixture for consistency  
-- [ ] Keep only tests that verify real functionality (shared components in builder outputs)
-- [ ] Reduce test suite execution time by removing wheel-spinning tests
-- [ ] Document `theme_factory` usage in test guidelines
-
-### Phase 6: Performance Baseline
+### Phase 7: Performance Baseline
 
 - [ ] Measure initial performance metrics
   - [ ] Pipeline timing: validate, organize (16s), build (6m4s), deploy step durations
@@ -49,29 +27,6 @@ For detailed planning guidance, templates, and examples, see: **[`PLANNING.md`](
   - [ ] Compare CDN manifest with local manifest to determine upload needs
   - [ ] Photo collections: lazy upload (only changed files)
   - [ ] Site content: always upload (smaller transfer, less optimization needed)
-
-### 6: Verify Content Pages & Output Structure
-
-- [ ] E2E test: Full site generation with proper output structure (`test/e2e/`)
-- [ ] Unit tests: Output directory management and CDN coordination (`test/unit/build/`)
-- [ ] Create Pelican content structure:
-  - [ ] Gallery index page (`/galleries/`) - lists available galleries
-  - [ ] About page (`/about/`) - personal content
-- [ ] Configure output directory structure:
-
-  ```
-  output/
-  ├── pics/           # Full photos → Photos CDN bucket
-  ├── galleries/      # Gallery pages + thumbs → Site CDN
-  │   └── wedding/    # URL: /galleries/wedding/page1
-  ├── about/          # Pelican pages → Site CDN
-  └── index.html      # Site root → Site CDN
-  ```
-
-### Phase 7: Deploy Command & Guided Real-World Deployment
-
-- [ ] Plan rest of this step, needs much more detail
-- [ ] Set up dual CDN deployment strategy (photos vs site content)
 
 ## MVP 0.1.0 Release Preparation
 
@@ -113,6 +68,11 @@ For detailed planning guidance, templates, and examples, see: **[`PLANNING.md`](
 
 ### Priority Issues
 
+- [ ] **Build Idempotency**: Build regenerates all output files even when source unchanged, breaking incremental deploy
+  - [ ] Build should only regenerate files when source files actually change
+  - [ ] Preserve timestamps/hashes when content hasn't changed
+  - [ ] Enable true incremental deploys (seconds instead of minutes for unchanged source)
+  - [ ] Consider build manifest or file dependency tracking
 - [ ] **Galleria Performance**: Optimize large photo collection processing (645+ photos cause CPU hang)
 - [ ] **Eliminate Hardcoded Paths**: Create PathConfig class for dependency injection, remove `os.chdir()` calls
 - [ ] **Plugin Output Validation**: Use structured types (Pydantic) instead of defensive CLI validation
@@ -122,7 +82,7 @@ For detailed planning guidance, templates, and examples, see: **[`PLANNING.md`](
 
 *Problem Statement: Site lacks mobile optimization with poor touch targets, non-responsive gallery grid, and inconsistent mobile experience across page types.*
 
-**Phase 1: Setup & E2E Definition**
+**Initial Setup & E2E Test Definition**
 
 - [ ] `git checkout -b ft/responsive-layout`
 - [ ] Create E2E test in `test/e2e/test_responsive_layout.py`
@@ -135,7 +95,7 @@ For detailed planning guidance, templates, and examples, see: **[`PLANNING.md`](
 - [ ] Update TODO.md and CHANGELOG.md
 - [ ] Commit: `Tst: Add E2E test for responsive layout (skipped)`
 
-**Phase 2: TDD Implementation Cycles**
+**TDD Implementation Cycles**
 
 *Cycle 1: Implement Mobile-First Gallery Grid*
 

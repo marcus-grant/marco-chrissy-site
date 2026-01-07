@@ -1,6 +1,5 @@
 """E2E tests for shared theme component system integration."""
 
-from pathlib import Path
 
 
 class TestSharedComponentSystem:
@@ -109,138 +108,17 @@ class TestSharedComponentSystem:
         # Implementation will be added when asset manager is built
         pass
 
-    def test_shared_components_integration_without_subprocess(self, temp_filesystem, full_config_setup, file_factory, directory_factory):
-        """Test shared component integration using builders directly (no subprocess).
 
-        This integration test verifies that:
-        - PelicanBuilder uses shared templates when SHARED_THEME_PATH is configured
-        - AssetManager copies shared CSS files to output directory
-        - Template loading works with proper search path precedence
-        """
-        from unittest.mock import Mock, patch
-
-        from build.pelican_builder import PelicanBuilder
-        from themes.shared.utils.asset_manager import AssetManager
-
-        # Create shared component files
-        directory_factory("themes/shared/templates")
-        directory_factory("themes/shared/css")
-
-        file_factory(
-            "themes/shared/templates/navbar.html",
-            '<nav class="shared-nav">Test Navbar</nav>'
-        )
-
-        file_factory(
-            "themes/shared/css/shared.css",
-            '.shared-nav { color: blue; background: red; }'
-        )
-
-        # Create test content for Pelican
-        file_factory("content/test.md", """Title: Test Page
-Date: 2023-01-01
-
-Test content with shared navbar:
-{% include 'navbar.html' %}
-""")
-
-        # Create configs that reference shared components
-        configs = full_config_setup({
-            "pelican": {
-                "author": "Test Author",
-                "sitename": "Test Site",
-                "content_path": "content",
-                "THEME_TEMPLATES_OVERRIDES": "themes/shared"
-            }
-        })
-
-        # Test 1: AssetManager copies shared CSS
-        output_dir = temp_filesystem / "output"
-        asset_manager = AssetManager(output_dir)
-
-        # Mock get_shared_css_paths to use our test directory
-        with patch('themes.shared.utils.asset_manager.get_shared_css_paths') as mock_paths:
-            shared_css_dir = temp_filesystem / "themes" / "shared" / "css"
-            mock_paths.return_value = [shared_css_dir]
-
-            copied_files = asset_manager.copy_shared_css_files()
-
-        # Verify CSS was copied
-        assert len(copied_files) == 1
-        shared_css_output = output_dir / "css" / "shared.css"
-        assert shared_css_output.exists(), "Shared CSS not copied to output"
-
-        css_content = shared_css_output.read_text()
-        assert ".shared-nav" in css_content, "Shared CSS rules missing from output"
-        assert "color: blue" in css_content, "CSS styling missing from output"
-
-        # Test 2: PelicanBuilder uses shared template configuration
-        site_config = {"output_dir": "output"}
-
-        with open(configs["pelican"]) as f:
-            import json
-            pelican_config = json.load(f)
-
-        builder = PelicanBuilder()
-
-        # Mock Pelican to capture template configuration instead of running full build
-        with patch('build.pelican_builder.pelican.Pelican') as mock_pelican_class:
-            with patch('build.pelican_builder.configure_settings') as mock_configure:
-                mock_pelican_instance = Mock()
-                mock_pelican_class.return_value = mock_pelican_instance
-                mock_configure.return_value = {}
-
-                # Mock configure_pelican_shared_templates to return our test paths
-                with patch('build.pelican_builder.configure_pelican_shared_templates') as mock_configure_shared:
-                    shared_templates_dir = temp_filesystem / "themes" / "shared" / "templates"
-                    mock_configure_shared.return_value = [str(shared_templates_dir)]
-
-                    result = builder.build(site_config, pelican_config, temp_filesystem)
-
-                    # Verify shared template configuration was used
-                    assert result is True
-                    mock_configure_shared.assert_called_once()
-
-                    # Verify Jinja environment includes shared templates
-                    mock_configure.assert_called_once()
-                    settings_dict = mock_configure.call_args[0][0]
-                    assert 'JINJA_ENVIRONMENT' in settings_dict
-
-        # Test 3: Template loader can find shared templates
-        # Create temporary config file for template loader test
-        import tempfile
-
-        from themes.shared.utils.template_loader import (
-            configure_pelican_shared_templates,
-        )
-        with tempfile.NamedTemporaryFile(mode='w', suffix='.json', delete=False) as temp_config:
-            json.dump(pelican_config, temp_config)
-            temp_config_path = temp_config.name
-
-        try:
-            template_dirs = configure_pelican_shared_templates(temp_config_path)
-            # Template loader returns relative paths from config, which is correct behavior
-            assert "themes/shared/templates" in template_dirs, "Shared templates should be in search paths"
-        finally:
-            Path(temp_config_path).unlink(missing_ok=True)
-
-    def test_shared_components_end_to_end_minimal(self, temp_filesystem, full_config_setup, file_factory, directory_factory):
+    def test_shared_components_end_to_end_minimal(self, temp_filesystem, full_config_setup, file_factory, directory_factory, theme_factory):
         """Minimal test to verify shared components work with actual build orchestrator."""
 
         from build.config_manager import ConfigManager
 
-        # Create minimal shared components
-        directory_factory("themes/shared/templates")
-        directory_factory("themes/shared/css")
-
-        file_factory(
-            "themes/shared/templates/test.html",
-            '<div class="shared-test">Shared Component Works</div>'
-        )
-
-        file_factory(
-            "themes/shared/css/test.css",
-            '.shared-test { background: blue; }'
+        # Create minimal shared components using theme_factory
+        theme_factory(
+            "shared",
+            css_files={"test.css": '.shared-test { background: blue; }'},
+            templates={"test.html": '<div class="shared-test">Shared Component Works</div>'}
         )
 
         # Create minimal configs

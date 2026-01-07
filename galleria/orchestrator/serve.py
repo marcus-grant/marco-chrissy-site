@@ -63,7 +63,9 @@ class ServeOrchestrator:
                         if k not in ["manifest_path", "output_dir"]
                     },
                 }
-                self.galleria_builder.build(builder_config, Path.cwd())
+                # Use config file's parent directory as base_dir instead of cwd()
+                base_dir = config_path.parent
+                self.galleria_builder.build(builder_config, base_dir)
 
             # output_dir and manifest_path already extracted from config above
 
@@ -120,7 +122,9 @@ class ServeOrchestrator:
                         if k not in ["manifest_path", "output_dir"]
                     },
                 }
-                self.galleria_builder.build(updated_builder_config, Path.cwd())
+                # Use config file's parent directory as base_dir instead of cwd()
+                base_dir = config_path.parent
+                self.galleria_builder.build(updated_builder_config, base_dir)
             except Exception:
                 # Gracefully handle rebuild errors to keep server running
                 pass

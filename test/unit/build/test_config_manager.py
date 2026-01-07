@@ -82,3 +82,23 @@ class TestConfigManager:
         
         assert "site.json" in str(exc_info.value)
         assert "not found" in str(exc_info.value)
+
+    def test_load_deploy_config(self, temp_filesystem, file_factory):
+        """Test loading deploy configuration with env var names."""
+        # Use arbitrary test env var names - NEVER production names in tests
+        config_data = {
+            "photo_password_env_var": "TEST_PHOTO_PASS",
+            "site_password_env_var": "TEST_SITE_PASS",
+            "photo_zone_name": "test-photo-zone",
+            "site_zone_name": "test-site-zone",
+            "region": ""
+        }
+        config_file = file_factory("config/deploy.json", json_content=config_data)
+        
+        manager = ConfigManager(config_dir=temp_filesystem / "config")
+        result = manager.load_deploy_config()
+        
+        assert result == config_data
+        # Verify config contains arbitrary test names, not production env var names
+        assert result["photo_password_env_var"] == "TEST_PHOTO_PASS"
+        assert result["site_password_env_var"] == "TEST_SITE_PASS"
