@@ -32,8 +32,8 @@ class TestBasicTemplatePluginURLBugs:
         assert 'href="/wedding-photo.JPG"' not in html_content
         assert 'href="wedding-photo.JPG"' not in html_content
 
-    def test_production_urls_use_full_domain_paths(self, plugin_context_factory):
-        """Production mode should generate full CDN URLs with domain."""
+    def test_production_urls_use_relative_paths(self, plugin_context_factory):
+        """Production mode should generate relative URLs for Edge Rules routing."""
         plugin = BasicTemplatePlugin()
 
         # Create production BuildContext
@@ -58,10 +58,10 @@ class TestBasicTemplatePluginURLBugs:
         assert result.success
         html_content = result.output_data["html_files"][0]["content"]
 
-        # EXPECTED: Should use full CDN URLs that include /pics/full/ path
-        assert 'href="https://cdn.example.com/pics/full/wedding-photo.JPG"' in html_content
-        # Should NOT point to root domain without pics/full path
-        assert 'href="https://cdn.example.com/wedding-photo.JPG"' not in html_content
+        # EXPECTED: Should use relative URLs that start with /pics/full/
+        assert 'href="/pics/full/wedding-photo.JPG"' in html_content
+        # Should NOT use absolute domain URLs
+        assert 'href="https://cdn.example.com' not in html_content
 
     def test_gallery_directory_should_generate_index_html_for_direct_access(
         self, plugin_context_factory

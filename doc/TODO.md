@@ -17,23 +17,23 @@ For detailed planning guidance, templates, and examples, see: **[`PLANNING.md`](
 *Problem Statement: Current system uses absolute CDN URLs in templates, making it inflexible for domain changes and requiring dual CDN logic in code. Switch to relative URLs (`/pics/full/`, `/galleries/`) and use Bunny Edge Rules to route `/pics/full/*` to photos storage zone.*
 
 **Phase 1: Setup & E2E Definition**
-- [ ] Create E2E test in `test/e2e/test_relative_url_generation.py`
-  - [ ] Test that gallery HTML contains relative URLs (`/pics/full/`, `/galleries/`)
-  - [ ] Test that URLs work with single base domain configuration
-  - [ ] Add `@pytest.mark.skip("Relative URL generation not implemented")`
-- [ ] `uv run ruff check --fix --unsafe-fixes && uv run pytest`
-- [ ] Update TODO.md and CHANGELOG.md
+- [x] Create E2E test in `test/e2e/test_relative_url_generation.py`
+  - [x] Test that gallery HTML contains relative URLs (`/pics/full/`, `/galleries/`)
+  - [x] Test that URLs work with single base domain configuration
+  - [x] Add `@pytest.mark.skip("Relative URL generation not implemented")`
+- [x] `uv run ruff check --fix --unsafe-fixes && uv run pytest`
+- [x] Update TODO.md and CHANGELOG.md
 - [ ] Commit: `Tst: Add E2E test for relative URL generation (skipped)`
 
 **Phase 2: TDD Implementation Cycles**
 
 *Cycle 1: Update URL Generation Tests*
-- [ ] Update existing URL generation unit tests to expect relative URLs
-- [ ] Modify tests in `test/galleria/unit/plugins/test_template_urls.py`
-- [ ] Update tests in `test/galleria/unit/test_template_filters.py`
-- [ ] Run tests to verify they fail as expected
-- [ ] `uv run ruff check --fix --unsafe-fixes && uv run pytest`
-- [ ] Update TODO.md and CHANGELOG.md  
+- [x] Update existing URL generation unit tests to expect relative URLs
+- [x] Modify tests in `test/galleria/unit/plugins/test_template_urls.py`
+- [x] Update tests in `test/galleria/unit/test_template_filters.py`
+- [x] Run tests to verify they fail as expected
+- [x] `uv run ruff check --fix --unsafe-fixes && uv run pytest`
+- [x] Update TODO.md and CHANGELOG.md  
 - [ ] Commit: `Tst: Update URL generation tests to expect relative URLs`
 
 *Cycle 2: Update Template Filter Logic*

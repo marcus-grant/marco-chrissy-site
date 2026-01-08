@@ -5,6 +5,7 @@
 - Fix gallery CDN URLs: Update config/site.json with correct bunny.net CDN domains
 - Gallery thumbnails now use https://marco-crissy-site.b-cdn.net instead of incorrect site-cdn.bunnycdn.com
 - Photo CDN configured as https://marco-crissy-photos.b-cdn.net for future dual-CDN support
+- Update existing unit tests to expect relative URLs instead of absolute CDN URLs
 
 ## 2025-01-05
 
