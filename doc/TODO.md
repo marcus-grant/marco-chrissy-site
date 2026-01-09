@@ -37,11 +37,11 @@ For detailed planning guidance, templates, and examples, see: **[`PLANNING.md`](
 - [ ] Commit: `Tst: Update URL generation tests to expect relative URLs`
 
 *Cycle 2: Update Template Filter Logic*
-- [ ] Modify `galleria/template/filters.py` to generate relative URLs
-- [ ] Update `full_url()` function to return paths starting with `/`
-- [ ] Remove absolute URL construction logic
-- [ ] `uv run ruff check --fix --unsafe-fixes && uv run pytest`
-- [ ] Update TODO.md and CHANGELOG.md
+- [x] Modify `galleria/template/filters.py` to generate relative URLs
+- [x] Update `full_url()` function to return paths starting with `/`
+- [x] Remove absolute URL construction logic
+- [x] `uv run ruff check --fix --unsafe-fixes && uv run pytest`
+- [x] Update TODO.md and CHANGELOG.md
 - [ ] Commit: `Ft: Implement relative URL generation in template filters`
 
 *Cycle 3: Update Template Plugin*  

@@ -1,5 +1,13 @@
 # Changelog
 
+## 2025-01-09
+
+- Implement relative URL generation in template filters for Edge Rules routing
+- Update full_url() function to return paths starting with / instead of absolute URLs
+- Remove absolute URL construction logic that combined base_url with web_path
+- Template filters now generate /pics/full/photo.jpg and /galleries/wedding/thumbnails/photo.webp for Edge Rules
+- Fix remaining test expectations to verify relative URLs instead of absolute URLs
+
 ## 2025-01-07
 
 - Fix gallery CDN URLs: Update config/site.json with correct bunny.net CDN domains

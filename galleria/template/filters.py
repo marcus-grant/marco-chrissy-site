@@ -6,15 +6,15 @@ from build.context import BuildContext
 
 
 def full_url(path: str, context: BuildContext, site_url: str) -> str:
-    """Generate full URL from path using BuildContext for production vs development.
+    """Generate relative URL from path for use with Edge Rules routing.
 
     Args:
         path: File path (absolute or relative)
-        context: BuildContext with production flag
-        site_url: Base site URL to use
+        context: BuildContext (unused but kept for compatibility)
+        site_url: Site URL (unused but kept for compatibility)
 
     Returns:
-        Full URL with proper base URL applied
+        Relative URL starting with / for Edge Rules routing
     """
     if not path:
         return path
@@ -22,12 +22,11 @@ def full_url(path: str, context: BuildContext, site_url: str) -> str:
     # Convert absolute paths to relative web paths
     web_path = _make_relative_path(path)
 
-    # Ensure site_url doesn't have trailing slash and web_path starts with /
-    base_url = site_url.rstrip('/')
+    # Ensure web_path starts with /
     if web_path and not web_path.startswith('/'):
         web_path = '/' + web_path
 
-    return f"{base_url}{web_path}"
+    return web_path
 
 
 def _make_relative_path(path: str) -> str:

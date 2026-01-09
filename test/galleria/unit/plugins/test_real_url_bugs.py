@@ -36,12 +36,12 @@ class TestRealURLBugs:
 
         print(f"\nActual HTML content:\n{html_content}\n")
 
-        # This test SHOULD FAIL showing the current bug
-        # BUG: Currently generates wrong URL (just filename in root)
+        # Test should verify relative URL generation for Edge Rules routing
+        # Should not generate absolute URLs anymore
         assert 'href="http://127.0.0.1:8000/wedding-20250809T132034-r5a.JPG"' not in html_content
 
-        # EXPECTED: Should generate correct URL with pics/full path
-        assert 'href="http://127.0.0.1:8000/pics/full/wedding-20250809T132034-r5a.JPG"' in html_content
+        # EXPECTED: Should generate relative URL with pics/full path for Edge Rules
+        assert 'href="/pics/full/wedding-20250809T132034-r5a.JPG"' in html_content
 
     def test_gallery_directory_access_via_proxy_url_transformation(self):
         """Test that /galleries/wedding/ URLs are properly transformed by proxy server."""

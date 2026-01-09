@@ -72,11 +72,11 @@ class TestTemplateURLFilters:
         assert result == ""
 
     def test_full_url_filter_without_leading_slash_in_site_url(self):
-        """full_url filter should handle site URLs without trailing slash."""
+        """full_url filter should generate relative URLs regardless of site URL format."""
         from galleria.template.filters import full_url
 
         context = BuildContext(production=True)
         site_url = "https://marco-chrissy.com"  # No trailing slash
 
         result = full_url("gallery.css", context, site_url)
-        assert result == "https://marco-chrissy.com/gallery.css"
+        assert result == "/gallery.css"
