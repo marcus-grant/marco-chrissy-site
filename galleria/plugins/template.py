@@ -202,35 +202,26 @@ class BasicTemplatePlugin(TemplatePlugin):
             return self._make_relative_path(path)
 
     def _make_relative_path(self, path: str) -> str:
-        """Convert absolute filesystem path to relative web path.
+        """Convert absolute filesystem path to relative web path for Edge Rules routing.
 
         Args:
             path: Absolute filesystem path (e.g., /abs/path/to/output/galleries/wedding/thumbnails/img.webp)
 
         Returns:
-            Relative web path (e.g., thumbnails/img.webp)
+            Relative web path starting with / for Edge Rules routing (e.g., /galleries/wedding/thumbnails/img.webp)
         """
         if not path:
             return path
 
-        # Extract the filename
-        import os
+        # Use the same logic as the template filter for consistency
+        from ..template.filters import _make_relative_path
+        relative_path = _make_relative_path(path)
 
-        filename = os.path.basename(path)
+        # Ensure path starts with / for Edge Rules routing
+        if relative_path and not relative_path.startswith('/'):
+            relative_path = '/' + relative_path
 
-        # Determine relative path based on file location or type
-        if "thumbnails" in path:
-            return f"thumbnails/{filename}"
-        elif "pics" in path or path.endswith((".jpg", ".jpeg", ".JPG", ".JPEG")):
-            # For full-size photos, we want to link to the CDN or pics directory
-            # Gallery pages are in /galleries/{collection}/ so need ../../ to reach root
-            return f"../../pics/full/{filename}"
-        elif path.endswith((".webp", ".WEBP")):
-            # For thumbnails (webp files), they should be in thumbnails directory
-            return f"thumbnails/{filename}"
-        else:
-            # Fallback to just the filename
-            return filename
+        return relative_path
 
     def _render_theme_template(
         self,

@@ -280,14 +280,14 @@ class TestBasicTemplatePlugin:
         assert result.success
         assert "html_files" in result.output_data
 
-        # Check that the generated HTML contains relative paths, not absolute
+        # Check that the generated HTML contains relative URLs for Edge Rules routing
         html_content = result.output_data["html_files"][0]["content"]
-        assert "thumbnails/img1.webp" in html_content
+        assert "/galleries/wedding/thumbnails/img1.webp" in html_content
         assert (
             "/absolute/path/to/output/galleries/wedding/thumbnails/img1.webp"
             not in html_content
         )
-        assert "../pics/full/img1.jpg" in html_content
+        assert "/pics/full/img1.jpg" in html_content
         assert "/absolute/path/to/output/pics/img1.jpg" not in html_content
 
     def test_basic_template_plugin_accepts_build_context_via_metadata(self, tmp_path):

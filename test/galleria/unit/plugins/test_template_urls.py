@@ -27,8 +27,8 @@ class TestBasicTemplatePluginURLBugs:
         assert result.success
         html_content = result.output_data["html_files"][0]["content"]
 
-        # EXPECTED: Links should point to /pics/full/wedding-photo.JPG without domain
-        assert 'href="../../pics/full/wedding-photo.JPG"' in html_content
+        # EXPECTED: Links should point to /pics/full/wedding-photo.JPG for Edge Rules routing
+        assert 'href="/pics/full/wedding-photo.JPG"' in html_content
         assert 'href="/wedding-photo.JPG"' not in html_content
         assert 'href="wedding-photo.JPG"' not in html_content
 

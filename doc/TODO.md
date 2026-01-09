@@ -42,14 +42,14 @@ For detailed planning guidance, templates, and examples, see: **[`PLANNING.md`](
 - [x] Remove absolute URL construction logic
 - [x] `uv run ruff check --fix --unsafe-fixes && uv run pytest`
 - [x] Update TODO.md and CHANGELOG.md
-- [ ] Commit: `Ft: Implement relative URL generation in template filters`
+- [x] Commit: `Ft: Implement relative URL generation in template filters`
 
 *Cycle 3: Update Template Plugin*  
-- [ ] Modify `galleria/plugins/template.py` for relative URL support
-- [ ] Update `_make_url()` method to use relative path generation
-- [ ] Simplify CDN URL handling to single base URL
-- [ ] `uv run ruff check --fix --unsafe-fixes && uv run pytest` 
-- [ ] Update TODO.md and CHANGELOG.md
+- [x] Modify `galleria/plugins/template.py` for relative URL support
+- [x] Update `_make_url()` method to use relative path generation
+- [x] Simplify CDN URL handling to single base URL
+- [x] `uv run ruff check --fix --unsafe-fixes && uv run pytest` 
+- [x] Update TODO.md and CHANGELOG.md
 - [ ] Commit: `Ft: Update template plugin for relative URL generation`
 
 *Cycle 4: Update Configuration Schema*

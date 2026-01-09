@@ -2,6 +2,11 @@
 
 ## 2025-01-09
 
+- Update template plugin for relative URL generation with Edge Rules support
+- Simplify _make_relative_path() to use consistent filter logic for URL generation
+- Ensure photos automatically go to /pics/full/ subdirectory for production use case distinction
+- Template plugin now delegates to full_url filter for consistent relative URL generation
+- Fix test expectations to verify /pics/full/ URLs for photo links and /galleries/ URLs for thumbnails
 - Implement relative URL generation in template filters for Edge Rules routing
 - Update full_url() function to return paths starting with / instead of absolute URLs
 - Remove absolute URL construction logic that combined base_url with web_path

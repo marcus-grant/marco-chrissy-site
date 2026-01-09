@@ -49,7 +49,18 @@ def _make_relative_path(path: str) -> str:
             output_index = path_parts.index('output')
             # Get everything after 'output'
             relative_parts = path_parts[output_index + 1:]
-            return '/'.join(relative_parts)
+            relative_path = '/'.join(relative_parts)
+
+            # Ensure photos go to pics/full/ subdirectory for production use case
+            if (relative_path.startswith('pics/') and
+                not relative_path.startswith('pics/full/') and
+                not relative_path.startswith('pics/web/') and
+                relative_path.lower().endswith(('.jpg', '.jpeg'))):
+                # Move photos from pics/ to pics/full/
+                filename = os.path.basename(relative_path)
+                relative_path = f'pics/full/{filename}'
+
+            return relative_path
         except ValueError:
             # 'output' not found in absolute path, fall through to file type detection
             pass
