@@ -1,5 +1,26 @@
 # Changelog
 
+## 2025-01-09
+
+- **Ft: Implement relative URL generation with Edge Rules routing**
+  - Switch from absolute CDN URLs to relative URLs (/pics/full/, /galleries/) for flexible domain changes
+  - Simplify configuration from dual CDN structure to single base_url
+  - Update template filters to generate relative URLs starting with /
+  - Configure Edge Rules to route /pics/full/* to photo storage zone
+  - Update documentation to reflect relative URL system
+  - Deploy and verify production functionality with relative URLs
+  - Enable CDN-level routing flexibility while eliminating hardcoded CDN logic in templates
+- Remove absolute URL construction logic that combined base_url with web_path
+- Template filters now generate /pics/full/photo.jpg and /galleries/wedding/thumbnails/photo.webp for Edge Rules
+- Fix remaining test expectations to verify relative URLs instead of absolute URLs
+
+## 2025-01-07
+
+- Fix gallery CDN URLs: Update config/site.json with correct bunny.net CDN domains
+- Gallery thumbnails now use https://marco-crissy-site.b-cdn.net instead of incorrect site-cdn.bunnycdn.com
+- Photo CDN configured as https://marco-crissy-photos.b-cdn.net for future dual-CDN support
+- Update existing unit tests to expect relative URLs instead of absolute CDN URLs
+
 ## 2025-01-05
 
 - Complete deploy CLI integration with dual client configuration system

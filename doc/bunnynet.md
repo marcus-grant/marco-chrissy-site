@@ -116,6 +116,37 @@ output/
 └── static/                 → Site Zone (full upload)
 ```
 
+### Verified Relative URL Generation
+
+The build system correctly generates relative URLs that work with Edge Rules routing:
+
+**Gallery pages generate**:
+- Navigation links: `/galleries/wedding/`
+- Full photo links: `/pics/full/wedding-20250809T132034-r5a.JPG`
+- Thumbnail sources: `/galleries/wedding/thumbnails/wedding-20250809T132034-r5a.webp`
+
+**File structure matches URLs**:
+- Photos deployed to: `output/pics/full/` → Photo Zone
+- Gallery pages deployed to: `output/galleries/` → Site Zone  
+- Thumbnails embedded in gallery pages: `galleries/wedding/thumbnails/` → Site Zone
+
+### Edge Rules Redirect Strategy
+
+**Initial Setup (302 Temporary Redirects)**:
+- Edge Rule: `/pics/full/*` → `302 Temporary` → `https://[photo-zone].b-cdn.net/full/$1`
+- Use 302 initially to allow testing and easy rollback if needed
+- Monitor production for several days to ensure all URLs redirect correctly
+
+**Production Transition (301 Permanent Redirects)**:
+- After confirming 302s work correctly, change to `301 Permanent`
+- Benefits: Better SEO ranking, client-side browser caching, reduced server load
+- Considerations: Harder to rollback, browsers cache 301s more aggressively
+
+**Deployment Order**:
+1. Deploy code with relative URLs (safe with existing 302 Edge Rules)
+2. Monitor 302 redirects in production
+3. Change Edge Rules from 302 → 301 after confirming stability
+
 ### Photo Zone Strategy
 - **Incremental uploads**: Only uploads changed/new photos
 - **Manifest tracking**: Uses SHA-256 hashes to detect changes

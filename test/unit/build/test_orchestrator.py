@@ -20,10 +20,7 @@ class TestBuildOrchestrator:
         # Create config files
         site_config = {
             "output_dir": "output",
-            "cdn": {
-                "photos": "https://photos.example.com",
-                "site": "https://site.example.com"
-            }
+            "base_url": "https://site.example.com"
         }
         galleria_config = {
             "manifest_path": "manifest.json",
@@ -75,10 +72,7 @@ class TestBuildOrchestrator:
         # Create config files
         site_config = {
             "output_dir": "output",
-            "cdn": {
-                "photos": "https://photos.example.com",
-                "site": "https://site.example.com"
-            }
+            "base_url": "https://site.example.com"
         }
         galleria_config = {
             "manifest_path": "manifest.json",
@@ -131,10 +125,7 @@ class TestBuildOrchestrator:
         # Create config files
         site_config = {
             "output_dir": "output",
-            "cdn": {
-                "photos": "https://photos.example.com",
-                "site": "https://site.example.com"
-            }
+            "base_url": "https://site.example.com"
         }
         galleria_config = {
             "manifest_path": "manifest.json",

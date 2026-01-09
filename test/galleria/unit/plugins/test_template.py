@@ -280,14 +280,14 @@ class TestBasicTemplatePlugin:
         assert result.success
         assert "html_files" in result.output_data
 
-        # Check that the generated HTML contains relative paths, not absolute
+        # Check that the generated HTML contains relative URLs for Edge Rules routing
         html_content = result.output_data["html_files"][0]["content"]
-        assert "thumbnails/img1.webp" in html_content
+        assert "/galleries/wedding/thumbnails/img1.webp" in html_content
         assert (
             "/absolute/path/to/output/galleries/wedding/thumbnails/img1.webp"
             not in html_content
         )
-        assert "../pics/full/img1.jpg" in html_content
+        assert "/pics/full/img1.jpg" in html_content
         assert "/absolute/path/to/output/pics/img1.jpg" not in html_content
 
     def test_basic_template_plugin_accepts_build_context_via_metadata(self, tmp_path):
@@ -328,10 +328,10 @@ class TestBasicTemplatePlugin:
         assert result.success
         assert "html_files" in result.output_data
 
-        # Check that URLs are context-aware - in development mode should use localhost
+        # Check that URLs are relative for Edge Rules routing
         html_content = result.output_data["html_files"][0]["content"]
-        assert "http://127.0.0.1:8000/galleries/wedding/thumbnails/img1.webp" in html_content
-        assert "http://127.0.0.1:8000/pics/full/img1.jpg" in html_content
+        assert "/galleries/wedding/thumbnails/img1.webp" in html_content
+        assert "/pics/full/img1.jpg" in html_content
 
     def test_basic_template_plugin_uses_full_url_filter_with_production_context(self, tmp_path):
         """BasicTemplatePlugin should use full_url filter and generate production URLs when context.production=True."""
@@ -371,7 +371,7 @@ class TestBasicTemplatePlugin:
         assert result.success
         assert "html_files" in result.output_data
 
-        # Check that URLs use production CDN URLs
+        # Check that URLs are relative for Edge Rules routing
         html_content = result.output_data["html_files"][0]["content"]
-        assert "https://cdn.example.com/galleries/wedding/thumbnails/img1.webp" in html_content
-        assert "https://cdn.example.com/pics/full/img1.jpg" in html_content
+        assert "/galleries/wedding/thumbnails/img1.webp" in html_content
+        assert "/pics/full/img1.jpg" in html_content

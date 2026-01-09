@@ -229,17 +229,19 @@ Template Plugins (context-aware URL generation)
 
 ### URL Generation Flow
 
-The BuildContext enables context-aware URL generation throughout the system:
+The template filter system generates relative URLs for flexible CDN routing:
 
 ```python
 # Template filter usage
 full_url(path, context, site_url)
     ↓
-# Production: Uses CDN URLs from config
-"https://site.example.com/galleries/wedding/page1"
+# Generates relative URLs starting with /
+"/galleries/wedding/page1"
+"/pics/full/photo.jpg"
     ↓
-# Development: Uses localhost URLs
-"http://localhost:8000/galleries/wedding/page1"
+# Edge Rules handle CDN routing
+"/pics/full/*" → Photo storage zone
+"/galleries/*" → Site CDN
 ```
 
 ### Integration Points

@@ -63,7 +63,7 @@ class BuildOrchestrator:
                 )
             else:
                 # Production mode: pass BuildContext with site URL from config
-                site_url = site_config.get("cdn", {}).get("site", "")
+                site_url = site_config.get("base_url", "")
                 self.galleria_builder.build(
                     galleria_config, 
                     base_dir, 

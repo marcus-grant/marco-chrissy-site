@@ -68,10 +68,7 @@ class TestConfigSchemas:
         """Test site schema validates orchestration config."""
         config_data = {
             "output_dir": "output",
-            "cdn": {
-                "photos": "https://photos.example.com",
-                "site": "https://site.example.com",
-            },
+            "base_url": "https://site.example.com"
         }
         config_file = file_factory("config/site.json", json_content=config_data)
 
@@ -79,16 +76,12 @@ class TestConfigSchemas:
         mock_schema = {
             "$schema": "http://json-schema.org/draft-07/schema#",
             "type": "object",
-            "required": ["output_dir", "cdn"],
+            "required": ["output_dir", "base_url"],
             "properties": {
                 "output_dir": {"type": "string"},
-                "cdn": {
-                    "type": "object",
-                    "required": ["photos", "site"],
-                    "properties": {
-                        "photos": {"type": "string"},
-                        "site": {"type": "string"},
-                    },
+                "base_url": {
+                    "type": "string",
+                    "format": "uri"
                 },
             },
         }

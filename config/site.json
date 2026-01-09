@@ -1,7 +1,4 @@
 {
   "output_dir": "output",
-  "cdn": {
-    "photos": "https://photo-cdn.bunnycdn.com",
-    "site": "https://site-cdn.bunnycdn.com"
-  }
+  "base_url": "https://marco-crissy-site.b-cdn.net"
 }

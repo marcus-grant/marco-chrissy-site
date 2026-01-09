@@ -7,24 +7,12 @@
       "type": "string",
       "description": "Base output directory for generated site"
     },
-    "cdn": {
-      "type": "object",
-      "properties": {
-        "photos": {
-          "type": "string",
-          "format": "uri",
-          "description": "CDN URL for photo assets"
-        },
-        "site": {
-          "type": "string", 
-          "format": "uri",
-          "description": "CDN URL for site assets"
-        }
-      },
-      "required": ["photos", "site"],
-      "additionalProperties": false
+    "base_url": {
+      "type": "string",
+      "format": "uri",
+      "description": "Base URL for the site (Edge Rules handle CDN routing)"
     }
   },
-  "required": ["output_dir", "cdn"],
+  "required": ["output_dir", "base_url"],
   "additionalProperties": false
 }

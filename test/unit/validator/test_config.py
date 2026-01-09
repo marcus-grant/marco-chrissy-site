@@ -91,17 +91,10 @@ class TestConfigValidator:
             json_content={
                 "$schema": "http://json-schema.org/draft-07/schema#",
                 "type": "object",
-                "required": ["output_dir", "cdn"],
+                "required": ["output_dir", "base_url"],
                 "properties": {
                     "output_dir": {"type": "string"},
-                    "cdn": {
-                        "type": "object",
-                        "required": ["photos", "site"],
-                        "properties": {
-                            "photos": {"type": "string"},
-                            "site": {"type": "string"},
-                        },
-                    },
+                    "base_url": {"type": "string"},
                 },
             },
         )
@@ -148,10 +141,7 @@ class TestConfigValidator:
             "config/site.json",
             json_content={
                 "output_dir": "output",
-                "cdn": {
-                    "photos": "https://photos.example.com",
-                    "site": "https://site.example.com",
-                },
+                "base_url": "https://site.example.com",
             },
         )
         file_factory(
@@ -208,17 +198,10 @@ class TestConfigValidator:
             json_content={
                 "$schema": "http://json-schema.org/draft-07/schema#",
                 "type": "object",
-                "required": ["output_dir", "cdn"],
+                "required": ["output_dir", "base_url"],
                 "properties": {
                     "output_dir": {"type": "string"},
-                    "cdn": {
-                        "type": "object",
-                        "required": ["photos", "site"],
-                        "properties": {
-                            "photos": {"type": "string"},
-                            "site": {"type": "string"},
-                        },
-                    },
+                    "base_url": {"type": "string"},
                 },
             },
         )
@@ -267,10 +250,7 @@ class TestConfigValidator:
             "config/site.json",
             json_content={
                 "output_dir": "output",
-                "cdn": {
-                    "photos": "https://photos.example.com",
-                    "site": "https://site.example.com",
-                },
+                "base_url": "https://site.example.com",
             },
         )
         file_factory(

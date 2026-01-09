@@ -10,6 +10,28 @@ Tasks in this file follow the systematic planning approach defined in [`PLANNING
 
 For detailed planning guidance, templates, and examples, see: **[`PLANNING.md`](PLANNING.md)**
 
+## Blocking Issues
+
+#### Task: Clean Up Technical Debt from CLI Setup (Branch: main)
+
+*Problem Statement: Command cascading functionality is already implemented and working, but placeholder test with skip decorator was never updated to provide automated verification.*
+
+**Priority: Clean up before new feature work**
+- [ ] Verify command cascading already works: `site deploy` automatically calls `site build` if needed
+- [ ] Remove `@pytest.mark.skip(reason="Command cascading not yet implemented")` from `test/e2e/test_site_command.py:51`
+- [ ] Implement automated test verification for existing cascading behavior
+- [ ] Test that deploy checks for missing/stale output and triggers build automatically
+- [ ] Confirm all commands work correctly with existing cascading behavior
+
+
+#### Task: Fix Shared Components Styling Inconsistency
+
+*Problem Statement: Shared components (navbar, CSS) appear differently between Pelican pages and Galleria pages on production, but work correctly when served locally. This suggests an issue with how shared assets are deployed or referenced.*
+
+- [ ] Compare local vs production shared component rendering between Pelican and Galleria pages
+- [ ] Investigate shared asset deployment and referencing inconsistencies  
+- [ ] Fix deployment or reference issues to ensure consistent styling across page types
+
 ## MVP Roadmap
 
 ### Phase 7: Performance Baseline
@@ -66,17 +88,10 @@ For detailed planning guidance, templates, and examples, see: **[`PLANNING.md`](
 
 ## Post-MVP Enhancements
 
-### Priority Issues
+#### Task: Add CDN Cache Purge Command
 
-- [ ] **Build Idempotency**: Build regenerates all output files even when source unchanged, breaking incremental deploy
-  - [ ] Build should only regenerate files when source files actually change
-  - [ ] Preserve timestamps/hashes when content hasn't changed
-  - [ ] Enable true incremental deploys (seconds instead of minutes for unchanged source)
-  - [ ] Consider build manifest or file dependency tracking
-- [ ] **Galleria Performance**: Optimize large photo collection processing (645+ photos cause CPU hang)
-- [ ] **Eliminate Hardcoded Paths**: Create PathConfig class for dependency injection, remove `os.chdir()` calls
-- [ ] **Plugin Output Validation**: Use structured types (Pydantic) instead of defensive CLI validation
-- [ ] **E2E Test Performance**: Fix 16+ second subprocess startup time, consolidate tests
+- [ ] Research full Bunny.net API cache management capabilities: tag-based purging (<1s global), wildcard patterns (/galleries/wedding/*), individual URL purging, and other API features that might better suit our deployment patterns
+- [ ] Implement `uv run site purge` command with targeted cache invalidation options
 
 #### Task 5.2: Mobile-First Responsive Layout (Branch: ft/responsive-layout)
 
@@ -145,9 +160,10 @@ For detailed planning guidance, templates, and examples, see: **[`PLANNING.md`](
 ### Performance Optimizations  
 
 - [ ] Gallery lazy loading with JS progressive enhancement
+- [ ] Basic
 - [ ] Parallel thumbnail processing and incremental generation
-- [ ] WebP compression optimization
 - [ ] Dark mode toggle (CSS variables + minimal JS)
+- [ ] WebP compression optimization
 
 ### Shared Component Enhancements
 
@@ -157,6 +173,18 @@ For detailed planning guidance, templates, and examples, see: **[`PLANNING.md`](
   - **Galleria context**: `collection_name`, `page_num`, `total_pages`, `photos|length`
   - **Location**: Create `themes/shared/templates/header.html`, replace both systems' headers
   - **Result**: Consistent header styling with appropriate context (site name vs gallery name)
+
+### Post-Frontend Enhancements Priority Issues
+
+- [ ] **Build Idempotency**: Build regenerates all output files even when source unchanged, breaking incremental deploy
+  - [ ] Build should only regenerate files when source files actually change
+  - [ ] Preserve timestamps/hashes when content hasn't changed
+  - [ ] Enable true incremental deploys (seconds instead of minutes for unchanged source)
+  - [ ] Consider build manifest or file dependency tracking
+- [ ] **Galleria Performance**: Optimize large photo collection processing (645+ photos cause CPU hang)
+- [ ] **Eliminate Hardcoded Paths**: Create PathConfig class for dependency injection, remove `os.chdir()` calls
+- [ ] **Plugin Output Validation**: Use structured types (Pydantic) instead of defensive CLI validation
+- [ ] **E2E Test Performance**: Fix 16+ second subprocess startup time, consolidate tests
 
 ### Code Quality
 
@@ -202,19 +230,9 @@ For detailed planning guidance, templates, and examples, see: **[`PLANNING.md`](
 
 #### Long-term Considerations
 
-- [ ] Django/Wagtail integration for dynamic features
+- [ ] FastAPI/Django/Wagtail integration for dynamic features
 - [ ] API endpoints for gallery data
 - [ ] Galleria advanced features: video support, RAW processing, cloud storage, GUI tools
-
-## Success Criteria
-
-MVP is complete when:
-
-1. [ ] Wedding gallery is live on Bunny CDN
-2. [ ] Gallery index and about pages are live
-3. [ ] Site works without JavaScript
-4. [ ] Performance metrics are documented
-5. [ ] Build process is repeatable via script
 
 ## Future Architecture Planning
 

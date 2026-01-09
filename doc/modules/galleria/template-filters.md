@@ -42,19 +42,20 @@ def full_url(path: str, context: BuildContext, site_url: str) -> str
 
 ## BuildContext Integration
 
-### Environment-Aware URL Generation
+### Relative URL Generation
 
-The filter uses BuildContext to determine appropriate URL generation:
+The filter generates relative URLs starting with `/` for flexible CDN routing via Edge Rules:
 
 ```python
-# Production mode (BuildContext.production=True)
-full_url("/abs/path/output/galleries/wedding/page1", production_context, "https://site.example.com")
-# Returns: "https://site.example.com/galleries/wedding/page1"
+# Current implementation generates relative URLs
+full_url("/abs/path/output/galleries/wedding/page1", context, site_url)
+# Returns: "/galleries/wedding/page1"
 
-# Development mode (BuildContext.production=False)  
-full_url("/abs/path/output/galleries/wedding/page1", dev_context, "http://localhost:8000")
-# Returns: "http://localhost:8000/galleries/wedding/page1"
+full_url("/abs/path/output/pics/full/photo.jpg", context, site_url)  
+# Returns: "/pics/full/photo.jpg"
 ```
+
+**Edge Rules Integration**: Relative URLs enable CDN-level routing where `/pics/full/*` requests are redirected to the photo storage zone while `/galleries/*` requests are served from the site CDN.
 
 ### Template Plugin Usage
 
@@ -156,15 +157,13 @@ The filter provides graceful degradation:
 from galleria.template.filters import full_url
 from build.context import BuildContext
 
-# Production build
+# Relative URL generation (current implementation)
 context = BuildContext(production=True)
-url = full_url("galleries/wedding/page1", context, "https://site.example.com")
-# Result: "https://site.example.com/galleries/wedding/page1"
+url = full_url("galleries/wedding/page1", context, site_url)
+# Result: "/galleries/wedding/page1"
 
-# Development build  
-context = BuildContext(production=False)
-url = full_url("galleries/wedding/page1", context, "http://localhost:8000")
-# Result: "http://localhost:8000/galleries/wedding/page1"
+url = full_url("pics/full/photo.jpg", context, site_url)
+# Result: "/pics/full/photo.jpg"
 ```
 
 ### Template Plugin Integration
