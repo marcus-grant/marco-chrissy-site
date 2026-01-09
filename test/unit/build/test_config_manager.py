@@ -13,10 +13,7 @@ class TestConfigManager:
         """Test loading site configuration."""
         config_data = {
             "output_dir": "output",
-            "cdn": {
-                "photos": "https://photos.example.com",
-                "site": "https://site.example.com"
-            }
+            "base_url": "https://site.example.com"
         }
         config_file = file_factory("config/site.json", json_content=config_data)
         

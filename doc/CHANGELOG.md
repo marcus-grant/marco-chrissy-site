@@ -2,6 +2,12 @@
 
 ## 2025-01-09
 
+- Simplify CDN configuration to single base_url for Edge Rules routing
+- Update config/site.json to use base_url instead of nested cdn object with photos/site URLs
+- Update build orchestrator to read base_url from site configuration
+- Update JSON schema to require base_url instead of cdn object structure
+- Update all test data and mock schemas to use new base_url configuration format
+- Remove dual CDN logic from configuration system in preparation for Edge Rules
 - Update template plugin for relative URL generation with Edge Rules support
 - Simplify _make_relative_path() to use consistent filter logic for URL generation
 - Ensure photos automatically go to /pics/full/ subdirectory for production use case distinction

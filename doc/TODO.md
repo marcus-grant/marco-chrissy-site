@@ -50,14 +50,14 @@ For detailed planning guidance, templates, and examples, see: **[`PLANNING.md`](
 - [x] Simplify CDN URL handling to single base URL
 - [x] `uv run ruff check --fix --unsafe-fixes && uv run pytest` 
 - [x] Update TODO.md and CHANGELOG.md
-- [ ] Commit: `Ft: Update template plugin for relative URL generation`
+- [x] Commit: `Ft: Update template plugin for relative URL generation`
 
 *Cycle 4: Update Configuration Schema*
-- [ ] Update `config/site.json` structure to use single base URL
-- [ ] Remove dual CDN configuration, keep single `base_url`
-- [ ] Update configuration documentation and examples
-- [ ] `uv run ruff check --fix --unsafe-fixes && uv run pytest`
-- [ ] Update TODO.md and CHANGELOG.md
+- [x] Update `config/site.json` structure to use single base URL
+- [x] Remove dual CDN configuration, keep single `base_url`
+- [x] Update configuration documentation and examples
+- [x] `uv run ruff check --fix --unsafe-fixes && uv run pytest`
+- [x] Update TODO.md and CHANGELOG.md
 - [ ] Commit: `Ft: Simplify CDN configuration to single base URL`
 
 **Phase 3: Integration & Documentation**

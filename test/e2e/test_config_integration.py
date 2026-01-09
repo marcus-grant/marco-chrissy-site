@@ -27,7 +27,7 @@ class TestConfigIntegration:
             "config/site.json",
             json_content={
                 "output_dir": "output",
-                "cdn": {"photos": "photos.example.com", "site": "site.example.com"},
+                "base_url": "https://site.example.com",
             },
         )
 
