@@ -116,6 +116,20 @@ output/
 └── static/                 → Site Zone (full upload)
 ```
 
+### Verified Relative URL Generation
+
+The build system correctly generates relative URLs that work with Edge Rules routing:
+
+**Gallery pages generate**:
+- Navigation links: `/galleries/wedding/`
+- Full photo links: `/pics/full/wedding-20250809T132034-r5a.JPG`
+- Thumbnail sources: `/galleries/wedding/thumbnails/wedding-20250809T132034-r5a.webp`
+
+**File structure matches URLs**:
+- Photos deployed to: `output/pics/full/` → Photo Zone
+- Gallery pages deployed to: `output/galleries/` → Site Zone  
+- Thumbnails embedded in gallery pages: `galleries/wedding/thumbnails/` → Site Zone
+
 ### Photo Zone Strategy
 - **Incremental uploads**: Only uploads changed/new photos
 - **Manifest tracking**: Uses SHA-256 hashes to detect changes

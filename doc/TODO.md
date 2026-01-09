@@ -12,73 +12,17 @@ For detailed planning guidance, templates, and examples, see: **[`PLANNING.md`](
 
 ## Blocking Issues
 
-#### Task: Switch to Relative URLs with Edge Rules Routing (Branch: main)
+#### Task: Clean Up Technical Debt from CLI Setup (Branch: main)
 
-*Problem Statement: Current system uses absolute CDN URLs in templates, making it inflexible for domain changes and requiring dual CDN logic in code. Switch to relative URLs (`/pics/full/`, `/galleries/`) and use Bunny Edge Rules to route `/pics/full/*` to photos storage zone.*
+*Problem Statement: Command cascading functionality is already implemented and working, but placeholder test with skip decorator was never updated to provide automated verification.*
 
-**Phase 1: Setup & E2E Definition**
-- [x] Create E2E test in `test/e2e/test_relative_url_generation.py`
-  - [x] Test that gallery HTML contains relative URLs (`/pics/full/`, `/galleries/`)
-  - [x] Test that URLs work with single base domain configuration
-  - [x] Add `@pytest.mark.skip("Relative URL generation not implemented")`
-- [x] `uv run ruff check --fix --unsafe-fixes && uv run pytest`
-- [x] Update TODO.md and CHANGELOG.md
-- [ ] Commit: `Tst: Add E2E test for relative URL generation (skipped)`
+**Priority: Clean up before new feature work**
+- [ ] Verify command cascading already works: `site deploy` automatically calls `site build` if needed
+- [ ] Remove `@pytest.mark.skip(reason="Command cascading not yet implemented")` from `test/e2e/test_site_command.py:51`
+- [ ] Implement automated test verification for existing cascading behavior
+- [ ] Test that deploy checks for missing/stale output and triggers build automatically
+- [ ] Confirm all commands work correctly with existing cascading behavior
 
-**Phase 2: TDD Implementation Cycles**
-
-*Cycle 1: Update URL Generation Tests*
-- [x] Update existing URL generation unit tests to expect relative URLs
-- [x] Modify tests in `test/galleria/unit/plugins/test_template_urls.py`
-- [x] Update tests in `test/galleria/unit/test_template_filters.py`
-- [x] Run tests to verify they fail as expected
-- [x] `uv run ruff check --fix --unsafe-fixes && uv run pytest`
-- [x] Update TODO.md and CHANGELOG.md  
-- [ ] Commit: `Tst: Update URL generation tests to expect relative URLs`
-
-*Cycle 2: Update Template Filter Logic*
-- [x] Modify `galleria/template/filters.py` to generate relative URLs
-- [x] Update `full_url()` function to return paths starting with `/`
-- [x] Remove absolute URL construction logic
-- [x] `uv run ruff check --fix --unsafe-fixes && uv run pytest`
-- [x] Update TODO.md and CHANGELOG.md
-- [x] Commit: `Ft: Implement relative URL generation in template filters`
-
-*Cycle 3: Update Template Plugin*  
-- [x] Modify `galleria/plugins/template.py` for relative URL support
-- [x] Update `_make_url()` method to use relative path generation
-- [x] Simplify CDN URL handling to single base URL
-- [x] `uv run ruff check --fix --unsafe-fixes && uv run pytest` 
-- [x] Update TODO.md and CHANGELOG.md
-- [x] Commit: `Ft: Update template plugin for relative URL generation`
-
-*Cycle 4: Update Configuration Schema*
-- [x] Update `config/site.json` structure to use single base URL
-- [x] Remove dual CDN configuration, keep single `base_url`
-- [x] Update configuration documentation and examples
-- [x] `uv run ruff check --fix --unsafe-fixes && uv run pytest`
-- [x] Update TODO.md and CHANGELOG.md
-- [ ] Commit: `Ft: Simplify CDN configuration to single base URL`
-
-**Phase 3: Integration & Documentation**
-- [ ] Remove `@pytest.mark.skip` from E2E test
-- [ ] Verify E2E test passes (if not, return to Phase 2)
-- [ ] Update `doc/bunnynet.md` with Edge Rules setup guide
-- [ ] Document Edge Rules configuration for `/pics/full/*` routing
-- [ ] Update configuration documentation for new single URL structure
-- [ ] `uv run ruff check --fix --unsafe-fixes && uv run pytest`
-- [ ] Update TODO.md and CHANGELOG.md
-- [ ] Commit: `Doc: Update documentation for relative URLs and Edge Rules`
-
-**Phase 4: Bunny.net Edge Rules Setup**
-- [ ] Create guided setup documentation for Edge Rules configuration
-- [ ] Document Edge Rule: Trigger path `*/pics/*` → Redirect to photos storage zone with path components removed
-- [ ] Configure redirect rule (302 temporary during testing) for photos CDN routing
-- [ ] Test Edge Rules configuration with deployed site using test link pattern: `/pics/full/wedding-*.JPG`
-- [ ] Verify photos and thumbnails load correctly through Edge Rules routing
-- [ ] Change Edge Rules redirect status from 302 (temporary) to 301 (permanent)
-- [ ] Update TODO.md and CHANGELOG.md
-- [ ] Commit: `Doc: Add Edge Rules setup guide and verify routing`
 
 #### Task: Fix Shared Components Styling Inconsistency
 
@@ -146,7 +90,8 @@ For detailed planning guidance, templates, and examples, see: **[`PLANNING.md`](
 
 #### Task: Add CDN Cache Purge Command
 
-- [ ] Implement `uv run site purge` command to clear Bunny.net CDN cache after deployments
+- [ ] Research full Bunny.net API cache management capabilities: tag-based purging (<1s global), wildcard patterns (/galleries/wedding/*), individual URL purging, and other API features that might better suit our deployment patterns
+- [ ] Implement `uv run site purge` command with targeted cache invalidation options
 
 #### Task 5.2: Mobile-First Responsive Layout (Branch: ft/responsive-layout)
 

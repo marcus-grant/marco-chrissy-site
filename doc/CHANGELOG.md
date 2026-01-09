@@ -2,19 +2,14 @@
 
 ## 2025-01-09
 
-- Simplify CDN configuration to single base_url for Edge Rules routing
-- Update config/site.json to use base_url instead of nested cdn object with photos/site URLs
-- Update build orchestrator to read base_url from site configuration
-- Update JSON schema to require base_url instead of cdn object structure
-- Update all test data and mock schemas to use new base_url configuration format
-- Remove dual CDN logic from configuration system in preparation for Edge Rules
-- Update template plugin for relative URL generation with Edge Rules support
-- Simplify _make_relative_path() to use consistent filter logic for URL generation
-- Ensure photos automatically go to /pics/full/ subdirectory for production use case distinction
-- Template plugin now delegates to full_url filter for consistent relative URL generation
-- Fix test expectations to verify /pics/full/ URLs for photo links and /galleries/ URLs for thumbnails
-- Implement relative URL generation in template filters for Edge Rules routing
-- Update full_url() function to return paths starting with / instead of absolute URLs
+- **Ft: Implement relative URL generation with Edge Rules routing**
+  - Switch from absolute CDN URLs to relative URLs (/pics/full/, /galleries/) for flexible domain changes
+  - Simplify configuration from dual CDN structure to single base_url
+  - Update template filters to generate relative URLs starting with /
+  - Configure Edge Rules to route /pics/full/* to photo storage zone
+  - Update documentation to reflect relative URL system
+  - Deploy and verify production functionality with relative URLs
+  - Enable CDN-level routing flexibility while eliminating hardcoded CDN logic in templates
 - Remove absolute URL construction logic that combined base_url with web_path
 - Template filters now generate /pics/full/photo.jpg and /galleries/wedding/thumbnails/photo.webp for Edge Rules
 - Fix remaining test expectations to verify relative URLs instead of absolute URLs
