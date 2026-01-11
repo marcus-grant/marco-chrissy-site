@@ -12,18 +12,6 @@ For detailed planning guidance, templates, and examples, see: **[`PLANNING.md`](
 
 ## Blocking Issues
 
-#### Task: Clean Up Technical Debt from CLI Setup (Branch: main)
-
-*Problem Statement: Command cascading functionality is already implemented and working, but placeholder test with skip decorator was never updated to provide automated verification.*
-
-**Priority: Clean up before new feature work**
-- [ ] Verify command cascading already works: `site deploy` automatically calls `site build` if needed
-- [ ] Remove `@pytest.mark.skip(reason="Command cascading not yet implemented")` from `test/e2e/test_site_command.py:51`
-- [ ] Implement automated test verification for existing cascading behavior
-- [ ] Test that deploy checks for missing/stale output and triggers build automatically
-- [ ] Confirm all commands work correctly with existing cascading behavior
-
-
 #### Task: Fix Shared Components Styling Inconsistency
 
 *Problem Statement: Shared components (navbar, CSS) appear differently between Pelican pages and Galleria pages on production, but work correctly when served locally. This suggests an issue with how shared assets are deployed or referenced.*
@@ -79,6 +67,9 @@ For detailed planning guidance, templates, and examples, see: **[`PLANNING.md`](
   - [ ] Test complete pipeline (validate→organize→build) end-to-end
   - [ ] Validate configuration system completeness
   - [ ] Performance metrics documentation
+
+- [ ] **Edge Rules Production Finalization**
+  - [ ] Change Edge Rules from 302 temporary to 301 permanent redirects after monitoring production stability
 
 - [ ] **Version 0.1.0 Release Finalization**
   - [ ] Final ruff/pytest run across entire codebase (target: 0 failures)

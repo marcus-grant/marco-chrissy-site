@@ -2,8 +2,6 @@
 
 import subprocess
 
-import pytest
-
 
 class TestSiteCommand:
     """Test the basic site command interface and subcommands."""
@@ -48,9 +46,3 @@ class TestSiteCommand:
         assert result.returncode == 0, f"deploy subcommand not found: {result.stderr}"
         assert "deploy" in result.stdout.lower()
 
-    @pytest.mark.skip(reason="Command cascading not yet implemented")
-    def test_deploy_calls_build_automatically(self):
-        """Test that 'site deploy' automatically calls build if needed."""
-        # This will test idempotent cascading behavior
-        # Will be implemented after basic command structure exists
-        pass
