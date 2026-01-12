@@ -184,3 +184,83 @@ class TestRealPluginIntegration:
         # Verify that the collection data is still present despite photo errors
         assert "collection_name" in result.output_data
         assert result.output_data["collection_name"] == "error_test"
+
+    def test_complete_pipeline_with_high_page_size(self, tmp_path):
+        """E2E: Pipeline should support page_size up to 500.
+
+        Tests that pagination works correctly with page_size=384,
+        which is needed for performance benchmarking different
+        pagination configurations.
+        """
+        # Arrange: Create test NormPic manifest with many photos
+        test_photos_dir = tmp_path / "photos"
+        test_photos_dir.mkdir()
+
+        # Create 400 test photo files to exceed page_size
+        photo_paths = []
+        manifest_pics = []
+        for i in range(400):
+            photo_path = test_photos_dir / f"photo_{i}.jpg"
+            photo_path.write_bytes(b"\xff\xd8\xff\xe0")  # Minimal JPEG header
+            photo_paths.append(str(photo_path))
+            manifest_pics.append({
+                "source_path": str(photo_path),
+                "dest_path": f"photo_{i}.jpg",
+                "hash": f"hash_{i:03d}",
+                "size_bytes": 1024,
+                "mtime": 1234567890 + i,
+            })
+
+        manifest = {
+            "version": "0.1.0",
+            "collection_name": "high_page_size_test",
+            "pics": manifest_pics,
+        }
+
+        manifest_path = tmp_path / "manifest.json"
+        manifest_path.write_text(json.dumps(manifest))
+
+        output_dir = tmp_path / "output"
+        output_dir.mkdir()
+
+        # Create pipeline manager and register real plugins
+        pipeline = PipelineManager()
+        pipeline.registry.register(NormPicProviderPlugin(), "provider")
+        pipeline.registry.register(ThumbnailProcessorPlugin(), "processor")
+        pipeline.registry.register(BasicPaginationPlugin(), "transform")
+        pipeline.registry.register(BasicTemplatePlugin(), "template")
+        pipeline.registry.register(BasicCSSPlugin(), "css")
+
+        stages = [
+            ("provider", "normpic-provider"),
+            ("processor", "thumbnail-processor"),
+            ("transform", "basic-pagination"),
+            ("template", "basic-template"),
+            ("css", "basic-css"),
+        ]
+
+        # Create context with high page_size (384)
+        initial_context = PluginContext(
+            input_data={"manifest_path": str(manifest_path)},
+            config={
+                "provider": {},
+                "processor": {"thumbnail_size": 200, "quality": 85},
+                "transform": {"page_size": 384},
+                "template": {"theme": "minimal", "layout": "grid"},
+                "css": {"theme": "light", "responsive": True},
+            },
+            output_dir=output_dir,
+        )
+
+        # Act: Execute complete pipeline
+        final_result = pipeline.execute_stages(stages, initial_context)
+
+        # Assert: Verify pipeline succeeded with high page_size
+        assert final_result.success, f"Pipeline failed: {final_result.errors}"
+
+        # Verify pagination metadata reflects high page_size
+        assert final_result.output_data["collection_name"] == "high_page_size_test"
+
+        # 400 photos / 384 per page = 2 pages (page 1: 384, page 2: 16)
+        html_files = final_result.output_data["html_files"]
+        assert len(html_files) == 3  # 2 pages + 1 index.html redirect

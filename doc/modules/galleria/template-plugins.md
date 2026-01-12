@@ -202,7 +202,7 @@ Pagination plugins split photo collections into pages for large galleries.
 Simple pagination with configurable page size.
 
 **Features:**
-- Configurable page size (1-100 photos per page)
+- Configurable page size (1-500 photos per page)
 - Default page size: 20 photos
 - Detailed pagination metadata
 - Empty collection handling
@@ -210,7 +210,7 @@ Simple pagination with configurable page size.
 **Configuration:**
 ```python
 {
-    "page_size": int,               # Default: 20, Range: 1-100
+    "page_size": int,               # Default: 20, Range: 1-500
 }
 ```
 
@@ -389,7 +389,7 @@ All template plugins implement comprehensive error handling:
 - **MISSING_COLLECTION_NAME**: Required collection_name field missing
 - **MISSING_HTML_FILES**: Required html_files field missing (CSS plugins)
 - **INVALID_THEME**: Unknown theme specified in configuration
-- **INVALID_PAGE_SIZE**: Page size outside valid range (1-100)
+- **INVALID_PAGE_SIZE**: Page size outside valid range (1-500)
 - **TEMPLATE_ERROR**: General template generation error
 - **CSS_ERROR**: General CSS generation error
 - **PAGINATION_ERROR**: General pagination error

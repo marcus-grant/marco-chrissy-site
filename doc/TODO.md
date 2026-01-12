@@ -27,6 +27,10 @@ For detailed planning guidance, templates, and examples, see: **[`PLANNING.md`](
   - [ ] Compare CDN manifest with local manifest to determine upload needs
   - [ ] Photo collections: lazy upload (only changed files)
   - [ ] Site content: always upload (smaller transfer, less optimization needed)
+- [ ] Pagination performance comparison
+  - [ ] Test gallery generation with varying photos_per_page: 20, 48, 96, 144, 192, 384
+  - [ ] Measure for each: build time, total HTML size, page load metrics (LCP/FCP)
+  - [ ] Document optimal photos_per_page based on UX vs performance tradeoffs
 
 ## MVP 0.1.0 Release Preparation
 

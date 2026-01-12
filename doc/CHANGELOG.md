@@ -2,6 +2,13 @@
 
 ## 2025-01-12
 
+- **Ft: Increase pagination max page_size from 100 to 500**
+  - Update BasicPaginationPlugin validation to allow page_size up to 500
+  - Enables performance benchmarking with different pagination configurations (20, 48, 96, 144, 192, 384)
+  - Update production config to 96 photos per page (reduced from 33 pages to 7)
+  - Add E2E test for high page_size pipeline execution
+  - Update template-plugins.md documentation with new valid range
+
 - **Fix: Resolve shared component CSS loading inconsistency between Pelican and Galleria**
   - Add RELATIVE_URLS support to PelicanBuilder configuration
   - Update Pelican config with RELATIVE_URLS: true to generate relative CSS paths

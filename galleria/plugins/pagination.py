@@ -37,11 +37,11 @@ class BasicPaginationPlugin(TransformPlugin):
                     errors=["INVALID_PAGE_SIZE: page_size must be positive"],
                 )
 
-            if page_size > 100:
+            if page_size > 500:
                 return PluginResult(
                     success=False,
                     output_data={},
-                    errors=["INVALID_PAGE_SIZE: page_size must be <= 100"],
+                    errors=["INVALID_PAGE_SIZE: page_size must be <= 500"],
                 )
 
             # Get input data
