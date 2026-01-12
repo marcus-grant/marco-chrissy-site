@@ -366,3 +366,37 @@ class TestServeOrchestrator:
         # Assert
         mock_file_watcher.stop.assert_called_once()
         mock_http_server.stop.assert_called_once()
+
+    @patch("galleria.orchestrator.serve.ConfigManager")
+    @patch("galleria.orchestrator.serve.GalleriaBuilder")
+    @patch("galleria.orchestrator.serve.GalleriaHTTPServer")
+    @patch("galleria.orchestrator.serve.FileWatcher")
+    def test_execute_resolves_relative_paths_from_config_directory(
+        self, mock_watcher, mock_server, mock_builder, mock_config
+    ):
+        """execute() resolves relative paths in config relative to config file directory."""
+        # Arrange - config in subdirectory with relative paths pointing outside
+        config_path = Path("/project/config/galleria.json")
+        mock_config_manager = mock_config.return_value
+        mock_galleria_config = {
+            "output_dir": "../output/galleries",  # Relative to config dir
+            "manifest_path": "../output/pics/manifest.json",  # Relative to config dir
+        }
+        mock_config_manager.load_galleria_config.return_value = mock_galleria_config
+
+        orchestrator = ServeOrchestrator()
+
+        # Act
+        orchestrator.execute(config_path, no_watch=False)
+
+        # Assert - paths should be resolved relative to config_path.parent (/project/config)
+        expected_output_dir = Path("/project/config/../output/galleries")
+        expected_manifest_path = Path("/project/config/../output/pics/manifest.json")
+
+        # HTTP server should receive resolved output path
+        mock_server.assert_called_once_with(expected_output_dir, "127.0.0.1", 8000)
+
+        # File watcher should receive resolved manifest path
+        call_args = mock_watcher.call_args
+        watched_paths = call_args[0][0]
+        assert expected_manifest_path in watched_paths
