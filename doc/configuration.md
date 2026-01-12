@@ -85,7 +85,8 @@ Configures Pelican static site generator:
   "site_url": "https://example.com",
   "author": "Author Name", 
   "sitename": "Site Title",
-  "theme_templates_overrides": "themes/shared/templates"
+  "theme_templates_overrides": "themes/shared/templates",
+  "RELATIVE_URLS": true
 }
 ```
 
@@ -101,6 +102,7 @@ Configures Pelican static site generator:
 - `timezone`: Site timezone (default: "UTC")
 - `default_lang`: Default language (default: "en")
 - `theme_templates_overrides`: Path to directory containing template override files (enables shared component integration)
+- `RELATIVE_URLS`: Generate relative URLs instead of absolute URLs (default: false, recommended: true for consistent shared component CSS loading)
 
 ## Content Configuration
 

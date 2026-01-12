@@ -1,5 +1,14 @@
 # Changelog
 
+## 2025-01-12
+
+- **Fix: Resolve shared component CSS loading inconsistency between Pelican and Galleria**
+  - Add RELATIVE_URLS support to PelicanBuilder configuration
+  - Update Pelican config with RELATIVE_URLS: true to generate relative CSS paths
+  - Fix CSS path generation: ./theme/css/shared.css instead of absolute URLs to non-existent domain
+  - Add E2E and unit tests for RELATIVE_URLS configuration handling
+  - Shared navbar styling now consistent between index page and gallery pages
+
 ## 2025-01-09
 
 - **Ft: Implement relative URL generation with Edge Rules routing**

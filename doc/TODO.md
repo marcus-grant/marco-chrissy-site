@@ -10,16 +10,6 @@ Tasks in this file follow the systematic planning approach defined in [`PLANNING
 
 For detailed planning guidance, templates, and examples, see: **[`PLANNING.md`](PLANNING.md)**
 
-## Blocking Issues
-
-#### Task: Fix Shared Components Styling Inconsistency
-
-*Problem Statement: Shared components (navbar, CSS) appear differently between Pelican pages and Galleria pages on production, but work correctly when served locally. This suggests an issue with how shared assets are deployed or referenced.*
-
-- [ ] Compare local vs production shared component rendering between Pelican and Galleria pages
-- [ ] Investigate shared asset deployment and referencing inconsistencies  
-- [ ] Fix deployment or reference issues to ensure consistent styling across page types
-
 ## MVP Roadmap
 
 ### Phase 7: Performance Baseline

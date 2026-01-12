@@ -62,6 +62,9 @@ class PelicanBuilder:
                 'OUTPUT_PATH': str(base_dir / site_config.get('output_dir', 'output')),
                 'THEME': str(base_dir / pelican_config.get('theme', 'notmyidea')),
                 
+                # URL generation settings
+                'RELATIVE_URLS': pelican_config.get('RELATIVE_URLS', False),
+                
                 # Enable jinja2content plugin for template includes in Markdown
                 'PLUGINS': ['jinja2content'],
 
