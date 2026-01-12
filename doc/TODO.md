@@ -12,25 +12,147 @@ For detailed planning guidance, templates, and examples, see: **[`PLANNING.md`](
 
 ## MVP Roadmap
 
-### Phase 7: Performance Baseline
+### Phase 7: Performance Benchmarking (Branch: opt/benchmark)
 
-- [ ] Measure initial performance metrics
-  - [ ] Pipeline timing: validate, organize (16s), build (6m4s), deploy step durations
-  - [ ] Thumbnail generation: time per photo, batch processing efficiency  
-  - [ ] Page weight (HTML + CSS + thumbnails)
-  - [ ] Core Web Vitals (FCP, LCP, TTI, CLS, TBT)
-  - [ ] Lighthouse scores
-  - [ ] Memory usage during gallery generation and deployment
-- [ ] Document baseline metrics
-- [ ] Create performance tracking spreadsheet
-- [ ] Deployment optimization
-  - [ ] Compare CDN manifest with local manifest to determine upload needs
-  - [ ] Photo collections: lazy upload (only changed files)
-  - [ ] Site content: always upload (smaller transfer, less optimization needed)
-- [ ] Pagination performance comparison
-  - [ ] Test gallery generation with varying photos_per_page: 20, 48, 96, 144, 192, 384
-  - [ ] Measure for each: build time, total HTML size, page load metrics (LCP/FCP)
-  - [ ] Document optimal photos_per_page based on UX vs performance tradeoffs
+*Goal: Collect hard numbers to guide post-MVP optimization priorities*
+
+#### Metric Categories
+
+**UX/Frontend Metrics (Browser-side):**
+- Core Web Vitals: LCP, FID/INP, CLS
+- Loading Timeline: TTFB, FCP, TTI
+- Page Weight: Total HTML size, CSS size, thumbnail payload per page
+- Lighthouse Scores: Performance, Accessibility, Best Practices
+- Pagination Impact: Measure all above at photos_per_page: 20, 50, 100, 150, 200, 300, 500
+
+**Build/Generation Metrics (Pipeline-side):**
+- Pipeline Stage Timing: validate, organize, build durations
+- Thumbnail Processing: Time per photo, batch throughput, output file sizes (galleria - keep decoupled)
+- Gallery Generation: Time per collection, total build time, memory usage
+- Output Sizes: HTML per page, total CSS, manifest sizes
+
+#### Collection Methodology
+
+- **UX Metrics**: Lighthouse CLI (npm dependency), `lighthouse <url> --output=json`
+- **Build Metrics**: `--benchmark` flag on pipeline commands, `site benchmark` convenience command
+- **Output**: JSON to `/.benchmarks/` (gitignored), curated results to `doc/benchmark/results/`
+
+#### Task 7.0: Branch Setup & Planning
+
+- [ ] `git checkout -b opt/benchmark`
+- [ ] Update `doc/TODO.md` with finalized performance benchmark plan
+- [ ] Commit: `Pln: Update TODO with performance benchmarking tasks`
+
+#### Task 7.1: Manual Baseline Collection
+
+*Collect initial metrics for wedding gallery before implementing automation*
+
+- [ ] Install Lighthouse CLI: `npm install -g lighthouse`
+- [ ] Create `doc/benchmark/` directory structure
+- [ ] Create `doc/benchmark/README.md` with methodology documentation
+- [ ] Run manual baseline collection:
+  - [ ] Time pipeline stages with `time` wrapper
+  - [ ] Run Lighthouse against production wedding gallery
+  - [ ] Record thumbnail sizes, page weights, file counts
+- [ ] Create `doc/benchmark/results/YYYY-MM-DD_baseline.json` with results
+- [ ] Hand-edit metadata (commit, description, config, notes)
+- [ ] Write `doc/benchmark/baseline.md` with analysis
+- [ ] Commit: `Doc: Add performance baseline for wedding gallery`
+
+#### Task 7.2: Add Benchmark Infrastructure
+
+*Top-level `site benchmark` command drives --benchmark flag implementation for each subcommand*
+
+**Setup & E2E Definition**
+
+- [ ] Add `/.benchmarks/` to `.gitignore`
+- [ ] Create E2E test in `test/e2e/test_benchmark_command.py`
+  - [ ] Test `site benchmark` runs full pipeline with benchmark instrumentation
+  - [ ] Test outputs results to `/.benchmarks/`
+  - [ ] Test output includes metrics from each stage (validate, organize, build)
+  - [ ] Add `@pytest.mark.skip("Benchmark command not implemented")`
+- [ ] Create separate test module `test/galleria/test_thumbnail_benchmark.py`
+  - [ ] Test thumbnail encode timing metrics (time per photo, batch throughput)
+  - [ ] Test thumbnail output size metrics
+  - [ ] Keep isolated for future galleria extraction
+  - [ ] Add `@pytest.mark.skip("Thumbnail benchmarking not implemented")`
+- [ ] `uv run ruff check --fix --unsafe-fixes && uv run pytest`
+- [ ] Commit: `Tst: Add E2E tests for benchmark infrastructure (skipped)`
+
+**TDD Implementation**
+
+*Benchmark output structure:*
+- [ ] Write unit test for benchmark result dataclass/schema
+- [ ] Implement `BenchmarkResult` class with metadata and metrics fields
+- [ ] `uv run ruff check --fix --unsafe-fixes && uv run pytest`
+- [ ] Commit: `Ft: Add BenchmarkResult data structure`
+
+*Timing instrumentation:*
+- [ ] Write unit test for timing context manager/decorator
+- [ ] Implement timing utility that captures duration and memory
+- [ ] `uv run ruff check --fix --unsafe-fixes && uv run pytest`
+- [ ] Commit: `Ft: Add benchmark timing instrumentation`
+
+*Add --benchmark flag to validate command:*
+- [ ] Write unit test for validate command with --benchmark flag
+- [ ] Implement `--benchmark` flag on `site validate`
+- [ ] `uv run ruff check --fix --unsafe-fixes && uv run pytest`
+- [ ] Commit: `Ft: Add --benchmark flag to validate command`
+
+*Add --benchmark flag to organize command:*
+- [ ] Write unit test for organize command with --benchmark flag
+- [ ] Implement `--benchmark` flag on `site organize`
+- [ ] `uv run ruff check --fix --unsafe-fixes && uv run pytest`
+- [ ] Commit: `Ft: Add --benchmark flag to organize command`
+
+*Thumbnail encoding instrumentation (galleria):*
+- [ ] Write unit test in `test/galleria/test_thumbnail_benchmark.py`
+- [ ] Instrument thumbnail encoding in galleria (time per photo, sizes)
+- [ ] Ensure metrics surface through build command
+- [ ] `uv run ruff check --fix --unsafe-fixes && uv run pytest`
+- [ ] Commit: `Ft: Add thumbnail encoding benchmark instrumentation`
+
+*Add --benchmark flag to build command:*
+- [ ] Write unit test for build command with --benchmark flag
+- [ ] Implement `--benchmark` flag on `site build`
+- [ ] Include thumbnail metrics from galleria
+- [ ] `uv run ruff check --fix --unsafe-fixes && uv run pytest`
+- [ ] Commit: `Ft: Add --benchmark flag to build command`
+
+*Implement site benchmark command:*
+- [ ] Write unit test for benchmark command orchestration
+- [ ] Implement `site benchmark` that runs cascade with `--benchmark`
+- [ ] Aggregate results from each stage into single output file
+- [ ] Output to `/.benchmarks/`
+- [ ] `uv run ruff check --fix --unsafe-fixes && uv run pytest`
+- [ ] Commit: `Ft: Add site benchmark command`
+
+**Integration & Documentation**
+
+- [ ] Remove `@pytest.mark.skip` from E2E tests
+- [ ] Verify E2E tests pass
+- [ ] Update `doc/benchmark/README.md` with usage instructions
+- [ ] Document workflow: `site benchmark` → annotate → copy to `doc/benchmark/results/`
+- [ ] `uv run ruff check --fix --unsafe-fixes && uv run pytest`
+- [ ] Commit: `Doc: Document benchmark infrastructure`
+
+#### Task 7.3: Pagination Performance Comparison
+
+*Test UX metrics across different photos_per_page values*
+
+- [ ] Create test galleries with photos_per_page: 20, 50, 100, 150, 200, 300, 500
+- [ ] Run Lighthouse against each variant
+- [ ] Record results in `/.benchmarks/` initially
+- [ ] Copy annotated results to `doc/benchmark/results/`
+- [ ] Write `doc/benchmark/pagination.md` with comparison analysis
+- [ ] Document optimal photos_per_page recommendation
+- [ ] Commit: `Doc: Add pagination performance comparison`
+
+#### Task 7.4: PR Creation
+
+- [ ] `uv run ruff check --fix --unsafe-fixes && uv run pytest`
+- [ ] Verify all tests pass
+- [ ] `gh pr create --title "Opt: Add performance benchmarking infrastructure" --body "..."`
 
 ## MVP 0.1.0 Release Preparation
 
@@ -142,13 +264,16 @@ For detailed planning guidance, templates, and examples, see: **[`PLANNING.md`](
 
 - [ ] `gh pr create --title "Ft: Implement mobile-first responsive layout" --body "Creates responsive design system with touch-friendly navigation, mobile-optimized gallery grid, and consistent mobile experience across all page types"`
 
-### Performance Optimizations  
+### Performance Optimizations
 
 - [ ] Gallery lazy loading with JS progressive enhancement
 - [ ] Basic
 - [ ] Parallel thumbnail processing and incremental generation
 - [ ] Dark mode toggle (CSS variables + minimal JS)
 - [ ] WebP compression optimization
+- [ ] **Deployment Metrics** *(requires planning task before implementation)*
+  - [ ] Upload volume analysis (files changed vs total, bytes transferred)
+  - [ ] CDN performance analysis (cache hits, edge response times)
 
 ### Shared Component Enhancements
 
