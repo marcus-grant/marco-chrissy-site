@@ -48,23 +48,23 @@ class ServeOrchestrator:
             raw_config = self.config_manager.load_galleria_config(config_path)
 
             # Extract needed paths from config data
-            output_dir = Path(raw_config["output_dir"])
-            manifest_path = Path(raw_config["manifest_path"])
+            # Use config file's parent directory as base_dir for resolving relative paths
+            base_dir = config_path.parent
+            output_dir = base_dir / raw_config["output_dir"]
+            manifest_path = base_dir / raw_config["manifest_path"]
 
             # 2. Generate gallery (unless no_generate)
             if not no_generate:
                 # Transform config for GalleriaBuilder
                 builder_config = {
                     "manifest_path": raw_config["manifest_path"],
-                    "output_dir": str(output_dir),
+                    "output_dir": raw_config["output_dir"],
                     **{
                         k: v
                         for k, v in raw_config.items()
                         if k not in ["manifest_path", "output_dir"]
                     },
                 }
-                # Use config file's parent directory as base_dir instead of cwd()
-                base_dir = config_path.parent
                 self.galleria_builder.build(builder_config, base_dir)
 
             # output_dir and manifest_path already extracted from config above

@@ -274,6 +274,7 @@ For detailed planning guidance, templates, and examples, see: **[`PLANNING.md`](
 - [ ] **Deployment Metrics** *(requires planning task before implementation)*
   - [ ] Upload volume analysis (files changed vs total, bytes transferred)
   - [ ] CDN performance analysis (cache hits, edge response times)
+  - [ ] Lighthouse testing against CDN for production UX metrics
 
 ### Shared Component Enhancements
 
