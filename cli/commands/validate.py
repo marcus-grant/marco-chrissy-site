@@ -4,15 +4,21 @@ import sys
 
 import click
 
+from build.benchmark import TimingContext
 from validator.config import ConfigValidator
 from validator.dependencies import DependencyValidator
 from validator.permissions import PermissionValidator
 
 
 @click.command()
-def validate():
+@click.option("--benchmark", is_flag=True, help="Output timing metrics for benchmarking")
+def validate(benchmark: bool):
     """Pre-flight checks for configs, dependencies, and permissions."""
     click.echo("Running validation checks...")
+
+    timer = TimingContext() if benchmark else None
+    if timer:
+        timer.__enter__()
 
     # Check config files
     config_validator = ConfigValidator()
@@ -51,3 +57,7 @@ def validate():
         sys.exit(1)
 
     click.echo("Validation completed successfully!")
+
+    if timer:
+        timer.__exit__(None, None, None)
+        click.echo(f"Benchmark: validate duration {timer.duration_s:.3f} seconds")
