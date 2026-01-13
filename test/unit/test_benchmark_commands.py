@@ -154,3 +154,83 @@ class TestBuildBenchmarkFlag:
 
         assert result.exit_code == 0
         assert "duration" in result.output.lower() or "seconds" in result.output.lower()
+
+
+class TestBenchmarkCommand:
+    """Test site benchmark command."""
+
+    def test_benchmark_creates_output_file(
+        self,
+        temp_filesystem,
+        full_config_setup,
+        fake_image_factory,
+        directory_factory,
+        file_factory,
+    ):
+        """Test benchmark command creates output file in .benchmarks directory."""
+        from cli.commands.benchmark import benchmark
+
+        fake_image_factory("IMG_001.jpg", directory="source_photos", use_raw_bytes=True)
+
+        directory_factory("content")
+        directory_factory("themes/site/templates")
+        directory_factory("themes/shared/templates")
+
+        file_factory("themes/shared/templates/navbar.html", "<nav></nav>")
+        file_factory(
+            "themes/site/templates/base.html",
+            "<html><body>{% block content %}{% endblock %}</body></html>",
+        )
+        file_factory(
+            "themes/site/templates/index.html",
+            '{% extends "base.html" %}{% block content %}{% endblock %}',
+        )
+
+        full_config_setup(
+            {
+                "normpic": {
+                    "source_dir": str(temp_filesystem / "source_photos"),
+                    "dest_dir": str(temp_filesystem / "output" / "pics" / "full"),
+                    "collection_name": "test",
+                    "collection_description": "Test",
+                    "create_symlinks": True,
+                },
+                "galleria": {
+                    "manifest_path": str(
+                        temp_filesystem / "output" / "pics" / "full" / "manifest.json"
+                    ),
+                    "output_dir": str(
+                        temp_filesystem / "output" / "galleries" / "test"
+                    ),
+                    "thumbnail_size": 200,
+                    "photos_per_page": 12,
+                    "theme": "minimal",
+                    "quality": 85,
+                },
+                "pelican": {
+                    "theme": "themes/site",
+                    "site_url": "https://example.com",
+                    "author": "Test",
+                    "sitename": "Test",
+                    "content_path": "content",
+                    "THEME_TEMPLATES_OVERRIDES": "themes/shared",
+                },
+            }
+        )
+
+        original_cwd = os.getcwd()
+        try:
+            os.chdir(str(temp_filesystem))
+            runner = CliRunner()
+            result = runner.invoke(benchmark)
+        finally:
+            os.chdir(original_cwd)
+
+        assert result.exit_code == 0, f"Benchmark failed: {result.output}"
+
+        # Check output file was created
+        benchmarks_dir = temp_filesystem / ".benchmarks"
+        assert benchmarks_dir.exists(), ".benchmarks directory should exist"
+
+        benchmark_files = list(benchmarks_dir.glob("*.json"))
+        assert len(benchmark_files) >= 1, "Should have at least one benchmark file"

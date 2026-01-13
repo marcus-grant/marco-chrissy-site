@@ -2,6 +2,7 @@
 
 import click
 
+from .commands.benchmark import benchmark
 from .commands.build import build
 from .commands.deploy import deploy
 from .commands.organize import organize
@@ -21,6 +22,7 @@ main.add_command(organize)
 main.add_command(build)
 main.add_command(serve)
 main.add_command(deploy)
+main.add_command(benchmark)
 
 
 if __name__ == "__main__":
