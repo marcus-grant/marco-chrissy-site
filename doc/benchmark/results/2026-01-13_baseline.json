@@ -1,0 +1,37 @@
+{
+  "metadata": {
+    "date": "2026-01-13T15:40:00Z",
+    "commit": "49c68c2",
+    "description": "Baseline measurement of wedding gallery before optimization",
+    "config": {
+      "photos_per_page": 96,
+      "photo_count": 645,
+      "thumbnail_size": 400,
+      "quality": 85,
+      "collection": "wedding"
+    },
+    "notes": "Pre-optimization baseline with default settings. Tested against local server."
+  },
+  "ux_metrics": {
+    "performance_score": 76,
+    "accessibility_score": 91,
+    "best_practices_score": 92,
+    "seo_score": 83,
+    "fcp_ms": 1206,
+    "lcp_ms": 1880,
+    "cls": 0.667,
+    "tbt_ms": 0,
+    "speed_index_ms": 1206
+  },
+  "build_metrics": {
+    "validate_duration_s": 0.405,
+    "organize_duration_s": 0.408,
+    "build_duration_s": 410.652,
+    "total_pipeline_s": 411.465,
+    "thumbnail_count": 645,
+    "thumbnail_total_bytes": 19135522,
+    "html_total_bytes": 194354,
+    "css_total_bytes": 2838,
+    "html_page_count": 8
+  }
+}
