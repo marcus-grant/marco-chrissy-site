@@ -30,36 +30,42 @@ This directory contains performance metrics, analysis, and documentation for the
 # Install (one-time)
 npm install -g lighthouse
 
-# Run against production site
-lighthouse https://marcochrissy.com/galleries/wedding/ --output=json --output-path=./.benchmarks/result.json
+# Start local server
+uv run site serve --no-generate
+
+# Run Lighthouse against local server (in another terminal)
+CHROME_PATH=/usr/bin/chromium lighthouse http://localhost:8000/galleries/wedding/ \
+  --output=json --output-path=./.benchmarks/lighthouse.json \
+  --chrome-flags="--headless --no-sandbox"
 
 # Run with HTML report
-lighthouse https://marcochrissy.com/galleries/wedding/ --output=html --output-path=./.benchmarks/report.html
+CHROME_PATH=/usr/bin/chromium lighthouse http://localhost:8000/galleries/wedding/ \
+  --output=html --output-path=./.benchmarks/report.html \
+  --chrome-flags="--headless --no-sandbox"
 ```
 
-### Build Metrics: Manual Timing (Pre-automation)
+### Build Metrics: Automated
 
 ```bash
-# Time individual stages
-time uv run site validate
-time uv run site organize
-time uv run site build
-
-# Full pipeline
-time uv run site build  # cascades through all stages
-```
-
-### Build Metrics: Automated (Post Task 7.2)
-
-```bash
-# Individual command with benchmark flag
-uv run site build --benchmark
-
-# Full pipeline with benchmarking
+# Full pipeline with benchmarking (recommended)
 uv run site benchmark
+
+# Individual command with benchmark flag
+uv run site validate --benchmark
+uv run site organize --benchmark
+uv run site build --benchmark
 ```
 
 Output goes to `/.benchmarks/` (gitignored).
+
+### Build Metrics: Manual Timing
+
+```bash
+# Time individual stages manually
+time uv run site validate
+time uv run site organize
+time uv run site build
+```
 
 ## Directory Structure
 
@@ -119,9 +125,9 @@ doc/benchmark/
 }
 ```
 
-**Automated fields**: `date` only
+**Automated fields**: `date`, `commit`, `build_metrics` (all timing and sizes)
 
-**Manual fields**: `commit`, `description`, `config`, `notes`
+**Manual fields**: `description` (customized), `config`, `notes`, `ux_metrics`
 
 ## Analysis Documents
 
