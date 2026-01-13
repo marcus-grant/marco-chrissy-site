@@ -71,8 +71,9 @@ class TestServeOrchestrator:
             "manifest_path": "/test/manifest.json",
             "output_dir": "/test/output",
         }
+        # base_dir is project root (config's parent's parent)
         mock_galleria_builder.build.assert_called_once_with(
-            expected_builder_config, config_path.parent
+            expected_builder_config, config_path.parent.parent
         )
 
     @patch("galleria.orchestrator.serve.ConfigManager")
@@ -253,9 +254,10 @@ class TestServeOrchestrator:
             "manifest_path": str(manifest_path),
             "output_dir": "/test/output",
         }
+        # base_dir is project root (config's parent's parent)
         expected_calls = [
-            call(expected_builder_config, config_path.parent),
-            call(expected_builder_config, config_path.parent),
+            call(expected_builder_config, config_path.parent.parent),
+            call(expected_builder_config, config_path.parent.parent),
         ]
         mock_galleria_builder.build.assert_has_calls(expected_calls)
 
@@ -371,16 +373,16 @@ class TestServeOrchestrator:
     @patch("galleria.orchestrator.serve.GalleriaBuilder")
     @patch("galleria.orchestrator.serve.GalleriaHTTPServer")
     @patch("galleria.orchestrator.serve.FileWatcher")
-    def test_execute_resolves_relative_paths_from_config_directory(
+    def test_execute_resolves_relative_paths_from_project_root(
         self, mock_watcher, mock_server, mock_builder, mock_config
     ):
-        """execute() resolves relative paths in config relative to config file directory."""
-        # Arrange - config in subdirectory with relative paths pointing outside
+        """execute() resolves relative paths in config relative to project root (config parent's parent)."""
+        # Arrange - config in subdirectory with relative paths from project root
         config_path = Path("/project/config/galleria.json")
         mock_config_manager = mock_config.return_value
         mock_galleria_config = {
-            "output_dir": "../output/galleries",  # Relative to config dir
-            "manifest_path": "../output/pics/manifest.json",  # Relative to config dir
+            "output_dir": "output/galleries",  # Relative to project root
+            "manifest_path": "output/pics/manifest.json",  # Relative to project root
         }
         mock_config_manager.load_galleria_config.return_value = mock_galleria_config
 
@@ -389,9 +391,9 @@ class TestServeOrchestrator:
         # Act
         orchestrator.execute(config_path, no_watch=False)
 
-        # Assert - paths should be resolved relative to config_path.parent (/project/config)
-        expected_output_dir = Path("/project/config/../output/galleries")
-        expected_manifest_path = Path("/project/config/../output/pics/manifest.json")
+        # Assert - paths should be resolved relative to project root (/project)
+        expected_output_dir = Path("/project/output/galleries")
+        expected_manifest_path = Path("/project/output/pics/manifest.json")
 
         # HTTP server should receive resolved output path
         mock_server.assert_called_once_with(expected_output_dir, "127.0.0.1", 8000)

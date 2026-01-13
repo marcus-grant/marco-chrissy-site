@@ -48,8 +48,9 @@ class ServeOrchestrator:
             raw_config = self.config_manager.load_galleria_config(config_path)
 
             # Extract needed paths from config data
-            # Use config file's parent directory as base_dir for resolving relative paths
-            base_dir = config_path.parent
+            # Use project root (config's parent's parent) as base_dir for resolving relative paths
+            # This matches build/orchestrator.py which uses cwd (project root) as base_dir
+            base_dir = config_path.parent.parent
             output_dir = base_dir / raw_config["output_dir"]
             manifest_path = base_dir / raw_config["manifest_path"]
 
@@ -122,8 +123,8 @@ class ServeOrchestrator:
                         if k not in ["manifest_path", "output_dir"]
                     },
                 }
-                # Use config file's parent directory as base_dir instead of cwd()
-                base_dir = config_path.parent
+                # Use project root (config's parent's parent) as base_dir
+                base_dir = config_path.parent.parent
                 self.galleria_builder.build(updated_builder_config, base_dir)
             except Exception:
                 # Gracefully handle rebuild errors to keep server running
