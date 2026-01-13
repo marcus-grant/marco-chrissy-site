@@ -30,10 +30,10 @@ def full_url(path: str, context: BuildContext, site_url: str) -> str:
 
 
 def _make_relative_path(path: str) -> str:
-    """Convert absolute filesystem path to relative web path.
+    """Convert filesystem path to relative web path.
 
     Args:
-        path: Absolute filesystem path (e.g., /abs/path/to/output/galleries/wedding/thumbnails/img.webp)
+        path: File path (absolute or relative, e.g., output/galleries/wedding/thumbnails/img.webp)
 
     Returns:
         Relative web path (e.g., galleries/wedding/thumbnails/img.webp)
@@ -41,31 +41,32 @@ def _make_relative_path(path: str) -> str:
     if not path:
         return path
 
-    # If it's an absolute path, try to extract parts after 'output' directory
-    if os.path.isabs(path):
-        path_parts = path.split(os.sep)
-        try:
-            # Find the 'output' directory in the path
-            output_index = path_parts.index('output')
-            # Get everything after 'output'
-            relative_parts = path_parts[output_index + 1:]
-            relative_path = '/'.join(relative_parts)
+    # Normalize path separators and split into parts
+    normalized_path = path.replace(os.sep, '/')
+    path_parts = normalized_path.split('/')
 
-            # Ensure photos go to pics/full/ subdirectory for production use case
-            if (relative_path.startswith('pics/') and
-                not relative_path.startswith('pics/full/') and
-                not relative_path.startswith('pics/web/') and
-                relative_path.lower().endswith(('.jpg', '.jpeg'))):
-                # Move photos from pics/ to pics/full/
-                filename = os.path.basename(relative_path)
-                relative_path = f'pics/full/{filename}'
+    # Try to find and strip 'output' directory (the web root)
+    try:
+        output_index = path_parts.index('output')
+        # Get everything after 'output'
+        relative_parts = path_parts[output_index + 1:]
+        relative_path = '/'.join(relative_parts)
 
-            return relative_path
-        except ValueError:
-            # 'output' not found in absolute path, fall through to file type detection
-            pass
+        # Ensure photos go to pics/full/ subdirectory for production use case
+        if (relative_path.startswith('pics/') and
+            not relative_path.startswith('pics/full/') and
+            not relative_path.startswith('pics/web/') and
+            relative_path.lower().endswith(('.jpg', '.jpeg'))):
+            # Move photos from pics/ to pics/full/
+            filename = os.path.basename(relative_path)
+            relative_path = f'pics/full/{filename}'
 
-    # For relative paths OR absolute paths without 'output', check if it needs file type detection
+        return relative_path
+    except ValueError:
+        # 'output' not found in path, fall through to file type detection
+        pass
+
+    # For paths without 'output', check if it needs file type detection
     # Only apply file type detection if it's a bare filename (no directory separators)
     if os.sep not in path and '/' not in path:
         # This is a bare filename, apply file type detection
