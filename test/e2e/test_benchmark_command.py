@@ -7,7 +7,6 @@ import pytest
 from click.testing import CliRunner
 
 
-@pytest.mark.skip(reason="Benchmark command not implemented")
 class TestSiteBenchmark:
     """Test the site benchmark command functionality."""
 
