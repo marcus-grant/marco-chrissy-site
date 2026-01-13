@@ -136,6 +136,14 @@ For detailed planning guidance, templates, and examples, see: **[`PLANNING.md`](
 - [ ] `uv run ruff check --fix --unsafe-fixes && uv run pytest`
 - [ ] Commit: `Doc: Document benchmark infrastructure`
 
+**Validation Against Manual Baseline**
+
+- [ ] Run `site benchmark` against wedding gallery (clean build)
+- [ ] Compare automated results with `doc/benchmark/results/2026-01-13_baseline.json`
+- [ ] Verify build metrics match within acceptable variance (~5%)
+- [ ] Document any discrepancies and their causes
+- [ ] Commit: `Tst: Validate benchmark infrastructure against manual baseline`
+
 #### Task 7.3: Pagination Performance Comparison
 
 *Test UX metrics across different photos_per_page values*
