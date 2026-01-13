@@ -1,9 +1,11 @@
 """Benchmark data structures for performance measurement."""
 
 import json
-from dataclasses import dataclass, field, asdict
+import time
+from dataclasses import dataclass
 from datetime import datetime, timezone
-from typing import Any
+from functools import wraps
+from typing import Any, Callable
 
 
 @dataclass
@@ -133,3 +135,82 @@ class BenchmarkResult:
     def to_json(self, indent: int = 2) -> str:
         """Serialize to JSON string."""
         return json.dumps(self.to_dict(), indent=indent)
+
+
+class TimingContext:
+    """Context manager for timing code execution.
+
+    Usage as context manager:
+        with TimingContext() as timer:
+            # code to time
+        print(f"Took {timer.duration_s} seconds")
+
+    Usage as decorator:
+        @TimingContext.wrap()
+        def my_function():
+            pass
+        result, timing = my_function()
+    """
+
+    def __init__(self, track_memory: bool = False):
+        """Initialize TimingContext.
+
+        Args:
+            track_memory: Whether to track memory usage (requires tracemalloc)
+        """
+        self.track_memory = track_memory
+        self.duration_s: float | None = None
+        self.memory_bytes: int | None = None
+        self._start_time: float | None = None
+        self._start_memory: int | None = None
+
+    def __enter__(self) -> "TimingContext":
+        """Start timing."""
+        if self.track_memory:
+            import tracemalloc
+
+            tracemalloc.start()
+            self._start_memory = tracemalloc.get_traced_memory()[0]
+
+        self._start_time = time.perf_counter()
+        return self
+
+    def __exit__(self, exc_type, exc_val, exc_tb) -> None:
+        """Stop timing and record results."""
+        if self._start_time is not None:
+            self.duration_s = time.perf_counter() - self._start_time
+
+        if self.track_memory:
+            import tracemalloc
+
+            current, peak = tracemalloc.get_traced_memory()
+            tracemalloc.stop()
+            if self._start_memory is not None:
+                self.memory_bytes = current - self._start_memory
+            else:
+                self.memory_bytes = current
+
+    @classmethod
+    def wrap(
+        cls, track_memory: bool = False
+    ) -> Callable[[Callable], Callable[..., tuple[Any, "TimingContext"]]]:
+        """Create a decorator that times function execution.
+
+        Args:
+            track_memory: Whether to track memory usage
+
+        Returns:
+            Decorator that returns (result, TimingContext) tuple
+        """
+
+        def decorator(func: Callable) -> Callable[..., tuple[Any, "TimingContext"]]:
+            @wraps(func)
+            def wrapper(*args, **kwargs) -> tuple[Any, "TimingContext"]:
+                timer = cls(track_memory=track_memory)
+                with timer:
+                    result = func(*args, **kwargs)
+                return result, timer
+
+            return wrapper
+
+        return decorator

@@ -311,6 +311,7 @@ For detailed planning guidance, templates, and examples, see: **[`PLANNING.md`](
 - [ ] Verify galleria idempotency behavior and manifest-based change detection
 - [ ] Enhanced fake image fixtures for EXIF testing
 - [ ] Remove dead code (old manifest serializer, thumbnail processor)
+- [ ] **Rename build/ to builders/**: Directory conflicts with Python's `build/` artifact directory in `.gitignore`. Rename module and update all imports.
 
 ### Medium-term Features
 

@@ -144,3 +144,57 @@ class TestBuildMetrics:
 
         # Should still calculate total with available values
         assert metrics.total_pipeline_s == 100.0
+
+
+class TestTimingContext:
+    """Test timing context manager for benchmark instrumentation."""
+
+    def test_timing_context_captures_duration(self):
+        """Test TimingContext captures elapsed time in seconds."""
+        import time
+
+        from build.benchmark import TimingContext
+
+        with TimingContext() as timer:
+            time.sleep(0.1)
+
+        # Should capture approximately 0.1 seconds
+        assert timer.duration_s is not None
+        assert 0.05 < timer.duration_s < 0.3  # Allow some variance
+
+    def test_timing_context_captures_memory_when_enabled(self):
+        """Test TimingContext captures memory usage when track_memory=True."""
+        from build.benchmark import TimingContext
+
+        with TimingContext(track_memory=True) as timer:
+            # Allocate some memory
+            _ = [i for i in range(10000)]
+
+        assert timer.memory_bytes is not None
+        assert timer.memory_bytes >= 0
+
+    def test_timing_context_memory_none_when_disabled(self):
+        """Test TimingContext memory is None when track_memory=False."""
+        from build.benchmark import TimingContext
+
+        with TimingContext(track_memory=False) as timer:
+            pass
+
+        assert timer.memory_bytes is None
+
+    def test_timing_context_as_decorator(self):
+        """Test TimingContext can be used as a decorator."""
+        import time
+
+        from build.benchmark import TimingContext
+
+        @TimingContext.wrap()
+        def slow_function():
+            time.sleep(0.05)
+            return "done"
+
+        result, timing = slow_function()
+
+        assert result == "done"
+        assert timing.duration_s is not None
+        assert timing.duration_s > 0.01
