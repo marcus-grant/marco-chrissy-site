@@ -31,14 +31,47 @@ The shared component system integrates with:
 ## Key Components
 
 ### Navigation Component
-**Location:** `themes/shared/templates/shared/header.html`
-**Purpose:** Consistent navigation across all pages
-**Content:** Main site navigation menu
+
+The navbar exists in two locations that must stay synchronized:
+
+| File | Used By | Include Syntax |
+|------|---------|----------------|
+| `templates/navbar.html` | Galleria | `{% include 'navbar.html' ignore missing %}` |
+| `templates/shared/header.html` | Pelican | `{% include "shared/header.html" %}` |
+
+**Structure:** CSS-only responsive hamburger menu
+- Checkbox input for toggle state (no JavaScript required)
+- Label with animated hamburger icon
+- Nav links container that collapses on mobile (<768px)
+
+**Behavior:**
+- Desktop: Horizontal links, hamburger hidden
+- Mobile: Hamburger visible, links in dropdown
+- Sticky positioning (stays at top on scroll)
 
 ### Shared CSS
 **Location:** `themes/shared/static/css/shared.css`
-**Purpose:** Consistent styling and layout
+**Purpose:** Consistent styling, layout, and responsive design
 **Scope:** Site-wide visual consistency
+
+**CSS Custom Properties:**
+```css
+:root {
+  /* Breakpoints */
+  --breakpoint-sm: 480px;   /* Mobile landscape */
+  --breakpoint-md: 768px;   /* Tablet / navbar collapse */
+  --breakpoint-lg: 1024px;  /* Desktop */
+  --breakpoint-xl: 1200px;  /* Large desktop */
+
+  /* Accessibility */
+  --touch-target-min: 44px; /* WCAG 2.1 AAA */
+
+  /* Spacing scale */
+  --spacing-xs/sm/md/lg
+}
+```
+
+**Responsive Typography:** Uses `clamp()` for fluid font sizing that scales smoothly between viewports without breakpoint jumps.
 
 ### Base Template Structure
 **Location:** `themes/shared/templates/base.html`

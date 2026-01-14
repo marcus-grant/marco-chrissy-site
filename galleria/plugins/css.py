@@ -115,18 +115,37 @@ class BasicCSSPlugin(CSSPlugin):
             )
 
     def _generate_gallery_css(self, config: dict) -> str:
-        """Generate base gallery CSS styles."""
+        """Generate base gallery CSS styles with mobile-first responsive grid."""
         layout = config.get("layout", "grid")
 
         if layout == "grid":
-            return """/* Grid Layout Gallery Styles */
+            return """/* Grid Layout Gallery Styles - Mobile First */
 .gallery.layout-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    grid-template-columns: repeat(2, 1fr);
     gap: 1rem;
     padding: 1rem;
-    max-width: 1200px;
+    max-width: 1400px;
     margin: 0 auto;
+}
+
+/* Responsive Grid Breakpoints */
+@media (min-width: 560px) {
+    .gallery.layout-grid {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
+
+@media (min-width: 768px) {
+    .gallery.layout-grid {
+        grid-template-columns: repeat(4, 1fr);
+    }
+}
+
+@media (min-width: 1024px) {
+    .gallery.layout-grid {
+        grid-template-columns: repeat(6, 1fr);
+    }
 }
 
 .gallery.layout-grid .photo-item {
@@ -174,6 +193,11 @@ header h1 {
 }
 
 .pagination a {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 44px;
+    min-width: 6em;
     text-decoration: none;
     padding: 0.5rem 1rem;
     border: 1px solid #ddd;
@@ -264,6 +288,11 @@ header h1 {
 }
 
 .pagination a {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 44px;
+    min-width: 6em;
     text-decoration: none;
     padding: 0.5rem 1rem;
     border: 1px solid #ddd;
