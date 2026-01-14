@@ -16,16 +16,20 @@ For detailed planning guidance, templates, and examples, see: **[`PLANNING.md`](
 
 ### Final Pre-MVP Bookkeeping Tasks
 
-- [ ] **Changelog Migration Verification**
-  - [ ] Verify all entries from 2024-12-04 and older moved to `doc/release/0-1.md`
-  - [ ] Confirm only 2025-12-05 and newer remain in main `CHANGELOG.md`
-  - [ ] Update `doc/release/README.md` with comprehensive 0.1.0 MVP summary
+- [x] **Changelog Migration Verification**
+  - [x] Migrate all changelog entries to `doc/release/0-1.md`
+  - [x] Leave `CHANGELOG.md` as empty buffer for next release cycle
+  - [x] Update `doc/release/README.md` with comprehensive 0.1.0 MVP summary
 
 - [ ] **Documentation Quality Assurance**
   - [ ] Review all 40 documentation files for accuracy and consistency
-  - [ ] Verify all internal links work correctly  
+  - [ ] Verify all internal links work correctly
   - [ ] Update outdated information and remove "future" annotations for completed features
   - [ ] Standardize formatting, terminology, and structure across all docs
+
+- [x] **Versioning Workflow Documentation**
+  - [x] Add version number change discussion rule to CONTRIBUTE.md
+  - [x] Document semantic versioning guidelines for PRs
 
 - [ ] **Dead Code Investigation & Removal**
   - [ ] Investigate and remove old non-plugin based manifest serializer

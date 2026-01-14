@@ -126,6 +126,12 @@ For detailed planning guidance, templates, and examples, see: **[`PLANNING.md`](
   * `Pln:` for planning/TODO updates
 * No signature block - do not include emoji, links, or Co-Authored-By lines
 
+## Version Number Changes
+
+* Before creating a PR, prompt the project manager about whether the changes warrant a version number bump
+* Format: X.Y.Z (major.minor.patch)
+* Discuss before PR creation, not after
+
 ## Commit Size Limits
 
 * **NEVER create commits with 1000+ line changes**
