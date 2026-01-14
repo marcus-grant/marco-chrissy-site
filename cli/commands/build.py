@@ -4,6 +4,7 @@ import os
 
 import click
 
+from build.benchmark import TimingContext
 from build.exceptions import BuildError
 from build.orchestrator import BuildOrchestrator
 
@@ -11,9 +12,14 @@ from .organize import organize
 
 
 @click.command()
-def build():
+@click.option("--benchmark", is_flag=True, help="Output timing metrics for benchmarking")
+def build(benchmark: bool):
     """Build the complete site with galleries and pages."""
     click.echo("Building site...")
+
+    timer = TimingContext() if benchmark else None
+    if timer:
+        timer.__enter__()
 
     # Run organize first (cascading pattern)
     click.echo("Running organization...")
@@ -30,6 +36,10 @@ def build():
         orchestrator = BuildOrchestrator()
         orchestrator.execute()
         click.echo("✓ Build completed successfully!")
+
+        if timer:
+            timer.__exit__(None, None, None)
+            click.echo(f"Benchmark: build duration {timer.duration_s:.3f} seconds")
 
     except BuildError as e:
         click.echo(f"✗ Build failed: {e}")

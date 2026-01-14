@@ -2,10 +2,8 @@
   "manifest_path": "output/pics/full/manifest.json",
   "output_dir": "output/galleries/wedding",
   "thumbnail_size": 400,
-  "photos_per_page": 20,
+  "photos_per_page": 96,
   "theme": "minimal",
-  "theme_path": "galleria/themes/minimal",
   "quality": 85,
-  "layout": "grid",
-  "THEME_TEMPLATES_OVERRIDES": "themes/shared"
+  "layout": "grid"
 }

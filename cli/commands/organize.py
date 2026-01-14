@@ -2,15 +2,21 @@
 
 import click
 
+from build.benchmark import TimingContext
 from organizer.normpic import NormPicOrganizer
 
 from .validate import validate
 
 
 @click.command()
-def organize():
+@click.option("--benchmark", is_flag=True, help="Output timing metrics for benchmarking")
+def organize(benchmark: bool):
     """Orchestrate NormPic photo organization."""
     click.echo("Running photo organization...")
+
+    timer = TimingContext() if benchmark else None
+    if timer:
+        timer.__enter__()
 
     # Run validation first (cascading pattern)
     click.echo("Running validation checks...")
@@ -24,6 +30,9 @@ def organize():
     if organizer.is_already_organized():
         click.echo("✓ Photos are already organized, skipping...")
         click.echo("Organization completed successfully!")
+        if timer:
+            timer.__exit__(None, None, None)
+            click.echo(f"Benchmark: organize duration {timer.duration_s:.3f} seconds")
         return
 
     # Organize photos using NormPic
@@ -43,3 +52,7 @@ def organize():
         ctx.exit(1)
 
     click.echo("Organization completed successfully!")
+
+    if timer:
+        timer.__exit__(None, None, None)
+        click.echo(f"Benchmark: organize duration {timer.duration_s:.3f} seconds")

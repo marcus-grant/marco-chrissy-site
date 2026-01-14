@@ -10,49 +10,9 @@ Tasks in this file follow the systematic planning approach defined in [`PLANNING
 
 For detailed planning guidance, templates, and examples, see: **[`PLANNING.md`](PLANNING.md)**
 
-## Blocking Issues
-
-#### Task: Clean Up Technical Debt from CLI Setup (Branch: main)
-
-*Problem Statement: Command cascading functionality is already implemented and working, but placeholder test with skip decorator was never updated to provide automated verification.*
-
-**Priority: Clean up before new feature work**
-- [ ] Verify command cascading already works: `site deploy` automatically calls `site build` if needed
-- [ ] Remove `@pytest.mark.skip(reason="Command cascading not yet implemented")` from `test/e2e/test_site_command.py:51`
-- [ ] Implement automated test verification for existing cascading behavior
-- [ ] Test that deploy checks for missing/stale output and triggers build automatically
-- [ ] Confirm all commands work correctly with existing cascading behavior
-
-
-#### Task: Fix Shared Components Styling Inconsistency
-
-*Problem Statement: Shared components (navbar, CSS) appear differently between Pelican pages and Galleria pages on production, but work correctly when served locally. This suggests an issue with how shared assets are deployed or referenced.*
-
-- [ ] Compare local vs production shared component rendering between Pelican and Galleria pages
-- [ ] Investigate shared asset deployment and referencing inconsistencies  
-- [ ] Fix deployment or reference issues to ensure consistent styling across page types
-
-## MVP Roadmap
-
-### Phase 7: Performance Baseline
-
-- [ ] Measure initial performance metrics
-  - [ ] Pipeline timing: validate, organize (16s), build (6m4s), deploy step durations
-  - [ ] Thumbnail generation: time per photo, batch processing efficiency  
-  - [ ] Page weight (HTML + CSS + thumbnails)
-  - [ ] Core Web Vitals (FCP, LCP, TTI, CLS, TBT)
-  - [ ] Lighthouse scores
-  - [ ] Memory usage during gallery generation and deployment
-- [ ] Document baseline metrics
-- [ ] Create performance tracking spreadsheet
-- [ ] Deployment optimization
-  - [ ] Compare CDN manifest with local manifest to determine upload needs
-  - [ ] Photo collections: lazy upload (only changed files)
-  - [ ] Site content: always upload (smaller transfer, less optimization needed)
-
 ## MVP 0.1.0 Release Preparation
 
-**Prerequisites**: All Phase 4-7 tasks must be completed first.
+**Prerequisites**: All prior MVP phase tasks must be completed first.
 
 ### Final Pre-MVP Bookkeeping Tasks
 
@@ -79,6 +39,9 @@ For detailed planning guidance, templates, and examples, see: **[`PLANNING.md`](
   - [ ] Test complete pipeline (validate→organize→build) end-to-end
   - [ ] Validate configuration system completeness
   - [ ] Performance metrics documentation
+
+- [ ] **Edge Rules Production Finalization**
+  - [ ] Change Edge Rules from 302 temporary to 301 permanent redirects after monitoring production stability
 
 - [ ] **Version 0.1.0 Release Finalization**
   - [ ] Final ruff/pytest run across entire codebase (target: 0 failures)
@@ -157,13 +120,17 @@ For detailed planning guidance, templates, and examples, see: **[`PLANNING.md`](
 
 - [ ] `gh pr create --title "Ft: Implement mobile-first responsive layout" --body "Creates responsive design system with touch-friendly navigation, mobile-optimized gallery grid, and consistent mobile experience across all page types"`
 
-### Performance Optimizations  
+### Performance Optimizations
 
 - [ ] Gallery lazy loading with JS progressive enhancement
 - [ ] Basic
 - [ ] Parallel thumbnail processing and incremental generation
 - [ ] Dark mode toggle (CSS variables + minimal JS)
 - [ ] WebP compression optimization
+- [ ] **Deployment Metrics** *(requires planning task before implementation)*
+  - [ ] Upload volume analysis (files changed vs total, bytes transferred)
+  - [ ] CDN performance analysis (cache hits, edge response times)
+  - [ ] Lighthouse testing against CDN for production UX metrics
 
 ### Shared Component Enhancements
 
@@ -192,6 +159,7 @@ For detailed planning guidance, templates, and examples, see: **[`PLANNING.md`](
 - [ ] Verify galleria idempotency behavior and manifest-based change detection
 - [ ] Enhanced fake image fixtures for EXIF testing
 - [ ] Remove dead code (old manifest serializer, thumbnail processor)
+- [ ] **Rename build/ to builders/**: Directory conflicts with Python's `build/` artifact directory in `.gitignore`. Rename module and update all imports.
 
 ### Medium-term Features
 

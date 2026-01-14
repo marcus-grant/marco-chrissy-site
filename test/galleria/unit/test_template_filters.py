@@ -80,3 +80,19 @@ class TestTemplateURLFilters:
 
         result = full_url("gallery.css", context, site_url)
         assert result == "/gallery.css"
+
+    def test_full_url_filter_strips_output_from_relative_paths(self):
+        """full_url filter should strip output/ prefix from relative paths.
+
+        The output/ directory IS the web root, so paths like
+        output/galleries/wedding/thumbnails/photo.webp should become
+        /galleries/wedding/thumbnails/photo.webp (not /output/galleries/...).
+        """
+        from galleria.template.filters import full_url
+
+        context = BuildContext(production=True)
+        site_url = "https://marco-chrissy.com"
+
+        # Relative path starting with output/ - this is the bug case
+        result = full_url("output/galleries/wedding/thumbnails/photo.webp", context, site_url)
+        assert result == "/galleries/wedding/thumbnails/photo.webp"

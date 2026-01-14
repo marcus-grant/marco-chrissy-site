@@ -143,9 +143,11 @@ This is the home page content.
         "pelican": {
             "author": "Test",
             "sitename": "Test Site",
+            "site_url": "https://marco-chrissy.com",  # Test with problematic domain
             "theme": "themes/site",  # Use custom theme as primary
             "content_path": "content",
-            "THEME_TEMPLATES_OVERRIDES": "themes/shared"  # Correct plural setting name
+            "THEME_TEMPLATES_OVERRIDES": "themes/shared",  # Correct plural setting name
+            "RELATIVE_URLS": True  # Should generate relative CSS paths
         },
         "galleria": {
             "manifest_path": "output/pics/full/manifest.json",
@@ -194,6 +196,16 @@ This is the home page content.
 
     # Check Pelican HTML links to shared CSS
     assert 'shared.css' in pelican_content, "Pelican HTML should reference shared CSS file"
+
+    # CRITICAL: Check Pelican uses relative URLs, not absolute URLs to non-existent domain
+    import re
+    css_link_pattern = r'<link[^>]*href="([^"]*shared\.css)"[^>]*>'
+    css_matches = re.findall(css_link_pattern, pelican_content)
+    assert css_matches, "No CSS link found for shared.css in Pelican output"
+
+    pelican_css_url = css_matches[0]
+    assert not pelican_css_url.startswith('http'), f"Pelican CSS URL should be relative, got: {pelican_css_url}"
+    assert not pelican_css_url.startswith('https://marco-chrissy.com'), f"Pelican should not use non-existent domain, got: {pelican_css_url}"
 
     # Check Galleria output contains shared navbar
     galleria_page = temp_filesystem / "output" / "galleries" / "wedding" / "page_1.html"

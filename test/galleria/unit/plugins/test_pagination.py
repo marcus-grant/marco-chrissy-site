@@ -215,7 +215,11 @@ class TestPaginationPluginValidation:
     """Test PaginationPlugin input validation and error handling."""
 
     def test_pagination_validates_page_size_configuration(self, tmp_path):
-        """Pagination should validate page_size configuration."""
+        """Pagination should validate page_size configuration.
+
+        Valid range is 1-500 to support performance benchmarking with
+        different pagination configurations (20, 48, 96, 144, 192, 384).
+        """
 
         class ValidatingPaginationPlugin(TransformPlugin):
             @property
@@ -236,11 +240,11 @@ class TestPaginationPluginValidation:
                         errors=["INVALID_PAGE_SIZE: page_size must be positive"],
                     )
 
-                if page_size > 100:
+                if page_size > 500:
                     return PluginResult(
                         success=False,
                         output_data={},
-                        errors=["INVALID_PAGE_SIZE: page_size must be <= 100"],
+                        errors=["INVALID_PAGE_SIZE: page_size must be <= 500"],
                     )
 
                 return PluginResult(
@@ -266,10 +270,21 @@ class TestPaginationPluginValidation:
         assert result.errors
         assert "INVALID_PAGE_SIZE" in result.errors[0]
 
-        # Invalid page_size (too large) should fail validation
+        # Valid high page_size (384) should succeed for benchmarking
         context = PluginContext(
             input_data={"photos": [], "collection_name": "test"},
-            config={"page_size": 200},
+            config={"page_size": 384},
+            output_dir=tmp_path,
+        )
+
+        result = plugin.transform_data(context)
+        assert result.success
+        assert result.output_data["transform_metadata"]["page_size"] == 384
+
+        # Invalid page_size (exceeds 500) should fail validation
+        context = PluginContext(
+            input_data={"photos": [], "collection_name": "test"},
+            config={"page_size": 600},
             output_dir=tmp_path,
         )
 

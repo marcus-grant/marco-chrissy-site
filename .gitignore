@@ -47,6 +47,7 @@ config/output/
 *.log
 .cache/
 tmp/
+.benchmarks/
 
 # Photos (should be managed by NormPic externally)
 *.jpg

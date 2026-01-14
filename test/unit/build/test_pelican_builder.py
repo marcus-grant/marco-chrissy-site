@@ -269,3 +269,89 @@ Test content.""")
             html_content = output_html.read_text()
             assert 'shared.css' in html_content, "HTML should reference shared.css"
 
+    def test_build_passes_relative_urls_setting_to_pelican(self, temp_filesystem, file_factory, directory_factory, mock_site_config, config_file_factory):
+        """Test that PelicanBuilder passes RELATIVE_URLS setting from config to Pelican."""
+        from unittest.mock import patch, Mock
+        import json
+        
+        # Create content using fixtures
+        directory_factory("content")
+        file_factory("content/test.md", """Title: Test
+Date: 2023-01-01
+
+Test content.""")
+        
+        # Create pelican config with RELATIVE_URLS using config_file_factory
+        pelican_config_path = config_file_factory("pelican", {
+            "author": "Test Author",
+            "sitename": "Test Site",
+            "site_url": "https://example.com", 
+            "content_path": "content",
+            "theme": "notmyidea",
+            "RELATIVE_URLS": True  # This should be passed to Pelican
+        })
+        
+        # Load the config
+        with open(pelican_config_path) as f:
+            pelican_config = json.load(f)
+        
+        builder = PelicanBuilder()
+        
+        with patch('build.pelican_builder.pelican.Pelican') as mock_pelican_class:
+            with patch('build.pelican_builder.configure_settings') as mock_configure:
+                mock_configure.return_value = {}
+                mock_pelican_class.return_value.run.return_value = None
+                
+                result = builder.build(mock_site_config, pelican_config, temp_filesystem)
+                
+                # Verify configure_settings was called with RELATIVE_URLS=True
+                mock_configure.assert_called_once()
+                settings_dict = mock_configure.call_args[0][0]
+                
+                assert 'RELATIVE_URLS' in settings_dict, "RELATIVE_URLS should be passed to Pelican"
+                assert settings_dict['RELATIVE_URLS'] is True, "RELATIVE_URLS should be True when set in config"
+                assert result is True
+
+    def test_build_respects_relative_urls_false_setting(self, temp_filesystem, file_factory, directory_factory, mock_site_config, config_file_factory):
+        """Test that PelicanBuilder respects RELATIVE_URLS=False setting."""
+        from unittest.mock import patch, Mock
+        import json
+        
+        # Create content using fixtures
+        directory_factory("content")
+        file_factory("content/test.md", """Title: Test
+Date: 2023-01-01
+
+Test content.""")
+        
+        # Create pelican config with RELATIVE_URLS=False using config_file_factory
+        pelican_config_path = config_file_factory("pelican", {
+            "author": "Test Author",
+            "sitename": "Test Site",
+            "site_url": "https://example.com",
+            "content_path": "content", 
+            "theme": "notmyidea",
+            "RELATIVE_URLS": False  # Explicitly set to False
+        })
+        
+        # Load the config
+        with open(pelican_config_path) as f:
+            pelican_config = json.load(f)
+        
+        builder = PelicanBuilder()
+        
+        with patch('build.pelican_builder.pelican.Pelican') as mock_pelican_class:
+            with patch('build.pelican_builder.configure_settings') as mock_configure:
+                mock_configure.return_value = {}
+                mock_pelican_class.return_value.run.return_value = None
+                
+                result = builder.build(mock_site_config, pelican_config, temp_filesystem)
+                
+                # Verify configure_settings was called with RELATIVE_URLS=False
+                mock_configure.assert_called_once()
+                settings_dict = mock_configure.call_args[0][0]
+                
+                assert 'RELATIVE_URLS' in settings_dict, "RELATIVE_URLS should be passed to Pelican" 
+                assert settings_dict['RELATIVE_URLS'] is False, "RELATIVE_URLS should be False when explicitly set"
+                assert result is True
+
