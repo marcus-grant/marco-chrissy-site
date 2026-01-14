@@ -18,3 +18,11 @@ Buffer for changes during current development cycle. Migrated to `doc/release/X-
 
 ---
 
+## 2026-01-14
+
+- Add E2E tests for responsive layout (skipped until implementation)
+  - CSS variables: breakpoints, touch targets, spacing
+  - Gallery grid: 1→2→3→4→6 column breakpoints
+  - Navbar: CSS-only mobile menu structure
+  - Typography: clamp() for fluid sizing
+

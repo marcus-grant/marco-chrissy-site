@@ -34,16 +34,16 @@ Tasks in this file follow the systematic planning approach defined in [`PLANNING
 
 **Initial Setup & E2E Test Definition**
 
-- [ ] Create E2E test in `test/e2e/test_responsive_layout.py`
-  - [ ] Test CSS variables exist (breakpoints, touch-target sizes)
-  - [ ] Test gallery grid adapts 1→2→3→4→6 columns at breakpoints
-  - [ ] Test touch targets meet 44px minimum requirement
-  - [ ] Test navbar has mobile menu structure (CSS-only checkbox hack)
-  - [ ] Test responsive typography uses clamp()
-  - [ ] Add `@pytest.mark.skip("Responsive layout not implemented")`
-- [ ] `uv run ruff check --fix --unsafe-fixes && uv run pytest`
-- [ ] Update TODO.md and CHANGELOG.md
-- [ ] Commit: `Tst: Add E2E test for responsive layout (skipped)`
+- [x] Create E2E test in `test/e2e/test_responsive_layout.py`
+  - [x] Test CSS variables exist (breakpoints, touch-target sizes)
+  - [x] Test gallery grid adapts 1→2→3→4→6 columns at breakpoints
+  - [x] Test touch targets meet 44px minimum requirement
+  - [x] Test navbar has mobile menu structure (CSS-only checkbox hack)
+  - [x] Test responsive typography uses clamp()
+  - [x] Add `@pytest.mark.skip("Responsive layout not implemented")`
+- [x] `uv run ruff check --fix --unsafe-fixes && uv run pytest`
+- [x] Update TODO.md and CHANGELOG.md
+- [x] Commit: `Tst: Add E2E test for responsive layout (skipped)`
 
 **TDD Implementation**
 
