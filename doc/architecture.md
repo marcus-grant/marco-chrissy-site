@@ -294,7 +294,7 @@ galleria/
 
 Each stage has defined data contracts and can be extended through the plugin system. The complete plugin system is implemented and tested with 239 comprehensive tests, including full end-to-end CLI validation.
 
-See [Plugin System Documentation](modules/galleria/plugin-system.md) for detailed interface specifications.
+See [Galleria Module Documentation](modules/galleria/README.md) for detailed interface specifications.
 
 ### Galleria CLI Interface
 

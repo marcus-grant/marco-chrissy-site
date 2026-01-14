@@ -109,9 +109,9 @@ python -m galleria serve \
   --verbose
 
 # Development workflow example
-python -m galleria serve --config config/wedding.json --verbose
+python -m galleria serve --config config/galleria/wedding.json --verbose
 # Server starts at http://127.0.0.1:8000
-# Edit config/wedding.json or manifest.json
+# Edit config/galleria/wedding.json or manifest.json
 # Gallery automatically regenerates and updates in browser
 ```
 

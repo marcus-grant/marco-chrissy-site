@@ -15,11 +15,13 @@ The site orchestrates multiple tools to generate static content deployed to Bunn
 - [CHANGELOG](CHANGELOG.md) - Recent development changes
 - [Release Archive](release/) - Archived changelog entries by version
 - [Planning Guide](PLANNING.md) - Task planning workflow and TDD methodology
+- [Development Guidelines](CONTRIBUTE.md) - Development rules and commit workflow
+- [Handoff Guide](HANDOFF.md) - Context handoff for session continuity
 - [Development Workflow](workflow.md) - TDD workflow and site command pipeline
 - [Testing Guide](testing.md) - Test organization, fixtures, and development patterns
 - [Architecture](architecture.md) - System design and integration patterns
 - [Provider Architecture](provider-architecture.md) - Plugin-based photo collection providers
-- [Configuration Guide](bconfiguration.md) - Config file formats and examples
+- [Configuration Guide](configuration.md) - Config file formats and examples
 - [Bunny.net Setup](bunnynet.md) - CDN deployment with dual zone strategy
 - [Commands](commands/) - Command system and workflow documentation
 - [Modules](modules/) - Module organization and structure

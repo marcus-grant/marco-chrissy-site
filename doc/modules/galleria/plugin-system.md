@@ -438,8 +438,6 @@ When developing plugins:
 6. Include comprehensive unit tests
 7. Document plugin-specific configuration options
 
-## Future Enhancements
-
 ## Plugin Registry
 
 The `PluginRegistry` provides centralized management for plugin instances:

@@ -129,7 +129,7 @@ The serve command uses an orchestrator pattern that separates CLI concerns from 
 
 The serve command automatically starts required backend servers:
 
-1. **Galleria Server**: Started with `galleria serve --config config/galleria.toml --port <galleria-port>`
+1. **Galleria Server**: Started with `galleria serve --config config/galleria.json --port <galleria-port>`
 2. **Pelican Server**: Started with `pelican --listen --port <pelican-port> --bind 127.0.0.1 output`
 
 Both servers are terminated cleanly when the proxy server shuts down.

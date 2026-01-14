@@ -163,3 +163,25 @@ Configuration files are automatically loaded by commands:
 ## Extraction Readiness
 
 The galleria configuration is designed to be extraction-ready for future standalone package use. The schema contains no wedding-site-specific fields and follows generic configuration patterns.
+
+## Environment Variables
+
+Environment variables can override configuration file settings:
+
+```bash
+# Bunny CDN credentials
+export BUNNYNET_PHOTO_ZONE_PASSWORD="your-photo-zone-password"
+export BUNNYNET_SITE_ZONE_PASSWORD="your-site-zone-password"
+
+# Optional path overrides
+export OUTPUT_DIR="/var/www/site"
+```
+
+## Configuration Precedence
+
+Configuration values are resolved in this order (highest to lowest priority):
+
+1. Command-line arguments
+2. Environment variables
+3. Configuration files
+4. Default values

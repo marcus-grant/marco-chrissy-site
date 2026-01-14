@@ -1,4 +1,6 @@
-# Development Commands
+# Development Commands (Planned)
+
+> **Note**: These commands are planned for future implementation. Currently, use `uv run` directly for development tasks (e.g., `uv run pytest`, `uv run ruff check`).
 
 ## Cascading Dev Commands
 

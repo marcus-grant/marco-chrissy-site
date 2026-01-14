@@ -265,7 +265,7 @@ def test_validator_function(self, temp_filesystem, file_factory):
 
 Galleria has its own comprehensive fixture ecosystem for serve command testing and general galleria development. These fixtures are duplicated for independence to support future extraction as a standalone package.
 
-See: [Galleria Testing Fixtures Guide](modules/galleria/testing-fixtures.md)
+See: [Galleria Module Documentation](modules/galleria/README.md) (includes fixtures guide)
 
 **Key Galleria Fixtures:**
 - `complete_serving_scenario` - End-to-end serve command scenarios

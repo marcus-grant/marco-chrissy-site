@@ -135,7 +135,7 @@ Shared templates use conditional logic to adapt to different system contexts:
 
 - [External Integration](external-integration.md) - Integration with external projects
 - [Pelican Integration](../pelican/README.md) - Pelican-specific configuration
-- [Galleria Themes](../galleria/themes.md) - Galleria theme system
+- [Galleria Module](../galleria/README.md) - Galleria theme and template system
 
 ## Future Enhancements
 

@@ -8,9 +8,12 @@ This project uses a molecule-inspired cascading command system where each comman
 
 - [Pipeline Commands](pipeline.md) - Main site building commands
 - [Validate Command](validate.md) - Pre-flight checks and validation
+- [Organize Command](organize.md) - NormPic photo organization
 - [Build Command](build.md) - Complete site generation documentation
+- [Deploy Command](deploy.md) - CDN deployment with dual zone strategy
 - [Serve Command](serve.md) - Development server with proxy routing
-- [Development Commands](development.md) - Developer workflow commands  
+- [Benchmark Command](benchmark.md) - Pipeline performance metrics
+- [Development Commands](development.md) - Developer workflow commands (planned)
 - [Galleria Commands](galleria.md) - Gallery-specific commands
 
 ## Command Pattern

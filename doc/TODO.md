@@ -21,21 +21,41 @@ For detailed planning guidance, templates, and examples, see: **[`PLANNING.md`](
   - [x] Leave `CHANGELOG.md` as empty buffer for next release cycle
   - [x] Update `doc/release/README.md` with comprehensive 0.1.0 MVP summary
 
-- [ ] **Documentation Quality Assurance**
-  - [ ] Review all 40 documentation files for accuracy and consistency
-  - [ ] Verify all internal links work correctly
-  - [ ] Update outdated information and remove "future" annotations for completed features
-  - [ ] Standardize formatting, terminology, and structure across all docs
+- [x] **Documentation Quality Assurance** *(Completed 2026-01-14)*
+  - [x] Review all documentation files for accuracy and consistency (8 parallel agents ran)
+  - [x] Merged duplicate bconfiguration.md into configuration.md
+  - [x] Created missing command docs: organize.md, benchmark.md
+  - [x] Fixed broken links and config path references
+  - [x] Updated galleria README status and nav links
+  - [x] Added HANDOFF.md and CONTRIBUTE.md to doc/README.md
+  - [x] Fixed link hierarchy violations (deep links now use READMEs)
+  - [x] Marked development.md commands as planned/future
 
 - [x] **Versioning Workflow Documentation**
   - [x] Add version number change discussion rule to CONTRIBUTE.md
   - [x] Document semantic versioning guidelines for PRs
 
 - [ ] **Dead Code Investigation & Removal**
-  - [ ] Investigate and remove old non-plugin based manifest serializer
-  - [ ] Remove old thumbnail processor that bypassed plugin interfaces  
-  - [ ] Scan for unused configuration files or deprecated settings
-  - [ ] Remove commented-out code blocks and duplicate implementations
+
+  **Phase 1: Investigation** (document findings before any removal)
+  - [ ] Search `galleria/` for manifest/serializer code not using plugin interface
+  - [ ] Search for PIL/Pillow image processing outside processor plugins
+  - [ ] Check `config/` for files not referenced in codebase
+  - [ ] Scan for large commented-out code blocks (not single-line comments)
+  - [ ] Identify `@pytest.skip` tests - distinguish post-MVP features from dead code
+
+  **Phase 2: Verification**
+  - [ ] For each candidate, trace code paths to confirm unused
+  - [ ] Check git history for context on why code exists
+  - [ ] Document findings in this TODO before removal
+
+  **Phase 3: Removal** (small commits, one area at a time)
+  - [ ] Remove old non-plugin based manifest serializer (if found)
+  - [ ] Remove old thumbnail processor bypassing plugin interfaces (if found)
+  - [ ] Remove unused configuration files or deprecated settings (if found)
+  - [ ] Remove confirmed dead code blocks
+
+  **Important**: Skipped tests for post-MVP features are NOT dead code - they're placeholders for future work
 
 - [ ] **MVP Success Criteria Verification**
   - [ ] Verify build process is repeatable via script
