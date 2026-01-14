@@ -193,6 +193,11 @@ header h1 {
 }
 
 .pagination a {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 44px;
+    min-width: 6em;
     text-decoration: none;
     padding: 0.5rem 1rem;
     border: 1px solid #ddd;
@@ -283,6 +288,11 @@ header h1 {
 }
 
 .pagination a {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 44px;
+    min-width: 6em;
     text-decoration: none;
     padding: 0.5rem 1rem;
     border: 1px solid #ddd;

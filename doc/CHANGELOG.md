@@ -20,6 +20,7 @@ Buffer for changes during current development cycle. Migrated to `doc/release/X-
 
 ## 2026-01-14
 
+- Add touch-friendly pagination controls (44px min-height/min-width)
 - Fix navbar margin by adding body reset (margin: 0) to shared.css
 - Fix Pelican navbar to use responsive hamburger structure
   - Updated shared/header.html to match navbar.html structure

@@ -88,11 +88,11 @@ Tasks in this file follow the systematic planning approach defined in [`PLANNING
 
 *Touch-Friendly Pagination*
 
-- [ ] Write unit test for pagination touch target sizing
-- [ ] Update pagination CSS: `min-height: 44px`, `min-width: 44px`
-- [ ] `uv run ruff check --fix --unsafe-fixes && uv run pytest`
-- [ ] Update TODO.md and CHANGELOG.md
-- [ ] Commit: `Ft: Add touch-friendly pagination controls`
+- [x] Write unit test for pagination touch target sizing
+- [x] Update pagination CSS: `min-height: 44px`, `min-width: 44px`
+- [x] `uv run ruff check --fix --unsafe-fixes && uv run pytest`
+- [x] Update TODO.md and CHANGELOG.md
+- [x] Commit: `Ft: Add touch-friendly pagination controls`
 
 *Responsive Typography*
 

@@ -520,3 +520,55 @@ class TestResponsiveGalleryGrid:
         assert "min-width: 560px" in gallery_css, "Should use min-width for 560px"
         assert "min-width: 768px" in gallery_css, "Should use min-width for 768px"
         assert "min-width: 1024px" in gallery_css, "Should use min-width for 1024px"
+
+
+class TestPaginationTouchTargets:
+    """Test pagination CSS has touch-friendly target sizes per WCAG 2.1 AAA."""
+
+    def test_pagination_links_have_min_height_44px(self, tmp_path):
+        """Verify pagination links have min-height: 44px for touch accessibility."""
+        from galleria.plugins.css import BasicCSSPlugin
+
+        plugin = BasicCSSPlugin()
+        context = PluginContext(
+            input_data={
+                "collection_name": "test",
+                "html_files": [{"filename": "page_1.html"}],
+            },
+            config={"layout": "grid"},
+            output_dir=tmp_path,
+        )
+
+        result = plugin.generate_css(context)
+        gallery_css = next(
+            f["content"] for f in result.output_data["css_files"]
+            if f["filename"] == "gallery.css"
+        )
+
+        # Pagination links should have min-height for touch targets
+        assert "min-height: 44px" in gallery_css, \
+            "Pagination links should have min-height: 44px for touch accessibility"
+
+    def test_pagination_links_have_min_width_for_consistency(self, tmp_path):
+        """Verify pagination links have min-width for consistent button sizing."""
+        from galleria.plugins.css import BasicCSSPlugin
+
+        plugin = BasicCSSPlugin()
+        context = PluginContext(
+            input_data={
+                "collection_name": "test",
+                "html_files": [{"filename": "page_1.html"}],
+            },
+            config={"layout": "grid"},
+            output_dir=tmp_path,
+        )
+
+        result = plugin.generate_css(context)
+        gallery_css = next(
+            f["content"] for f in result.output_data["css_files"]
+            if f["filename"] == "gallery.css"
+        )
+
+        # Pagination links should have min-width for consistent sizing (6em > 44px at 16px base)
+        assert "min-width: 6em" in gallery_css, \
+            "Pagination links should have min-width: 6em for consistent button width"
