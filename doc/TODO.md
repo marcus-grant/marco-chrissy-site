@@ -24,13 +24,12 @@ Tasks in this file follow the systematic planning approach defined in [`PLANNING
 *Problem Statement: Site lacks mobile optimization with poor touch targets, non-responsive gallery grid, and inconsistent mobile experience across page types.*
 
 **Breakpoints & Grid Columns:**
-- Default (< 480px): 1 column (very narrow mobile)
-- 480px: 2 columns (mobile landscape)
-- 768px: 3 columns, navbar collapses to hamburger (tablet portrait)
-- 1024px: 4 columns (tablet landscape / small desktop)
-- 1200px: 6 columns (desktop)
+- Default: 2 columns (mobile)
+- 560px: 3 columns (large phone / small tablet)
+- 768px: 4 columns, navbar collapses to hamburger (tablet)
+- 1024px: 6 columns (desktop)
 
-*Rationale: 96 photos/page divides evenly by 1, 2, 3, 4, 6 for clean row layouts*
+*Rationale: 96 photos/page divides evenly by 2, 3, 4, 6 for clean row layouts*
 
 **Initial Setup & E2E Test Definition**
 
@@ -80,13 +79,12 @@ Tasks in this file follow the systematic planning approach defined in [`PLANNING
 
 *Mobile-First Gallery Grid*
 
-- [ ] Write unit test in `test/galleria/unit/plugins/test_css.py` for grid breakpoints
-- [ ] Update `galleria/plugins/css.py` `_generate_gallery_css()`:
-  - Default: `grid-template-columns: 1fr` (1 column)
-  - 480px: 2 columns, 768px: 3 columns, 1024px: 4 columns, 1200px: 6 columns
-- [ ] `uv run ruff check --fix --unsafe-fixes && uv run pytest`
-- [ ] Update TODO.md and CHANGELOG.md
-- [ ] Commit: `Ft: Implement mobile-first gallery grid (1→2→3→4→6)`
+- [x] Write unit test in `test/galleria/unit/plugins/test_css.py` for grid breakpoints
+- [x] Update `galleria/plugins/css.py` `_generate_gallery_css()`:
+  - Default: 2 columns, 560px: 3 columns, 768px: 4 columns, 1024px: 6 columns
+- [x] `uv run ruff check --fix --unsafe-fixes && uv run pytest`
+- [x] Update TODO.md and CHANGELOG.md
+- [x] Commit: `Ft: Add mobile-first gallery grid (1→2→3→4→6)`
 
 *Touch-Friendly Pagination*
 

@@ -1,18 +1,151 @@
 /* Shared CSS across Pelican and Galleria */
+
+/* ============================================
+   CSS Custom Properties (Design Tokens)
+   ============================================ */
+:root {
+  /* Responsive Breakpoints */
+  --breakpoint-sm: 480px;   /* Mobile landscape */
+  --breakpoint-md: 768px;   /* Tablet portrait */
+  --breakpoint-lg: 1024px;  /* Tablet landscape */
+  --breakpoint-xl: 1200px;  /* Desktop */
+
+  /* Touch Target Accessibility (WCAG 2.1 AAA) */
+  --touch-target-min: 44px;
+
+  /* Spacing Scale */
+  --spacing-xs: 0.25rem;    /* 4px */
+  --spacing-sm: 0.5rem;     /* 8px */
+  --spacing-md: 1rem;       /* 16px */
+  --spacing-lg: 2rem;       /* 32px */
+}
+
+/* ============================================
+   Shared Navigation
+   ============================================ */
 #shared-navbar {
   background: #333;
-  padding: 1rem;
+  padding: var(--spacing-md);
   display: flex;
-  gap: 1rem;
+  align-items: center;
+  justify-content: space-between;
+  position: relative;
+}
+
+/* Hide checkbox visually but keep accessible */
+.nav-toggle {
+  position: absolute;
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+/* Hamburger toggle button - hidden on desktop */
+.nav-toggle-label {
+  display: none;
+  cursor: pointer;
+  padding: var(--spacing-sm);
+  min-height: var(--touch-target-min);
+  min-width: var(--touch-target-min);
+  align-items: center;
+  justify-content: center;
+}
+
+/* Hamburger icon */
+.nav-toggle-label .hamburger,
+.nav-toggle-label .hamburger::before,
+.nav-toggle-label .hamburger::after {
+  display: block;
+  background: white;
+  height: 3px;
+  width: 24px;
+  border-radius: 2px;
+  transition: transform 0.3s ease;
+}
+
+.nav-toggle-label .hamburger {
+  position: relative;
+}
+
+.nav-toggle-label .hamburger::before,
+.nav-toggle-label .hamburger::after {
+  content: '';
+  position: absolute;
+}
+
+.nav-toggle-label .hamburger::before {
+  top: -8px;
+}
+
+.nav-toggle-label .hamburger::after {
+  top: 8px;
+}
+
+/* Nav links container */
+.nav-links {
+  display: flex;
+  gap: var(--spacing-md);
 }
 
 #shared-navbar a {
   color: white;
   text-decoration: none;
-  padding: 0.5rem 1rem;
+  padding: var(--spacing-sm) var(--spacing-md);
   border-radius: 4px;
+  min-height: var(--touch-target-min);
+  display: flex;
+  align-items: center;
 }
 
 #shared-navbar a:hover {
   background: #555;
+}
+
+/* ============================================
+   Mobile Navigation (< 768px)
+   ============================================ */
+@media (max-width: 768px) {
+  /* Show hamburger toggle on mobile */
+  .nav-toggle-label {
+    display: flex;
+  }
+
+  /* Hide nav links by default on mobile */
+  .nav-links {
+    display: none;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background: #333;
+    flex-direction: column;
+    padding: var(--spacing-md);
+    gap: var(--spacing-xs);
+    z-index: 1000;
+  }
+
+  /* Show nav links when toggle is checked */
+  .nav-toggle:checked ~ .nav-links {
+    display: flex;
+  }
+
+  /* Animate hamburger to X when open */
+  .nav-toggle:checked ~ .nav-toggle-label .hamburger {
+    background: transparent;
+  }
+
+  .nav-toggle:checked ~ .nav-toggle-label .hamburger::before {
+    transform: rotate(45deg);
+    top: 0;
+  }
+
+  .nav-toggle:checked ~ .nav-toggle-label .hamburger::after {
+    transform: rotate(-45deg);
+    top: 0;
+  }
+
+  /* Full-width links on mobile */
+  #shared-navbar a {
+    padding: var(--spacing-md);
+  }
 }

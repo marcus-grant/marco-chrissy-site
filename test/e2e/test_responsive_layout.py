@@ -71,9 +71,9 @@ class TestGalleryGridBreakpoints:
     def test_gallery_css_has_mobile_first_default(
         self, temp_filesystem, file_factory, directory_factory
     ):
-        """Verify gallery CSS starts with 1 column for mobile-first approach.
+        """Verify gallery CSS starts with 2 columns for mobile-first approach.
 
-        Default (< 480px): grid-template-columns: 1fr (single column)
+        Default: grid-template-columns: repeat(2, 1fr) (2 columns)
         """
         # Create a minimal gallery build to test CSS output
         directory_factory("output/pics/full")
@@ -114,9 +114,9 @@ class TestGalleryGridBreakpoints:
         assert css_path.exists(), "gallery.css should be generated"
         css_content = css_path.read_text()
 
-        # Verify mobile-first: default is 1 column (before any media queries)
-        assert "grid-template-columns: 1fr" in css_content or "grid-template-columns: repeat(1, 1fr)" in css_content, \
-            "Gallery should default to 1 column for mobile"
+        # Verify mobile-first: default is 2 columns
+        assert "grid-template-columns: repeat(2, 1fr)" in css_content, \
+            "Gallery should default to 2 columns for mobile"
 
     def test_gallery_css_has_breakpoint_media_queries(
         self, temp_filesystem, file_factory, directory_factory
@@ -124,10 +124,10 @@ class TestGalleryGridBreakpoints:
         """Verify gallery CSS defines media queries at each breakpoint.
 
         Expected breakpoints:
-        - 480px: 2 columns
-        - 768px: 3 columns
-        - 1024px: 4 columns
-        - 1200px: 6 columns
+        - Default: 2 columns
+        - 560px: 3 columns
+        - 768px: 4 columns
+        - 1024px: 6 columns
         """
         directory_factory("output/pics/full")
         file_factory("output/pics/full/manifest.json", json_content={
@@ -163,16 +163,15 @@ class TestGalleryGridBreakpoints:
         css_content = css_path.read_text()
 
         # Verify media queries at each breakpoint
-        assert "@media" in css_content and "480px" in css_content, "Missing 480px breakpoint"
+        assert "@media" in css_content and "560px" in css_content, "Missing 560px breakpoint"
         assert "@media" in css_content and "768px" in css_content, "Missing 768px breakpoint"
         assert "@media" in css_content and "1024px" in css_content, "Missing 1024px breakpoint"
-        assert "@media" in css_content and "1200px" in css_content, "Missing 1200px breakpoint"
 
         # Verify column counts at each breakpoint
-        assert "repeat(2, 1fr)" in css_content, "Should have 2 columns at 480px"
-        assert "repeat(3, 1fr)" in css_content, "Should have 3 columns at 768px"
-        assert "repeat(4, 1fr)" in css_content, "Should have 4 columns at 1024px"
-        assert "repeat(6, 1fr)" in css_content, "Should have 6 columns at 1200px"
+        assert "repeat(2, 1fr)" in css_content, "Should have 2 columns default"
+        assert "repeat(3, 1fr)" in css_content, "Should have 3 columns at 560px"
+        assert "repeat(4, 1fr)" in css_content, "Should have 4 columns at 768px"
+        assert "repeat(6, 1fr)" in css_content, "Should have 6 columns at 1024px"
 
 
 class TestTouchTargets:

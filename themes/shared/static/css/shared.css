@@ -121,6 +121,7 @@
     flex-direction: column;
     padding: var(--spacing-md);
     gap: var(--spacing-xs);
+    z-index: 1000;
   }
 
   /* Show nav links when toggle is checked */

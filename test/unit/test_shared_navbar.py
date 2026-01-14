@@ -91,6 +91,16 @@ class TestNavbarHTMLStructure:
             "Label should contain hamburger icon (spans, ☰, or aria-label)"
 
 
+class TestNavbarZIndex:
+    """Test navbar dropdown appears above page content."""
+
+    def test_nav_links_has_z_index(self):
+        """Verify nav-links dropdown has z-index to appear above content."""
+        css_content = SHARED_CSS_PATH.read_text()
+        assert "z-index:" in css_content, \
+            "Nav links should have z-index to appear above gallery content"
+
+
 class TestNavbarTouchTargets:
     """Test navbar touch targets meet accessibility requirements."""
 

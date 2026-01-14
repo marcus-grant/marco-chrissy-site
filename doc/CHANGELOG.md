@@ -20,6 +20,9 @@ Buffer for changes during current development cycle. Migrated to `doc/release/X-
 
 ## 2026-01-14
 
+- Add mobile-first gallery grid with responsive breakpoints
+  - 2 cols (default), 3 cols (560px), 4 cols (768px), 6 cols (1024px)
+  - Uses min-width media queries for progressive enhancement
 - Add CSS-only responsive mobile navbar
   - Checkbox toggle with animated hamburger icon
   - Hidden on desktop, visible on mobile (<768px)

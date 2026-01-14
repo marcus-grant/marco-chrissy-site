@@ -393,3 +393,130 @@ class TestCSSPluginValidation:
         result = plugin.generate_css(context)
         assert result.success
         # Plugin returns malformed data - this tests CLI resilience
+
+
+class TestResponsiveGalleryGrid:
+    """Test gallery CSS generates mobile-first responsive grid breakpoints."""
+
+    def test_gallery_css_has_mobile_first_default(self, tmp_path):
+        """Verify gallery CSS defaults to 2 columns for mobile-first approach."""
+        from galleria.plugins.css import BasicCSSPlugin
+
+        plugin = BasicCSSPlugin()
+        context = PluginContext(
+            input_data={
+                "collection_name": "test",
+                "html_files": [{"filename": "page_1.html"}],
+            },
+            config={"layout": "grid"},
+            output_dir=tmp_path,
+        )
+
+        result = plugin.generate_css(context)
+        assert result.success
+
+        # Find gallery.css content
+        gallery_css = None
+        for css_file in result.output_data["css_files"]:
+            if css_file["filename"] == "gallery.css":
+                gallery_css = css_file["content"]
+                break
+
+        assert gallery_css is not None, "gallery.css should be generated"
+        # Mobile-first: default should be 2 columns
+        assert "grid-template-columns: repeat(2, 1fr)" in gallery_css, \
+            "Gallery should default to 2 columns (mobile-first)"
+
+    def test_gallery_css_has_560px_breakpoint(self, tmp_path):
+        """Verify gallery CSS has 3 columns at 560px breakpoint."""
+        from galleria.plugins.css import BasicCSSPlugin
+
+        plugin = BasicCSSPlugin()
+        context = PluginContext(
+            input_data={
+                "collection_name": "test",
+                "html_files": [{"filename": "page_1.html"}],
+            },
+            config={"layout": "grid"},
+            output_dir=tmp_path,
+        )
+
+        result = plugin.generate_css(context)
+        gallery_css = next(
+            f["content"] for f in result.output_data["css_files"]
+            if f["filename"] == "gallery.css"
+        )
+
+        assert "560px" in gallery_css, "Should have 560px breakpoint"
+        assert "repeat(3, 1fr)" in gallery_css, "Should have 3 columns at 560px"
+
+    def test_gallery_css_has_768px_breakpoint(self, tmp_path):
+        """Verify gallery CSS has 4 columns at 768px breakpoint."""
+        from galleria.plugins.css import BasicCSSPlugin
+
+        plugin = BasicCSSPlugin()
+        context = PluginContext(
+            input_data={
+                "collection_name": "test",
+                "html_files": [{"filename": "page_1.html"}],
+            },
+            config={"layout": "grid"},
+            output_dir=tmp_path,
+        )
+
+        result = plugin.generate_css(context)
+        gallery_css = next(
+            f["content"] for f in result.output_data["css_files"]
+            if f["filename"] == "gallery.css"
+        )
+
+        assert "768px" in gallery_css, "Should have 768px breakpoint"
+        assert "repeat(4, 1fr)" in gallery_css, "Should have 4 columns at 768px"
+
+    def test_gallery_css_has_1024px_breakpoint(self, tmp_path):
+        """Verify gallery CSS has 6 columns at 1024px breakpoint."""
+        from galleria.plugins.css import BasicCSSPlugin
+
+        plugin = BasicCSSPlugin()
+        context = PluginContext(
+            input_data={
+                "collection_name": "test",
+                "html_files": [{"filename": "page_1.html"}],
+            },
+            config={"layout": "grid"},
+            output_dir=tmp_path,
+        )
+
+        result = plugin.generate_css(context)
+        gallery_css = next(
+            f["content"] for f in result.output_data["css_files"]
+            if f["filename"] == "gallery.css"
+        )
+
+        assert "1024px" in gallery_css, "Should have 1024px breakpoint"
+        assert "repeat(6, 1fr)" in gallery_css, "Should have 6 columns at 1024px"
+
+    def test_gallery_css_breakpoints_are_min_width(self, tmp_path):
+        """Verify breakpoints use min-width for mobile-first approach."""
+        from galleria.plugins.css import BasicCSSPlugin
+
+        plugin = BasicCSSPlugin()
+        context = PluginContext(
+            input_data={
+                "collection_name": "test",
+                "html_files": [{"filename": "page_1.html"}],
+            },
+            config={"layout": "grid"},
+            output_dir=tmp_path,
+        )
+
+        result = plugin.generate_css(context)
+        gallery_css = next(
+            f["content"] for f in result.output_data["css_files"]
+            if f["filename"] == "gallery.css"
+        )
+
+        # Mobile-first uses min-width media queries
+        assert "min-width: 560px" in gallery_css, "Should use min-width for 560px"
+        assert "min-width: 768px" in gallery_css, "Should use min-width for 768px"
+        assert "min-width: 1024px" in gallery_css, "Should use min-width for 1024px"
