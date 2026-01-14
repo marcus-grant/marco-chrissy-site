@@ -8,59 +8,9 @@ Tasks in this file follow the systematic planning approach defined in [`PLANNING
 
 **Key principle**: Following TODO tasks should automatically result in following our development workflow.
 
-For detailed planning guidance, templates, and examples, see: **[`PLANNING.md`](PLANNING.md)**
+**Before adding or modifying tasks** (beyond marking items complete): Read [`PLANNING.md`](PLANNING.md) for guidance on task structure, templates, and examples.
 
-## MVP 0.1.0 Release Preparation
-
-**Prerequisites**: All prior MVP phase tasks must be completed first.
-
-### Final Pre-MVP Bookkeeping Tasks
-
-- [x] **Changelog Migration Verification**
-  - [x] Migrate all changelog entries to `doc/release/0-1.md`
-  - [x] Leave `CHANGELOG.md` as empty buffer for next release cycle
-  - [x] Update `doc/release/README.md` with comprehensive 0.1.0 MVP summary
-
-- [x] **Documentation Quality Assurance** *(Completed 2026-01-14)*
-  - [x] Review all documentation files for accuracy and consistency (8 parallel agents ran)
-  - [x] Merged duplicate bconfiguration.md into configuration.md
-  - [x] Created missing command docs: organize.md, benchmark.md
-  - [x] Fixed broken links and config path references
-  - [x] Updated galleria README status and nav links
-  - [x] Added HANDOFF.md and CONTRIBUTE.md to doc/README.md
-  - [x] Fixed link hierarchy violations (deep links now use READMEs)
-  - [x] Marked development.md commands as planned/future
-
-- [x] **Versioning Workflow Documentation**
-  - [x] Add version number change discussion rule to CONTRIBUTE.md
-  - [x] Document semantic versioning guidelines for PRs
-
-- [x] **Dead Code Investigation & Removal** *(Completed 2026-01-14)*
-
-  **Investigation Findings:**
-  - Config files: All 9 config/schema files actively used - no dead code
-  - PIL/Pillow usage: Only in `galleria/processor/image.py` - correct location
-  - @pytest.skip tests: Only `TestThumbnailBenchmark` - post-MVP placeholder, kept
-  - `galleria/serializer/`: NOT dead code - incomplete typed model infrastructure for extraction (see Galleria Extraction Preparation)
-  - Commented-out code in `cli/commands/serve.py`: Removed (~190 lines of old proxy implementation already extracted to `serve/proxy.py`)
-
-  **Important**: Skipped tests for post-MVP features are NOT dead code - they're placeholders for future work
-
-- [ ] **MVP Success Criteria Verification**
-  - [ ] Verify build process is repeatable via script
-  - [ ] Confirm site works without JavaScript requirement
-  - [ ] Test complete pipeline (validate→organize→build) end-to-end
-  - [ ] Validate configuration system completeness
-  - [ ] Performance metrics documentation
-
-- [ ] **Edge Rules Production Finalization**
-  - [ ] Change Edge Rules from 302 temporary to 301 permanent redirects after monitoring production stability
-
-- [ ] **Version 0.1.0 Release Finalization**
-  - [ ] Final ruff/pytest run across entire codebase (target: 0 failures)
-  - [ ] Update version numbers in relevant files
-  - [ ] Create final commit with version bump and release notes
-  - [ ] Tag release v0.1.0
+**Workflow rules in [`CONTRIBUTE.md`](CONTRIBUTE.md) must always be respected** when working on this project.
 
 ## Post-MVP Enhancements
 
@@ -144,6 +94,11 @@ For detailed planning guidance, templates, and examples, see: **[`PLANNING.md`](
   - [ ] Upload volume analysis (files changed vs total, bytes transferred)
   - [ ] CDN performance analysis (cache hits, edge response times)
   - [ ] Lighthouse testing against CDN for production UX metrics
+
+### Edge Rules Production Finalization
+
+- [ ] Change Edge Rules from 302 temporary to 301 permanent redirects
+  - Deferred until after purge command, responsive layout, and JS lazy loading to avoid browser caching issues
 
 ### Shared Component Enhancements
 
