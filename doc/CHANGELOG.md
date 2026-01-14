@@ -20,6 +20,11 @@ Buffer for changes during current development cycle. Migrated to `doc/release/X-
 
 ## 2026-01-14
 
+- Fix navbar margin by adding body reset (margin: 0) to shared.css
+- Fix Pelican navbar to use responsive hamburger structure
+  - Updated shared/header.html to match navbar.html structure
+  - Both Pelican and Galleria now render identical responsive navbars
+- Add unit test for body margin reset
 - Add mobile-first gallery grid with responsive breakpoints
   - 2 cols (default), 3 cols (560px), 4 cols (768px), 6 cols (1024px)
   - Uses min-width media queries for progressive enhancement

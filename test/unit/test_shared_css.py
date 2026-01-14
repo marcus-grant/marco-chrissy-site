@@ -123,3 +123,14 @@ class TestCSSVariableOrganization:
 
         assert sm < md < lg < xl, \
             f"Breakpoints should be ascending: sm({sm}) < md({md}) < lg({lg}) < xl({xl})"
+
+
+class TestGlobalResets:
+    """Test global CSS resets for consistent rendering."""
+
+    def test_body_has_zero_margin(self):
+        """Verify body has margin: 0 to remove browser default 8px margin."""
+        css_content = SHARED_CSS_PATH.read_text()
+        # Body should have margin: 0 to allow full-width navbar
+        assert re.search(r'body\s*\{[^}]*margin:\s*0', css_content), \
+            "body should have margin: 0 to remove browser default margin"

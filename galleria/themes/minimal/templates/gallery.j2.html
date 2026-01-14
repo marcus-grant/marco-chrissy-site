@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ collection_name }} - Page {{ page_num }}</title>
+    <title>{{ collection_name|title }} - Page {{ page_num }}</title>
     <link rel="stylesheet" href="gallery.css">
     {% if shared_css_files %}{% for css_file in shared_css_files %}<link rel="stylesheet" href="{{ css_file.filename }}">
     {% endfor %}{% endif %}
@@ -11,7 +11,7 @@
 <body class="theme-minimal">
     {% include 'navbar.html' ignore missing %}
     <header>
-        <h1>{{ collection_name }}</h1>
+        <h1>{{ collection_name|title }}</h1>
     </header>
 
     <main class="gallery layout-grid">
