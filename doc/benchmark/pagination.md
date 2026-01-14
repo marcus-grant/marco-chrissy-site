@@ -134,7 +134,34 @@ CLS is consistently 0.667 for all except 20 (0.512). This is a separate issue - 
 - <50: Too many pages, slower LCP due to navigation overhead
 - >200: Individual pages too large, LCP suffers
 
+
+## Production Configuration
+
+Based on these benchmarks, the production gallery uses **96 photos per page**.
+
+**Why 96?**
+
+1. **Optimal LCP range**: Falls within the 50-100 sweet spot identified by benchmarks
+2. **Grid-friendly factorization**: 96 = 2⁵ × 3, giving factors 1, 2, 3, 4, 6, 8, 12, 16, 24, 32, 48, 96
+3. **Responsive design ready**: Supports clean column layouts across breakpoints (2-col mobile → 4-col tablet → 6/8-col desktop)
+4. **Reasonable pagination**: 645 photos ÷ 96 = 7 pages (manageable navigation)
+
 ## Future Work
+
+### Responsive Grid Optimization
+
+The 96 photos/page configuration enables flexible column layouts. Future CSS work should implement breakpoints using a subset of these column counts:
+
+- **1 column**: Very narrow mobile (<320px)
+- **2 columns**: Mobile portrait
+- **3 columns**: Mobile landscape / small tablet
+- **4 columns**: Tablet
+- **6 columns**: Desktop
+- **8 columns**: Wide desktop
+
+Not all breakpoints are necessary—start with 2, 4, 6 and add others based on actual device testing.
+
+### Other Improvements
 
 - Add lazy loading (native `loading="lazy"` or JS-based)
 - Compare infinite scroll vs pagination
