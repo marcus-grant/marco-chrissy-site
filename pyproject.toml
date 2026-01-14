@@ -1,6 +1,6 @@
 [project]
 name = "marco-chrissy-site"
-version = "0.1.0"
+version = "0.2.0"
 description = "Personal website with photo galleries"
 readme = "README.md"
 requires-python = ">=3.12"

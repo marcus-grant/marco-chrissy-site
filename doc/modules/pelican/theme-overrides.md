@@ -48,9 +48,9 @@ themes/shared/templates/
 - Integrated shared navigation
 
 ### shared/header.html
-- Shared navigation component
-- Used by both Pelican and Galleria
-- Consistent styling and structure
+- Shared navigation component (must match `templates/navbar.html` used by Galleria)
+- CSS-only responsive hamburger menu (checkbox toggle, no JavaScript)
+- Sticky positioning, 44px touch targets, mobile collapse at 768px
 
 ## Template Override Process
 
