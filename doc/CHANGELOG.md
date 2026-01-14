@@ -20,7 +20,10 @@ Buffer for changes during current development cycle. Migrated to `doc/release/X-
 
 ## 2026-01-14
 
-- Add touch-friendly pagination controls (44px min-height/min-width)
+- Add responsive typography using CSS clamp() for fluid sizing
+  - h1: 1.75rem → 3rem, h2: 1.5rem → 2.25rem, h3: 1.25rem → 1.75rem
+  - Body: 1rem → 1.125rem with proper line-height
+- Add touch-friendly pagination controls (44px min-height, 6em min-width)
 - Fix navbar margin by adding body reset (margin: 0) to shared.css
 - Fix Pelican navbar to use responsive hamburger structure
   - Updated shared/header.html to match navbar.html structure

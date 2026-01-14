@@ -134,3 +134,31 @@ class TestGlobalResets:
         # Body should have margin: 0 to allow full-width navbar
         assert re.search(r'body\s*\{[^}]*margin:\s*0', css_content), \
             "body should have margin: 0 to remove browser default margin"
+
+
+class TestResponsiveTypography:
+    """Test responsive typography using CSS clamp() for fluid sizing."""
+
+    def test_h1_uses_clamp_for_fluid_sizing(self):
+        """Verify h1 uses clamp() for responsive font-size."""
+        css_content = SHARED_CSS_PATH.read_text()
+        assert re.search(r'h1\s*\{[^}]*font-size:\s*clamp\(', css_content), \
+            "h1 should use clamp() for fluid font sizing"
+
+    def test_h2_uses_clamp_for_fluid_sizing(self):
+        """Verify h2 uses clamp() for responsive font-size."""
+        css_content = SHARED_CSS_PATH.read_text()
+        assert re.search(r'h2\s*\{[^}]*font-size:\s*clamp\(', css_content), \
+            "h2 should use clamp() for fluid font sizing"
+
+    def test_h3_uses_clamp_for_fluid_sizing(self):
+        """Verify h3 uses clamp() for responsive font-size."""
+        css_content = SHARED_CSS_PATH.read_text()
+        assert re.search(r'h3\s*\{[^}]*font-size:\s*clamp\(', css_content), \
+            "h3 should use clamp() for fluid font sizing"
+
+    def test_body_uses_clamp_for_fluid_sizing(self):
+        """Verify body uses clamp() for responsive font-size."""
+        css_content = SHARED_CSS_PATH.read_text()
+        assert re.search(r'body\s*\{[^}]*font-size:\s*clamp\(', css_content), \
+            "body should use clamp() for fluid font sizing"

@@ -96,12 +96,12 @@ Tasks in this file follow the systematic planning approach defined in [`PLANNING
 
 *Responsive Typography*
 
-- [ ] Write unit test for `clamp()` in typography
-- [ ] Update header: `font-size: clamp(1.5rem, 4vw + 0.5rem, 2.5rem)`
-- [ ] Update body text with fluid sizing
-- [ ] `uv run ruff check --fix --unsafe-fixes && uv run pytest`
-- [ ] Update TODO.md and CHANGELOG.md
-- [ ] Commit: `Ft: Add responsive typography using CSS clamp()`
+- [x] Write unit test for `clamp()` in typography
+- [x] Update header: `font-size: clamp(1.5rem, 4vw + 0.5rem, 2.5rem)`
+- [x] Update body text with fluid sizing
+- [x] `uv run ruff check --fix --unsafe-fixes && uv run pytest`
+- [x] Update TODO.md and CHANGELOG.md
+- [x] Commit: `Ft: Add responsive typography using CSS clamp()`
 
 **Integration & Documentation**
 
