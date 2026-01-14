@@ -35,25 +35,14 @@ For detailed planning guidance, templates, and examples, see: **[`PLANNING.md`](
   - [x] Add version number change discussion rule to CONTRIBUTE.md
   - [x] Document semantic versioning guidelines for PRs
 
-- [ ] **Dead Code Investigation & Removal**
+- [x] **Dead Code Investigation & Removal** *(Completed 2026-01-14)*
 
-  **Phase 1: Investigation** (document findings before any removal)
-  - [ ] Search `galleria/` for manifest/serializer code not using plugin interface
-  - [ ] Search for PIL/Pillow image processing outside processor plugins
-  - [ ] Check `config/` for files not referenced in codebase
-  - [ ] Scan for large commented-out code blocks (not single-line comments)
-  - [ ] Identify `@pytest.skip` tests - distinguish post-MVP features from dead code
-
-  **Phase 2: Verification**
-  - [ ] For each candidate, trace code paths to confirm unused
-  - [ ] Check git history for context on why code exists
-  - [ ] Document findings in this TODO before removal
-
-  **Phase 3: Removal** (small commits, one area at a time)
-  - [ ] Remove old non-plugin based manifest serializer (if found)
-  - [ ] Remove old thumbnail processor bypassing plugin interfaces (if found)
-  - [ ] Remove unused configuration files or deprecated settings (if found)
-  - [ ] Remove confirmed dead code blocks
+  **Investigation Findings:**
+  - Config files: All 9 config/schema files actively used - no dead code
+  - PIL/Pillow usage: Only in `galleria/processor/image.py` - correct location
+  - @pytest.skip tests: Only `TestThumbnailBenchmark` - post-MVP placeholder, kept
+  - `galleria/serializer/`: NOT dead code - incomplete typed model infrastructure for extraction (see Galleria Extraction Preparation)
+  - Commented-out code in `cli/commands/serve.py`: Removed (~190 lines of old proxy implementation already extracted to `serve/proxy.py`)
 
   **Important**: Skipped tests for post-MVP features are NOT dead code - they're placeholders for future work
 
@@ -214,11 +203,14 @@ For detailed planning guidance, templates, and examples, see: **[`PLANNING.md`](
 - [ ] Docker containerization and Ansible automation evaluation
 - [ ] CDN optimization with separate bucket strategies
 
-#### Galleria Extraction Preparation  
+#### Galleria Extraction Preparation
 
 - [ ] Independence audit (remove parent project dependencies)
 - [ ] Technical debt cleanup (type hints, error handling, performance)
 - [ ] Evaluate shared schema package with NormPic
+- [ ] **Complete `galleria/serializer/` typed models**: Currently incomplete - `Photo`, `PhotoCollection` models exist but plugin system uses dicts. For extraction, either:
+  - Have `NormPicProviderPlugin` return typed models instead of dicts, or
+  - Remove serializer and keep dict-based plugin contract
 
 #### Long-term Considerations
 

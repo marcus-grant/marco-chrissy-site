@@ -2,6 +2,12 @@
 
 ## 2026-01-14
 
+### Dead Code Investigation & Cleanup
+
+- **Removed dead code**: ~190 lines of commented-out proxy implementation in `cli/commands/serve.py` (already extracted to `serve/proxy.py`)
+- **Documented serializer intent**: `galleria/serializer/` is incomplete extraction infrastructure, not dead code
+- **Investigation findings**: All config files active, PIL usage correct, skipped tests are post-MVP placeholders
+
 ### Documentation Quality Assurance
 
 - **New command docs**: Created organize.md and benchmark.md for missing site commands

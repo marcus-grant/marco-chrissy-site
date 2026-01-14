@@ -1,4 +1,11 @@
-"""Data models for photo collections."""
+"""Data models for photo collections.
+
+These typed models are intended to be galleria's internal representation,
+providing type safety when galleria is extracted as a standalone project.
+
+NOTE: Currently unused in the plugin pipeline (plugins use dicts).
+See galleria/serializer/__init__.py for status and future plans.
+"""
 
 
 class Photo:
