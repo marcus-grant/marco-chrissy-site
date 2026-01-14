@@ -60,23 +60,23 @@ Tasks in this file follow the systematic planning approach defined in [`PLANNING
 
 *Responsive Navbar with CSS-Only Mobile Menu*
 
-- [ ] Write unit test for navbar HTML structure (checkbox toggle)
-- [ ] Write unit test for navbar CSS media queries
-- [ ] Update `themes/shared/templates/navbar.html` with mobile structure:
+- [x] Write unit test for navbar HTML structure (checkbox toggle)
+- [x] Write unit test for navbar CSS media queries
+- [x] Update `themes/shared/templates/navbar.html` with mobile structure:
   - Checkbox input + label for toggle (accessibility)
   - `.nav-links` container for hideable links
-- [ ] Update `themes/shared/static/css/shared.css` with responsive navbar
-- [ ] `uv run ruff check --fix --unsafe-fixes && uv run pytest`
-- [ ] Update TODO.md and CHANGELOG.md
-- [ ] Commit: `Ft: Add CSS-only responsive mobile navbar`
+- [x] Update `themes/shared/static/css/shared.css` with responsive navbar
+- [x] `uv run ruff check --fix --unsafe-fixes && uv run pytest`
+- [x] Update TODO.md and CHANGELOG.md
+- [x] Commit: `Ft: Add CSS-only responsive mobile navbar`
 
 *Touch-Friendly Navbar Sizing*
 
-- [ ] Write unit test for navbar touch target sizing
-- [ ] Update navbar links with `min-height: var(--touch-target-min)`
-- [ ] `uv run ruff check --fix --unsafe-fixes && uv run pytest`
-- [ ] Update TODO.md and CHANGELOG.md
-- [ ] Commit: `Ft: Add 44px minimum touch targets for navbar`
+- [x] Write unit test for navbar touch target sizing
+- [x] Update navbar links with `min-height: var(--touch-target-min)`
+- [x] `uv run ruff check --fix --unsafe-fixes && uv run pytest`
+- [x] Update TODO.md and CHANGELOG.md
+- [x] Commit: (included in responsive navbar commit)
 
 *Mobile-First Gallery Grid*
 

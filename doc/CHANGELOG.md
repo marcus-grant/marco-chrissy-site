@@ -20,6 +20,11 @@ Buffer for changes during current development cycle. Migrated to `doc/release/X-
 
 ## 2026-01-14
 
+- Add CSS-only responsive mobile navbar
+  - Checkbox toggle with animated hamburger icon
+  - Hidden on desktop, visible on mobile (<768px)
+  - Nav links collapse to dropdown menu
+  - 44px touch targets for accessibility
 - Add CSS custom properties to shared.css for responsive design
   - Breakpoints: 480px, 768px, 1024px, 1200px
   - Touch target minimum: 44px (WCAG 2.1 AAA)
