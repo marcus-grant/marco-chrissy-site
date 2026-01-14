@@ -21,15 +21,25 @@ Tasks in this file follow the systematic planning approach defined in [`PLANNING
 
 ### Performance Optimizations
 
+*Split into frontend and backend PRs. Each requires benchmarking before/after using Lighthouse (frontend) and built-in benchmarking (backend). Analyze page sizes, load times, and generation metrics. Full planning for each PR happens separately.*
+
+#### Frontend Performance (separate PR)
+
 - [ ] Gallery lazy loading with JS progressive enhancement
-- [ ] Basic
-- [ ] Parallel thumbnail processing and incremental generation
 - [ ] Dark mode toggle (CSS variables + minimal JS)
+- [ ] Lighthouse benchmarks before/after
+
+#### Backend Performance (separate PR)
+
+- [ ] Parallel thumbnail processing and incremental generation
 - [ ] WebP compression optimization
-- [ ] **Deployment Metrics** *(requires planning task before implementation)*
-  - [ ] Upload volume analysis (files changed vs total, bytes transferred)
-  - [ ] CDN performance analysis (cache hits, edge response times)
-  - [ ] Lighthouse testing against CDN for production UX metrics
+- [ ] Build benchmarking before/after (page sizes, generation time)
+
+#### Deployment Metrics *(requires planning task before implementation)*
+
+- [ ] Upload volume analysis (files changed vs total, bytes transferred)
+- [ ] CDN performance analysis (cache hits, edge response times)
+- [ ] Lighthouse testing against CDN for production UX metrics
 
 ### Edge Rules Production Finalization
 
