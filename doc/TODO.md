@@ -19,69 +19,114 @@ Tasks in this file follow the systematic planning approach defined in [`PLANNING
 - [ ] Research full Bunny.net API cache management capabilities: tag-based purging (<1s global), wildcard patterns (/galleries/wedding/*), individual URL purging, and other API features that might better suit our deployment patterns
 - [ ] Implement `uv run site purge` command with targeted cache invalidation options
 
-#### Task 5.2: Mobile-First Responsive Layout (Branch: ft/responsive-layout)
+#### Task: Mobile-First Responsive Layout (Branch: ft/responsive)
 
 *Problem Statement: Site lacks mobile optimization with poor touch targets, non-responsive gallery grid, and inconsistent mobile experience across page types.*
 
+**Breakpoints & Grid Columns:**
+- Default (< 480px): 1 column (very narrow mobile)
+- 480px: 2 columns (mobile landscape)
+- 768px: 3 columns, navbar collapses to hamburger (tablet portrait)
+- 1024px: 4 columns (tablet landscape / small desktop)
+- 1200px: 6 columns (desktop)
+
+*Rationale: 96 photos/page divides evenly by 1, 2, 3, 4, 6 for clean row layouts*
+
 **Initial Setup & E2E Test Definition**
 
-- [ ] `git checkout -b ft/responsive-layout`
 - [ ] Create E2E test in `test/e2e/test_responsive_layout.py`
-  - [ ] Test layout works correctly at mobile viewports (320px, 480px, 768px)
-  - [ ] Verify gallery grid adapts from 1→2→4 columns based on screen size
+  - [ ] Test CSS variables exist (breakpoints, touch-target sizes)
+  - [ ] Test gallery grid adapts 1→2→3→4→6 columns at breakpoints
   - [ ] Test touch targets meet 44px minimum requirement
-  - [ ] Verify desktop layout maintains full functionality
+  - [ ] Test navbar has mobile menu structure (CSS-only checkbox hack)
+  - [ ] Test responsive typography uses clamp()
   - [ ] Add `@pytest.mark.skip("Responsive layout not implemented")`
 - [ ] `uv run ruff check --fix --unsafe-fixes && uv run pytest`
 - [ ] Update TODO.md and CHANGELOG.md
 - [ ] Commit: `Tst: Add E2E test for responsive layout (skipped)`
 
-**TDD Implementation Cycles**
+**TDD Implementation**
 
-*Cycle 1: Implement Mobile-First Gallery Grid*
+*CSS Foundation - Variables and Breakpoints*
 
-- [ ] Write unit test for responsive grid CSS generation that fails
-- [ ] Create mobile-first CSS Grid system in gallery templates
-- [ ] Implement breakpoints: 480px (1→2 cols), 768px (2→3 cols), 1024px (3→4 cols)
-- [ ] Test gallery grid adapts correctly at each breakpoint
+- [ ] Write unit test for CSS variables in `test/unit/test_shared_css.py`
+- [ ] Add `:root` block to `themes/shared/static/css/shared.css`:
+  - `--breakpoint-sm: 480px`, `--breakpoint-md: 768px`, `--breakpoint-lg: 1024px`, `--breakpoint-xl: 1200px`
+  - `--touch-target-min: 44px`
+  - Spacing variables (`--spacing-xs` through `--spacing-lg`)
 - [ ] `uv run ruff check --fix --unsafe-fixes && uv run pytest`
 - [ ] Update TODO.md and CHANGELOG.md
-- [ ] Commit: `Ft: Implement mobile-first responsive gallery grid`
+- [ ] Commit: `Ft: Add CSS variables for responsive breakpoints`
 
-*Cycle 2: Create Touch-Friendly Navigation*
+*Responsive Navbar with CSS-Only Mobile Menu*
 
-- [ ] Write unit test for touch target sizing that fails
-- [ ] Update navigation CSS with 44px minimum touch targets
-- [ ] Implement touch-friendly pagination controls
-- [ ] Add hover and active states for better touch feedback
+- [ ] Write unit test for navbar HTML structure (checkbox toggle)
+- [ ] Write unit test for navbar CSS media queries
+- [ ] Update `themes/shared/templates/navbar.html` with mobile structure:
+  - Checkbox input + label for toggle (accessibility)
+  - `.nav-links` container for hideable links
+- [ ] Update `themes/shared/static/css/shared.css` with responsive navbar
 - [ ] `uv run ruff check --fix --unsafe-fixes && uv run pytest`
 - [ ] Update TODO.md and CHANGELOG.md
-- [ ] Commit: `Ft: Add touch-friendly navigation with proper target sizing`
+- [ ] Commit: `Ft: Add CSS-only responsive mobile navbar`
 
-*Cycle 3: Responsive Typography and Spacing*
+*Touch-Friendly Navbar Sizing*
 
-- [ ] Write unit test for responsive typography that fails
-- [ ] Implement fluid typography scaling using CSS clamp()
-- [ ] Add responsive spacing and padding for mobile readability
-- [ ] Ensure consistent responsive behavior across Pelican and Galleria pages
+- [ ] Write unit test for navbar touch target sizing
+- [ ] Update navbar links with `min-height: var(--touch-target-min)`
 - [ ] `uv run ruff check --fix --unsafe-fixes && uv run pytest`
 - [ ] Update TODO.md and CHANGELOG.md
-- [ ] Commit: `Ft: Add responsive typography and spacing system`
+- [ ] Commit: `Ft: Add 44px minimum touch targets for navbar`
 
-**Phase 3: Integration & Documentation**
+*Mobile-First Gallery Grid*
+
+- [ ] Write unit test in `test/galleria/unit/plugins/test_css.py` for grid breakpoints
+- [ ] Update `galleria/plugins/css.py` `_generate_gallery_css()`:
+  - Default: `grid-template-columns: 1fr` (1 column)
+  - 480px: 2 columns, 768px: 3 columns, 1024px: 4 columns, 1200px: 6 columns
+- [ ] `uv run ruff check --fix --unsafe-fixes && uv run pytest`
+- [ ] Update TODO.md and CHANGELOG.md
+- [ ] Commit: `Ft: Implement mobile-first gallery grid (1→2→3→4→6)`
+
+*Touch-Friendly Pagination*
+
+- [ ] Write unit test for pagination touch target sizing
+- [ ] Update pagination CSS: `min-height: 44px`, `min-width: 44px`
+- [ ] `uv run ruff check --fix --unsafe-fixes && uv run pytest`
+- [ ] Update TODO.md and CHANGELOG.md
+- [ ] Commit: `Ft: Add touch-friendly pagination controls`
+
+*Responsive Typography*
+
+- [ ] Write unit test for `clamp()` in typography
+- [ ] Update header: `font-size: clamp(1.5rem, 4vw + 0.5rem, 2.5rem)`
+- [ ] Update body text with fluid sizing
+- [ ] `uv run ruff check --fix --unsafe-fixes && uv run pytest`
+- [ ] Update TODO.md and CHANGELOG.md
+- [ ] Commit: `Ft: Add responsive typography using CSS clamp()`
+
+**Integration & Documentation**
 
 - [ ] Remove `@pytest.mark.skip` from E2E test
-- [ ] Verify E2E test passes (if not, return to Phase 2)
+- [ ] Verify E2E test passes (if not, return to TDD Implementation)
 - [ ] Update `doc/testing.md` with responsive testing patterns
-- [ ] Create mobile design guidelines in `doc/architecture.md`
-- [ ] Document post-MVP JS enhancement plans in `doc/future/`
+- [ ] Update `doc/architecture.md` with mobile-first design principles
+- [ ] Document future JS enhancement plans in `doc/future/`
 - [ ] `uv run ruff check --fix --unsafe-fixes && uv run pytest`
 - [ ] Update TODO.md and CHANGELOG.md
-- [ ] Commit: `Doc: Add responsive design documentation and testing guidelines`
+- [ ] Commit: `Doc: Add responsive design documentation`
 
-**Phase 4: PR Creation**
+**Manual Visual Verification**
 
-- [ ] `gh pr create --title "Ft: Implement mobile-first responsive layout" --body "Creates responsive design system with touch-friendly navigation, mobile-optimized gallery grid, and consistent mobile experience across all page types"`
+- [ ] Run `uv run site serve` to start local development server
+- [ ] Test at viewports: 320px (1 col), 480px (2 col), 768px (3 col), 1024px (4 col), 1200px (6 col)
+- [ ] Verify navbar hamburger toggle works below 768px
+- [ ] Verify touch targets feel adequate on mobile device
+- [ ] Verify typography scales smoothly between viewport sizes
+
+**PR Creation**
+
+- [ ] `gh pr create --title "Ft: Implement mobile-first responsive layout" --body "..."`
 
 ### Performance Optimizations
 
