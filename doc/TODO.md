@@ -49,14 +49,14 @@ Tasks in this file follow the systematic planning approach defined in [`PLANNING
 
 *CSS Foundation - Variables and Breakpoints*
 
-- [ ] Write unit test for CSS variables in `test/unit/test_shared_css.py`
-- [ ] Add `:root` block to `themes/shared/static/css/shared.css`:
+- [x] Write unit test for CSS variables in `test/unit/test_shared_css.py`
+- [x] Add `:root` block to `themes/shared/static/css/shared.css`:
   - `--breakpoint-sm: 480px`, `--breakpoint-md: 768px`, `--breakpoint-lg: 1024px`, `--breakpoint-xl: 1200px`
   - `--touch-target-min: 44px`
   - Spacing variables (`--spacing-xs` through `--spacing-lg`)
-- [ ] `uv run ruff check --fix --unsafe-fixes && uv run pytest`
-- [ ] Update TODO.md and CHANGELOG.md
-- [ ] Commit: `Ft: Add CSS variables for responsive breakpoints`
+- [x] `uv run ruff check --fix --unsafe-fixes && uv run pytest`
+- [x] Update TODO.md and CHANGELOG.md
+- [x] Commit: `Ft: Add CSS variables for responsive breakpoints`
 
 *Responsive Navbar with CSS-Only Mobile Menu*
 

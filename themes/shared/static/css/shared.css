@@ -1,4 +1,28 @@
 /* Shared CSS across Pelican and Galleria */
+
+/* ============================================
+   CSS Custom Properties (Design Tokens)
+   ============================================ */
+:root {
+  /* Responsive Breakpoints */
+  --breakpoint-sm: 480px;   /* Mobile landscape */
+  --breakpoint-md: 768px;   /* Tablet portrait */
+  --breakpoint-lg: 1024px;  /* Tablet landscape */
+  --breakpoint-xl: 1200px;  /* Desktop */
+
+  /* Touch Target Accessibility (WCAG 2.1 AAA) */
+  --touch-target-min: 44px;
+
+  /* Spacing Scale */
+  --spacing-xs: 0.25rem;    /* 4px */
+  --spacing-sm: 0.5rem;     /* 8px */
+  --spacing-md: 1rem;       /* 16px */
+  --spacing-lg: 2rem;       /* 32px */
+}
+
+/* ============================================
+   Shared Navigation
+   ============================================ */
 #shared-navbar {
   background: #333;
   padding: 1rem;
