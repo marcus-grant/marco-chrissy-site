@@ -1,5 +1,28 @@
 # Changelog
 
+## 2025-01-14
+
+### Added - Phase 7: Performance Benchmarking Infrastructure
+
+- **Benchmark data structures**: Added BenchmarkResult, BuildMetrics, TimingContext in build/benchmark.py
+- **Benchmark timing instrumentation**: Context manager for capturing duration and memory usage
+- **`--benchmark` flag**: Added to validate, organize, and build commands for instrumented pipeline runs
+- **`site benchmark` command**: Convenience command that runs full cascade with benchmarking enabled
+- **Baseline collection**: Manual performance baseline for wedding gallery (645 photos) in doc/benchmark/
+- **Pagination performance study**: Tested photos_per_page values 20-500, documented optimal range (50-100)
+
+### Documentation
+
+- Created doc/benchmark/README.md with methodology and usage instructions
+- Added doc/benchmark/baseline.md with initial performance analysis
+- Added doc/benchmark/pagination.md with pagination comparison results
+- Baseline results stored in doc/benchmark/results/2026-01-13_baseline.json
+
+### Key Findings
+
+- **Optimal pagination**: 50-100 photos/page provides best balance of performance score (~77) and LCP (~1052ms)
+- **Production config**: Set to 96 photos/page (good factorization for grid layouts: 1,2,3,4,6,8,12,16,24,32,48,96)
+
 ## 2025-01-12
 
 - **Ft: Increase pagination max page_size from 100 to 500**
