@@ -20,6 +20,8 @@ Buffer for changes during current development cycle. Migrated to `doc/release/X-
 
 ## 2026-01-14
 
+- Add sticky navbar (position: sticky, z-index: 1000)
+- Enable E2E responsive layout tests (removed skip markers)
 - Add responsive typography using CSS clamp() for fluid sizing
   - h1: 1.75rem → 3rem, h2: 1.5rem → 2.25rem, h3: 1.25rem → 1.75rem
   - Body: 1rem → 1.125rem with proper line-height

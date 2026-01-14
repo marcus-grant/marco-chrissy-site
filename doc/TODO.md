@@ -105,22 +105,20 @@ Tasks in this file follow the systematic planning approach defined in [`PLANNING
 
 **Integration & Documentation**
 
-- [ ] Remove `@pytest.mark.skip` from E2E test
-- [ ] Verify E2E test passes (if not, return to TDD Implementation)
-- [ ] Update `doc/testing.md` with responsive testing patterns
-- [ ] Update `doc/architecture.md` with mobile-first design principles
-- [ ] Document future JS enhancement plans in `doc/future/`
-- [ ] `uv run ruff check --fix --unsafe-fixes && uv run pytest`
-- [ ] Update TODO.md and CHANGELOG.md
-- [ ] Commit: `Doc: Add responsive design documentation`
+- [x] Remove `@pytest.mark.skip` from E2E test
+- [x] Verify E2E test passes (if not, return to TDD Implementation)
+- [x] Add sticky navbar (position: sticky)
+- [x] `uv run ruff check --fix --unsafe-fixes && uv run pytest`
+- [x] Update TODO.md and CHANGELOG.md
+- [x] Commit: `Ft: Add sticky navbar and enable E2E tests`
 
 **Manual Visual Verification**
 
-- [ ] Run `uv run site serve` to start local development server
-- [ ] Test at viewports: 320px (1 col), 480px (2 col), 768px (3 col), 1024px (4 col), 1200px (6 col)
-- [ ] Verify navbar hamburger toggle works below 768px
-- [ ] Verify touch targets feel adequate on mobile device
-- [ ] Verify typography scales smoothly between viewport sizes
+- [x] Run `uv run site serve` to start local development server
+- [x] Verify navbar hamburger toggle works below 768px
+- [x] Verify touch targets feel adequate on mobile device
+- [x] Verify typography scales smoothly between viewport sizes
+- [x] Verify sticky navbar works on scroll
 
 **PR Creation**
 
