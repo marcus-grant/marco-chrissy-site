@@ -19,6 +19,42 @@ for guidance on task structure, templates, and examples.
 **Workflow rules in [`CONTRIBUTE.md`](CONTRIBUTE.md)
 must always be respected** when working on this project.
 
+## Active Tasks
+
+### Wire Up Parallel Thumbnail Processing to Build Command
+
+*Problem Statement: The `ThumbnailProcessorPlugin` supports parallel processing via `ProcessPoolExecutor` with `parallel` and `max_workers` config options, but these options are not wired through the build command. The config path from `galleria.json` → `galleria/config.py` → `build/galleria_builder.py` doesn't extract or pass these values.*
+
+**Config Extraction (TDD)**
+
+- [ ] Add unit test in `test/galleria/unit/test_config.py`: `GalleriaConfig.from_file()` extracts `parallel` and `max_workers` into `pipeline.processor.config`
+- [ ] Update `galleria/config.py` to extract `parallel` and `max_workers` from JSON config
+- [ ] `uv run ruff check --fix --unsafe-fixes && uv run pytest`
+- [ ] Commit: `Tst: Add test for parallel config extraction`
+- [ ] Commit: `Ft: Extract parallel/max_workers in GalleriaConfig`
+
+**Builder Config Passthrough (TDD)**
+
+- [ ] Add unit test in `test/unit/build/test_galleria_builder.py`: `GalleriaBuilder.build()` passes `parallel` and `max_workers` to processor context config
+- [ ] Update `build/galleria_builder.py` to pass `parallel` and `max_workers` from galleria_config to processor config
+- [ ] `uv run ruff check --fix --unsafe-fixes && uv run pytest`
+- [ ] Commit: `Tst: Add test for builder parallel config passthrough`
+- [ ] Commit: `Ft: Pass parallel config through GalleriaBuilder`
+
+**E2E Verification**
+
+- [ ] Add E2E test in `test/e2e/test_site_build.py`: full build with `parallel: true` in config succeeds
+- [ ] Verify existing `test/e2e/test_parallel_thumbnails.py` still passes
+- [ ] `uv run ruff check --fix --unsafe-fixes && uv run pytest`
+- [ ] Commit: `Tst: Add E2E test for parallel build mode`
+
+**Documentation & Cleanup**
+
+- [ ] Update `config/galleria.json` with `parallel` and `max_workers` options
+- [ ] Update CHANGELOG.md with user-visible change
+- [ ] `uv run ruff check --fix --unsafe-fixes && uv run pytest`
+- [ ] Commit: `Doc: Add parallel config to galleria.json`
+
 ## Post-MVP Enhancements
 
 ### Performance Optimizations

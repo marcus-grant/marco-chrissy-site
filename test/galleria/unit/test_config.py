@@ -178,3 +178,53 @@ class TestGalleriaConfig:
         assert pipeline_config["processor"]["thumbnail_size"] == 400
         assert pipeline_config["transform"]["page_size"] == 10
         assert pipeline_config["template"]["theme"] == "minimal"
+
+    def test_load_config_extracts_parallel_options(self, tmp_path):
+        """Test that parallel and max_workers are extracted into processor config."""
+        # Arrange
+        manifest_path = tmp_path / "manifest.json"
+        manifest_path.write_text(
+            '{"version": "0.1.0", "collection_name": "test", "pics": []}'
+        )
+
+        config_data = {
+            "manifest_path": str(manifest_path),
+            "output_dir": str(tmp_path / "output"),
+            "thumbnail_size": 400,
+            "quality": 85,
+            "parallel": True,
+            "max_workers": 4,
+        }
+
+        config_path = tmp_path / "config.json"
+        config_path.write_text(json.dumps(config_data))
+
+        # Act
+        config = GalleriaConfig.from_file(config_path)
+
+        # Assert
+        assert config.pipeline.processor.config["parallel"] is True
+        assert config.pipeline.processor.config["max_workers"] == 4
+
+    def test_load_config_parallel_defaults_to_absent(self, tmp_path):
+        """Test that parallel options are absent when not specified in config."""
+        # Arrange
+        manifest_path = tmp_path / "manifest.json"
+        manifest_path.write_text(
+            '{"version": "0.1.0", "collection_name": "test", "pics": []}'
+        )
+
+        config_data = {
+            "manifest_path": str(manifest_path),
+            "output_dir": str(tmp_path / "output"),
+        }
+
+        config_path = tmp_path / "config.json"
+        config_path.write_text(json.dumps(config_data))
+
+        # Act
+        config = GalleriaConfig.from_file(config_path)
+
+        # Assert - parallel options should not be present when not specified
+        assert "parallel" not in config.pipeline.processor.config
+        assert "max_workers" not in config.pipeline.processor.config

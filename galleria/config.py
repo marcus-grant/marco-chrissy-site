@@ -74,6 +74,9 @@ class GalleriaConfig:
                 config={
                     "thumbnail_size": data.get("thumbnail_size", 400),
                     "quality": data.get("quality", 90),
+                    # Only include parallel options if specified in config
+                    **({"parallel": data["parallel"]} if "parallel" in data else {}),
+                    **({"max_workers": data["max_workers"]} if "max_workers" in data else {}),
                 },
             ),
             "transform": PipelineStageConfig(
