@@ -29,7 +29,8 @@ Buffer for changes during current development cycle. Migrated to `doc/release/X-
 - Add parallel thumbnail processing with `ProcessPoolExecutor`
 - Add `ThumbnailBenchmark` class for per-photo timing metrics
 - Add benchmark config option to thumbnail processor
-- Add WebP quality analysis template document
+- Complete WebP quality analysis (q70 recommended, 8 workers optimal)
+- Add benchmark scripts for parallel scaling and quality comparison
 
 ## 2026-01-15
 
