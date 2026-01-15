@@ -170,6 +170,21 @@ class CustomNavigationPlugin(TemplatePlugin):
 
 ## Future Integration Patterns
 
+### SnakeCharmer Integration
+```python
+# Galleria as a builder within SnakeCharmer orchestration
+from snakecharmer import BuildOrchestrator
+from snakecharmer.builders import GalleriaBuilder, CobraBuilder
+
+orchestrator = BuildOrchestrator(
+    builders=[
+        GalleriaBuilder(config="config/galleria.json"),
+        CobraBuilder(config="config/cobra.json"),  # Pelican replacement
+    ]
+)
+orchestrator.build()
+```
+
 ### Multi-Site Support
 ```python
 # Same Galleria core, different site integrations
@@ -189,7 +204,7 @@ blog_generator = GalleriaGenerator(
 # Django integration
 from django_galleria import DjangoGalleriaIntegration
 
-# FastAPI integration  
+# FastAPI integration
 from fastapi_galleria import FastAPIGalleriaIntegration
 ```
 
