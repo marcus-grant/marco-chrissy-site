@@ -26,6 +26,7 @@ Buffer for changes during current development cycle. Migrated to `doc/release/X-
 
 ## 2026-01-15
 
+- Wire `parallel` and `max_workers` config options through build command
 - Add parallel thumbnail processing with `ProcessPoolExecutor`
 - Add `ThumbnailBenchmark` class for per-photo timing metrics
 - Add benchmark config option to thumbnail processor
