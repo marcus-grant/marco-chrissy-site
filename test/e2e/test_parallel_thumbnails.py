@@ -6,27 +6,24 @@ Tests the complete parallel thumbnail processing workflow including:
 - Correct thumbnail generation for all photos
 """
 
-import pytest
-
 from galleria.plugins.base import PluginContext
 from galleria.plugins.processors.thumbnail import ThumbnailProcessorPlugin
 
 
-@pytest.mark.skip(reason="Parallel processing not implemented")
 class TestParallelThumbnails:
     """E2E tests for parallel thumbnail processing."""
 
     def test_parallel_processing_generates_all_thumbnails(
         self,
-        galleria_temp_filesystem,
-        galleria_image_factory,
+        temp_filesystem,
+        fake_image_factory,
     ):
         """Test parallel processing generates thumbnails for all photos."""
         # Setup: Create test images
         num_photos = 5
         photos = []
         for i in range(1, num_photos + 1):
-            source_path = galleria_image_factory(
+            source_path = fake_image_factory(
                 f"IMG_{i:03d}.jpg",
                 directory="source",
                 size=(1200, 800),
@@ -40,7 +37,7 @@ class TestParallelThumbnails:
                 }
             )
 
-        output_dir = galleria_temp_filesystem / "output"
+        output_dir = temp_filesystem / "output"
         output_dir.mkdir(parents=True, exist_ok=True)
 
         # Setup: Create plugin context with parallel config
@@ -75,22 +72,22 @@ class TestParallelThumbnails:
         # Assert: Each photo has thumbnail_path
         for photo in result.output_data["photos"]:
             assert "thumbnail_path" in photo, f"Missing thumbnail_path for {photo}"
-            thumbnail_path = galleria_temp_filesystem / "output" / "thumbnails" / (
+            thumbnail_path = temp_filesystem / "output" / "thumbnails" / (
                 photo["dest_path"].replace(".jpg", ".webp")
             )
             assert thumbnail_path.exists(), f"Thumbnail not created: {thumbnail_path}"
 
     def test_parallel_processing_captures_benchmark_metrics(
         self,
-        galleria_temp_filesystem,
-        galleria_image_factory,
+        temp_filesystem,
+        fake_image_factory,
     ):
         """Test parallel processing captures benchmark metrics when enabled."""
         # Setup: Create test images
         num_photos = 3
         photos = []
         for i in range(1, num_photos + 1):
-            source_path = galleria_image_factory(
+            source_path = fake_image_factory(
                 f"IMG_{i:03d}.jpg",
                 directory="source",
                 size=(800, 600),
@@ -103,7 +100,7 @@ class TestParallelThumbnails:
                 }
             )
 
-        output_dir = galleria_temp_filesystem / "output"
+        output_dir = temp_filesystem / "output"
         output_dir.mkdir(parents=True, exist_ok=True)
 
         # Setup: Create plugin context with parallel and benchmark enabled
@@ -132,11 +129,11 @@ class TestParallelThumbnails:
         # Assert: Processing succeeded
         assert result.success, f"Processing failed: {result.errors}"
 
-        # Assert: Benchmark metrics present in metadata
-        assert result.metadata is not None
-        assert "benchmark" in result.metadata, "Missing benchmark in metadata"
+        # Assert: Benchmark metrics present in output_data
+        assert result.output_data is not None
+        assert "benchmark" in result.output_data, "Missing benchmark in output_data"
 
-        benchmark = result.metadata["benchmark"]
+        benchmark = result.output_data["benchmark"]
 
         # Assert: Expected metric keys present
         assert "per_photo_times" in benchmark
