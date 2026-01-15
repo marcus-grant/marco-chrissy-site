@@ -354,3 +354,154 @@ class TestDeployCommand:
 
         # Verify client factory was called
         mock_client_factory.assert_called_once()
+
+    @patch("cli.commands.deploy.create_cdn_client_from_config")
+    @patch("cli.commands.deploy.build")
+    @patch("cli.commands.deploy.DeployOrchestrator")
+    @patch("cli.commands.deploy.create_clients_from_config")
+    @patch("cli.commands.deploy.ManifestComparator")
+    @patch("cli.commands.deploy.Path")
+    @patch("cli.commands.deploy.ConfigManager")
+    def test_deploy_with_purge_flag_purges_cache(
+        self,
+        mock_config_manager_class,
+        mock_path_class,
+        mock_manifest_comp_class,
+        mock_client_factory,
+        mock_orchestrator_class,
+        mock_build,
+        mock_create_cdn_client,
+    ):
+        """Test that deploy --purge triggers CDN cache purge after deployment."""
+        # Mock config loading
+        mock_config_manager = Mock()
+        mock_config_manager_class.return_value = mock_config_manager
+        deploy_config = {
+            "test": "config",
+            "cdn_api_key_env_var": "TEST_CDN_KEY",
+            "site_pullzone_id_env_var": "TEST_PULLZONE_ID",
+        }
+        mock_config_manager.load_deploy_config.return_value = deploy_config
+
+        mock_build.return_value = Mock(exit_code=0)
+
+        # Mock output directory exists
+        mock_output_dir = Mock()
+        mock_output_dir.exists.return_value = True
+        mock_path_class.return_value = mock_output_dir
+
+        # Mock dual client creation
+        mock_client_factory.return_value = (Mock(), Mock())
+
+        # Mock orchestrator success
+        mock_orchestrator = Mock()
+        mock_orchestrator_class.return_value = mock_orchestrator
+        mock_orchestrator.execute_deployment.return_value = True
+
+        # Mock CDN client for purge
+        mock_cdn_client = Mock()
+        mock_create_cdn_client.return_value = mock_cdn_client
+        mock_cdn_client.purge_pullzone.return_value = True
+
+        runner = CliRunner()
+        result = runner.invoke(deploy, ["--purge"])
+
+        assert result.exit_code == 0
+        assert "cdn cache purged successfully" in result.output.lower()
+        mock_cdn_client.purge_pullzone.assert_called_once()
+
+    @patch("cli.commands.deploy.build")
+    @patch("cli.commands.deploy.DeployOrchestrator")
+    @patch("cli.commands.deploy.create_clients_from_config")
+    @patch("cli.commands.deploy.ManifestComparator")
+    @patch("cli.commands.deploy.Path")
+    @patch("cli.commands.deploy.ConfigManager")
+    def test_deploy_without_purge_flag_does_not_purge(
+        self,
+        mock_config_manager_class,
+        mock_path_class,
+        mock_manifest_comp_class,
+        mock_client_factory,
+        mock_orchestrator_class,
+        mock_build,
+    ):
+        """Test that deploy without --purge flag does not trigger purge."""
+        # Mock config loading
+        mock_config_manager = Mock()
+        mock_config_manager_class.return_value = mock_config_manager
+        mock_config_manager.load_deploy_config.return_value = {"test": "config"}
+
+        mock_build.return_value = Mock(exit_code=0)
+
+        # Mock output directory exists
+        mock_output_dir = Mock()
+        mock_output_dir.exists.return_value = True
+        mock_path_class.return_value = mock_output_dir
+
+        # Mock dual client creation
+        mock_client_factory.return_value = (Mock(), Mock())
+
+        # Mock orchestrator success
+        mock_orchestrator = Mock()
+        mock_orchestrator_class.return_value = mock_orchestrator
+        mock_orchestrator.execute_deployment.return_value = True
+
+        runner = CliRunner()
+        result = runner.invoke(deploy)
+
+        assert result.exit_code == 0
+        assert "cdn cache purged" not in result.output.lower()
+
+    @patch("cli.commands.deploy.create_cdn_client_from_config")
+    @patch("cli.commands.deploy.build")
+    @patch("cli.commands.deploy.DeployOrchestrator")
+    @patch("cli.commands.deploy.create_clients_from_config")
+    @patch("cli.commands.deploy.ManifestComparator")
+    @patch("cli.commands.deploy.Path")
+    @patch("cli.commands.deploy.ConfigManager")
+    def test_deploy_with_purge_flag_fails_if_purge_fails(
+        self,
+        mock_config_manager_class,
+        mock_path_class,
+        mock_manifest_comp_class,
+        mock_client_factory,
+        mock_orchestrator_class,
+        mock_build,
+        mock_create_cdn_client,
+    ):
+        """Test that deploy --purge fails if CDN purge fails."""
+        # Mock config loading
+        mock_config_manager = Mock()
+        mock_config_manager_class.return_value = mock_config_manager
+        deploy_config = {
+            "test": "config",
+            "cdn_api_key_env_var": "TEST_CDN_KEY",
+            "site_pullzone_id_env_var": "TEST_PULLZONE_ID",
+        }
+        mock_config_manager.load_deploy_config.return_value = deploy_config
+
+        mock_build.return_value = Mock(exit_code=0)
+
+        # Mock output directory exists
+        mock_output_dir = Mock()
+        mock_output_dir.exists.return_value = True
+        mock_path_class.return_value = mock_output_dir
+
+        # Mock dual client creation
+        mock_client_factory.return_value = (Mock(), Mock())
+
+        # Mock orchestrator success
+        mock_orchestrator = Mock()
+        mock_orchestrator_class.return_value = mock_orchestrator
+        mock_orchestrator.execute_deployment.return_value = True
+
+        # Mock CDN client purge failure
+        mock_cdn_client = Mock()
+        mock_create_cdn_client.return_value = mock_cdn_client
+        mock_cdn_client.purge_pullzone.return_value = False
+
+        runner = CliRunner()
+        result = runner.invoke(deploy, ["--purge"])
+
+        assert result.exit_code != 0
+        assert "cdn cache purge failed" in result.output.lower()

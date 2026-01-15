@@ -21,29 +21,11 @@ must always be respected** when working on this project.
 
 ## Post-MVP Enhancements
 
-#### Task: Add CDN Cache Purge Command
-
-- [ ] Research full Bunny.net API cache management capabilities: tag-based purging (<1s global), wildcard patterns (/galleries/wedding/*), individual URL purging, and other API features that might better suit our deployment patterns
-- [ ] Implement `uv run site purge` command with targeted cache invalidation options
-
-### Blocking: Investigate Production Grid Column Issue
-
-- [ ] Production showing 5-column max grid instead of 6 columns
-  - Works correctly after cache purge + browser cache clear on fresh browser
-  - Main Firefox instance still shows 5 columns despite purges
-  - Likely related to 302 vs 301 edge rule status codes causing stale CSS cache
-  - Investigate CDN cache headers and browser caching behavior
-  - May need to prioritize edge rule 301 switch or cache purge command
-
 ### Performance Optimizations
 
 *Split into frontend and backend PRs. Each requires benchmarking before/after using Lighthouse (frontend) and built-in benchmarking (backend). Analyze page sizes, load times, and generation metrics. Full planning for each PR happens separately.*
 
-#### Frontend Performance (separate PR)
-
-- [ ] Gallery lazy loading with JS progressive enhancement
-- [ ] Dark mode toggle (CSS variables + minimal JS)
-- [ ] Lighthouse benchmarks before/after
+**Version bump**: Minor version (0.3.0) after both backend and frontend PRs complete.
 
 #### Backend Performance (separate PR)
 
@@ -52,11 +34,40 @@ must always be respected** when working on this project.
 - [ ] WebP compression optimization
 - [ ] Build benchmarking before/after (page sizes, generation time)
 
-#### Deployment Metrics *(requires planning task before implementation)*
+#### Frontend Performance (separate PR)
 
-- [ ] Upload volume analysis (files changed vs total, bytes transferred)
-- [ ] CDN performance analysis (cache hits, edge response times)
-- [ ] Lighthouse testing against CDN for production UX metrics
+- [ ] Improve benchmarking infra to include lighthouse runner and metrics collection
+- [ ] Gallery lazy loading with JS progressive enhancement
+- [ ] Dark mode toggle (CSS variables + minimal JS)
+- [ ] Lighthouse benchmarks before/after
+- [ ] Improve typography and spacing for readability
+
+### Extra Frontend Enhancements
+
+- [ ] Improve typography (font choices, sizes, line heights)
+- [ ] Add more containers for elements to improve spacing and layout
+  - [ ] Index page looks like shit, at least add containers for text there
+  - [ ] Margins of thumbnails or padding could use work.
+- [ ] Navbar improvements
+  - [ ] Home link should be our names
+  - [ ] links should be separated differently
+  - [ ] Landing page already does 'About' page's role
+  - [ ] Should be a 'Links' or 'Our Links' or something page with link
+    - Contains our links to reach us on other sites or platforms or email
+    - Think of it like a linktr.ee type page
+- Start making better use of color, I don't know exactly where yet though
+- Add a basic favicon, maybe a simple heart, maybe with our initials or something
+
+### Confusion
+
+- Here I'm less sure how to order things
+- Should we create another performance check before adding 'web-optimized' images?
+  - Includes setting up a mirror set of images of same content with normpic:
+    - but different sizes/qualities for other use cases:
+      - *(thumbnails, web-optimized, full-res)*
+- If we do this we should also be backing up our changes with benchmarks
+- Add full-sized views of images clicked on thumbnails using web-opt images
+  - This means we need a means to show the full sized ones or download them
 
 ### Shared Component Enhancements
 
@@ -79,6 +90,12 @@ must always be respected** when working on this project.
 - [ ] **Plugin Output Validation**: Use structured types (Pydantic) instead of defensive CLI validation
 - [ ] **E2E Test Performance**: Fix 16+ second subprocess startup time, consolidate tests
 
+#### Deployment Metrics *(requires planning task before implementation)*
+
+- [ ] Upload volume analysis (files changed vs total, bytes transferred)
+- [ ] CDN performance analysis (cache hits, edge response times)
+- [ ] Lighthouse testing against CDN for production UX metrics
+
 ### Code Quality
 
 - [ ] Comprehensive error handling for plugin failures
@@ -86,10 +103,25 @@ must always be respected** when working on this project.
 - [ ] Enhanced fake image fixtures for EXIF testing
 - [ ] Remove dead code (old manifest serializer, thumbnail processor)
 - [ ] **Rename build/ to builders/**: Directory conflicts with Python's `build/` artifact directory in `.gitignore`. Rename module and update all imports.
+- [ ] **Update PLANNING.md**: Remove numbered phases/cycles, use descriptive subsection names only
 
 ### Medium-term Features
 
 - [ ] **External Asset Version Pinning**: Add version control for reproducible builds (config-based pinning with integrity hashes vs lock files) - update themes/shared/utils/asset_manager.py
+
+#### Galleria Extraction Preparation
+
+- [ ] Independence audit (remove parent project dependencies)
+- [ ] Technical debt cleanup (type hints, error handling, performance)
+- [ ] Evaluate shared schema package with NormPic
+- [ ] **Complete `galleria/serializer/` typed models**: Currently incomplete - `Photo`, `PhotoCollection` models exist but plugin system uses dicts. For extraction, either:
+  - Have `NormPicProviderPlugin` return typed models instead of dicts, or
+  - Remove serializer and keep dict-based plugin contract
+- [ ] Plan the procedure to extract Galleria as standalone project
+  - [ ] Come up with list of files containing Galleria code, tests, docs
+  - [ ] Testable plan to prove imported galleria package works in parent project
+  - [ ] Plan how to keep main branch safe during extraction
+  - [ ] Plan to pull git history into new repo
 
 #### Test Infrastructure
 
@@ -121,15 +153,6 @@ must always be respected** when working on this project.
   - Consider build manifest to track current vs old files for storage cleanup
   - Integrate with `site purge` command for old file removal from CDN + storage
 
-#### Galleria Extraction Preparation
-
-- [ ] Independence audit (remove parent project dependencies)
-- [ ] Technical debt cleanup (type hints, error handling, performance)
-- [ ] Evaluate shared schema package with NormPic
-- [ ] **Complete `galleria/serializer/` typed models**: Currently incomplete - `Photo`, `PhotoCollection` models exist but plugin system uses dicts. For extraction, either:
-  - Have `NormPicProviderPlugin` return typed models instead of dicts, or
-  - Remove serializer and keep dict-based plugin contract
-
 #### Long-term Considerations
 
 - [ ] FastAPI/Django/Wagtail integration for dynamic features
@@ -140,10 +163,37 @@ must always be respected** when working on this project.
 
 Post-MVP modularization strategy documented in [Future Architecture](future/). Key goals:
 
-- Extract Galleria as standalone project
-- Create SiteForge framework for static+dynamic sites  
+- Create **SnakeCharmer** framework for multi-paradigm site orchestration
+  - Python-based orchestrator that coordinates SSG, APIs, micro frontends, and CDN deployment
+  - Manages the "menagerie" of tools: Galleria, Cobra, FastAPI, Bunny CDN, etc.
+  - CLI: `uv run snakecharmer build`, `uv run snakecharmer serve`, `uv run snakecharmer deploy`
+  - Abstract builder interfaces from day one (SSG, API, frontend builders)
+  - Site-specific content, templates, CSS, configs live in each site's repo
+  - SnakeCharmer imported as a package dependency
+- Create **Cobra** as Pelican replacement
+  - Python-based SSG inspired by 11ty's architecture
+  - Simpler, less opinionated than Pelican
+  - Integrates as a builder within SnakeCharmer
 - Enable endpoint abstraction (same logic → static/FastAPI/HTMX/edge functions)
 - Transform this repo to configuration/deployment hub
+
+### SnakeCharmer Extraction Preparation
+
+- [ ] Define abstract Builder interface for SSG, API, and frontend builders
+- [ ] Extract orchestration code (cli/, build/, serve/, deploy/, validator/, serializer/)
+- [ ] Design configuration discovery (convention-based vs pyproject.toml entry points)
+- [ ] Plan hook system for site-specific customizations
+- [ ] Create new SnakeCharmer repo and migrate orchestration code
+- [ ] Update this repo to import SnakeCharmer as dependency
+- [ ] Test that marco-chrissy-site works with extracted SnakeCharmer
+
+### Cobra Development
+
+- [ ] Research 11ty architecture patterns to adapt for Python
+- [ ] Design simpler, less opinionated template/content model than Pelican
+- [ ] Implement Cobra as standalone package
+- [ ] Create CobraBuilder for SnakeCharmer integration
+- [ ] Migrate marco-chrissy-site from Pelican to Cobra
 
 ## Notes
 

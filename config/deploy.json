@@ -3,5 +3,7 @@
   "site_password_env_var": "BUNNYNET_PASS_MC_SITE",
   "photo_zone_name": "marco-crissy-site-pics",
   "site_zone_name": "marco-crissy-site",
-  "region": ""
+  "region": "",
+  "cdn_api_key_env_var": "BUNNYNET_API_KEY",
+  "site_pullzone_id_env_var": "BUNNYNET_PULL_ID_MC_SITE"
 }

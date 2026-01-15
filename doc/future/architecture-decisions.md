@@ -65,8 +65,8 @@
 - **Composable**: Pipeline stages can be reordered, extended, or replaced
 - **Debuggable**: Each step produces inspectable intermediate data
 
-### Potential Custom Implementation (Python)
-**Core concept**: Static site generator focused on data flow over file conventions
+### Cobra: Custom Python SSG Implementation
+**Core concept**: Static site generator focused on data flow over file conventions (codename: Cobra)
 
 **Pipeline stages:**
 1. **Content ingestion**: Markdown, JSON, API calls → normalized data structures
@@ -103,12 +103,13 @@
 - Islands architecture for selective hydration
 - Good for mixed static/dynamic content
 
-### Custom Implementation Considerations
+### Cobra Implementation Considerations
 
 **Benefits:**
 - **Perfect fit**: Designed exactly for your data flow needs
 - **No framework fighting**: Zero unwanted opinions or legacy baggage
 - **Python ecosystem**: Leverage existing photo processing, HTMX backend
+- **SnakeCharmer integration**: Cobra becomes a builder within the orchestration framework
 - **Learning value**: Deep understanding of static site generation principles
 
 **Implementation approach:**
@@ -144,6 +145,9 @@ final_site = assemble_site(rendered_fragments, optimized_assets)
 ## Next Steps
 
 1. Complete current project documentation and deployment
-2. Extract core components (Galleria, shared themes) for reusability  
-3. Build personal site with 11ty + Python hybrid to test integration patterns
-4. Evaluate long-term architecture decisions based on real-world usage
+2. Extract Galleria as standalone package
+3. Extract SnakeCharmer orchestration framework
+4. Develop Cobra as 11ty-inspired Python SSG
+5. Migrate marco-chrissy-site from Pelican to Cobra
+6. Build second personal site using SnakeCharmer + Cobra
+7. Evaluate long-term architecture decisions based on real-world usage

@@ -42,7 +42,29 @@ This separation optimizes deployment speed and CDN performance by treating photo
 5. Click **Create**
 6. **Important**: Note the **Storage Password** from the zone details
 
-### 3. Configure Environment Variables
+### 3. Create a Pull Zone
+
+A pull zone is required for CDN distribution and cache purging.
+
+1. Navigate to **CDN** → **Pull Zones**
+2. Click **Add Pull Zone**
+3. Configure:
+   - **Name**: `your-site` (e.g., `mycompany-site`)
+   - **Origin URL**: Point to your site storage zone URL
+4. Click **Create**
+5. **Important**: Note the **Pull Zone ID** from the URL or zone details
+
+### 4. Get Your Account API Key
+
+The Account API key is required for CDN operations like cache purging.
+
+1. Click your profile icon (top right)
+2. Navigate to **Account Settings** → **API**
+3. Copy your **Account API Key**
+
+**Security Note**: The Account API key provides full access to your Bunny.net account. Keep it secure and never commit it to version control.
+
+### 5. Configure Environment Variables
 
 Each storage zone has its own unique password. The deploy configuration system reads environment variable names from `config/deploy.json`, allowing you to customize variable names:
 
@@ -52,11 +74,17 @@ Each storage zone has its own unique password. The deploy configuration system r
 export BUNNYNET_PHOTO_PASSWORD="your-photo-zone-password"
 export BUNNYNET_SITE_PASSWORD="your-site-zone-password"
 
+# CDN API credentials for cache purging:
+export BUNNYNET_CDN_API_KEY="your-account-api-key"
+export BUNNYNET_SITE_PULLZONE_ID="your-pullzone-id"
+
 # The deploy config determines which env vars to read:
 # config/deploy.json:
 # {
 #   "photo_password_env_var": "BUNNYNET_PHOTO_PASSWORD",
 #   "site_password_env_var": "BUNNYNET_SITE_PASSWORD",
+#   "cdn_api_key_env_var": "BUNNYNET_CDN_API_KEY",
+#   "site_pullzone_id_env_var": "BUNNYNET_SITE_PULLZONE_ID",
 #   "photo_zone_name": "your-site-photos",
 #   "site_zone_name": "your-site-content",
 #   "region": ""  # empty for Frankfurt, "uk" for London, "ny" for NY
@@ -69,9 +97,11 @@ export BUNNYNET_SITE_PASSWORD="your-site-zone-password"
 # In your shell profile
 export BUNNYNET_PHOTO_PASSWORD="your-password"
 export BUNNYNET_SITE_PASSWORD="your-password"
+export BUNNYNET_CDN_API_KEY="your-api-key"
+export BUNNYNET_SITE_PULLZONE_ID="your-pullzone-id"
 ```
 
-**Security Note**: Never commit these passwords to version control. Add them to your shell profile or deployment environment.
+**Security Note**: Never commit these credentials to version control. Add them to your shell profile or deployment environment.
 
 ## Deployment Process
 
@@ -101,6 +131,69 @@ uv run site build
 # Then deploy the built content
 uv run site deploy
 ```
+
+### Deploy with Cache Purge
+
+To automatically purge CDN cache after deployment:
+
+```bash
+# Deploy and purge cache in one command
+uv run site deploy --purge
+```
+
+This is useful when you need changes to appear immediately without waiting for cache TTL expiration.
+
+## CDN Cache Purging
+
+CDN caching improves performance but can delay visibility of updates. Use cache purging to invalidate cached content when immediate updates are needed.
+
+### When to Purge
+
+- **Breaking changes**: CSS/JS updates that must be visible immediately
+- **Critical fixes**: Security patches or important content corrections
+- **Coordinated releases**: When multiple changes need to go live together
+
+### Purge Commands
+
+```bash
+# Standalone purge (site pullzone only)
+uv run site purge
+
+# Deploy with automatic purge
+uv run site deploy --purge
+```
+
+### How It Works
+
+The purge command uses Bunny.net's CDN API to invalidate the entire pullzone cache:
+
+1. Reads CDN API credentials from environment variables
+2. Calls Bunny.net API endpoint: `POST /pullzone/{id}/purgeCache`
+3. Bunny.net returns 204 on success, indicating cache cleared
+
+**Scope**: Currently purges the site pullzone only. Photos pullzone is excluded because photo content rarely changes and has longer cache TTLs.
+
+### Future Purge Features
+
+The Bunny.net API supports more granular purging options (not yet implemented):
+
+**URL-specific purging**:
+```
+POST https://api.bunny.net/purge?url=https://yoursite.b-cdn.net/path/to/file.html
+```
+
+**Wildcard patterns**:
+```
+POST https://api.bunny.net/purge?url=https://yoursite.b-cdn.net/galleries/*
+```
+
+**Tag-based purging** (requires cache tags on responses):
+```
+POST https://api.bunny.net/pullzone/{id}/purgeCache
+Body: { "CacheTag": "galleries" }
+```
+
+These features may be implemented based on usage patterns and need.
 
 ## How Dual Zone Routing Works
 
@@ -167,6 +260,8 @@ The deploy system uses a flat configuration structure that specifies environment
 {
   "photo_password_env_var": "BUNNYNET_PHOTO_PASSWORD",
   "site_password_env_var": "BUNNYNET_SITE_PASSWORD",
+  "cdn_api_key_env_var": "BUNNYNET_CDN_API_KEY",
+  "site_pullzone_id_env_var": "BUNNYNET_SITE_PULLZONE_ID",
   "photo_zone_name": "your-site-photos",
   "site_zone_name": "your-site-content",
   "region": ""
@@ -196,6 +291,8 @@ cat config/deploy.json
 # Set the variables it expects
 export BUNNYNET_PHOTO_PASSWORD="your-photo-password"
 export BUNNYNET_SITE_PASSWORD="your-site-password"
+export BUNNYNET_CDN_API_KEY="your-api-key"
+export BUNNYNET_SITE_PULLZONE_ID="your-pullzone-id"
 ```
 
 ### API Connection Issues
@@ -214,10 +311,27 @@ python3 -c "from deploy.bunnynet_client import create_clients_from_config; impor
 
 **Error**: `Output directory not found - run build first`
 
-**Solution**: 
+**Solution**:
 ```bash
 uv run site build  # This will create the output/ directory
 uv run site deploy
+```
+
+### CDN Cache Purge Issues
+
+**Problem**: `CDN cache purge failed`
+
+**Possible causes**:
+- Invalid API key → Verify Account API key in Bunny.net dashboard
+- Wrong pullzone ID → Check Pull Zone ID in CDN section
+- Network issues → Check firewall/proxy settings
+
+**Problem**: `CDN purge configuration error: Missing [ENV_VAR] environment variable`
+
+**Solution**: Set CDN environment variables:
+```bash
+export BUNNYNET_CDN_API_KEY="your-account-api-key"
+export BUNNYNET_SITE_PULLZONE_ID="your-pullzone-id"
 ```
 
 ## Performance Considerations
@@ -249,5 +363,6 @@ uv run site deploy
 ## Related Documentation
 
 - [Deploy Command Usage](commands/deploy.md)
+- [Purge Command Usage](commands/purge.md)
 - [Build Pipeline](commands/build.md)
 - [Site Configuration](config/)

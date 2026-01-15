@@ -5,8 +5,14 @@ Deploy the generated site to Bunny.net CDN with dual storage zone strategy.
 ## Synopsis
 
 ```bash
-uv run site deploy
+uv run site deploy [--purge]
 ```
+
+## Options
+
+| Option | Description |
+|--------|-------------|
+| `--purge` | Purge CDN cache after successful deployment |
 
 ## Description
 
@@ -44,7 +50,9 @@ The deploy command routes files to separate storage zones:
    ```json
    {
      "photo_password_env_var": "BUNNYNET_PHOTO_PASSWORD",
-     "site_password_env_var": "BUNNYNET_SITE_PASSWORD", 
+     "site_password_env_var": "BUNNYNET_SITE_PASSWORD",
+     "cdn_api_key_env_var": "BUNNYNET_CDN_API_KEY",
+     "site_pullzone_id_env_var": "BUNNYNET_SITE_PULLZONE_ID",
      "photo_zone_name": "your-site-photos",
      "site_zone_name": "your-site-content",
      "region": ""
@@ -53,8 +61,13 @@ The deploy command routes files to separate storage zones:
 
 2. **Environment Variables**:
    ```bash
+   # Storage zone passwords (required for deploy)
    export BUNNYNET_PHOTO_PASSWORD="your-photo-zone-password"
    export BUNNYNET_SITE_PASSWORD="your-site-zone-password"
+
+   # CDN API credentials (required for --purge flag)
+   export BUNNYNET_CDN_API_KEY="your-account-api-key"
+   export BUNNYNET_SITE_PULLZONE_ID="your-pullzone-id"
    ```
 
 ### Customizing Environment Variable Names
@@ -77,6 +90,15 @@ The configuration system allows you to use any environment variable names by upd
 # Deploy complete site (runs build automatically)
 uv run site deploy
 ```
+
+### Deploy with Cache Purge
+
+```bash
+# Deploy and purge CDN cache in one command
+uv run site deploy --purge
+```
+
+Use `--purge` when changes need to be visible immediately without waiting for cache TTL expiration.
 
 ### Manual Step-by-Step
 
@@ -118,6 +140,20 @@ Uploading to CDN with dual zone strategy...
 ✓ Deploy completed successfully!
 ```
 
+### With --purge Flag
+
+```
+Deploying site to Bunny CDN...
+Running build...
+✓ Build completed successfully
+Uploading to CDN with dual zone strategy...
+✓ Uploaded 45 site files to site zone
+✓ Uploaded 12 new photos to photo zone (skipped 234 unchanged)
+✓ Deploy completed successfully!
+Purging CDN cache...
+✓ CDN cache purged successfully!
+```
+
 ## Error Handling
 
 ### Missing Environment Variables
@@ -144,6 +180,20 @@ Uploading to CDN with dual zone strategy...
 
 **Solution**: Check network connectivity and storage zone credentials.
 
+### CDN Purge Failures (--purge flag)
+
+```
+✗ CDN purge configuration error: Missing BUNNYNET_CDN_API_KEY environment variable
+```
+
+**Solution**: Set CDN environment variables when using `--purge` flag.
+
+```
+✗ CDN cache purge failed
+```
+
+**Solution**: Verify API key validity and pullzone ID in Bunny.net dashboard.
+
 ## Performance Notes
 
 ### Photo Collections
@@ -169,6 +219,7 @@ Uploading to CDN with dual zone strategy...
 ## Related Commands
 
 - [`build`](build.md) - Build the complete site
+- [`purge`](purge.md) - Purge CDN cache (standalone)
 - [`organize`](organize.md) - Organize source photos
 - [`validate`](validate.md) - Validate site configuration
 
