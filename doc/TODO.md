@@ -21,51 +21,6 @@ must always be respected** when working on this project.
 
 ## Post-MVP Enhancements
 
-### Task: Add CDN Cache Purge Command (Branch: `ft/purge`)
-
-*Problem Statement: No way to invalidate CDN cache after deployment. Need `site purge` command and `deploy --purge` flag for pullzone-wide cache clearing.*
-
-**Key Decisions:**
-- Pullzone-wide purge only (URL/wildcard/tag-based purging deferred)
-- New `BunnyCdnClient` class in `deploy/` (separate from storage client)
-- Config via env var names: `cdn_api_key_env_var`, `site_pullzone_id_env_var`
-- Site pullzone only (pics pullzone rarely changes)
-
-**Setup & E2E Definition**
-- [ ] Create E2E test in `test/e2e/test_site_purge.py` (skipped)
-
-**TDD Implementation Cycles**
-
-*Configuration Updates*
-- [ ] Add `cdn_api_key_env_var` and `site_pullzone_id_env_var` to `config/deploy.json`
-- [ ] Update `ConfigManager` to validate new fields
-
-*CDN Client Class*
-- [ ] Create `deploy/bunny_cdn_client.py` with `BunnyCdnClient` class
-- [ ] Implement `purge_pullzone()` method
-- [ ] Add `create_cdn_client_from_config()` factory function
-
-*Purge CLI Command*
-- [ ] Create `cli/commands/purge.py` with `purge` command
-- [ ] Register in `cli/commands/__init__.py`
-
-*Deploy --purge Flag*
-- [ ] Add `--purge` flag to `cli/commands/deploy.py`
-
-**Integration & Documentation**
-- [ ] Remove skip from E2E test, verify it passes
-- [ ] Update `doc/bunnynet.md` with CDN API setup and purge usage
-- [ ] Create `doc/commands/purge.md`
-- [ ] Update `doc/commands/deploy.md` with `--purge` flag
-- [ ] Document future purging features (URL, wildcard, tag-based API overviews)
-
-**Deferred Features** (document API for future implementation):
-- URL-specific purging: `POST api.bunny.net/purge?url={full_url}`
-- Wildcard patterns: Same endpoint with `*` in URL
-- Tag-based purging: `POST api.bunny.net/pullzone/{id}/purgeCache` with `CacheTag` body
-- Pics pullzone purging
-- Monitor `--purge` flag usage to decide on automation
-
 ### Performance Optimizations
 
 *Split into frontend and backend PRs. Each requires benchmarking before/after using Lighthouse (frontend) and built-in benchmarking (backend). Analyze page sizes, load times, and generation metrics. Full planning for each PR happens separately.*
