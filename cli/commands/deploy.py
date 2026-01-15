@@ -5,6 +5,7 @@ from pathlib import Path
 import click
 
 from build.config_manager import ConfigManager
+from deploy.bunny_cdn_client import create_cdn_client_from_config
 from deploy.bunnynet_client import create_clients_from_config
 from deploy.manifest_comparator import ManifestComparator
 from deploy.orchestrator import DeployOrchestrator
@@ -13,7 +14,8 @@ from .build import build
 
 
 @click.command()
-def deploy():
+@click.option("--purge", is_flag=True, help="Purge CDN cache after deployment")
+def deploy(purge):
     """Upload site to Bunny CDN with dual zone strategy."""
     click.echo("Deploying site to Bunny CDN...")
 
@@ -54,6 +56,21 @@ def deploy():
 
         if success:
             click.echo("✓ Deploy completed successfully!")
+
+            # Purge CDN cache if requested
+            if purge:
+                click.echo("Purging CDN cache...")
+                try:
+                    cdn_client = create_cdn_client_from_config(deploy_config)
+                    purge_success = cdn_client.purge_pullzone()
+                    if purge_success:
+                        click.echo("✓ CDN cache purged successfully!")
+                    else:
+                        click.echo("✗ CDN cache purge failed")
+                        ctx.exit(1)
+                except ValueError as e:
+                    click.echo(f"✗ CDN purge configuration error: {e}")
+                    ctx.exit(1)
         else:
             click.echo("✗ Deploy failed")
             ctx.exit(1)
