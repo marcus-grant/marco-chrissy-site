@@ -22,7 +22,6 @@ class TestSitePurge:
         finally:
             os.chdir(original_cwd)
 
-    @pytest.mark.skip(reason="Purge command not yet implemented")
     @patch("cli.commands.purge.create_cdn_client_from_config")
     @patch("cli.commands.purge.ConfigManager")
     def test_purge_clears_site_pullzone_cache(
@@ -50,7 +49,6 @@ class TestSitePurge:
         assert result.exit_code == 0
         mock_cdn_client.purge_pullzone.assert_called_once()
 
-    @pytest.mark.skip(reason="Purge command not yet implemented")
     @patch("cli.commands.purge.create_cdn_client_from_config")
     @patch("cli.commands.purge.ConfigManager")
     def test_purge_reports_success(
@@ -78,7 +76,6 @@ class TestSitePurge:
         assert result.exit_code == 0
         assert "purge" in result.output.lower()
 
-    @pytest.mark.skip(reason="Purge command not yet implemented")
     @patch("cli.commands.purge.create_cdn_client_from_config")
     @patch("cli.commands.purge.ConfigManager")
     def test_purge_handles_api_failure(
@@ -106,7 +103,6 @@ class TestSitePurge:
         assert result.exit_code != 0
         assert "failed" in result.output.lower()
 
-    @pytest.mark.skip(reason="Purge command not yet implemented")
     @patch("cli.commands.purge.create_cdn_client_from_config")
     @patch("cli.commands.purge.ConfigManager")
     def test_purge_handles_missing_config(
@@ -153,7 +149,6 @@ class TestDeployPurgeFlag:
         finally:
             os.chdir(original_cwd)
 
-    @pytest.mark.skip(reason="Deploy --purge flag not yet implemented")
     @patch("cli.commands.deploy.create_cdn_client_from_config")
     @patch("cli.commands.deploy.create_clients_from_config")
     @patch("cli.commands.deploy.ManifestComparator")
@@ -211,7 +206,6 @@ class TestDeployPurgeFlag:
         assert result.exit_code == 0
         mock_cdn_client.purge_pullzone.assert_called_once()
 
-    @pytest.mark.skip(reason="Deploy --purge flag not yet implemented")
     @patch("cli.commands.deploy.create_clients_from_config")
     @patch("cli.commands.deploy.ManifestComparator")
     @patch("cli.commands.deploy.DeployOrchestrator")
