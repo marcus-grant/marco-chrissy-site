@@ -4,13 +4,20 @@
 
 ### Workflow
 
-Tasks in this file follow the systematic planning approach defined in [`PLANNING.md`](PLANNING.md). This ensures consistent, high-quality development that naturally follows the workflow rules in [`CONTRIBUTE.md`](CONTRIBUTE.md).
+Tasks in this file follow the systematic planning approach defined in [`PLANNING.md`](PLANNING.md).
+This ensures consistent,
+high-quality development that naturally follows the workflow rules in
+[`CONTRIBUTE.md`](CONTRIBUTE.md).
 
-**Key principle**: Following TODO tasks should automatically result in following our development workflow.
+**Key principle**: Following TODO tasks should automatically result in
+following our development workflow.
 
-**Before adding or modifying tasks** (beyond marking items complete): Read [`PLANNING.md`](PLANNING.md) for guidance on task structure, templates, and examples.
+**Before adding or modifying tasks** (beyond marking items complete):
+Read [`PLANNING.md`](PLANNING.md)
+for guidance on task structure, templates, and examples.
 
-**Workflow rules in [`CONTRIBUTE.md`](CONTRIBUTE.md) must always be respected** when working on this project.
+**Workflow rules in [`CONTRIBUTE.md`](CONTRIBUTE.md)
+must always be respected** when working on this project.
 
 ## Post-MVP Enhancements
 
@@ -18,6 +25,15 @@ Tasks in this file follow the systematic planning approach defined in [`PLANNING
 
 - [ ] Research full Bunny.net API cache management capabilities: tag-based purging (<1s global), wildcard patterns (/galleries/wedding/*), individual URL purging, and other API features that might better suit our deployment patterns
 - [ ] Implement `uv run site purge` command with targeted cache invalidation options
+
+### Blocking: Investigate Production Grid Column Issue
+
+- [ ] Production showing 5-column max grid instead of 6 columns
+  - Works correctly after cache purge + browser cache clear on fresh browser
+  - Main Firefox instance still shows 5 columns despite purges
+  - Likely related to 302 vs 301 edge rule status codes causing stale CSS cache
+  - Investigate CDN cache headers and browser caching behavior
+  - May need to prioritize edge rule 301 switch or cache purge command
 
 ### Performance Optimizations
 
@@ -31,6 +47,7 @@ Tasks in this file follow the systematic planning approach defined in [`PLANNING
 
 #### Backend Performance (separate PR)
 
+- [ ] Improve benchmarking infra to collect file sizes, build times
 - [ ] Parallel thumbnail processing and incremental generation
 - [ ] WebP compression optimization
 - [ ] Build benchmarking before/after (page sizes, generation time)
