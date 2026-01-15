@@ -629,3 +629,118 @@ class TestProcessSinglePhoto:
         assert result["metadata"]["hash"] == "abc123"
         assert result["metadata"]["camera"] == "Canon EOS R5"
         assert result["metadata"]["custom_field"] == "custom_value"
+
+
+class TestParallelConfig:
+    """Tests for parallel processing configuration options."""
+
+    def test_parallel_defaults_to_false(self, tmp_path):
+        """Test that parallel processing is disabled by default."""
+        from galleria.plugins.processors.thumbnail import ThumbnailProcessorPlugin
+
+        # Arrange: Create test source image
+        source_dir = tmp_path / "source"
+        source_dir.mkdir()
+        img_path = source_dir / "IMG_001.jpg"
+        img = Image.new("RGB", (800, 600), color="red")
+        img.save(img_path, "JPEG")
+
+        provider_data = {
+            "photos": [
+                {
+                    "source_path": str(img_path),
+                    "dest_path": "test/IMG_001.jpg",
+                    "metadata": {},
+                }
+            ],
+            "collection_name": "test",
+        }
+
+        # No parallel config specified
+        context = PluginContext(
+            input_data=provider_data,
+            config={"thumbnail_size": 200},
+            output_dir=tmp_path / "output",
+        )
+
+        # Act
+        plugin = ThumbnailProcessorPlugin()
+        result = plugin.process_thumbnails(context)
+
+        # Assert: Processing succeeds (parallel=False by default, uses sequential)
+        assert result.success is True
+        assert result.output_data["thumbnail_count"] == 1
+
+    def test_parallel_config_is_parsed(self, tmp_path):
+        """Test that parallel=True config is parsed correctly."""
+        from galleria.plugins.processors.thumbnail import ThumbnailProcessorPlugin
+
+        # Arrange: Create test source image
+        source_dir = tmp_path / "source"
+        source_dir.mkdir()
+        img_path = source_dir / "IMG_001.jpg"
+        img = Image.new("RGB", (800, 600), color="blue")
+        img.save(img_path, "JPEG")
+
+        provider_data = {
+            "photos": [
+                {
+                    "source_path": str(img_path),
+                    "dest_path": "test/IMG_001.jpg",
+                    "metadata": {},
+                }
+            ],
+            "collection_name": "test",
+        }
+
+        # Explicit parallel config (still uses sequential until Commit 6)
+        context = PluginContext(
+            input_data=provider_data,
+            config={"thumbnail_size": 200, "parallel": True, "max_workers": 2},
+            output_dir=tmp_path / "output",
+        )
+
+        # Act
+        plugin = ThumbnailProcessorPlugin()
+        result = plugin.process_thumbnails(context)
+
+        # Assert: Processing succeeds (config is parsed, parallel impl comes in Commit 6)
+        assert result.success is True
+        assert result.output_data["thumbnail_count"] == 1
+
+    def test_max_workers_config_is_parsed(self, tmp_path):
+        """Test that max_workers config is parsed correctly."""
+        from galleria.plugins.processors.thumbnail import ThumbnailProcessorPlugin
+
+        # Arrange: Create test source image
+        source_dir = tmp_path / "source"
+        source_dir.mkdir()
+        img_path = source_dir / "IMG_001.jpg"
+        img = Image.new("RGB", (800, 600), color="green")
+        img.save(img_path, "JPEG")
+
+        provider_data = {
+            "photos": [
+                {
+                    "source_path": str(img_path),
+                    "dest_path": "test/IMG_001.jpg",
+                    "metadata": {},
+                }
+            ],
+            "collection_name": "test",
+        }
+
+        # Explicit max_workers config
+        context = PluginContext(
+            input_data=provider_data,
+            config={"thumbnail_size": 200, "parallel": True, "max_workers": 4},
+            output_dir=tmp_path / "output",
+        )
+
+        # Act
+        plugin = ThumbnailProcessorPlugin()
+        result = plugin.process_thumbnails(context)
+
+        # Assert: Processing succeeds
+        assert result.success is True
+        assert result.output_data["thumbnail_count"] == 1

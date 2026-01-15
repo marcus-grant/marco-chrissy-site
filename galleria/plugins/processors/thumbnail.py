@@ -192,6 +192,11 @@ class ThumbnailProcessorPlugin(ProcessorPlugin):
             use_cache = processor_config.get("use_cache", True)
             output_format = processor_config.get("output_format", "webp")
 
+            # Parallel processing options (used in parallel path below)
+            parallel = processor_config.get("parallel", False)
+            max_workers = processor_config.get("max_workers", None)
+            _ = (parallel, max_workers)  # Mark as intentionally unused until Commit 6
+
             # Create thumbnails directory
             thumbnails_dir = context.output_dir / "thumbnails"
             thumbnails_dir.mkdir(parents=True, exist_ok=True)
