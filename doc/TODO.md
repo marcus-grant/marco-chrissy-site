@@ -41,11 +41,6 @@ Tasks in this file follow the systematic planning approach defined in [`PLANNING
 - [ ] CDN performance analysis (cache hits, edge response times)
 - [ ] Lighthouse testing against CDN for production UX metrics
 
-### Edge Rules Production Finalization
-
-- [ ] Change Edge Rules from 302 temporary to 301 permanent redirects
-  - Deferred until after purge command, responsive layout, and JS lazy loading to avoid browser caching issues
-
 ### Shared Component Enhancements
 
 - [ ] **Context-Aware Shared Header**: Replace separate site titles with smart shared header that adapts based on system context
@@ -103,6 +98,11 @@ Tasks in this file follow the systematic planning approach defined in [`PLANNING
 - [ ] GitHub Actions CI/CD pipeline
 - [ ] Docker containerization and Ansible automation evaluation
 - [ ] CDN optimization with separate bucket strategies
+- [ ] Change Edge Rules from 302 temporary to 301 permanent redirects
+- [ ] **Cache-Busting for Static Assets**: Add version/hash to CSS/JS filenames to avoid stale browser cache
+  - Planning: evaluate query string (`?v=X.Y.Z`) vs hashed filenames (`shared.a1b2c3.css`)
+  - Consider build manifest to track current vs old files for storage cleanup
+  - Integrate with `site purge` command for old file removal from CDN + storage
 
 #### Galleria Extraction Preparation
 
