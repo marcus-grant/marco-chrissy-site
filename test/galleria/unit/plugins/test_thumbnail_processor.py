@@ -5,6 +5,7 @@ from pathlib import Path
 from PIL import Image
 
 from galleria.plugins import PluginContext
+from galleria.plugins.processors.thumbnail import _process_single_photo
 
 
 class TestThumbnailProcessorPlugin:
@@ -451,3 +452,471 @@ class TestThumbnailProcessorPlugin:
         # New processor data added
         assert "thumbnail_path" in photo
         assert photo["thumbnail_size"] == (250, 250)
+
+
+class TestProcessSinglePhoto:
+    """Unit tests for _process_single_photo standalone function."""
+
+    def test_process_single_photo_creates_thumbnail(self, tmp_path):
+        """Test that _process_single_photo creates a thumbnail file."""
+        # Arrange: Create test source image
+        source_dir = tmp_path / "source"
+        source_dir.mkdir()
+        img_path = source_dir / "IMG_001.jpg"
+        img = Image.new("RGB", (800, 600), color="red")
+        img.save(img_path, "JPEG")
+
+        thumbnails_dir = tmp_path / "thumbnails"
+        thumbnails_dir.mkdir()
+
+        photo = {
+            "source_path": str(img_path),
+            "dest_path": "test/IMG_001.jpg",
+            "metadata": {"hash": "test123"},
+        }
+
+        # Act
+        result = _process_single_photo(
+            photo=photo,
+            thumbnails_dir=thumbnails_dir,
+            thumbnail_size=200,
+            quality=80,
+            output_format="webp",
+            use_cache=True,
+        )
+
+        # Assert
+        assert "thumbnail_path" in result
+        assert "thumbnail_size" in result
+        assert result["thumbnail_size"] == (200, 200)
+        assert result["cached"] is False
+        assert "error" not in result
+
+        # Verify file exists
+        thumbnail_path = Path(result["thumbnail_path"])
+        assert thumbnail_path.exists()
+        assert thumbnail_path.suffix == ".webp"
+
+    def test_process_single_photo_uses_cache(self, tmp_path):
+        """Test that _process_single_photo uses cached thumbnail when valid."""
+        # Arrange: Create test source image
+        source_dir = tmp_path / "source"
+        source_dir.mkdir()
+        img_path = source_dir / "IMG_001.jpg"
+        img = Image.new("RGB", (800, 600), color="blue")
+        img.save(img_path, "JPEG")
+
+        thumbnails_dir = tmp_path / "thumbnails"
+        thumbnails_dir.mkdir()
+
+        # Create existing thumbnail (older than source won't work, but same time does)
+        existing_thumb = thumbnails_dir / "IMG_001.webp"
+        thumb = Image.new("RGB", (200, 200), color="blue")
+        thumb.save(existing_thumb, "WEBP")
+
+        photo = {
+            "source_path": str(img_path),
+            "dest_path": "test/IMG_001.jpg",
+            "metadata": {},
+        }
+
+        # Act
+        result = _process_single_photo(
+            photo=photo,
+            thumbnails_dir=thumbnails_dir,
+            thumbnail_size=200,
+            quality=80,
+            output_format="webp",
+            use_cache=True,
+        )
+
+        # Assert: Should use cached version
+        assert "thumbnail_path" in result
+        assert result["cached"] is True
+        assert "error" not in result
+
+    def test_process_single_photo_handles_missing_file(self, tmp_path):
+        """Test that _process_single_photo handles missing source file."""
+        thumbnails_dir = tmp_path / "thumbnails"
+        thumbnails_dir.mkdir()
+
+        photo = {
+            "source_path": "/nonexistent/IMG_001.jpg",
+            "dest_path": "test/IMG_001.jpg",
+            "metadata": {},
+        }
+
+        # Act
+        result = _process_single_photo(
+            photo=photo,
+            thumbnails_dir=thumbnails_dir,
+            thumbnail_size=200,
+            quality=80,
+            output_format="webp",
+            use_cache=True,
+        )
+
+        # Assert: Should return error
+        assert "error" in result
+        assert result["source_path"] == "/nonexistent/IMG_001.jpg"
+
+    def test_process_single_photo_handles_corrupted_image(self, tmp_path):
+        """Test that _process_single_photo handles corrupted image."""
+        # Arrange: Create corrupted image file
+        source_dir = tmp_path / "source"
+        source_dir.mkdir()
+        corrupted_img = source_dir / "corrupted.jpg"
+        corrupted_img.write_text("This is not a valid image")
+
+        thumbnails_dir = tmp_path / "thumbnails"
+        thumbnails_dir.mkdir()
+
+        photo = {
+            "source_path": str(corrupted_img),
+            "dest_path": "test/corrupted.jpg",
+            "metadata": {},
+        }
+
+        # Act
+        result = _process_single_photo(
+            photo=photo,
+            thumbnails_dir=thumbnails_dir,
+            thumbnail_size=200,
+            quality=80,
+            output_format="webp",
+            use_cache=True,
+        )
+
+        # Assert: Should return error
+        assert "error" in result
+        assert result["source_path"] == str(corrupted_img)
+
+    def test_process_single_photo_preserves_original_data(self, tmp_path):
+        """Test that _process_single_photo preserves all original photo data."""
+        # Arrange: Create test source image
+        source_dir = tmp_path / "source"
+        source_dir.mkdir()
+        img_path = source_dir / "IMG_001.jpg"
+        img = Image.new("RGB", (800, 600), color="green")
+        img.save(img_path, "JPEG")
+
+        thumbnails_dir = tmp_path / "thumbnails"
+        thumbnails_dir.mkdir()
+
+        photo = {
+            "source_path": str(img_path),
+            "dest_path": "test/IMG_001.jpg",
+            "metadata": {
+                "hash": "abc123",
+                "camera": "Canon EOS R5",
+                "custom_field": "custom_value",
+            },
+        }
+
+        # Act
+        result = _process_single_photo(
+            photo=photo,
+            thumbnails_dir=thumbnails_dir,
+            thumbnail_size=200,
+            quality=80,
+            output_format="webp",
+            use_cache=True,
+        )
+
+        # Assert: Original data preserved
+        assert result["source_path"] == str(img_path)
+        assert result["dest_path"] == "test/IMG_001.jpg"
+        assert result["metadata"]["hash"] == "abc123"
+        assert result["metadata"]["camera"] == "Canon EOS R5"
+        assert result["metadata"]["custom_field"] == "custom_value"
+
+
+class TestParallelConfig:
+    """Tests for parallel processing configuration options."""
+
+    def test_parallel_defaults_to_false(self, tmp_path):
+        """Test that parallel processing is disabled by default."""
+        from galleria.plugins.processors.thumbnail import ThumbnailProcessorPlugin
+
+        # Arrange: Create test source image
+        source_dir = tmp_path / "source"
+        source_dir.mkdir()
+        img_path = source_dir / "IMG_001.jpg"
+        img = Image.new("RGB", (800, 600), color="red")
+        img.save(img_path, "JPEG")
+
+        provider_data = {
+            "photos": [
+                {
+                    "source_path": str(img_path),
+                    "dest_path": "test/IMG_001.jpg",
+                    "metadata": {},
+                }
+            ],
+            "collection_name": "test",
+        }
+
+        # No parallel config specified
+        context = PluginContext(
+            input_data=provider_data,
+            config={"thumbnail_size": 200},
+            output_dir=tmp_path / "output",
+        )
+
+        # Act
+        plugin = ThumbnailProcessorPlugin()
+        result = plugin.process_thumbnails(context)
+
+        # Assert: Processing succeeds (parallel=False by default, uses sequential)
+        assert result.success is True
+        assert result.output_data["thumbnail_count"] == 1
+
+    def test_parallel_config_is_parsed(self, tmp_path):
+        """Test that parallel=True config is parsed correctly."""
+        from galleria.plugins.processors.thumbnail import ThumbnailProcessorPlugin
+
+        # Arrange: Create test source image
+        source_dir = tmp_path / "source"
+        source_dir.mkdir()
+        img_path = source_dir / "IMG_001.jpg"
+        img = Image.new("RGB", (800, 600), color="blue")
+        img.save(img_path, "JPEG")
+
+        provider_data = {
+            "photos": [
+                {
+                    "source_path": str(img_path),
+                    "dest_path": "test/IMG_001.jpg",
+                    "metadata": {},
+                }
+            ],
+            "collection_name": "test",
+        }
+
+        # Explicit parallel config (still uses sequential until Commit 6)
+        context = PluginContext(
+            input_data=provider_data,
+            config={"thumbnail_size": 200, "parallel": True, "max_workers": 2},
+            output_dir=tmp_path / "output",
+        )
+
+        # Act
+        plugin = ThumbnailProcessorPlugin()
+        result = plugin.process_thumbnails(context)
+
+        # Assert: Processing succeeds (config is parsed, parallel impl comes in Commit 6)
+        assert result.success is True
+        assert result.output_data["thumbnail_count"] == 1
+
+    def test_max_workers_config_is_parsed(self, tmp_path):
+        """Test that max_workers config is parsed correctly."""
+        from galleria.plugins.processors.thumbnail import ThumbnailProcessorPlugin
+
+        # Arrange: Create test source image
+        source_dir = tmp_path / "source"
+        source_dir.mkdir()
+        img_path = source_dir / "IMG_001.jpg"
+        img = Image.new("RGB", (800, 600), color="green")
+        img.save(img_path, "JPEG")
+
+        provider_data = {
+            "photos": [
+                {
+                    "source_path": str(img_path),
+                    "dest_path": "test/IMG_001.jpg",
+                    "metadata": {},
+                }
+            ],
+            "collection_name": "test",
+        }
+
+        # Explicit max_workers config
+        context = PluginContext(
+            input_data=provider_data,
+            config={"thumbnail_size": 200, "parallel": True, "max_workers": 4},
+            output_dir=tmp_path / "output",
+        )
+
+        # Act
+        plugin = ThumbnailProcessorPlugin()
+        result = plugin.process_thumbnails(context)
+
+        # Assert: Processing succeeds
+        assert result.success is True
+        assert result.output_data["thumbnail_count"] == 1
+
+
+class TestBenchmarkIntegration:
+    """Tests for benchmark metrics collection."""
+
+    def test_benchmark_disabled_by_default(self, tmp_path):
+        """Test that benchmark data is not collected by default."""
+        from galleria.plugins.processors.thumbnail import ThumbnailProcessorPlugin
+
+        # Arrange: Create test source image
+        source_dir = tmp_path / "source"
+        source_dir.mkdir()
+        img_path = source_dir / "IMG_001.jpg"
+        img = Image.new("RGB", (800, 600), color="red")
+        img.save(img_path, "JPEG")
+
+        provider_data = {
+            "photos": [
+                {
+                    "source_path": str(img_path),
+                    "dest_path": "test/IMG_001.jpg",
+                    "metadata": {},
+                }
+            ],
+            "collection_name": "test",
+        }
+
+        # No benchmark config
+        context = PluginContext(
+            input_data=provider_data,
+            config={"thumbnail_size": 200},
+            output_dir=tmp_path / "output",
+        )
+
+        # Act
+        plugin = ThumbnailProcessorPlugin()
+        result = plugin.process_thumbnails(context)
+
+        # Assert: No benchmark data in output
+        assert result.success is True
+        assert "benchmark" not in result.output_data
+
+    def test_benchmark_enabled_collects_metrics(self, tmp_path):
+        """Test that benchmark=True collects timing and size metrics."""
+        from galleria.plugins.processors.thumbnail import ThumbnailProcessorPlugin
+
+        # Arrange: Create test source images
+        source_dir = tmp_path / "source"
+        source_dir.mkdir()
+        for i in range(3):
+            img_path = source_dir / f"IMG_{i:03d}.jpg"
+            img = Image.new("RGB", (800, 600), color=(i * 80, 100, 100))
+            img.save(img_path, "JPEG")
+
+        photos = [
+            {
+                "source_path": str(source_dir / f"IMG_{i:03d}.jpg"),
+                "dest_path": f"test/IMG_{i:03d}.jpg",
+                "metadata": {},
+            }
+            for i in range(3)
+        ]
+
+        provider_data = {
+            "photos": photos,
+            "collection_name": "benchmark_test",
+        }
+
+        context = PluginContext(
+            input_data=provider_data,
+            config={"thumbnail_size": 200, "benchmark": True},
+            output_dir=tmp_path / "output",
+        )
+
+        # Act
+        plugin = ThumbnailProcessorPlugin()
+        result = plugin.process_thumbnails(context)
+
+        # Assert: Benchmark data present with required fields
+        assert result.success is True
+        assert "benchmark" in result.output_data
+
+        benchmark = result.output_data["benchmark"]
+        assert "per_photo_times" in benchmark
+        assert "total_duration_s" in benchmark
+        assert "photos_per_second" in benchmark
+        assert "output_sizes" in benchmark
+        assert "total_output_bytes" in benchmark
+        assert "average_output_bytes" in benchmark
+
+        # Verify data integrity
+        assert len(benchmark["per_photo_times"]) == 3
+        assert len(benchmark["output_sizes"]) == 3
+        assert all(t > 0 for t in benchmark["per_photo_times"])
+        assert all(s > 0 for s in benchmark["output_sizes"])
+
+    def test_benchmark_with_parallel_processing(self, tmp_path):
+        """Test that benchmark works with parallel processing."""
+        from galleria.plugins.processors.thumbnail import ThumbnailProcessorPlugin
+
+        # Arrange: Create test source images
+        source_dir = tmp_path / "source"
+        source_dir.mkdir()
+        for i in range(3):
+            img_path = source_dir / f"IMG_{i:03d}.jpg"
+            img = Image.new("RGB", (800, 600), color=(100, i * 80, 100))
+            img.save(img_path, "JPEG")
+
+        photos = [
+            {
+                "source_path": str(source_dir / f"IMG_{i:03d}.jpg"),
+                "dest_path": f"test/IMG_{i:03d}.jpg",
+                "metadata": {},
+            }
+            for i in range(3)
+        ]
+
+        provider_data = {
+            "photos": photos,
+            "collection_name": "parallel_benchmark_test",
+        }
+
+        context = PluginContext(
+            input_data=provider_data,
+            config={"thumbnail_size": 200, "benchmark": True, "parallel": True, "max_workers": 2},
+            output_dir=tmp_path / "output",
+        )
+
+        # Act
+        plugin = ThumbnailProcessorPlugin()
+        result = plugin.process_thumbnails(context)
+
+        # Assert: Benchmark data collected in parallel mode
+        assert result.success is True
+        assert "benchmark" in result.output_data
+
+        benchmark = result.output_data["benchmark"]
+        assert len(benchmark["per_photo_times"]) == 3
+        assert len(benchmark["output_sizes"]) == 3
+
+    def test_benchmark_data_not_leaked_to_photos(self, tmp_path):
+        """Test that internal benchmark fields are not in photo output."""
+        from galleria.plugins.processors.thumbnail import ThumbnailProcessorPlugin
+
+        # Arrange
+        source_dir = tmp_path / "source"
+        source_dir.mkdir()
+        img_path = source_dir / "IMG_001.jpg"
+        img = Image.new("RGB", (800, 600), color="blue")
+        img.save(img_path, "JPEG")
+
+        provider_data = {
+            "photos": [
+                {
+                    "source_path": str(img_path),
+                    "dest_path": "test/IMG_001.jpg",
+                    "metadata": {},
+                }
+            ],
+            "collection_name": "test",
+        }
+
+        context = PluginContext(
+            input_data=provider_data,
+            config={"thumbnail_size": 200, "benchmark": True},
+            output_dir=tmp_path / "output",
+        )
+
+        # Act
+        plugin = ThumbnailProcessorPlugin()
+        result = plugin.process_thumbnails(context)
+
+        # Assert: Internal fields removed from photo output
+        photo = result.output_data["photos"][0]
+        assert "_timing_s" not in photo
+        assert "_output_bytes" not in photo

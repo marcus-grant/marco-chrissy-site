@@ -4,6 +4,8 @@
   "thumbnail_size": 400,
   "photos_per_page": 96,
   "theme": "minimal",
-  "quality": 85,
+  "quality": 70,
+  "parallel": true,
+  "max_workers": 8,
   "layout": "grid"
 }

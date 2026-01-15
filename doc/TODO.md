@@ -27,13 +27,6 @@ must always be respected** when working on this project.
 
 **Version bump**: Minor version (0.3.0) after both backend and frontend PRs complete.
 
-#### Backend Performance (separate PR)
-
-- [ ] Improve benchmarking infra to collect file sizes, build times
-- [ ] Parallel thumbnail processing and incremental generation
-- [ ] WebP compression optimization
-- [ ] Build benchmarking before/after (page sizes, generation time)
-
 #### Frontend Performance (separate PR)
 
 - [ ] Improve benchmarking infra to include lighthouse runner and metrics collection

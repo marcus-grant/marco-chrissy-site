@@ -16,7 +16,7 @@ from .plugins.template import BasicTemplatePlugin
 
 
 @click.group()
-@click.version_option(version="0.2.1", prog_name="galleria")
+@click.version_option(version="0.2.3", prog_name="galleria")
 def cli():
     """Galleria static gallery generator."""
     pass
