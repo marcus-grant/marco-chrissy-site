@@ -1,9 +1,11 @@
 """Thumbnail processor plugin for generating optimized WebP thumbnails from photo collections."""
 
 import copy
+import time
 from concurrent.futures import ProcessPoolExecutor, as_completed
 from pathlib import Path
 
+from galleria.benchmark import ThumbnailBenchmark
 from galleria.plugins.base import PluginContext, PluginResult
 from galleria.plugins.interfaces import ProcessorPlugin
 from galleria.processor.image import ImageProcessingError, ImageProcessor
@@ -16,6 +18,7 @@ def _process_single_photo(
     quality: int,
     output_format: str,
     use_cache: bool,
+    collect_timing: bool = False,
 ) -> dict:
     """Process a single photo to generate a thumbnail.
 
@@ -29,6 +32,7 @@ def _process_single_photo(
         quality: WebP quality (0-100)
         output_format: Output format (e.g., "webp")
         use_cache: Whether to use cached thumbnails
+        collect_timing: Whether to collect timing/size metrics
 
     Returns:
         Dict with processed photo data including:
@@ -37,9 +41,12 @@ def _process_single_photo(
             - thumbnail_size: Tuple of (width, height)
             - cached: Whether thumbnail was from cache
             - error: Error message if processing failed (optional)
+            - _timing_s: Processing time in seconds (if collect_timing=True)
+            - _output_bytes: Output file size in bytes (if collect_timing=True)
     """
     # Create image processor instance
     processor = ImageProcessor()
+    start_time = time.perf_counter() if collect_timing else 0.0
 
     try:
         # Copy original photo data to preserve it
@@ -58,6 +65,10 @@ def _process_single_photo(
                 processed_photo["thumbnail_path"] = str(thumbnail_path)
                 processed_photo["thumbnail_size"] = (thumbnail_size, thumbnail_size)
                 processed_photo["cached"] = True
+                # Add timing data for cached files
+                if collect_timing:
+                    processed_photo["_timing_s"] = time.perf_counter() - start_time
+                    processed_photo["_output_bytes"] = thumbnail_path.stat().st_size
                 return processed_photo
 
         # Process thumbnail
@@ -75,13 +86,22 @@ def _process_single_photo(
             processed_photo["thumbnail_size"] = (thumbnail_size, thumbnail_size)
             processed_photo["cached"] = False
 
+            # Add timing data
+            if collect_timing:
+                processed_photo["_timing_s"] = time.perf_counter() - start_time
+                processed_photo["_output_bytes"] = result_path.stat().st_size
+
         except ImageProcessingError as e:
             # Individual photo processing failed
             processed_photo["error"] = f"Failed to process {source_path}: {e}"
+            if collect_timing:
+                processed_photo["_timing_s"] = time.perf_counter() - start_time
 
         except Exception as e:
             # Unexpected error
             processed_photo["error"] = f"Unexpected error processing {source_path}: {e}"
+            if collect_timing:
+                processed_photo["_timing_s"] = time.perf_counter() - start_time
 
         return processed_photo
 
@@ -197,6 +217,10 @@ class ThumbnailProcessorPlugin(ProcessorPlugin):
             parallel = processor_config.get("parallel", False)
             max_workers = processor_config.get("max_workers", None)
 
+            # Benchmark collection option
+            collect_benchmark = processor_config.get("benchmark", False)
+            benchmark = ThumbnailBenchmark() if collect_benchmark else None
+
             # Create thumbnails directory
             thumbnails_dir = context.output_dir / "thumbnails"
             thumbnails_dir.mkdir(parents=True, exist_ok=True)
@@ -220,6 +244,7 @@ class ThumbnailProcessorPlugin(ProcessorPlugin):
                             quality,
                             output_format,
                             use_cache,
+                            collect_benchmark,  # Pass timing collection flag
                         ): photo
                         for photo in photos
                     }
@@ -234,6 +259,17 @@ class ThumbnailProcessorPlugin(ProcessorPlugin):
                         else:
                             thumbnail_count += 1
 
+                        # Collect benchmark data if enabled
+                        if benchmark and "_timing_s" in processed_photo:
+                            output_bytes = processed_photo.get("_output_bytes", 0)
+                            benchmark.record_photo(
+                                processed_photo["_timing_s"], output_bytes
+                            )
+                            # Remove internal fields from output
+                            del processed_photo["_timing_s"]
+                            if "_output_bytes" in processed_photo:
+                                del processed_photo["_output_bytes"]
+
                         processed_photos.append(processed_photo)
             else:
                 # Sequential processing (default)
@@ -246,6 +282,7 @@ class ThumbnailProcessorPlugin(ProcessorPlugin):
                         quality=quality,
                         output_format=output_format,
                         use_cache=use_cache,
+                        collect_timing=collect_benchmark,  # Pass timing collection flag
                     )
 
                     # Track results
@@ -254,12 +291,27 @@ class ThumbnailProcessorPlugin(ProcessorPlugin):
                     else:
                         thumbnail_count += 1
 
+                    # Collect benchmark data if enabled
+                    if benchmark and "_timing_s" in processed_photo:
+                        output_bytes = processed_photo.get("_output_bytes", 0)
+                        benchmark.record_photo(
+                            processed_photo["_timing_s"], output_bytes
+                        )
+                        # Remove internal fields from output
+                        del processed_photo["_timing_s"]
+                        if "_output_bytes" in processed_photo:
+                            del processed_photo["_output_bytes"]
+
                     processed_photos.append(processed_photo)
 
             # Build output data - preserve all input data and add processor results
             output_data = copy.deepcopy(context.input_data)
             output_data["photos"] = processed_photos
             output_data["thumbnail_count"] = thumbnail_count
+
+            # Add benchmark metrics if collected
+            if benchmark:
+                output_data["benchmark"] = benchmark.get_metrics()
 
             # Return result with any processing errors as context
             return PluginResult(

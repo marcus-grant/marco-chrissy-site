@@ -744,3 +744,179 @@ class TestParallelConfig:
         # Assert: Processing succeeds
         assert result.success is True
         assert result.output_data["thumbnail_count"] == 1
+
+
+class TestBenchmarkIntegration:
+    """Tests for benchmark metrics collection."""
+
+    def test_benchmark_disabled_by_default(self, tmp_path):
+        """Test that benchmark data is not collected by default."""
+        from galleria.plugins.processors.thumbnail import ThumbnailProcessorPlugin
+
+        # Arrange: Create test source image
+        source_dir = tmp_path / "source"
+        source_dir.mkdir()
+        img_path = source_dir / "IMG_001.jpg"
+        img = Image.new("RGB", (800, 600), color="red")
+        img.save(img_path, "JPEG")
+
+        provider_data = {
+            "photos": [
+                {
+                    "source_path": str(img_path),
+                    "dest_path": "test/IMG_001.jpg",
+                    "metadata": {},
+                }
+            ],
+            "collection_name": "test",
+        }
+
+        # No benchmark config
+        context = PluginContext(
+            input_data=provider_data,
+            config={"thumbnail_size": 200},
+            output_dir=tmp_path / "output",
+        )
+
+        # Act
+        plugin = ThumbnailProcessorPlugin()
+        result = plugin.process_thumbnails(context)
+
+        # Assert: No benchmark data in output
+        assert result.success is True
+        assert "benchmark" not in result.output_data
+
+    def test_benchmark_enabled_collects_metrics(self, tmp_path):
+        """Test that benchmark=True collects timing and size metrics."""
+        from galleria.plugins.processors.thumbnail import ThumbnailProcessorPlugin
+
+        # Arrange: Create test source images
+        source_dir = tmp_path / "source"
+        source_dir.mkdir()
+        for i in range(3):
+            img_path = source_dir / f"IMG_{i:03d}.jpg"
+            img = Image.new("RGB", (800, 600), color=(i * 80, 100, 100))
+            img.save(img_path, "JPEG")
+
+        photos = [
+            {
+                "source_path": str(source_dir / f"IMG_{i:03d}.jpg"),
+                "dest_path": f"test/IMG_{i:03d}.jpg",
+                "metadata": {},
+            }
+            for i in range(3)
+        ]
+
+        provider_data = {
+            "photos": photos,
+            "collection_name": "benchmark_test",
+        }
+
+        context = PluginContext(
+            input_data=provider_data,
+            config={"thumbnail_size": 200, "benchmark": True},
+            output_dir=tmp_path / "output",
+        )
+
+        # Act
+        plugin = ThumbnailProcessorPlugin()
+        result = plugin.process_thumbnails(context)
+
+        # Assert: Benchmark data present with required fields
+        assert result.success is True
+        assert "benchmark" in result.output_data
+
+        benchmark = result.output_data["benchmark"]
+        assert "per_photo_times" in benchmark
+        assert "total_duration_s" in benchmark
+        assert "photos_per_second" in benchmark
+        assert "output_sizes" in benchmark
+        assert "total_output_bytes" in benchmark
+        assert "average_output_bytes" in benchmark
+
+        # Verify data integrity
+        assert len(benchmark["per_photo_times"]) == 3
+        assert len(benchmark["output_sizes"]) == 3
+        assert all(t > 0 for t in benchmark["per_photo_times"])
+        assert all(s > 0 for s in benchmark["output_sizes"])
+
+    def test_benchmark_with_parallel_processing(self, tmp_path):
+        """Test that benchmark works with parallel processing."""
+        from galleria.plugins.processors.thumbnail import ThumbnailProcessorPlugin
+
+        # Arrange: Create test source images
+        source_dir = tmp_path / "source"
+        source_dir.mkdir()
+        for i in range(3):
+            img_path = source_dir / f"IMG_{i:03d}.jpg"
+            img = Image.new("RGB", (800, 600), color=(100, i * 80, 100))
+            img.save(img_path, "JPEG")
+
+        photos = [
+            {
+                "source_path": str(source_dir / f"IMG_{i:03d}.jpg"),
+                "dest_path": f"test/IMG_{i:03d}.jpg",
+                "metadata": {},
+            }
+            for i in range(3)
+        ]
+
+        provider_data = {
+            "photos": photos,
+            "collection_name": "parallel_benchmark_test",
+        }
+
+        context = PluginContext(
+            input_data=provider_data,
+            config={"thumbnail_size": 200, "benchmark": True, "parallel": True, "max_workers": 2},
+            output_dir=tmp_path / "output",
+        )
+
+        # Act
+        plugin = ThumbnailProcessorPlugin()
+        result = plugin.process_thumbnails(context)
+
+        # Assert: Benchmark data collected in parallel mode
+        assert result.success is True
+        assert "benchmark" in result.output_data
+
+        benchmark = result.output_data["benchmark"]
+        assert len(benchmark["per_photo_times"]) == 3
+        assert len(benchmark["output_sizes"]) == 3
+
+    def test_benchmark_data_not_leaked_to_photos(self, tmp_path):
+        """Test that internal benchmark fields are not in photo output."""
+        from galleria.plugins.processors.thumbnail import ThumbnailProcessorPlugin
+
+        # Arrange
+        source_dir = tmp_path / "source"
+        source_dir.mkdir()
+        img_path = source_dir / "IMG_001.jpg"
+        img = Image.new("RGB", (800, 600), color="blue")
+        img.save(img_path, "JPEG")
+
+        provider_data = {
+            "photos": [
+                {
+                    "source_path": str(img_path),
+                    "dest_path": "test/IMG_001.jpg",
+                    "metadata": {},
+                }
+            ],
+            "collection_name": "test",
+        }
+
+        context = PluginContext(
+            input_data=provider_data,
+            config={"thumbnail_size": 200, "benchmark": True},
+            output_dir=tmp_path / "output",
+        )
+
+        # Act
+        plugin = ThumbnailProcessorPlugin()
+        result = plugin.process_thumbnails(context)
+
+        # Assert: Internal fields removed from photo output
+        photo = result.output_data["photos"][0]
+        assert "_timing_s" not in photo
+        assert "_output_bytes" not in photo
