@@ -24,3 +24,11 @@ Buffer for changes during current development cycle. Migrated to `doc/release/X-
 
 ---
 
+## 2026-01-15
+
+- Add `site purge` command for CDN cache invalidation
+- Add `--purge` flag to `deploy` command for post-deploy cache clearing
+- Add `BunnyCdnClient` class for Bunny.net CDN API operations
+- Add CDN API config fields (`cdn_api_key_env_var`, `site_pullzone_id_env_var`)
+- Update future architecture docs (SnakeCharmer/Cobra naming)
+
