@@ -27,12 +27,103 @@ must always be respected** when working on this project.
 
 **Version bump**: Minor version (0.3.0) after both backend and frontend PRs complete.
 
-#### Backend Performance (separate PR)
+#### Backend Performance (Branch: `ft/parallel-thumbnails`)
 
-- [ ] Improve benchmarking infra to collect file sizes, build times
-- [ ] Parallel thumbnail processing and incremental generation
-- [ ] WebP compression optimization
-- [ ] Build benchmarking before/after (page sizes, generation time)
+*Problem Statement: Thumbnail processing is sequential (~421s for 645 photos). Need parallel processing for speedup, per-photo benchmarking for metrics, and quality analysis to find optimal WebP settings.*
+
+*Testing: All tests use existing fixtures (`galleria_temp_filesystem`, `galleria_image_factory`, `galleria_file_factory`, `config_file_factory`) - no real filesystem access.*
+
+**Setup & E2E Definition**
+
+- [ ] `git checkout -b ft/parallel-thumbnails`
+- [ ] Create E2E test in `test/e2e/test_parallel_thumbnails.py`
+  - [ ] Test parallel processing generates all thumbnails
+  - [ ] Test benchmark metrics captured in result metadata
+  - [ ] Add `@pytest.mark.skip("Parallel processing not implemented")`
+- [ ] `uv run ruff check --fix --unsafe-fixes && uv run pytest`
+- [ ] Commit: `Tst: Add E2E test for parallel thumbnails (skipped)`
+
+**TDD Implementation**
+
+*ThumbnailBenchmark Class*
+
+- [ ] Unskip tests in `test/galleria/test_thumbnail_benchmark.py`
+- [ ] Create `galleria/benchmark.py` with `ThumbnailBenchmark` dataclass
+  - [ ] `record_photo(duration_s, output_bytes)` method
+  - [ ] `get_metrics()` returns `per_photo_times`, `photos_per_second`, `output_sizes`, `average_output_bytes`
+- [ ] `uv run ruff check --fix --unsafe-fixes && uv run pytest`
+- [ ] Commit: `Ft: Add ThumbnailBenchmark class`
+
+*Extract Single-Photo Processing*
+
+- [ ] Extract for-loop body from `thumbnail.py:124-194` into `_process_single_photo()` function
+  - [ ] Top-level function (required for ProcessPoolExecutor pickling)
+  - [ ] Returns dict with `thumbnail_path`, `thumbnail_size`, `cached`, or `error`
+- [ ] Add unit tests in `test/galleria/unit/plugins/test_thumbnail_processor.py`
+- [ ] `uv run ruff check --fix --unsafe-fixes && uv run pytest`
+- [ ] Commit: `Ref: Extract single-photo processing function`
+
+*Parallel Config Options*
+
+- [ ] Add config parsing in `process_thumbnails()`:
+  - [ ] `parallel: bool` (default `False`)
+  - [ ] `max_workers: int | None` (default `os.cpu_count()`)
+- [ ] Add unit tests for config parsing
+- [ ] `uv run ruff check --fix --unsafe-fixes && uv run pytest`
+- [ ] Commit: `Ft: Add parallel processing config options`
+
+*Parallel Processing Implementation*
+
+- [ ] Add parallel path using `concurrent.futures.ProcessPoolExecutor`
+  - [ ] Use `as_completed()` for progress tracking
+  - [ ] Sequential path unchanged when `parallel=False`
+- [ ] Create integration tests in `test/galleria/integration/test_thumbnail_processor_parallel.py`
+- [ ] `uv run ruff check --fix --unsafe-fixes && uv run pytest`
+- [ ] Commit: `Ft: Implement parallel thumbnail processing`
+
+*Benchmark Integration*
+
+- [ ] Add `benchmark: bool` config option (default `False`)
+- [ ] Capture per-photo timing and sizes when enabled
+- [ ] Return metrics in `result.metadata["benchmark"]`
+- [ ] Add unit tests for benchmark integration
+- [ ] `uv run ruff check --fix --unsafe-fixes && uv run pytest`
+- [ ] Commit: `Ft: Integrate ThumbnailBenchmark with processor`
+
+**Integration & E2E Verification**
+
+- [ ] Remove `@pytest.mark.skip` from E2E test
+- [ ] Verify E2E test passes
+- [ ] `uv run ruff check --fix --unsafe-fixes && uv run pytest`
+- [ ] Commit: `Tst: Enable parallel thumbnails E2E test`
+
+**Quality Analysis**
+
+- [ ] Run benchmarks at quality levels 60, 70, 80, 90
+- [ ] Collect encode times and file sizes
+- [ ] Select 3 sample photos, host externally
+- [ ] Run sequential baseline benchmark
+- [ ] Run parallel scaling tests (1, 2, 4, 8, 16 workers)
+- [ ] Create `doc/benchmark/quality-analysis.md` with:
+  - [ ] Quality comparison table (encode time, file size per quality level)
+  - [ ] Visual comparison links (3 sample photos)
+  - [ ] Sequential baseline performance
+  - [ ] Parallel scaling table (workers, speedup, efficiency)
+  - [ ] Recommended quality setting with justification
+- [ ] Commit: `Doc: Add WebP quality analysis`
+
+**Documentation Update**
+
+- [ ] Update `doc/CHANGELOG.md` with PR changes
+- [ ] Update `doc/benchmark/README.md` to link quality-analysis.md
+- [ ] Mark Backend Performance items complete in this file
+- [ ] Commit: `Doc: Update docs for backend performance`
+
+**Version & PR**
+
+- [ ] Update version in `pyproject.toml`: 0.2.1 → 0.2.2
+- [ ] Commit: `Ft: Bump version to 0.2.2`
+- [ ] `gh pr create --title "Ft: Parallel thumbnail processing with quality analysis"`
 
 #### Frontend Performance (separate PR)
 
