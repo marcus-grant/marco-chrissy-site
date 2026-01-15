@@ -103,7 +103,6 @@ must always be respected** when working on this project.
 - [ ] Enhanced fake image fixtures for EXIF testing
 - [ ] Remove dead code (old manifest serializer, thumbnail processor)
 - [ ] **Rename build/ to builders/**: Directory conflicts with Python's `build/` artifact directory in `.gitignore`. Rename module and update all imports.
-- [ ] **Update PLANNING.md**: Remove numbered phases/cycles, use descriptive subsection names only
 
 ### Medium-term Features
 

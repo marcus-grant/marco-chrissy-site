@@ -48,16 +48,27 @@ that following them automatically results in following our development workflow.
 
 ## Task Planning Template
 
+### Subsection Naming
+
+Use descriptive names that convey the actual work being done. Avoid:
+- Generic terms like "Phase", "Task", "Cycle", "Commit", "Step"
+- Numbering (1, 2, 3 or 1.1, 1.2)
+
+**Good**: `**Config Validation**`, `*Extract Proxy Logic*`, `**CLI Integration**`
+**Bad**: `**Phase 1: Setup**`, `*Cycle 2*`, `**Task 1.1**`
+
+The structure itself provides ordering - names should describe content.
+
 ### Top-Level Task Structure
 
 Every major feature or refactor should follow this pattern:
 
 ```markdown
-#### Task X.Y: [Feature Name] (Branch: prefix/branch-name)
+### Task: [Feature Name] (Branch: `prefix/branch-name`)
 
 *Problem Statement: Brief description of what needs solving and why*
 
-**Phase 1: Setup & E2E Definition**
+**Setup & E2E Definition**
 - [ ] `git checkout -b prefix/branch-name`
 - [ ] Create E2E test in `test/e2e/test_feature_name.py`
   - [ ] Test should verify end-to-end functionality
@@ -66,8 +77,8 @@ Every major feature or refactor should follow this pattern:
 - [ ] Update TODO.md and CHANGELOG.md
 - [ ] Commit: `Tst: Add E2E test for feature (skipped)`
 
-**Phase 2: TDD Implementation Cycles**
-[Repeat this cycle for each logical unit of work]
+**TDD Implementation**
+[Repeat for each logical unit of work]
 
 - [ ] Create/modify stub in `path/to/module.py`
 - [ ] Write unit test for `SpecificFunctionality` that fails
@@ -77,16 +88,24 @@ Every major feature or refactor should follow this pattern:
 - [ ] Update TODO.md and CHANGELOG.md
 - [ ] Commit: `Ft: Implement specific functionality`
 
-**Phase 3: Integration & Documentation**
+**Integration & Documentation**
 - [ ] Remove `@pytest.mark.skip` from E2E test
-- [ ] Verify E2E test passes (if not, return to Phase 2)
+- [ ] Verify E2E test passes (if not, continue TDD)
 - [ ] Update relevant documentation in `doc/`
 - [ ] Ensure documentation links are maintained
 - [ ] `uv run ruff check --fix --unsafe-fixes && uv run pytest`
 - [ ] Update TODO.md and CHANGELOG.md
 - [ ] Commit: `Doc: Update documentation for feature`
 
-**Phase 4: PR Creation**
+**Version & Release**
+- [ ] Discuss version bump with project manager (patch/minor/major)
+- [ ] Update version in `pyproject.toml` and `galleria/__main__.py`
+- [ ] For minor/major bumps: migrate CHANGELOG.md entries to `doc/release/X-Y.md`
+  - [ ] Move all timestamped sections to release archive
+  - [ ] Leave only header and format sections in CHANGELOG.md
+- [ ] Commit: `Ft: Bump version to X.Y.Z`
+
+**PR Creation**
 - [ ] `gh pr create --title "Prefix: Feature description" --body "Implementation details"`
 ```
 
@@ -95,11 +114,11 @@ Every major feature or refactor should follow this pattern:
 ### Task Example: Extract Serve Command Logic
 
 ```markdown
-#### Task 1.1: Serve Command Architecture Refactor (Branch: ref/serve)
+### Task: Serve Command Architecture Refactor (Branch: `ref/serve`)
 
 *Problem Statement: Serve command violates separation of concerns by mixing CLI handling with HTTP proxy logic, build orchestration, and server management. This causes test isolation issues and makes the command difficult to test properly.*
 
-**Phase 1: Setup & E2E Definition**
+**Setup & E2E Definition**
 - [ ] `git checkout -b ref/serve`
 - [ ] Create E2E test in `test/e2e/test_serve_refactor.py`
   - [ ] Test that serve command properly delegates to orchestrator
@@ -109,9 +128,9 @@ Every major feature or refactor should follow this pattern:
 - [ ] Update TODO.md and CHANGELOG.md
 - [ ] Commit: `Tst: Add E2E test for serve refactor (skipped)`
 
-**Phase 2: TDD Implementation Cycles**
+**TDD Implementation**
 
-*Cycle 1: Create Serve Orchestrator*
+*Create Serve Orchestrator*
 - [ ] Create stub `serve/orchestrator.py` with `ServeOrchestrator` class
 - [ ] Write unit test for `ServeOrchestrator.start()` that fails
 - [ ] Implement basic orchestrator structure
@@ -119,7 +138,7 @@ Every major feature or refactor should follow this pattern:
 - [ ] Update TODO.md and CHANGELOG.md
 - [ ] Commit: `Ft: Add ServeOrchestrator class structure`
 
-*Cycle 2: Extract Proxy Logic*
+*Extract Proxy Logic*
 - [ ] Write unit test for proxy delegation that fails
 - [ ] Move `SiteServeProxy` to `serve/proxy.py`
 - [ ] Update orchestrator to use extracted proxy
@@ -128,7 +147,7 @@ Every major feature or refactor should follow this pattern:
 - [ ] Update TODO.md and CHANGELOG.md
 - [ ] Commit: `Ref: Extract proxy logic to separate module`
 
-*Cycle 3: Update CLI Command*
+*Simplify CLI Command*
 - [ ] Write unit test for simplified CLI interface that fails
 - [ ] Refactor `cli/commands/serve.py` to only handle:
   - [ ] Argument parsing
@@ -138,7 +157,7 @@ Every major feature or refactor should follow this pattern:
 - [ ] Update TODO.md and CHANGELOG.md
 - [ ] Commit: `Ref: Simplify serve command to CLI-only concerns`
 
-**Phase 3: Integration & Documentation**
+**Integration & Documentation**
 - [ ] Remove `@pytest.mark.skip` from E2E test
 - [ ] Verify E2E test passes
 - [ ] Update `doc/modules/serve/README.md` with new architecture
@@ -148,8 +167,16 @@ Every major feature or refactor should follow this pattern:
 - [ ] Update TODO.md and CHANGELOG.md
 - [ ] Commit: `Doc: Update serve architecture documentation`
 
-**Phase 4: PR Creation**
-- [ ] `gh pr create --title "Ref: Extract serve command business logic" --body "Separates CLI concerns from serve orchestration logic for better testability and maintainability"`
+**Version & Release**
+- [ ] Discuss version bump with project manager (patch/minor/major)
+- [ ] Update version in `pyproject.toml` and `galleria/__main__.py`
+- [ ] For minor/major bumps: migrate CHANGELOG.md entries to `doc/release/X-Y.md`
+  - [ ] Move all timestamped sections to release archive
+  - [ ] Leave only header and format sections in CHANGELOG.md
+- [ ] Commit: `Ft: Bump version to X.Y.Z`
+
+**PR Creation**
+- [ ] `gh pr create --title "Ref: Extract serve command business logic" --body "..."`
 ```
 
 ## Planning Guidelines
