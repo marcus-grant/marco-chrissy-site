@@ -19,6 +19,15 @@ Tasks in this file follow the systematic planning approach defined in [`PLANNING
 - [ ] Research full Bunny.net API cache management capabilities: tag-based purging (<1s global), wildcard patterns (/galleries/wedding/*), individual URL purging, and other API features that might better suit our deployment patterns
 - [ ] Implement `uv run site purge` command with targeted cache invalidation options
 
+### Blocking: Investigate Production Grid Column Issue
+
+- [ ] Production showing 5-column max grid instead of 6 columns
+  - Works correctly after cache purge + browser cache clear on fresh browser
+  - Main Firefox instance still shows 5 columns despite purges
+  - Likely related to 302 vs 301 edge rule status codes causing stale CSS cache
+  - Investigate CDN cache headers and browser caching behavior
+  - May need to prioritize edge rule 301 switch or cache purge command
+
 ### Performance Optimizations
 
 *Split into frontend and backend PRs. Each requires benchmarking before/after using Lighthouse (frontend) and built-in benchmarking (backend). Analyze page sizes, load times, and generation metrics. Full planning for each PR happens separately.*
