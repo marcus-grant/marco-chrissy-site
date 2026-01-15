@@ -133,6 +133,7 @@ doc/benchmark/
 
 - [baseline.md](baseline.md) - Wedding gallery baseline metrics and observations
 - [pagination.md](pagination.md) - Photos-per-page comparison (20, 50, 100, 150, 200, 300, 500)
+- [quality-analysis.md](quality-analysis.md) - WebP quality settings and parallel processing performance
 
 ## Related Documentation
 
