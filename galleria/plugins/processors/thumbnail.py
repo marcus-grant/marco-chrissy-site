@@ -1,6 +1,7 @@
 """Thumbnail processor plugin for generating optimized WebP thumbnails from photo collections."""
 
 import copy
+from concurrent.futures import ProcessPoolExecutor, as_completed
 from pathlib import Path
 
 from galleria.plugins.base import PluginContext, PluginResult
@@ -192,10 +193,9 @@ class ThumbnailProcessorPlugin(ProcessorPlugin):
             use_cache = processor_config.get("use_cache", True)
             output_format = processor_config.get("output_format", "webp")
 
-            # Parallel processing options (used in parallel path below)
+            # Parallel processing options
             parallel = processor_config.get("parallel", False)
             max_workers = processor_config.get("max_workers", None)
-            _ = (parallel, max_workers)  # Mark as intentionally unused until Commit 6
 
             # Create thumbnails directory
             thumbnails_dir = context.output_dir / "thumbnails"
@@ -205,25 +205,56 @@ class ThumbnailProcessorPlugin(ProcessorPlugin):
             processed_photos = []
             thumbnail_count = 0
             processing_errors = []
+            photos = context.input_data["photos"]
 
-            for photo in context.input_data["photos"]:
-                # Process single photo using extracted function
-                processed_photo = _process_single_photo(
-                    photo=photo,
-                    thumbnails_dir=thumbnails_dir,
-                    thumbnail_size=thumbnail_size,
-                    quality=quality,
-                    output_format=output_format,
-                    use_cache=use_cache,
-                )
+            if parallel:
+                # Parallel processing using ProcessPoolExecutor
+                with ProcessPoolExecutor(max_workers=max_workers) as executor:
+                    # Submit all photos to the pool
+                    future_to_photo = {
+                        executor.submit(
+                            _process_single_photo,
+                            photo,
+                            thumbnails_dir,
+                            thumbnail_size,
+                            quality,
+                            output_format,
+                            use_cache,
+                        ): photo
+                        for photo in photos
+                    }
 
-                # Track results
-                if "error" in processed_photo:
-                    processing_errors.append(processed_photo["error"])
-                else:
-                    thumbnail_count += 1
+                    # Collect results as they complete
+                    for future in as_completed(future_to_photo):
+                        processed_photo = future.result()
 
-                processed_photos.append(processed_photo)
+                        # Track results
+                        if "error" in processed_photo:
+                            processing_errors.append(processed_photo["error"])
+                        else:
+                            thumbnail_count += 1
+
+                        processed_photos.append(processed_photo)
+            else:
+                # Sequential processing (default)
+                for photo in photos:
+                    # Process single photo using extracted function
+                    processed_photo = _process_single_photo(
+                        photo=photo,
+                        thumbnails_dir=thumbnails_dir,
+                        thumbnail_size=thumbnail_size,
+                        quality=quality,
+                        output_format=output_format,
+                        use_cache=use_cache,
+                    )
+
+                    # Track results
+                    if "error" in processed_photo:
+                        processing_errors.append(processed_photo["error"])
+                    else:
+                        thumbnail_count += 1
+
+                    processed_photos.append(processed_photo)
 
             # Build output data - preserve all input data and add processor results
             output_data = copy.deepcopy(context.input_data)
