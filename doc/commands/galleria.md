@@ -127,9 +127,16 @@ The configuration file uses a flat format for simplicity:
   "quality": 90,
   "page_size": 20,
   "theme": "minimal",
-  "layout": "grid"
+  "layout": "grid",
+  "parallel": true,
+  "max_workers": 8
 }
 ```
+
+### Performance Options
+
+- **parallel**: Enable parallel thumbnail processing using multiple CPU cores (default: `false`)
+- **max_workers**: Maximum worker processes for parallel processing (default: CPU count)
 
 ## Output Structure
 

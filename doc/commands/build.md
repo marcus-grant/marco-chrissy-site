@@ -90,8 +90,22 @@ The build command skips work when output already exists:
 
 Build command requires existing configuration files:
 - `config/normpic.json` - Photo organization settings
-- `config/galleria.json` - Gallery generation configuration  
+- `config/galleria.json` - Gallery generation configuration
 - `config/pelican.json` - Site generation settings (planned)
+
+### Parallel Thumbnail Processing
+
+Gallery thumbnail generation can use multiple CPU cores for faster builds. Configure in `config/galleria.json`:
+
+```json
+{
+  "parallel": true,
+  "max_workers": 8
+}
+```
+
+- **parallel**: Enable multi-core thumbnail processing (default: `false`)
+- **max_workers**: Worker process count (default: CPU count)
 
 ## Progress Reporting
 
