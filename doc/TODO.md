@@ -25,6 +25,8 @@ must always be respected** when working on this project.
 
 *Split into frontend and backend PRs. Each requires benchmarking before/after using Lighthouse (frontend) and built-in benchmarking (backend). Analyze page sizes, load times, and generation metrics. Full planning for each PR happens separately.*
 
+**Version bump**: Minor version (0.3.0) after both backend and frontend PRs complete.
+
 #### Backend Performance (separate PR)
 
 - [ ] Improve benchmarking infra to collect file sizes, build times
