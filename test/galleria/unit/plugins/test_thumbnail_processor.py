@@ -5,6 +5,7 @@ from pathlib import Path
 from PIL import Image
 
 from galleria.plugins import PluginContext
+from galleria.plugins.processors.thumbnail import _process_single_photo
 
 
 class TestThumbnailProcessorPlugin:
@@ -451,3 +452,180 @@ class TestThumbnailProcessorPlugin:
         # New processor data added
         assert "thumbnail_path" in photo
         assert photo["thumbnail_size"] == (250, 250)
+
+
+class TestProcessSinglePhoto:
+    """Unit tests for _process_single_photo standalone function."""
+
+    def test_process_single_photo_creates_thumbnail(self, tmp_path):
+        """Test that _process_single_photo creates a thumbnail file."""
+        # Arrange: Create test source image
+        source_dir = tmp_path / "source"
+        source_dir.mkdir()
+        img_path = source_dir / "IMG_001.jpg"
+        img = Image.new("RGB", (800, 600), color="red")
+        img.save(img_path, "JPEG")
+
+        thumbnails_dir = tmp_path / "thumbnails"
+        thumbnails_dir.mkdir()
+
+        photo = {
+            "source_path": str(img_path),
+            "dest_path": "test/IMG_001.jpg",
+            "metadata": {"hash": "test123"},
+        }
+
+        # Act
+        result = _process_single_photo(
+            photo=photo,
+            thumbnails_dir=thumbnails_dir,
+            thumbnail_size=200,
+            quality=80,
+            output_format="webp",
+            use_cache=True,
+        )
+
+        # Assert
+        assert "thumbnail_path" in result
+        assert "thumbnail_size" in result
+        assert result["thumbnail_size"] == (200, 200)
+        assert result["cached"] is False
+        assert "error" not in result
+
+        # Verify file exists
+        thumbnail_path = Path(result["thumbnail_path"])
+        assert thumbnail_path.exists()
+        assert thumbnail_path.suffix == ".webp"
+
+    def test_process_single_photo_uses_cache(self, tmp_path):
+        """Test that _process_single_photo uses cached thumbnail when valid."""
+        # Arrange: Create test source image
+        source_dir = tmp_path / "source"
+        source_dir.mkdir()
+        img_path = source_dir / "IMG_001.jpg"
+        img = Image.new("RGB", (800, 600), color="blue")
+        img.save(img_path, "JPEG")
+
+        thumbnails_dir = tmp_path / "thumbnails"
+        thumbnails_dir.mkdir()
+
+        # Create existing thumbnail (older than source won't work, but same time does)
+        existing_thumb = thumbnails_dir / "IMG_001.webp"
+        thumb = Image.new("RGB", (200, 200), color="blue")
+        thumb.save(existing_thumb, "WEBP")
+
+        photo = {
+            "source_path": str(img_path),
+            "dest_path": "test/IMG_001.jpg",
+            "metadata": {},
+        }
+
+        # Act
+        result = _process_single_photo(
+            photo=photo,
+            thumbnails_dir=thumbnails_dir,
+            thumbnail_size=200,
+            quality=80,
+            output_format="webp",
+            use_cache=True,
+        )
+
+        # Assert: Should use cached version
+        assert "thumbnail_path" in result
+        assert result["cached"] is True
+        assert "error" not in result
+
+    def test_process_single_photo_handles_missing_file(self, tmp_path):
+        """Test that _process_single_photo handles missing source file."""
+        thumbnails_dir = tmp_path / "thumbnails"
+        thumbnails_dir.mkdir()
+
+        photo = {
+            "source_path": "/nonexistent/IMG_001.jpg",
+            "dest_path": "test/IMG_001.jpg",
+            "metadata": {},
+        }
+
+        # Act
+        result = _process_single_photo(
+            photo=photo,
+            thumbnails_dir=thumbnails_dir,
+            thumbnail_size=200,
+            quality=80,
+            output_format="webp",
+            use_cache=True,
+        )
+
+        # Assert: Should return error
+        assert "error" in result
+        assert result["source_path"] == "/nonexistent/IMG_001.jpg"
+
+    def test_process_single_photo_handles_corrupted_image(self, tmp_path):
+        """Test that _process_single_photo handles corrupted image."""
+        # Arrange: Create corrupted image file
+        source_dir = tmp_path / "source"
+        source_dir.mkdir()
+        corrupted_img = source_dir / "corrupted.jpg"
+        corrupted_img.write_text("This is not a valid image")
+
+        thumbnails_dir = tmp_path / "thumbnails"
+        thumbnails_dir.mkdir()
+
+        photo = {
+            "source_path": str(corrupted_img),
+            "dest_path": "test/corrupted.jpg",
+            "metadata": {},
+        }
+
+        # Act
+        result = _process_single_photo(
+            photo=photo,
+            thumbnails_dir=thumbnails_dir,
+            thumbnail_size=200,
+            quality=80,
+            output_format="webp",
+            use_cache=True,
+        )
+
+        # Assert: Should return error
+        assert "error" in result
+        assert result["source_path"] == str(corrupted_img)
+
+    def test_process_single_photo_preserves_original_data(self, tmp_path):
+        """Test that _process_single_photo preserves all original photo data."""
+        # Arrange: Create test source image
+        source_dir = tmp_path / "source"
+        source_dir.mkdir()
+        img_path = source_dir / "IMG_001.jpg"
+        img = Image.new("RGB", (800, 600), color="green")
+        img.save(img_path, "JPEG")
+
+        thumbnails_dir = tmp_path / "thumbnails"
+        thumbnails_dir.mkdir()
+
+        photo = {
+            "source_path": str(img_path),
+            "dest_path": "test/IMG_001.jpg",
+            "metadata": {
+                "hash": "abc123",
+                "camera": "Canon EOS R5",
+                "custom_field": "custom_value",
+            },
+        }
+
+        # Act
+        result = _process_single_photo(
+            photo=photo,
+            thumbnails_dir=thumbnails_dir,
+            thumbnail_size=200,
+            quality=80,
+            output_format="webp",
+            use_cache=True,
+        )
+
+        # Assert: Original data preserved
+        assert result["source_path"] == str(img_path)
+        assert result["dest_path"] == "test/IMG_001.jpg"
+        assert result["metadata"]["hash"] == "abc123"
+        assert result["metadata"]["camera"] == "Canon EOS R5"
+        assert result["metadata"]["custom_field"] == "custom_value"

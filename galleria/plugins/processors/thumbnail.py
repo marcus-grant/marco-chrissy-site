@@ -8,6 +8,89 @@ from galleria.plugins.interfaces import ProcessorPlugin
 from galleria.processor.image import ImageProcessingError, ImageProcessor
 
 
+def _process_single_photo(
+    photo: dict,
+    thumbnails_dir: Path,
+    thumbnail_size: int,
+    quality: int,
+    output_format: str,
+    use_cache: bool,
+) -> dict:
+    """Process a single photo to generate a thumbnail.
+
+    This is a standalone function (not a method) to enable pickling
+    for ProcessPoolExecutor parallel processing.
+
+    Args:
+        photo: Photo dict with source_path, dest_path, metadata
+        thumbnails_dir: Directory to write thumbnails to
+        thumbnail_size: Target thumbnail size in pixels
+        quality: WebP quality (0-100)
+        output_format: Output format (e.g., "webp")
+        use_cache: Whether to use cached thumbnails
+
+    Returns:
+        Dict with processed photo data including:
+            - All original photo fields
+            - thumbnail_path: Path to generated thumbnail
+            - thumbnail_size: Tuple of (width, height)
+            - cached: Whether thumbnail was from cache
+            - error: Error message if processing failed (optional)
+    """
+    # Create image processor instance
+    processor = ImageProcessor()
+
+    try:
+        # Copy original photo data to preserve it
+        processed_photo = copy.deepcopy(photo)
+
+        # Extract paths
+        source_path = Path(photo["source_path"])
+        dest_path_obj = Path(photo["dest_path"])
+        thumbnail_name = dest_path_obj.stem + f".{output_format}"
+        thumbnail_path = thumbnails_dir / thumbnail_name
+
+        # Check caching if enabled
+        if use_cache and thumbnail_path.exists():
+            if not processor.should_process(source_path, thumbnail_path):
+                # Use cached thumbnail
+                processed_photo["thumbnail_path"] = str(thumbnail_path)
+                processed_photo["thumbnail_size"] = (thumbnail_size, thumbnail_size)
+                processed_photo["cached"] = True
+                return processed_photo
+
+        # Process thumbnail
+        try:
+            result_path = processor.process_image(
+                source_path=source_path,
+                output_dir=thumbnails_dir,
+                size=thumbnail_size,
+                quality=quality,
+                output_name=thumbnail_name,
+            )
+
+            # Add processor data to photo
+            processed_photo["thumbnail_path"] = str(result_path)
+            processed_photo["thumbnail_size"] = (thumbnail_size, thumbnail_size)
+            processed_photo["cached"] = False
+
+        except ImageProcessingError as e:
+            # Individual photo processing failed
+            processed_photo["error"] = f"Failed to process {source_path}: {e}"
+
+        except Exception as e:
+            # Unexpected error
+            processed_photo["error"] = f"Unexpected error processing {source_path}: {e}"
+
+        return processed_photo
+
+    except Exception as e:
+        # Error processing individual photo metadata
+        error_photo = copy.deepcopy(photo)
+        error_photo["error"] = f"Error processing photo metadata: {e}"
+        return error_photo
+
+
 class ThumbnailProcessorPlugin(ProcessorPlugin):
     """Processor plugin for generating thumbnails from photo collections.
 
@@ -118,80 +201,24 @@ class ThumbnailProcessorPlugin(ProcessorPlugin):
             thumbnail_count = 0
             processing_errors = []
 
-            # Create image processor instance
-            processor = ImageProcessor()
-
             for photo in context.input_data["photos"]:
-                try:
-                    # Copy original photo data to preserve it
-                    processed_photo = copy.deepcopy(photo)
+                # Process single photo using extracted function
+                processed_photo = _process_single_photo(
+                    photo=photo,
+                    thumbnails_dir=thumbnails_dir,
+                    thumbnail_size=thumbnail_size,
+                    quality=quality,
+                    output_format=output_format,
+                    use_cache=use_cache,
+                )
 
-                    # Extract paths
-                    source_path = Path(photo["source_path"])
-                    dest_path_obj = Path(photo["dest_path"])
-                    thumbnail_name = dest_path_obj.stem + f".{output_format}"
-                    thumbnail_path = thumbnails_dir / thumbnail_name
+                # Track results
+                if "error" in processed_photo:
+                    processing_errors.append(processed_photo["error"])
+                else:
+                    thumbnail_count += 1
 
-                    # Check caching if enabled
-                    if use_cache and thumbnail_path.exists():
-                        if processor.should_process(source_path, thumbnail_path):
-                            # Source is newer, need to reprocess
-                            pass
-                        else:
-                            # Use cached thumbnail
-                            processed_photo["thumbnail_path"] = str(thumbnail_path)
-                            processed_photo["thumbnail_size"] = (
-                                thumbnail_size,
-                                thumbnail_size,
-                            )
-                            processed_photo["cached"] = True
-                            thumbnail_count += 1
-                            processed_photos.append(processed_photo)
-                            continue
-
-                    # Process thumbnail
-                    try:
-                        result_path = processor.process_image(
-                            source_path=source_path,
-                            output_dir=thumbnails_dir,
-                            size=thumbnail_size,
-                            quality=quality,
-                            output_name=thumbnail_name,
-                        )
-
-                        # Add processor data to photo
-                        processed_photo["thumbnail_path"] = str(result_path)
-                        processed_photo["thumbnail_size"] = (
-                            thumbnail_size,
-                            thumbnail_size,
-                        )
-                        processed_photo["cached"] = False
-                        thumbnail_count += 1
-
-                    except ImageProcessingError as e:
-                        # Individual photo processing failed
-                        processed_photo["error"] = str(e)
-                        processing_errors.append(
-                            f"Failed to process {source_path}: {e}"
-                        )
-
-                    except Exception as e:
-                        # Unexpected error
-                        processed_photo["error"] = f"Unexpected error: {e}"
-                        processing_errors.append(
-                            f"Unexpected error processing {source_path}: {e}"
-                        )
-
-                    processed_photos.append(processed_photo)
-
-                except Exception as e:
-                    # Error processing individual photo metadata
-                    error_msg = f"Error processing photo metadata: {e}"
-                    processing_errors.append(error_msg)
-                    # Still add photo with error info
-                    error_photo = copy.deepcopy(photo)
-                    error_photo["error"] = error_msg
-                    processed_photos.append(error_photo)
+                processed_photos.append(processed_photo)
 
             # Build output data - preserve all input data and add processor results
             output_data = copy.deepcopy(context.input_data)
